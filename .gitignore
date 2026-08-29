@@ -1,0 +1,23 @@
+# --- Daten (lokal, groß, NICHT committen) ---
+data/raw/
+data/*.db
+data/*.sqlite
+dist/data/*.json
+dist/data/*.json.gz
+
+# --- Build & Cache ---
+dist/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# --- OS/Editor ---
+.DS_Store
+*.swp
+*.swo
+
+# --- Secrets (niemals committen) ---
+.env
+*.key
+*secret*
