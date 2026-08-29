@@ -17,7 +17,7 @@ beantwortet zwei Fragen:
 
 | Spalte | Beschreibung |
 |--------|--------------|
-| **Betreiber** | Name aus dem MaStR (`Anlagenbetreiber`); Badge ⚡=Wind, 🟠=PV, ⚡🟠=beides |
+| **Betreiber** | Name aus dem MaStR (`Anlagenbetreiber`); auf Teil vor Klammern gekürzt, voller Name im Tooltip. **Kein Technik-Badge/Emoji** (Entfernt 2026-08-29) |
 | **Anzahl** | Zahl der Anlagen dieses Betreibers |
 | **Summe MW** | Gesamte Bruttoleistung aller Anlagen (MW) |
 | **Ø MW** | Durchschnittliche Anlagengröße (MW) |
@@ -47,8 +47,8 @@ Klick auf eine **Zeile** → die Karte zeigt nur die Anlagen dieses Betreibers
   Senvion (~1.413 = 4,6 %).
 - Bedienelemente wie bei Betreibern (Top-N, Textfilter mit ✕-Button, Spaltensortierung inkl. Anteil, Standard Summe MW).
 - **Formatierung wie Betreiber-Tabelle:** Anzeigename auf Teil vor Klammern gekürzt (z. B. „ENERCON, Vestas" statt
-  „ENERCON GmbH"), rechtliche Zusätze stehen im Tooltip (title); Wind-Badge „⚡" wie bei Betreibern. Der volle Name
-  bleibt für den Klick-Filter auf der Karte relevant.
+  „ENERCON GmbH"), rechtliche Zusätze stehen im Tooltip (title); **ohne Technik-Badge/Emoji** (einheitlich wie alle
+  Statistik-Tabellen). Der volle Name bleibt für den Klick-Filter auf der Karte relevant.
 - Klick auf eine **Zeile** → Karte zeigt nur die Windanlagen dieses Herstellers.
 
 **Pie-Chart „Verteilung nach Hersteller"** (unter der Tabelle, beim Scrollen sichtbar):
@@ -113,7 +113,7 @@ A right-side overlay panel answering two questions:
 Open via the **“📊 Statistik”** button in the top bar.
 
 ### Operator table
-Columns: **Operator** (name + Wind/PV badges), **Count**, **Sum MW**, **Avg MW**.
+Columns: **Operator** (name truncated before parentheses, no tech badge), **Count**, **Sum MW**, **Avg MW**.
 Controls: technology filter, Top-N (10/50/100/All), live text filter, and click-to-sort
 columns (default: Sum MW desc). Clicking a row filters the map to that operator’s plants.
 

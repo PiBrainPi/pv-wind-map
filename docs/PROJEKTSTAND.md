@@ -11,7 +11,8 @@ in Betrieb**, aus dem Marktstammdatenregister (MaStR, BNetzA). Klickbare Single-
 - **Datenbasis:** Wind 32.144 (31.114 georeferenziert) · PV 22.371 (22.368 georeferenziert)
   → **53.482 Anlagen auf der Karte**. Betreiber: 23.216.
 - **Schwellen (final):** Wind ≥100 kW, PV ≥0,5 MWp (beide 2026-08-29 durch Nutzer-Wunsch gesenkt).
-- **HEAD:** `5583654` (PV ≥0,5 MWp) + nicht committete Änderungen: Betreiber-Suche, Hersteller-Formatierung, Doku.
+- **HEAD:** `4a39fff` (Popup-Deeplinks Koordinaten/Betreiber) — Vorgänger: `456c113` (Betreiber-Suche),
+  `5583654` (PV ≥0,5 MWp). Uncommittet: Badge-Removal + „(Google Maps öffnen)"-Hinweis-Entfernung (siehe Unten).
 - **Klickbare Datei:** `dist/index_singlefile.html` (24,9 MB) + Kopie im Austauschordner
   `/home/claw_01_rasbpi5_1/hermes_human-share/PV-Wind-Karte_MaStR.html`.
 
@@ -20,9 +21,12 @@ in Betrieb**, aus dem Marktstammdatenregister (MaStR, BNetzA). Klickbare Single-
 - **Suche mit Autocomplete:** Anlagen-, Park-, Gemeinde- **und Betreibername** (akzent-/case-unabhängig).
 - **⛁ Betreiber-Suche:** Suchtext im Betreibernamen → ein Klick filtert **alle** Anlagen aller
   gematchten Betreiber (deutschlandweit, Fit-Bounds). Beispiel: „CEE" → 60 Betreiber/184 Anlagen.
-- **Statistik-Panel:** Betreiber-Tabelle (Filter/Top-N/Sortierung, Klick → Karte), Hersteller-Tabelle
-  (nur Wind, +%Anteil-Spalte, Formatierung wie Betreiber), Größenklassen-Diagramm (Wind/PV),
-  Hersteller-Verteilungs-Donut-Chart (interaktiv, Canvas).
+- **Popup-Deeplinks:** Anlagen-Popup enthält „Koordinaten" (Dezimalgrad) → öffnet **Google Maps**
+  an der Anlage (Deeplink `maps?api=1&query=lat,lon`); „Betreiber" → öffnet **NorthData**-Firmenprofil
+  (Deeplink `northdata.de/<Firmenname-Slug>`; MaStR-typischer Vollbreite-Ampersand ＆ wird auf `&` normalisiert).
+- **Statistik-Panel:** Betreiber-Tabelle (Filter/Top-N/Sortierung, Klick → Karte; **ohne** Technik-Badge/Emoji),
+  Hersteller-Tabelle (nur Wind, +%Anteil-Spalte, Formatierung wie Betreiber, **ohne** Badge),
+  Größenklassen-Diagramm (Wind/PV), Hersteller-Verteilungs-Donut-Chart (interaktiv, Canvas).
 
 ## Build (Ein-Befehl)
 ```bash
