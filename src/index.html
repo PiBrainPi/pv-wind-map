@@ -15,13 +15,60 @@
 html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
 #map { height:100%; width:100%; }
 
-/* Info-Bar oben */
+/* Info-Bar oben (Mitte) */
 #infobar {
   position:absolute; top:10px; left:50%; transform:translateX(-50%);
   z-index:1000; background:#fff; padding:6px 16px; border-radius:20px;
   box-shadow:0 2px 8px rgba(0,0,0,.15); font-size:13px; color:#333;
   white-space:nowrap; pointer-events:none;
 }
+
+/* Top-Bar oben rechts (Suchbereich, ~20% der Karte einnehmend) */
+#topbar {
+  position:absolute; top:10px; right:10px;
+  width:320px; max-width:calc(100vw - 30px);
+  z-index:1000;
+}
+#topbar-inner {
+  background:#fff; border-radius:10px;
+  box-shadow:0 3px 14px rgba(0,0,0,.18);
+  padding:10px 12px;
+}
+#search-wrapper { position:relative; }
+#search-input {
+  font-size:14px; padding:9px 12px; border:1px solid #ccc; border-radius:8px;
+  width:100%; box-sizing:border-box;
+}
+#search-input:focus { outline:none; border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.15); }
+#search-suggest {
+  position:absolute; top:100%; left:0; right:0; z-index:2000;
+  background:#fff; border:1px solid #ccc; border-top:none; border-radius:0 0 8px 8px;
+  max-height:340px; overflow-y:auto; display:none;
+  box-shadow:0 6px 20px rgba(0,0,0,.2);
+}
+#search-suggest.open { display:block; }
+#search-suggest .sug-item {
+  padding:9px 12px; cursor:pointer; border-bottom:1px solid #f0f0f0;
+  display:flex; justify-content:space-between; align-items:center; gap:8px;
+  font-size:13px;
+}
+#search-suggest .sug-item:last-child { border-bottom:none; border-radius:0 0 8px 8px; }
+#search-suggest .sug-item:hover, #search-suggest .sug-item.active { background:#dbeafe; }
+#search-suggest .sug-item b { color:#2563eb; }
+#search-suggest .sug-item .sug-meta { color:#888; font-size:11px; white-space:nowrap; }
+#topbar-hits {
+  font-size:11px; color:#888; margin-top:4px; padding:0 2px;
+}
+
+/* Filter unten links (kompakt, wie bisher) */
+#toolbar {
+  position:absolute; bottom:30px; left:10px; z-index:1000;
+  background:#fff; padding:6px 10px; border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,.15); font-size:13px;
+  display:flex; gap:6px; align-items:center; flex-wrap:wrap;
+}
+#toolbar label { color:#555; font-size:11px; }
+#toolbar select { font-size:12px; padding:2px 5px; border:1px solid #ccc; border-radius:4px; }
 
 /* Legende unten rechts */
 #legend {
@@ -35,37 +82,6 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .dot-pv   { background:#d97706; }
 #legend small { display:block; color:#888; font-size:11px; margin-top:4px; }
 
-/* Toolbar unten links (Filter) */
-#toolbar {
-  position:absolute; bottom:30px; left:10px; z-index:1000;
-  background:#fff; padding:8px 12px; border-radius:8px;
-  box-shadow:0 2px 8px rgba(0,0,0,.15); font-size:13px;
-  display:flex; gap:8px; align-items:center; flex-wrap:wrap; max-width:calc(100% - 40px);
-}
-#toolbar label { color:#555; font-size:12px; }
-#toolbar select { font-size:13px; padding:3px 6px; border:1px solid #ccc; border-radius:4px; }
-
-/* Suchfeld + Vorschläge */
-#search-wrapper { position:relative; }
-#search-input {
-  font-size:13px; padding:5px 8px; border:1px solid #ccc; border-radius:4px;
-  width:220px; max-width:56vw;
-}
-#search-input:focus { outline:none; border-color:#2563eb; box-shadow:0 0 0 2px rgba(37,99,235,.15); }
-#search-suggest {
-  position:absolute; top:100%; left:0; right:0; z-index:2000;
-  background:#fff; border:1px solid #ccc; border-radius:0 0 6px 6px;
-  max-height:280px; overflow-y:auto; display:none; box-shadow:0 4px 12px rgba(0,0,0,.18);
-}
-#search-suggest.open { display:block; }
-#search-suggest .sug-item {
-  padding:6px 10px; cursor:pointer; border-bottom:1px solid #f0f0f0;
-  display:flex; justify-content:space-between; align-items:center; gap:8px;
-}
-#search-suggest .sug-item:hover, #search-suggest .sug-item.active { background:#eef3ff; }
-#search-suggest .sug-item b { color:#2563eb; }
-#search-suggest .sug-item .sug-meta { color:#888; font-size:11px; white-space:nowrap; }
-
 /* Popup */
 .leaflet-popup-content { font-size:13px; line-height:1.5; max-height:350px; overflow-y:auto; }
 .leaflet-popup-content h3 { font-size:14px; margin-bottom:4px; }
@@ -74,25 +90,39 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .leaflet-popup-content td:first-child { color:#888; width:40%; }
 
 @media (max-width:600px) {
-  #infobar { font-size:11px; padding:4px 10px; }
-  #legend { font-size:11px; padding:6px 10px; min-width:100px; }
+  #infobar { font-size:11px; padding:4px 10px; top:64px; }
+  #legend { font-size:11px; padding:6px 10px; min-width:100px; bottom:70px; }
   #toolbar { font-size:11px; padding:4px 8px; flex-wrap:wrap; }
+  #topbar { top:8px; right:8px; width:calc(100vw - 16px); max-width:none; }
+  #topbar-inner { padding:8px 10px; }
+  #search-input { font-size:14px; padding:8px 10px; }
+  #search-suggest { max-height:280px; }
 }
 </style>
 </head>
 <body>
 <div id="map"></div>
 <div id="infobar">Lade Daten…</div>
-<div id="toolbar">
-  <div id="search-wrapper">
-    <input type="text" id="search-input" placeholder="Suche Anlage… z.B. Döll" autocomplete="off">
-    <div id="search-suggest"></div>
+
+<!-- Obere Leiste oben rechts: Suche (prominent) -->
+<div id="topbar">
+  <div id="topbar-inner">
+    <div id="search-wrapper">
+      <input type="text" id="search-input" placeholder="Suche Anlage… z.B. Döll" autocomplete="off">
+      <div id="search-suggest"></div>
+    </div>
+    <div id="topbar-hits" style="display:none">0 Treffer · <span id="topbar-result"></span></div>
   </div>
+</div>
+
+<!-- Filter unten links -->
+<div id="toolbar">
   <label>Typ</label>
   <select id="filter-type"><option value="">Alle</option><option value="wind">Wind</option><option value="pv">PV</option></select>
   <label>Bundesland</label>
   <select id="filter-bl"><option value="">Alle</option></select>
 </div>
+
 <div id="legend">
   <span class="dot dot-wind"></span> Wind (≥1 MW)<br>
   <span class="dot dot-pv"></span> PV (≥1 MWp)<br>
@@ -251,7 +281,12 @@ function highlightName(name, q) {
 
 function showSuggest(hits) {
   const box = document.getElementById('search-suggest');
-  if (!hits.length) { box.classList.remove('open'); box.innerHTML=''; return; }
+  const hitsEl = document.getElementById('topbar-hits');
+  const resultEl = document.getElementById('topbar-result');
+  if (!hits.length) {
+    box.classList.remove('open'); box.innerHTML='';
+    hitsEl.style.display='none'; return;
+  }
   const q = document.getElementById('search-input').value;
   box.innerHTML = hits.slice(0,8).map((h, i) => {
     const u = h.u;
@@ -265,9 +300,15 @@ function showSuggest(hits) {
   box.querySelectorAll('.sug-item').forEach(el => {
     el.onclick = () => selectSuggestion(parseInt(el.dataset.i));
   });
+  // Trefferzahl anzeigen
+  hitsEl.style.display='block';
+  resultEl.textContent = hits.length > 8 ? hits.length + ' Treffer (zeige 8)' : hits.length + ' Treffer';
 }
 
-function closeSuggest() { document.getElementById('search-suggest').classList.remove('open'); }
+function closeSuggest() {
+  document.getElementById('search-suggest').classList.remove('open');
+  document.getElementById('topbar-hits').style.display='none';
+}
 
 let _activeSuggest = -1;
 function selectSuggestion(i) {
