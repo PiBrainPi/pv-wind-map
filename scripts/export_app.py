@@ -154,8 +154,9 @@ def build_statistiken(db) -> dict:
             })
 
     totals = {
-        "wind_anzahl": sum(x["anzahl"] for x in betreiber_list if x["tech"]["wind"]),
-        "pv_anzahl": sum(x["anzahl"] for x in betreiber_list if x["tech"]["pv"]),
+        "wind_anzahl": db.execute("SELECT COUNT(*) FROM einheiten WHERE geolokation=1 AND energietraeger_id=2497").fetchone()[0],
+        "pv_anzahl": db.execute("SELECT COUNT(*) FROM einheiten WHERE geolokation=1 AND energietraeger_id=2495").fetchone()[0],
+        "herstellbar_wind": sum(x["anzahl"] for x in hersteller_list),
         "total_anzahl": db.execute("SELECT COUNT(*) FROM einheiten WHERE geolokation=1").fetchone()[0],
         "wind_max_mw": maxima["wind"],
         "pv_max_mw": maxima["pv"],

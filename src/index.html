@@ -119,6 +119,18 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .stats-controls select, .stats-controls input {
   font-size:13px; padding:5px 8px; border:1px solid #ccc; border-radius:6px;
 }
+/* Textfilter mit ✕-Löschbutton (wie in der Karten-Suche) */
+.filter-wrap { position:relative; flex:1 1 140px; min-width:120px; }
+.filter-wrap input {
+  width:100%; box-sizing:border-box; padding:5px 26px 5px 8px;
+}
+.filter-x-clear {
+  position:absolute; right:4px; top:50%; transform:translateY(-50%);
+  width:20px; height:20px; border:none; background:#e5e7eb; color:#4b5563;
+  border-radius:5px; font-size:12px; line-height:1; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; padding:0;
+}
+.filter-x-clear:hover { background:#d1d5db; color:#111827; }
 .stats-controls input { flex:1; min-width:120px; }
 #stats-table { width:100%; border-collapse:collapse; font-size:13px; }
 #stats-table th, #stats-table td { padding:7px 8px; border-bottom:1px solid #eee; text-align:left; }
@@ -136,6 +148,28 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af;
   border-radius:8px; padding:6px 10px; font-size:12px; margin-bottom:8px;
 }
+
+/* Hersteller: Verteilungs-Pie-Chart */
+#hersteller-chart-section { margin-top:18px; padding-top:14px; border-top:1px dashed #e5e7eb; }
+#hersteller-chart-section h3 { font-size:14px; color:#111827; margin-bottom:4px; }
+#hersteller-chart-wrap { display:flex; gap:16px; align-items:center; margin:10px 0 8px; }
+#hersteller-pie {
+  width:200px; height:200px; border-radius:50%; flex-shrink:0;
+  position:relative; box-shadow:0 2px 8px rgba(0,0,0,.12);
+  cursor:pointer; background:#fbfdff;
+}
+#hersteller-pie-side { flex:1; font-size:12px; }
+#hersteller-pie-side .pie-legend-row {
+  display:flex; align-items:center; gap:6px; padding:3px 0; cursor:pointer;
+}
+#hersteller-pie-side .pie-legend-row .swatch { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
+#hersteller-pie-side .pie-legend-row .pl-name { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#hersteller-pie-side .pie-legend-row .pl-val { color:#6b7280; }
+#hersteller-pie-side .pie-legend-row:hover { background:#f3f4f6; }
+#hersteller-pie-note { font-size:11px; color:#9ca3af; }
+
+/* Anteil-Spalte in der Hersteller-Tabelle */
+#hersteller-table td.pct { font-weight:600; color:#2563eb; }
 
 /* Größenklassen-Balken (professionell mit Achsen) */
 #groesse-header {
@@ -349,7 +383,10 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
           <option value="100">Top 100</option>
           <option value="all">Alle</option>
         </select>
-        <input type="text" id="stats-filter" placeholder="Betreiber filtern…">
+        <div class="filter-wrap">
+          <input type="text" id="stats-filter" placeholder="Betreiber filtern…">
+          <button type="button" id="stats-filter-clear" class="filter-x-clear" title="Filter löschen" aria-label="Filter löschen" style="display:none">✕</button>
+        </div>
       </div>
       <table id="stats-table">
         <thead>
@@ -374,13 +411,17 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
           <option value="50" selected>Top 50</option>
           <option value="all">Alle</option>
         </select>
-        <input type="text" id="hersteller-filter" placeholder="Hersteller filtern…">
+        <div class="filter-wrap">
+          <input type="text" id="hersteller-filter" placeholder="Hersteller filtern…">
+          <button type="button" id="hersteller-filter-clear" class="filter-x-clear" title="Filter löschen" aria-label="Filter löschen" style="display:none">✕</button>
+        </div>
       </div>
       <table id="hersteller-table">
         <thead>
           <tr>
             <th data-key="name">Hersteller</th>
             <th data-key="anzahl" class="num">Anzahl</th>
+            <th data-key="pct" class="num">Anteil</th>
             <th data-key="sum_mw" class="num">Summe MW</th>
             <th data-key="avg_mw" class="num">Ø MW</th>
           </tr>
@@ -388,6 +429,14 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         <tbody id="hersteller-tbody"></tbody>
       </table>
       <div id="hersteller-count"></div>
+      <div id="hersteller-chart-section">
+        <h3>Verteilung nach Hersteller</h3>
+        <div id="hersteller-chart-wrap">
+          <canvas id="hersteller-pie" width="200" height="200"></canvas>
+          <div id="hersteller-pie-side"></div>
+        </div>
+        <div id="hersteller-pie-note"></div>
+      </div>
     </section>
 
     <!-- Größenklassen-Ansicht -->
@@ -794,7 +843,10 @@ function initStats() {
   });
   // Hersteller-Controls
   document.getElementById('hersteller-top').addEventListener('change', e => { _statsState.herstellerTop = e.target.value; renderHersteller(); });
-  document.getElementById('hersteller-filter').addEventListener('input', e => { _statsState.herstellerFilter = e.target.value; renderHersteller(); });
+  document.getElementById('hersteller-filter').addEventListener('input', function(e) { _statsState.herstellerFilter = e.target.value; this.nextElementSibling.style.display = this.value ? 'block' : 'none'; renderHersteller(); });
+  document.getElementById('hersteller-filter-clear').addEventListener('click', function() {
+    const f = document.getElementById('hersteller-filter'); f.value = ''; _statsState.herstellerFilter = ''; this.style.display = 'none'; renderHersteller(); f.focus();
+  });
   document.querySelectorAll('#hersteller-table th').forEach(th => {
     th.addEventListener('click', () => {
       const key = th.dataset.key;
@@ -810,7 +862,10 @@ function initStats() {
   // Betreiber-Controls
   document.getElementById('stats-tech').addEventListener('change', e => { _statsState.tech = e.target.value; renderBetreiber(); });
   document.getElementById('stats-top').addEventListener('change', e => { _statsState.top = e.target.value; renderBetreiber(); });
-  document.getElementById('stats-filter').addEventListener('input', e => { _statsState.filter = e.target.value; renderBetreiber(); });
+  document.getElementById('stats-filter').addEventListener('input', function(e) { _statsState.filter = e.target.value; this.nextElementSibling.style.display = this.value ? 'block' : 'none'; renderBetreiber(); });
+  document.getElementById('stats-filter-clear').addEventListener('click', function() {
+    const f = document.getElementById('stats-filter'); f.value = ''; _statsState.filter = ''; this.style.display = 'none'; renderBetreiber(); f.focus();
+  });
   // Sortierung (Th-Klick)
   document.querySelectorAll('#stats-table th').forEach(th => {
     th.addEventListener('click', () => {
@@ -928,7 +983,7 @@ function selectBetreiber(name) {
 function renderHersteller() {
   const tbody = document.getElementById('hersteller-tbody');
   if (!_stats || !_stats.hersteller) {
-    tbody.innerHTML = '<tr><td colspan="4">Keine Hersteller-Daten</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5">Keine Hersteller-Daten</td></tr>';
     return;
   }
   let rows = [..._stats.hersteller];
@@ -937,6 +992,8 @@ function renderHersteller() {
   if (nf) {
     rows = rows.filter(h => norm(h.name).includes(nf));
   }
+  const gesamtBase = (_stats.gesamt && (_stats.gesamt.herstellbar_wind || _stats.gesamt.wind_anzahl)) || 1;
+  rows.forEach(h => { h.pct = gesamtBase ? Math.round(1000 * h.anzahl / gesamtBase) / 10 : 0; });
   // Sortierung
   const key = _statsState.herstellerSortKey;
   rows.sort((a, b) => {
@@ -956,9 +1013,10 @@ function renderHersteller() {
     <tr data-hersteller="${esc(h.name)}">
       <td class="name" title="${esc(h.name)}">${esc(h.name)}</td>
       <td class="num">${h.anzahl}</td>
+      <td class="num pct">${h.pct.toLocaleString('de-DE', {maximumFractionDigits:1})}%</td>
       <td class="num">${h.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:0})}</td>
       <td class="num">${h.avg_mw.toLocaleString('de-DE', {maximumFractionDigits:1})}</td>
-    </tr>`).join('') || '<tr><td colspan="4">Keine Treffer</td></tr>';
+    </tr>`).join('') || '<tr><td colspan="5">Keine Treffer</td></tr>';
   // Klick auf Zeile -> Karte zeigt nur Anlagen dieses Herstellers
   tbody.querySelectorAll('tr[data-hersteller]').forEach(tr => {
     tr.addEventListener('click', () => selectHersteller(tr.dataset.hersteller));
@@ -969,7 +1027,9 @@ function renderHersteller() {
     if (th.dataset.key === _statsState.herstellerSortKey) th.classList.add(_statsState.herstellerSortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
   });
   document.getElementById('hersteller-count').textContent =
-    `${rows.length} angezeigt von ${total} Herstellern`;
+    `${rows.length} angezeigt von ${total} Herstellern · Basis ${gesamtBase.toLocaleString('de-DE')} Windanlagen`;
+
+  renderHerstellerChart(rows, gesamtBase);
 }
 
 // Hersteller auf der Karte filtern (nur Windanlagen)
@@ -981,6 +1041,134 @@ function selectHersteller(name) {
   document.getElementById('search-input').value = `Hersteller: ${name} (${matching.length} Anlagen)`;
   document.getElementById('search-clear').style.display = 'block';
   closeStats();
+}
+
+const PIE_COLORS = ['#2563eb','#16a34a','#f59e0b','#dc2626','#7c3aed','#0891b2','#db2777','#65a30d','#ea580c','#4f46e5','#64748b'];
+
+// Interaktives Pie-Chart: Verteilung der Hersteller-Anlagen in % an der Basis
+function renderHerstellerChart(rows, base) {
+  const canvas = document.getElementById('hersteller-pie');
+  const side = document.getElementById('hersteller-pie-side');
+  const note = document.getElementById('hersteller-pie-note');
+  if (!rows.length) { canvas.innerHTML = ''; side.innerHTML = ''; note.textContent = 'Keine Daten'; return; }
+
+  // Top-10 für das Pie + "Übrige" zusammenfassen
+  const top = rows.slice(0, 10);
+  const restSum = rows.slice(10).reduce((s, h) => s + h.anzahl, 0);
+  const segs = top.map(h => ({ name: h.name, anzahl: h.anzahl, pct: 100 * h.anzahl / base }));
+  if (restSum > 0) segs.push({ name: 'Übrige Hersteller', anzahl: restSum, pct: 100 * restSum / base });
+  const totalSeg = segs.reduce((s, e) => s + e.anzahl, 0);
+
+  // maxwidth/height 200 (aus CSS)
+  const size = 200, cx = size/2, cy = size/2, R = size/2 - 4;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = size * dpr; canvas.height = size * dpr;
+  canvas.style.width = size + 'px'; canvas.style.height = size + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, size, size);
+
+  // Ring (Donut): innerer Radius für Loch
+  const rIn = R * 0.55, rOut = R;
+  let start = -Math.PI / 2;
+  const seg = [];
+
+  segs.forEach((s, i) => {
+    const sweep = 2 * Math.PI * s.anzahl / totalSeg;
+    const idx = i % PIE_COLORS.length;
+    seg.push({ ...s, color: PIE_COLORS[idx], start, sweep });
+    ctx.beginPath();
+    ctx.arc(cx, cy, rOut, start, start + sweep);
+    ctx.arc(cx, cy, rIn, start + sweep, start, true);
+    ctx.closePath();
+    ctx.fillStyle = PIE_COLORS[idx];
+    ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+    start += sweep;
+  });
+
+  // nur Top-10 (+Übrige) im Pie; Hover auf einem Segment
+  let hoverIdx = -1;
+  function drawHover() {
+    ctx.clearRect(0, 0, size, size);
+    let a = -Math.PI / 2;
+    seg.forEach((s, i) => {
+      ctx.beginPath();
+      ctx.arc(cx, cy, i === hoverIdx ? rOut + 6 : rOut, a, a + s.sweep);
+      ctx.arc(cx, cy, rIn, a + s.sweep, a, true);
+      ctx.closePath();
+      ctx.fillStyle = s.color;
+      ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = i === hoverIdx ? 3 : 1.5; ctx.stroke();
+      a += s.sweep;
+    });
+    // zentrale Zahl im Loch
+    ctx.fillStyle = '#111827'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = 'bold 17px system-ui, sans-serif';
+    ctx.fillText(totalSeg.toLocaleString('de-DE'), cx, cy - 6);
+    ctx.font = '11px system-ui, sans-serif'; ctx.fillStyle = '#6b7280';
+    ctx.fillText('Anlagen', cx, cy + 12);
+  }
+  function angleOf(e) {
+    const rect = canvas.getBoundingClientRect();
+    const px = e.clientX - rect.left - rect.width/2;
+    const py = e.clientY - rect.top - rect.height/2;
+    let ang = Math.atan2(py, px);
+    if (ang < -Math.PI/2) ang += 2 * Math.PI;
+    return ang;
+  }
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const dx = e.clientX - rect.left - rect.width/2;
+    const dy = e.clientY - rect.top - rect.height/2;
+    const dist = Math.hypot(dx, dy);
+    if (dist < rect.width/2 * rIn / rOut || dist > rect.width/2) { if (hoverIdx !== -1) { hoverIdx = -1; drawHover(); sideHighlight(-1); } return; }
+    let ang = angleOf(e);
+    let idx = -1;
+    for (let i = 0; i < seg.length; i++) {
+      let s0 = seg[i].start, s1 = s0 + seg[i].sweep;
+      let a0 = s0; while (a0 < -Math.PI/2) a0 += 2*Math.PI;
+      let a1 = a0 + seg[i].sweep;
+      // normalisieren
+      let aa = ang < a0 - 0.001 ? ang + 2*Math.PI : ang;
+      if (aa >= a0 && aa <= a1) { idx = i; break; }
+    }
+    if (idx !== hoverIdx) { hoverIdx = idx; drawHover(); sideHighlight(idx); }
+  });
+  canvas.addEventListener('mouseleave', () => { if (hoverIdx !== -1) { hoverIdx = -1; drawHover(); sideHighlight(-1); } });
+  drawHover(); // initial rendern (mit zentraler Zahl)
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const dx = e.clientX - rect.left - rect.width/2;
+    const dy = e.clientY - rect.top - rect.height/2;
+    const dist = Math.hypot(dx, dy);
+    if (dist < rect.width/2 * rIn / rOut) return;
+    let ang = angleOf(e);
+    for (let i = 0; i < seg.length; i++) {
+      let a0 = seg[i].start; while (a0 < -Math.PI/2) a0 += 2*Math.PI;
+      let a1 = a0 + seg[i].sweep;
+      let aa = ang < a0 - 0.001 ? ang + 2*Math.PI : ang;
+      if (aa >= a0 && aa <= a1) { if (seg[i].name !== 'Übrige Hersteller') selectHersteller(seg[i].name); break; }
+    }
+  });
+
+  // Legende rechts
+  side.innerHTML = seg.map((s, i) => `
+    <div class="pie-legend-row" data-i="${i}">
+      <span class="swatch" style="background:${s.color}"></span>
+      <span class="pl-name" title="${esc(s.name)}">${esc(s.name)}</span>
+      <span class="pl-val">${s.anzahl.toLocaleString('de-DE')} · ${s.pct.toLocaleString('de-DE',{maximumFractionDigits:1})}%</span>
+    </div>`).join('');
+  function sideHighlight(idx) {
+    side.querySelectorAll('.pie-legend-row').forEach((r, i) => r.style.background = i === idx ? '#eef2ff' : '');
+  }
+  side.querySelectorAll('.pie-legend-row').forEach(r => {
+    r.addEventListener('mouseenter', () => { hoverIdx = parseInt(r.dataset.i,10); drawHover(); sideHighlight(hoverIdx); });
+    r.addEventListener('mouseleave', () => { hoverIdx = -1; drawHover(); sideHighlight(-1); });
+    r.addEventListener('click', () => { const i = parseInt(r.dataset.i,10); if (i < seg.length && seg[i].name !== 'Übrige Hersteller') selectHersteller(seg[i].name); });
+  });
+
+  note.textContent = `Anteil jedes Herstellers an allen ${base.toLocaleString('de-DE')} Windanlagen mit Herstellerangabe · Top 10 einzeln, Rest zusammengefasst · Hover oder Legenden-Klick für Details.`;
 }
 
 // ----- Größenklassen-Balken (professionell mit Achsen) -----
@@ -1044,7 +1232,7 @@ function renderGroesse() {
         </div>
         <span class="bar-value">${countLabel}</span>
       </div>
-      <div class="bar-label"><span class="bar-klasse">${esc(k.label)}</span><small> MW</small><span class="bar-sublabel">${measure==='anzahl' ? 'Summe: ' + amountLabel : 'Anlagen: ' + amountLabel}</span></div>
+      <div class="bar-label"><span class="bar-klasse">${esc(k.label)}</span><small> MW</small><span class="bar-sublabel">${measure==='anzahl' ? 'Summe: ' + amountLabel : 'Anlagen: ' + k.anzahl.toLocaleString('de-DE')}</span></div>
     </div>`;
   }).join('');
 
