@@ -25,8 +25,9 @@ in Betrieb**, aus dem Marktstammdatenregister (MaStR, BNetzA). Klickbare Single-
   an der Anlage (Deeplink `maps?api=1&query=lat,lon`); „Betreiber" → öffnet **NorthData**-Firmenprofil
   (Deeplink `northdata.de/<Firmenname-Slug>`; MaStR-typischer Vollbreite-Ampersand ＆ wird auf `&` normalisiert).
 - **Statistik-Panel:** Betreiber-Tabelle (Filter/Top-N/Sortierung, Klick → Karte; **ohne** Technik-Badge/Emoji),
-  Hersteller-Tabelle (nur Wind, +%Anteil-Spalte, Formatierung wie Betreiber, **ohne** Badge),
-  Größenklassen-Diagramm (Wind/PV), Hersteller-Verteilungs-Donut-Chart (interaktiv, Canvas).
+  Hersteller-Tabelle (nur Wind, +%Anteil-Spalte, **identische CSS-Formatierung wie Betreiber** — Schrift/Farbe/
+  Kopfzeilen/Hover/Sortierpfeile, **ohne** Badge), Größenklassen-Diagramm (Wind/PV),
+  Hersteller-Verteilungs-Donut-Chart (interaktiv, Canvas).
 
 ## Build (Ein-Befehl)
 ```bash

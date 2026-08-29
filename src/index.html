@@ -185,6 +185,19 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 /* Anteil-Spalte in der Hersteller-Tabelle */
 #hersteller-table td.pct { font-weight:600; color:#2563eb; }
 
+/* Hersteller-Tabelle: identische Formatierung wie die Betreiber-Tabelle (#stats-table) —
+   Schriftgröße, Zellpadding, Kopfzeilen-Hintergrund, Sortier-Pfeile, Hover, Namens-Ellipsis */
+#hersteller-table { width:100%; border-collapse:collapse; font-size:13px; }
+#hersteller-table th, #hersteller-table td { padding:7px 8px; border-bottom:1px solid #eee; text-align:left; }
+#hersteller-table th { background:#f7f9fc; color:#333; cursor:pointer; user-select:none; }
+#hersteller-table th.num, #hersteller-table td.num { text-align:right; white-space:nowrap; }
+#hersteller-table th.sorted-asc::after { content:" ▲"; color:#2563eb; font-size:10px; }
+#hersteller-table th.sorted-desc::after { content:" ▼"; color:#2563eb; font-size:10px; }
+#hersteller-table tbody tr { cursor:pointer; }
+#hersteller-table tbody tr:hover { background:#eef3ff; }
+#hersteller-table td.name { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#hersteller-count { margin-top:8px; font-size:12px; color:#888; }
+
 /* Größenklassen-Balken (professionell mit Achsen) */
 #groesse-header {
   display:flex; justify-content:space-between; align-items:center; gap:8px;

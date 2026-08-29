@@ -46,9 +46,11 @@ Klick auf eine **Zeile** → die Karte zeigt nur die Anlagen dieses Betreibers
   Vestas (~6.404 = 20,7 %), Nordex (~2.091 = 6,8 %), Siemens Wind Power (~1.465 = 4,7 %),
   Senvion (~1.413 = 4,6 %).
 - Bedienelemente wie bei Betreibern (Top-N, Textfilter mit ✕-Button, Spaltensortierung inkl. Anteil, Standard Summe MW).
-- **Formatierung wie Betreiber-Tabelle:** Anzeigename auf Teil vor Klammern gekürzt (z. B. „ENERCON, Vestas" statt
-  „ENERCON GmbH"), rechtliche Zusätze stehen im Tooltip (title); **ohne Technik-Badge/Emoji** (einheitlich wie alle
-  Statistik-Tabellen). Der volle Name bleibt für den Klick-Filter auf der Karte relevant.
+- **Formatierung wie Betreiber-Tabelle (identisches CSS):** Schriftgröße 13px, Zellpadding 7px 8px,
+  Kopfzeilen-Hintergrund `#f7f9fc` + Klick-Cursor, rechtbündige Zahlen, Sortier-Pfeile ▲▼ (blau, bei Klick),
+  Zeilen-Hover `#eef3ff`, Namens-Ellipsis in der ersten Spalte. Anzeigename auf Teil vor Klammern gekürzt
+  (z. B. „ENERCON, Vestas" statt „ENERCON GmbH"), rechtliche Zusätze im Tooltip (title); **ohne Technik-Badge/Emoji**.
+  Der volle Name bleibt für den Klick-Filter auf der Karte relevant.
 - Klick auf eine **Zeile** → Karte zeigt nur die Windanlagen dieses Herstellers.
 
 **Pie-Chart „Verteilung nach Hersteller"** (unter der Tabelle, beim Scrollen sichtbar):
