@@ -63,6 +63,20 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #search-suggest .sug-item:hover, #search-suggest .sug-item.active { background:#dbeafe; }
 #search-suggest .sug-item b { color:#2563eb; }
 #search-suggest .sug-item .sug-meta { color:#888; font-size:11px; white-space:nowrap; }
+/* Dedizierter Betreiber-Suchtreffer (alle Anlagen des Betreibers auf der Karte) */
+#search-suggest .sug-betreiber {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px; cursor:pointer;
+  border-bottom:1px solid #e5e7eb; border-radius:8px 8px 0 0;
+  background:linear-gradient(180deg,#eff6ff,#f8fafc);
+  font-size:13px;
+}
+#search-suggest .sug-betreiber:hover { background:#dbeafe; }
+#search-suggest .sug-betreiber-icon { font-size:16px; color:#2563eb; flex-shrink:0; }
+#search-suggest .sug-betreiber-txt { flex:1; line-height:1.3; }
+#search-suggest .sug-betreiber-txt b { color:#1e40af; }
+#search-suggest .sug-betreiber-txt small { color:#64748b; }
+#search-suggest .sug-betreiber .sug-meta { color:#2563eb; font-size:15px; }
 #topbar-hits {
   font-size:11px; color:#888; margin-top:4px; padding:0 2px;
 }
@@ -637,7 +651,7 @@ function searchIndex() {
     const park = u.park || u.wp || '';
     return {
       u,
-      hay: norm([u.n, park, u.g].join(' ')),
+      hay: norm([u.n, park, u.g, u.ab].join(' ')),   // inkl. Betreibername (u.ab)
       matches: [] // gefüllte Match-Stellen (offsetSets)
     };
   });
@@ -663,6 +677,40 @@ function searchUnits(q) {
   return hits;
 }
 
+// Eindeutige Betreiber, deren Name die normalisierte Zeichenkette enthält
+function searchBetreiber(nq) {
+  const byName = new Map();
+  for (const u of allUnits) {
+    if (!u.ab) continue;
+    const key = u.ab;
+    const e = byName.get(key) || { name: key, count: 0 };
+    e.count += 1;
+    byName.set(key, e);
+  }
+  const found = [];
+  for (const b of byName.values()) {
+    if (norm(b.name).includes(nq)) found.push(b);
+  }
+  return found.sort((a, b) => b.count - a.count);
+}
+
+// Alle Anlagen der Betreiber, deren Name den Suchtext enthält, auf der Karte ausgeben
+function selectBetreiberSearch(q) {
+  const nq = norm(q);
+  const matching = allUnits.filter(u => u.ab && norm(u.ab).includes(nq));
+  if (!matching.length) return;
+  renderMarkers(matching);
+  map.fitBounds(matching.map(u => [u.lat, u.lon]), { padding: [30, 30] });
+  const betreiber = [...new Set(matching.map(u => u.ab))];
+  const label = betreiber.length > 1
+    ? `Betreiber enthält „${q}": ${betreiber.length} Betreiber · ${matching.length} Anlagen`
+    : `Betreiber: ${betreiber[0]} (${matching.length} Anlagen)`;
+  document.getElementById('search-input').value = label;
+  document.getElementById('search-clear').style.display = 'block';
+  closeSuggest();
+  closeStats();
+}
+
 function highlightName(name, q) {
   const nq = norm(q);
   if (!nq) return esc(name);
@@ -683,26 +731,46 @@ function showSuggest(hits) {
   const box = document.getElementById('search-suggest');
   const hitsEl = document.getElementById('topbar-hits');
   const resultEl = document.getElementById('topbar-result');
-  if (!hits.length) {
+  const q = document.getElementById('search-input').value;
+  const nq = norm(q);
+
+  // Dedizierter Betreiber-Treffer: alle Anlagen, deren Betreibername den Suchtext enthält
+  const abHits = nq.length >= 2 ? searchBetreiber(nq) : [];
+  let html = '';
+  if (abHits.length) {
+    const totalUnits = abHits.reduce((s, b) => s + b.count, 0);
+    html += `<div class="sug-betreiber" data-absearch="${esc(q)}" title="Alle Anlagen dieser Betreiber auf der Karte anzeigen">
+      <span class="sug-betreiber-icon">⛁</span>
+      <span class="sug-betreiber-txt"><b>Betreiber: ${esc(q)}</b><br><small>${abHits.length} Betreiber · ${totalUnits} Anlagen in ganz Deutschland — alle anzeigen</small></span>
+      <span class="sug-meta">→</span></div>`;
+  }
+
+  if (!hits.length && !abHits.length) {
     box.classList.remove('open'); box.innerHTML='';
     hitsEl.style.display='none'; return;
   }
-  const q = document.getElementById('search-input').value;
-  box.innerHTML = hits.slice(0,8).map((h, i) => {
+
+  const anlagen = hits.slice(0,8).map((h, i) => {
     const u = h.u;
     const meta = [u.mw + ' MW' + (u.t==='pv'?'p':''), u.g].filter(Boolean).join(' · ');
     return `<div class="sug-item ${i===0?'active':''}" data-i="${i}">
       <span>${highlightName(u.n, q)}</span>
       <span class="sug-meta">${esc(meta)}</span></div>`;
   }).join('');
+
+  box.innerHTML = html + anlagen;
   box.classList.add('open');
+  // Klick auf Betreiber-Treffer -> alle Anlagen der gematchten Betreiber auf der Karte
+  const abBtn = box.querySelector('[data-absearch]');
+  if (abBtn) abBtn.onclick = () => selectBetreiberSearch(q);
   // Klick auf Vorschlag
   box.querySelectorAll('.sug-item').forEach(el => {
     el.onclick = () => selectSuggestion(parseInt(el.dataset.i));
   });
   // Trefferzahl anzeigen
+  const totalHits = hits.length + (abHits.length ? 1 : 0);
   hitsEl.style.display='block';
-  resultEl.textContent = hits.length > 8 ? hits.length + ' Treffer (zeige 8)' : hits.length + ' Treffer';
+  resultEl.textContent = totalHits > 8 ? totalHits + ' Treffer (zeige 8)' : totalHits + ' Treffer';
 }
 
 function closeSuggest() {
@@ -1008,10 +1076,10 @@ function renderHersteller() {
   if (_statsState.herstellerTop !== 'all') {
     rows = rows.slice(0, parseInt(_statsState.herstellerTop, 10));
   }
-  // Render
+  // Render (Formatierung analog Betreiber-Tabelle: Name vor Klammern + Wind-Badge)
   tbody.innerHTML = rows.map(h => `
     <tr data-hersteller="${esc(h.name)}">
-      <td class="name" title="${esc(h.name)}">${esc(h.name)}</td>
+      <td class="name" title="${esc(h.name)}">${esc(h.name.split(')')[0].split('(')[0].trim())} ⚡</td>
       <td class="num">${h.anzahl}</td>
       <td class="num pct">${h.pct.toLocaleString('de-DE', {maximumFractionDigits:1})}%</td>
       <td class="num">${h.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:0})}</td>

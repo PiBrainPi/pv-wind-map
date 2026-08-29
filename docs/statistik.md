@@ -41,11 +41,14 @@ Klick auf eine **Zeile** → die Karte zeigt nur die Anlagen dieses Betreibers
 | **Summe MW / Ø MW** | wie bei Betreibern |
 
 - **Nur Windkraftanlagen** — das MaStR enthält **keine** Herstellerangaben für PV
-  (verifiziert: 0 von 9.589 PV-Anlagen). Hinweis-Feld im Tab erklärt das.
+  (verifiziert: 0 von 22.368 PV-Anlagen). Hinweis-Feld im Tab erklärt das.
 - **63 Hersteller** über 30.947 Windanlagen (99,5 % mit Angabe). Top: ENERCON (~12.354 = 39,9 %),
   Vestas (~6.404 = 20,7 %), Nordex (~2.091 = 6,8 %), Siemens Wind Power (~1.465 = 4,7 %),
   Senvion (~1.413 = 4,6 %).
 - Bedienelemente wie bei Betreibern (Top-N, Textfilter mit ✕-Button, Spaltensortierung inkl. Anteil, Standard Summe MW).
+- **Formatierung wie Betreiber-Tabelle:** Anzeigename auf Teil vor Klammern gekürzt (z. B. „ENERCON, Vestas" statt
+  „ENERCON GmbH"), rechtliche Zusätze stehen im Tooltip (title); Wind-Badge „⚡" wie bei Betreibern. Der volle Name
+  bleibt für den Klick-Filter auf der Karte relevant.
 - Klick auf eine **Zeile** → Karte zeigt nur die Windanlagen dieses Herstellers.
 
 **Pie-Chart „Verteilung nach Hersteller"** (unter der Tabelle, beim Scrollen sichtbar):
@@ -117,7 +120,7 @@ columns (default: Sum MW desc). Clicking a row filters the map to that operator�
 ### Manufacturer table (wind only) + share pie-chart
 Columns **Manufacturer / Count / Share / Sum MW / Avg MW** and the same controls (Top-N, text filter with ✕,
 sorting incl. share). Share = % of all wind plants with a manufacturer entry (base 30,947).
-**Wind only** — MaStR carries no manufacturer data for PV (verified: 0 of 9,589 PV plants).
+**Wind only** — MaStR carries no manufacturer data for PV (verified: 0 of 22,368 PV plants).
 63 manufacturers over 30,947 wind turbines (99.5% with an entry). Clicking a row filters the map
 to that manufacturer’s turbines.
 

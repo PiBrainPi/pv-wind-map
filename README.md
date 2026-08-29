@@ -10,8 +10,12 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
 
 - 🗺️ Interaktive Karte (Leaflet) mit automatischem Clustering — Deutschland-Übersicht bis Einzelpunkt
 - 🔍 **Suche mit Autocomplete:** Tippe Teil eines Anlagenamen ein (z. B. „Döllen") → Vorschläge ab
-  2 Zeichen; sucht auch im Solarpark-/Windpark- und Gemeindenamen, akzent-/groß-/klein-unabhängig
+  2 Zeichen; sucht auch im Solarpark-/Windpark-, Gemeinde- **und Betreibernamen**, akzent-/groß-/klein-unabhängig
   („dol" findet „Döllen"). Auswahl per Klick oder Pfeiltasten+Enter → Fly-to + Popup. ✕-Button leert die Suche.
+- ⛁ **Betreiber-Suche:** Gib einen Text ein, der im Betreibernamen vorkommt (z. B. „CEE") → oben im Dropdown
+  erscheint „Betreiber: N Betreiber · M Anlagen in ganz Deutschland — alle anzeigen". Ein Klick filtert **alle**
+  Anlagen aller Betreiber, deren Name den Text enthält (auch über ganz Deutschland verteilt), und zeigt sie
+  gebündelt auf der Karte (Fit-Bounds). Ideal für Konzerne/SPVs mit mehreren Assets.
 - 🎯 Klick auf Anlage → Detail-Popup mit allen MaStR-Daten (MaStR-Nr., Leistung, Standort, Netzbetreiber,
   Betreiber, wind-/PV-spezifische Felder)
 - 🔍 Filter nach Typ (Wind/PV) und Bundesland (inkl. Offshore)
@@ -73,6 +77,7 @@ bash scripts/build.sh   # fetch + import + export + bundle in einem Schritt
 - [ANFORDERUNGEN.md](ANFORDERUNGEN.md) – Anforderungen (A1–A11)
 - [ENTSCHEIDUNGEN.md](ENTSCHEIDUNGEN.md) – Architektur-Entscheidungen
 - [PLAN.md](PLAN.md) – 30-Schritt-Plan
+- [docs/PROJEKTSTAND.md](docs/PROJEKTSTAND.md) – **aktueller Projektstand (Handover für neue Sessions)**
 - [docs/](docs/) – detaillierte Doku (Architektur, Datenmodell, Update, Hosting, Fehlerbehebung, Statistik)
 
 ## Lizenz
