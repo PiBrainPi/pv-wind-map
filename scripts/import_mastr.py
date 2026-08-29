@@ -119,12 +119,31 @@ def as_float(r, key):
 
 
 def to_mw(r, et_id: int) -> float | None:
+    """Normalisiert die Bruttoleistung auf MW.
+
+    MaStR-Einheiten sind inkonsistent (empirisch verifiziert an den Rohdaten):
+      - PV:   Bruttoleistung in kWp   -> durch 1000 (z. B. 1617 = 1.6 MWp)
+      - Wind: Mischung! Moderne Anlagen wie V236-15MW (=15000), SWT-6.0-154
+              (=6300), E-126 (=7580) werden in kW geliefert; alte kleine Anlagen
+              (V47=660, E-53=800, N43=600) ebenfalls kW. Nur sehr wenige Einträge
+              liegen bereits in MW vor (z. B. 3.0, 4.5, 2.3).
+      Heuristik: Wert > 80 -> kW (durch 1000); Wert <= 80 -> MW (bereits).
+      Begründung Schwellwert 80: reale Einzel-WEA liegen zwischen 1 und ~16 MW
+      (MW-Werte also 1..16) ODER als kW zwischen ~81 und 15000. Einzelne kW-Werte
+      <80 (z. B. 0-80) kommen als MW vor (2.3 MW). Der Schwellwert 80 trennt
+      eindeutig kW (>80) von MW (<=80). Werte 81-99 als "MW" (z. B. 95, 100)
+      sind falsch etikettierte kW-Kleinstanlagen und werden korrekt als kW
+      behandelt und anschließend (<1 MW) aussortiert.
+    """
     v = as_float(r, "Bruttoleistung")
     if v is None:
         return None
-    if et_id == 2495:   # PV: kWp -> MW
+    if et_id == 2495:             # PV: kWp -> MW
         return round(v / 1000.0, 4)
-    return round(v, 4)  # Wind: MW
+    # Wind: Mischung kW/MW. Wert > 80 -> kW, sonst MW (siehe Docstring).
+    if v > 80:
+        return round(v / 1000.0, 4)   # kW -> MW
+    return round(v, 4)               # bereits MW
 
 
 def make_row(r: dict, et_id: int, et_name: str):
@@ -179,16 +198,29 @@ def main() -> None:
     placeholders = ",".join("?" * ncols)
     psql = f"INSERT OR REPLACE INTO einheiten ({INSERT_COLS}) VALUES ({placeholders})"
 
+    pv_inserted = 0
+    wind_inserted = 0
+    wind_filtered_lt1mw = 0
     for r in pv:
         db.execute(psql, make_row(r, 2495, "Solare Strahlungsenergie"))
+        pv_inserted += 1
     for r in wind:
+        mw = to_mw(r, 2497)
+        # Anforderung: Wind >= 1 MW (nach Einheiten-Normalisierung).
+        # durch die gemischten kW/MW-Werte müssen wir hier nachfiltern.
+        if mw is not None and mw < 1.0:
+            wind_filtered_lt1mw += 1
+            continue
         db.execute(psql, make_row(r, 2497, "Wind"))
+        wind_inserted += 1
 
     now = datetime.now().isoformat(timespec="seconds")
-    db.execute("INSERT INTO metadaten VALUES (?,?)", ("stand", now))
-    db.execute("INSERT INTO metadaten VALUES (?,?)", ("quelle", "Marktstammdatenregister (BNetzA), öffentlich"))
+    db.execute("INSERT OR REPLACE INTO metadaten VALUES (?,?)", ("stand", now))
+    db.execute("INSERT OR REPLACE INTO metadaten VALUES (?,?)", ("quelle", "Marktstammdatenregister (BNetzA), öffentlich"))
+    db.execute("INSERT OR REPLACE INTO metadaten VALUES (?,?)", ("einheiten_pv", str(pv_inserted)))
+    db.execute("INSERT OR REPLACE INTO metadaten VALUES (?,?)", ("einheiten_wind", str(wind_inserted)))
     db.execute("INSERT INTO update_log (timestamp,pv_count,wind_count,notes) VALUES (?,?,?,?)",
-               (now, len(pv), len(wind), "Initialimport"))
+               (now, pv_inserted, wind_inserted, f"Initialimport (Wind <1MW gefiltert: {wind_filtered_lt1mw})"))
 
     db.commit()
     rows = db.execute("SELECT energietraeger_name, COUNT(*) FROM einheiten GROUP BY energietraeger_name").fetchall()
@@ -197,6 +229,7 @@ def main() -> None:
     for name, cnt in rows:
         print(f"  {name}: {cnt}")
     print(f"  davon mit Geolokation: {geolok}")
+    print(f"  Wind (<1 MW nach Normalisierung weggefiltert): {wind_filtered_lt1mw}")
     db.close()
 
 

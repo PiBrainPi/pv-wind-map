@@ -44,12 +44,15 @@ python3 scripts/bundle_singlefile.py
 
 ## Datenbasis & Abgrenzung
 
-| Kategorie | Umfang |
-|-----------|--------|
-| **Wind** | ≥ 1 MW (Bruttoleistung in MW), Status „In Betrieb“ |
-| **Photovoltaik** | ≥ 1 MWp (Bruttoleistung in kWp), Status „In Betrieb“ |
-| **Geolokation** | nur Anlagen MIT vorhandenen Koordinaten im MaStR (kein Geocoding) |
-| **Quelle** | Marktstammdatenregister (MaStR), BNetzA, öffentliche Daten |
+| Kategorie | Umfang | In DB | Mit Geolokation |
+|-----------|--------|-------|-----------------|
+| **Wind** | ≥ 1 MW (nach Einheiten-Normalisierung MW), Status „In Betrieb“ | 27.397 | 26.586 |
+| **Photovoltaik** | ≥ 1 MWp (Bruttoleistung ≥ 1000 kWp), Status „In Betrieb“ | 9.591 | 9.589 |
+| **Gesamt** | | **36.988** | **36.175** |
+
+- **Geolokation**: nur Anlagen MIT vorhandenen Koordinaten im MaStR (kein Geocoding)
+- **Einheiten-Hinweis**: MaStR liefert PV in kWp und Wind gemischt (kW/MW) — der Import normalisiert auf MW (Details: docs/datenmodell.md)
+- **Quelle**: Marktstammdatenregister (MaStR), BNetzA, öffentliche Daten
 
 ## Dokumentation
 

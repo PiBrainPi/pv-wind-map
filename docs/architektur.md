@@ -1,0 +1,83 @@
+# Architektur — PV & Wind Karte (MaStR)
+
+> Stand: 2026-08-29 · Zweisprachig (DE / EN unten)
+
+## Überblick (DE)
+
+Das Projekt ist eine **statische, offline-fähige Web-App** (eine HTML-Datei) plus eine
+**Python-Pipeline**, die die Daten aus dem Marktstammdatenregister (MaStR) der
+Bundesnetzagentur lädt, bereinigt, in eine lokale SQLite-Datenbank importiert und in
+ein kompaktes JSON-Format für die Karte exportiert.
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌──────────────────┐    ┌──────────────┐
+│ MaStR (BNetzA)  │───▶│  fetch_mastr.py  │───▶│  import_mastr.py │───▶│  SQLite DB   │
+│ öffentl. JSON   │    │  (Roh-JSON)      │    │  (Normalisierung)│    │  mastr.db    │
+└─────────────────┘    └──────────────────┘    └──────────────────┘    └──────┬───────┘
+                                                                               │
+                                                     export_app.py             │
+                                                     bundle_singlefile.py      ▼
+                                               ┌─────────────────────────┐  ┌──────────┐
+                                               │ src/index.html          │  │ dist/    │
+                                               │ (Leaflet + MarkerCluster)│  │ hostbar  │
+                                               └─────────────────────────┘  └──────────┘
+```
+
+### Komponenten
+
+| Komponente | Datei | Zweck |
+|------------|-------|-------|
+| **MaStR-API** | `https://www.marktstammdatenregister.de/MaStR/Einheit/EinheitJson/GetErweiterteOeffentlicheEinheitStromerzeugung` | Öffentlicher JSON-Endpoint (ohne Login). |
+| **Download** | `scripts/fetch_mastr.py` | Paginierte Abfrage, Robustheit (Retry, Rate-Limit), Ausgabe `data/raw/{wind,pv}.json`. |
+| **Import** | `scripts/import_mastr.py` | SQLite-Schema, Einheiten-Normalisierung, ≥1-MW-Filter, `data/mastr.db`. |
+| **Export** | `scripts/export_app.py` | SQLite → kompaktes JSON für Karte (`dist/assets/*.json`), nur Anlagen mit Geolokation. |
+| **App** | `src/index.html` | Leaflet-Karte + MarkerCluster + Filter + Detail-Popups. |
+| **Bundle** | `scripts/bundle_singlefile.py` | Erzeugt `dist/index_singlefile.html` (Daten eingebettet, direkt klickbar). |
+| **Build** | `scripts/build.sh` | Ein-Befehl-Build (Export + Kopieren). |
+
+### Datenfluss-Details
+
+1. **fetch_mastr.py** fragt die MaStR-API mit Filter ab:
+   - Wind: `Energieträger~eq~2497~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~1`
+   - PV:   `Energieträger~eq~2495~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~999`
+   - Pagination mit `page`/`pageSize`, `chunkedLoading`-freundlich.
+2. **import_mastr.py** normalisiert und speichert in SQLite.
+3. **export_app.py** wählt nur Anlagen mit `geolokation=1` und schreibt die schlanken Karten-Datensätze.
+4. **src/index.html** lädt die Daten (eingebettet aus Single-File ODER per `fetch()` im hostbaren Modus) und rendert Leaflet-Cluster.
+
+### Warum zwei Ausgabeformen?
+
+- **dist/index.html + assets/**: hostbar (GitHub Pages, eigener Server) — Daten per `fetch()`.
+- **dist/index_singlefile.html**: eine einzige Datei mit eingebetteten Daten — doppelklick-fähig ab `file://`.
+  (Hinweis: fetch() ab `file://` ist wegen CORS gesperrt, daher werden die Daten für die
+  Single-File direkt eingebettet.)
+
+---
+
+## Overview (EN)
+
+A **static, offline-capable web app** (single HTML file) plus a **Python pipeline** that
+fetches data from the German Marktstammdatenregister (MaStR), cleans it, imports it into a
+local SQLite database, and exports it as compact JSON for the map.
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| MaStR API | `GetErweiterteOeffentlicheEinheitStromerzeugung` | Public JSON endpoint (no login). |
+| Download  | `scripts/fetch_mastr.py` | Paginated fetch, error handling, retry. |
+| Import    | `scripts/import_mastr.py` | SQLite schema, unit normalization, ≥1 MW filter. |
+| Export    | `scripts/export_app.py` | SQLite → compact JSON (geo-only). |
+| App       | `src/index.html`   | Leaflet map + MarkerCluster + filters + popups. |
+| Bundle    | `scripts/bundle_singlefile.py` | Single self-contained HTML (embedded data). |
+| Build     | `scripts/build.sh` | One-command build. |
+
+### Data flow
+
+1. `fetch_mastr.py` queries the MaStR API with filters (Wind/PV, "In Betrieb", ≥1 MW).
+2. `import_mastr.py` normalizes (kW↔MW, dates) and stores into SQLite.
+3. `export_app.py` selects only geolocated units and writes compact JSON.
+4. `src/index.html` renders Leaflet clusters (embedded data or fetch()).
+
+### Two output forms
+
+- `dist/index.html` + `assets/` → hostable (GitHub Pages, own server).
+- `dist/index_singlefile.html` → single file with embedded data, opens from `file://`.

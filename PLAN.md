@@ -1,8 +1,22 @@
 # 30-Schritt-Plan — PV & Wind Karte (MaStR)
 
-> Stand: 2026-08-29 · Status: Entwurf zur Freigabe
+> Stand: 2026-08-29 · Status: **in Umsetzung — V1 weitgehend fertig**
 > Ziel: Interaktive, hostbare HTML-Karte aller deutschen Wind- & PV-Anlagen
 > aus dem Marktstammdatenregister, mit lokaler Datenbasis und Update-Pipeline.
+
+## Fortschritt
+
+**Abgeschlossen (V1):** Schritte 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17,
+21, 22, 24, 25, 26, 28 (teilw.), 29 (teilw.)
+
+**Ergebnis V1:** funktionierende Karten-App (Leaflet + MarkerCluster) mit 36.175
+georeferenzierten Anlagen (26.586 Wind ≥1 MW + 9.589 PV ≥1 MWp), Single-File
+`dist/index_singlefile.html` (direkt klickbar) und hostbarer Version in `dist/`.
+Pipeline: `fetch → import → export → bundle`. Doku zweisprachig in `docs/`.
+
+**Noch offen:** Feinschliff-QA (Schritt 20), Cron-Live Einrichtung (Teil von 21/23),
+Hosting live schalten (Schritt 27 — nur vorbereitet, bewusst nicht live), vollständige
+Fremdverifikation (Schritt 28/29), Launch (Schritt 30).
 
 ## Phasenübersicht
 

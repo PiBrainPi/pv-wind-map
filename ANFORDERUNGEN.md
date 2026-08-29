@@ -29,13 +29,23 @@ mit allen relevanten Stammdaten pro Anlage.
 
 - Betreiber: Bundesnetzagentur
 - Web: https://www.marktstammdatenregister.de
-- Zugangswege (zu evaluieren, Schritt 4 des Plans):
-  1. **Öffentliche JSON-Endpunkte** (z. B. `EinheitJson/GetErweiterteOeffentlicheEinheitStromerzeugung`) — paginiert, filterbar, kein Login.
-  2. **Kompletter Datenexport** (XML, öffentlich, ohne Anmeldung) — groß, eher für Einmal-Initialisierung.
-  3. **Webdienst (SOAP/API)** — mit Registrierung & Key, gegenwärtig nicht geplant.
-- Wichtige Rahmenbedingungen:
-  - Viele PV-Anlagen (v. a. Dachanlagen) haben **keine Koordinaten** im MaStR (nur Gemeinde/PLZ/Straße).
-  - Die Anzahl der Anlagen ist sehr groß (Mio. PV-Einträge) → Skalierung & Clustering nötig.
+- Zugangswege:
+  1. **Öffentliche JSON-Endpunkte** (z. B. `EinheitJson/GetErweiterteOeffentlicheEinheitStromerzeugung`) — paginiert, filterbar, kein Login. **Gewählt.**
+  2. Kompletter Datenexport (XML) — für Einmal-Initialisierung möglich, aber unnötig groß.
+  3. Webdienst (SOAP/API) mit Key — nicht nötig.
+
+### Wichtige Daten-Fakten (verifiziert, Details in docs/datenmodell.md)
+
+- **Einheiten-Konvention:** PV-Bruttoleistung in **kWp**; Wind **gemischt** (kW/MW).
+  → Import normalisiert auf **MW** (Heuristik: PV /1000; Wind >80 → /1000).
+- Selektionsfilter (final):
+  - Wind: `Energieträger~eq~2497~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~1`
+  - PV:   `Energieträger~eq~2495~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~999`
+- **Anzahl (Import 2026-08-29):** Wind ≥1 MW = 27.397 (26.586 mit Geolokation);
+  PV ≥1 MWp = 9.591 (9.589 mit Geolokation). Gesamt darstellbar = 36.175 Anlagen.
+- Viele PV-Dachanlagen (klein) haben keine Koordinaten — bewusst nur ≥1 MWp betrachtet.
+- Filter-Operatoren der API: `~eq~`, `~and~`, `~gt~` (nur `gt` für Zahlen funktioniert zuverlässig);
+  Feld-/Filter-Namen sind lokalisiert (mit Umlauten, z. B. „Energieträger").
 
 ## 4. Umfang & Abgrenzung (final)
 

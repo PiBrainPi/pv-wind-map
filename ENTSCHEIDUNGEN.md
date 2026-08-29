@@ -17,8 +17,22 @@
 4. **Update-Rhythmus (2026-08-29):** **Manuell** auslösbar; Pipeline so gebaut, dass daraus **jederzeit ein Cronjob** entstehen kann.
    - Begründung: Volle Kontrolle erstmal; Automatisierung als Option vorbereitet (Skript als Einstiegsbefehl ohne Interaktion).
 
-## Verbleibende Detailfragen (während Umsetzung)
+5. **Kartentechnologie (2026-08-29):** **Leaflet + MarkerCluster** gewählt (statt PMTiles).
+   - Begründung: Datenvolumen ~36 k Punkte ist für Leaflet + Clustering ideal beherrschbar;
+     hostbar als statische Site; Single-File möglich. Kein Vektortiling nötig für V1.
 
-- Skalierung/Data-Menge der hostbaren App: Clustering-Strategie (Leaflet vs. PMTiles) — Entscheidung in Phase C (Schritt 12).
-- Exakte MaStR-Quelle (JSON-Endpunkt vs. XML-Komplettdownload) — Entscheidung in Schritt 4 nach Größen-/Strukturvergleich.
-- Remote-Feldliste für Frontend minimal halten (nur Kartendaten + Popup).
+## Wichtige Daten-Erkenntnisse (aus Umsetzung)
+
+6. **MaStR-Einheiten inkonsistent:** PV-Bruttoleistung in **kWp**; Wind **gemischt**
+   (kW für moderne/große Anlagen wie V236-15MW=15000, aber auch alte wie V47=660;
+   wenige in MW). → Import normalisiert auf **MW** mit Heuristik `>80 → kW`.
+   (siehe docs/datenmodell.md). Erst festgestellt, nachdem erste Summen absurd waren
+   (Wind „avg 2556 MW"); mit korrekter Normalisierung avg ≈ 3.4 MW.
+6. **Filter-Operator:** Für Zahlenfilter funktioniert nur `~gt~` zuverlässig
+   (`~gte~`/`~ge~`/`>=` schlagen fehl). Feldnamen lokalisiert (Umlaute).
+7. **PV-Datenmenge:** MaStR enthält ~6,4 Mio. PV-Einträge (davon ~4,85 Mio. Dachanlagen).
+   Die ≥1-MWp-Grenze reduziert auf ~10,5 k in Betrieb — entscheidend für das Design
+   (sonst wären Download & Karte unpraktikabel).
+
+Die zuvor offenen Detailfragen (Clustering-Strategie, MaStR-Quelle, schlanke
+Remote-Feldliste) sind alle in den Entscheidungen 4–7 bzw. in docs/ dokumentiert.
