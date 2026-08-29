@@ -15,6 +15,8 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
 - 🎯 Klick auf Anlage → Detail-Popup mit allen MaStR-Daten (MaStR-Nr., Leistung, Standort, Netzbetreiber,
   Betreiber, wind-/PV-spezifische Felder)
 - 🔍 Filter nach Typ (Wind/PV) und Bundesland (inkl. Offshore)
+- 📊 **Statistik-Panel:** Betreiber-Tabelle (Name/Anzahl/Summe MW/Ø MW) mit Filter, Top-N & Sortierung;
+  Größenklassen-Balken je Technologie von 1 MW bis max. (Wind/PV); Klick auf Betreiber-Zeile filtert die Karte
 
 ---
 

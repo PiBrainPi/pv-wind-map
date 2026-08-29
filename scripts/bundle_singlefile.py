@@ -27,8 +27,13 @@ def main() -> None:
 
     data_js = "window.__PVWIND_DATA__ = " + json.dumps(units, ensure_ascii=False, separators=(",", ":")) + ";"
     meta_js = "window.__PVWIND_META__ = " + json.dumps(meta, ensure_ascii=False, separators=(",", ":")) + ";"
+    try:
+        stats = json.loads((DIST / "assets" / "statistiken.json").read_text(encoding="utf-8"))
+        stats_js = "window.__PVWIND_STATS__ = " + json.dumps(stats, ensure_ascii=False, separators=(",", ":")) + ";"
+    except FileNotFoundError:
+        stats_js = "window.__PVWIND_STATS__ = null;"
 
-    injection = f"<script>\n{data_js}\n{meta_js}\n</script>\n"
+    injection = f"<script>\n{data_js}\n{meta_js}\n{stats_js}\n</script>\n"
     # Daten-Skript VOR dem Haupt-App-Script einfügen (sonst ist window.__PVWIND_DATA__
     # beim init()-Aufruf noch nicht definiert). Anker: CSS-Block der App.
     anchor = "<style>\n* { margin:0;"

@@ -30,8 +30,8 @@ ein kompaktes JSON-Format für die Karte exportiert.
 | **MaStR-API** | `https://www.marktstammdatenregister.de/MaStR/Einheit/EinheitJson/GetErweiterteOeffentlicheEinheitStromerzeugung` | Öffentlicher JSON-Endpoint (ohne Login). |
 | **Download** | `scripts/fetch_mastr.py` | Paginierte Abfrage, Robustheit (Retry, Rate-Limit), Ausgabe `data/raw/{wind,pv}.json`. |
 | **Import** | `scripts/import_mastr.py` | SQLite-Schema, Einheiten-Normalisierung, ≥1-MW-Filter, `data/mastr.db`. |
-| **Export** | `scripts/export_app.py` | SQLite → kompaktes JSON für Karte (`dist/assets/*.json`), nur Anlagen mit Geolokation. |
-| **App** | `src/index.html` | Leaflet-Karte + MarkerCluster + Filter + Detail-Popups. |
+| **Export** | `scripts/export_app.py` | SQLite → kompaktes JSON für Karte (`dist/assets/*.json`) + Statistik (`statistiken.json`), nur Anlagen mit Geolokation. |
+| **App** | `src/index.html` | Leaflet-Karte + MarkerCluster + Filter + Detail-Popups + **Statistik-Panel**. |
 | **Bundle** | `scripts/bundle_singlefile.py` | Erzeugt `dist/index_singlefile.html` (Daten eingebettet, direkt klickbar). |
 | **Build** | `scripts/build.sh` | Ein-Befehl-Build (Export + Kopieren). |
 

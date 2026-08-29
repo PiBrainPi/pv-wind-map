@@ -67,6 +67,90 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   font-size:11px; color:#888; margin-top:4px; padding:0 2px;
 }
 
+/* Statistik-Button in Top-Bar */
+#topbar-actions { margin-top:6px; display:flex; justify-content:flex-end; }
+#btn-stats {
+  font-size:13px; padding:6px 14px; border:1px solid #2563eb; background:#2563eb;
+  color:#fff; border-radius:8px; cursor:pointer; font-weight:600;
+}
+#btn-stats:hover { background:#1d4ed8; }
+
+/* Overlay */
+#stats-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:1500;
+  display:none; opacity:0; transition:opacity .2s;
+}
+#stats-overlay.open { display:block; opacity:1; }
+
+/* Sidebar */
+#stats-panel {
+  position:fixed; top:0; right:-460px; width:440px; max-width:94vw; height:100%;
+  background:#fff; z-index:1600; box-shadow:-4px 0 24px rgba(0,0,0,.3);
+  display:flex; flex-direction:column;
+  transition:right .25s ease; border-radius:12px 0 0 12px;
+}
+#stats-panel.open { right:0; }
+#stats-header {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 18px; border-bottom:1px solid #eee;
+}
+#stats-header h2 { font-size:18px; margin:0; }
+#stats-close {
+  width:30px; height:30px; border:none; background:#e5e7eb; color:#4b5563;
+  border-radius:8px; font-size:15px; cursor:pointer;
+}
+#stats-close:hover { background:#fca5a5; color:#991b1b; }
+
+/* Tabs */
+#stats-tabs { display:flex; gap:4px; padding:10px 18px 0; border-bottom:1px solid #eee; }
+#stats-tabs .tab {
+  flex:1; padding:9px; border:1px solid #ddd; border-bottom:none; border-radius:8px 8px 0 0;
+  background:#f5f5f5; color:#555; font-size:13px; font-weight:600; cursor:pointer;
+}
+#stats-tabs .tab.active { background:#fff; color:#2563eb; border-color:#e0e0e0; }
+
+/* Panel-Inhalt scrollbar */
+#stats-body { flex:1; overflow-y:auto; padding-bottom:20px; }
+.stats-tab { display:none; padding:14px 18px; }
+.stats-tab.active { display:block; }
+
+/* Controls + Betreiber-Tabelle */
+.stats-controls { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+.stats-controls select, .stats-controls input {
+  font-size:13px; padding:5px 8px; border:1px solid #ccc; border-radius:6px;
+}
+.stats-controls input { flex:1; min-width:120px; }
+#stats-table { width:100%; border-collapse:collapse; font-size:13px; }
+#stats-table th, #stats-table td { padding:7px 8px; border-bottom:1px solid #eee; text-align:left; }
+#stats-table th { background:#f7f9fc; color:#333; cursor:pointer; user-select:none; }
+#stats-table th.num, #stats-table td.num { text-align:right; white-space:nowrap; }
+#stats-table th.sorted-asc::after { content:" ▲"; color:#2563eb; font-size:10px; }
+#stats-table th.sorted-desc::after { content:" ▼"; color:#2563eb; font-size:10px; }
+#stats-table tbody tr { cursor:pointer; }
+#stats-table tbody tr:hover { background:#eef3ff; }
+#stats-table td.name { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#stats-count { margin-top:8px; font-size:12px; color:#888; }
+
+/* Größenklassen-Balken */
+#groesse-toggle { display:flex; gap:4px; margin-bottom:12px; }
+#groesse-toggle .gbtn {
+  padding:7px 18px; border:1px solid #ddd; border-radius:8px; background:#f5f5f5;
+  color:#555; font-size:13px; font-weight:600; cursor:pointer;
+}
+#groesse-toggle .gbtn.active { background:#2563eb; color:#fff; border-color:#2563eb; }
+.bar-row { display:flex; align-items:center; gap:8px; margin-bottom:7px; font-size:12px; }
+.bar-label { width:52px; text-align:right; color:#333; white-space:nowrap; flex-shrink:0; }
+.bar-track { flex:1; background:#f0f0f0; border-radius:6px; height:20px; overflow:hidden; position:relative; }
+.bar-fill { height:100%; border-radius:6px; }
+.bar-fill.wind { background:#2563eb; }
+.bar-fill.pv   { background:#d97706; }
+.bar-val { width:150px; color:#555; white-space:nowrap; }
+.bar-row:hover .bar-track { outline:1px solid #bbb; }
+.bar-tip {
+  position:fixed; background:#111; color:#fff; padding:6px 10px; border-radius:6px;
+  font-size:12px; pointer-events:none; z-index:3000; display:none; max-width:280px;
+}
+
 /* Filter unten links (kompakt, wie bisher) */
 #toolbar {
   position:absolute; bottom:30px; left:10px; z-index:1000;
@@ -120,8 +204,68 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
       <div id="search-suggest"></div>
     </div>
     <div id="topbar-hits" style="display:none">0 Treffer · <span id="topbar-result"></span></div>
+    <div id="topbar-actions">
+      <button type="button" id="btn-stats" title="Statistik öffnen">📊 Statistik</button>
+    </div>
   </div>
 </div>
+
+<!-- Statistik-Sidebar (Overlay) -->
+<div id="stats-overlay"></div>
+<aside id="stats-panel">
+  <header id="stats-header">
+    <h2>Statistik</h2>
+    <button type="button" id="stats-close" title="Schließen">✕</button>
+  </header>
+  <div id="stats-body">
+
+    <!-- Tabs -->
+    <div id="stats-tabs">
+      <button class="tab active" data-tab="betreiber">Betreiber</button>
+      <button class="tab" data-tab="groesse">Größenklassen</button>
+    </div>
+
+    <!-- Betreiber-Ansicht -->
+    <section id="tab-betreiber" class="stats-tab active">
+      <div class="stats-controls">
+        <select id="stats-tech">
+          <option value="">Alle</option>
+          <option value="wind">Wind</option>
+          <option value="pv">PV</option>
+        </select>
+        <select id="stats-top">
+          <option value="10">Top 10</option>
+          <option value="50" selected>Top 50</option>
+          <option value="100">Top 100</option>
+          <option value="all">Alle</option>
+        </select>
+        <input type="text" id="stats-filter" placeholder="Betreiber filtern…">
+      </div>
+      <table id="stats-table">
+        <thead>
+          <tr>
+            <th data-key="name">Betreiber</th>
+            <th data-key="anzahl" class="num">Anzahl</th>
+            <th data-key="sum_mw" class="num">Summe MW</th>
+            <th data-key="avg_mw" class="num">Ø MW</th>
+          </tr>
+        </thead>
+        <tbody id="stats-tbody"></tbody>
+      </table>
+      <div id="stats-count"></div>
+    </section>
+
+    <!-- Größenklassen-Ansicht -->
+    <section id="tab-groesse" class="stats-tab">
+      <div id="groesse-toggle">
+        <button class="gbtn active" data-tech="wind">Wind</button>
+        <button class="gbtn" data-tech="pv">PV</button>
+      </div>
+      <div id="groesse-chart"></div>
+    </section>
+
+  </div>
+</aside>
 
 <!-- Filter unten links -->
 <div id="toolbar">
@@ -136,6 +280,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   <span class="dot dot-pv"></span> PV (≥1 MWp)<br>
   <small id="data-stand">–</small>
 </div>
+<div id="bar-tip" class="bar-tip"></div>
 
 <script>
 let map, allUnits = [], markers = {};
@@ -160,17 +305,20 @@ async function init() {
 
   // Daten laden (eingebettet oder per HTTP)
   try {
-    let einheiten, meta;
+    let einheiten, meta, statistiken = null;
     if (window.__PVWIND_DATA__ && window.__PVWIND_META__) {
       einheiten = window.__PVWIND_DATA__;
       meta = window.__PVWIND_META__;
+      statistiken = window.__PVWIND_STATS__ || null;
     } else {
-      [einheiten, meta] = await Promise.all([
+      [einheiten, meta, statistiken] = await Promise.all([
         fetch('assets/einheiten.json').then(r => r.json()),
-        fetch('assets/meta.json').then(r => r.json())
+        fetch('assets/meta.json').then(r => r.json()),
+        fetch('assets/statistiken.json').then(r => r.json()).catch(() => null)
       ]);
     }
     allUnits = einheiten;
+    window.__STATS__ = statistiken;  // für Statistik-Panel
     document.getElementById('data-stand').textContent = 'Stand: ' + (meta.stand || '?');
     const windCount = meta.counts?.Wind || 0;
     const pvCount = meta.counts['Solare Strahlungsenergie'] || 0;
@@ -178,6 +326,7 @@ async function init() {
       `PV & Wind Karte – ${windCount} Wind · ${pvCount} PV`;
     populateFilterBl();
     renderMarkers(einheiten);
+    initStats();
   } catch(e) {
     document.getElementById('infobar').textContent = 'Fehler beim Laden: ' + e.message;
   }
@@ -424,6 +573,185 @@ function esc(s) {
   if (s == null) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+
+/* ===================== Statistik-Panel ===================== */
+let _stats = null;          // rohe Statistiken aus statistiken.json
+let _statsState = {         // UI-Zustand
+  tab: 'betreiber',
+  tech: '',                 // '' | 'wind' | 'pv'
+  top: '50',
+  filter: '',
+  sortKey: 'sum_mw',
+  sortDir: 'desc',
+  groesseTech: 'wind'
+};
+
+function initStats() {
+  _stats = window.__STATS__;
+  // Buttons
+  document.getElementById('btn-stats').addEventListener('click', openStats);
+  document.getElementById('stats-close').addEventListener('click', closeStats);
+  document.getElementById('stats-overlay').addEventListener('click', closeStats);
+  // Tabs
+  document.querySelectorAll('#stats-tabs .tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#stats-tabs .tab').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.stats-tab').forEach(s => s.classList.toggle('active', s.id === 'tab-' + btn.dataset.tab));
+      _statsState.tab = btn.dataset.tab;
+    });
+  });
+  // Betreiber-Controls
+  document.getElementById('stats-tech').addEventListener('change', e => { _statsState.tech = e.target.value; renderBetreiber(); });
+  document.getElementById('stats-top').addEventListener('change', e => { _statsState.top = e.target.value; renderBetreiber(); });
+  document.getElementById('stats-filter').addEventListener('input', e => { _statsState.filter = e.target.value; renderBetreiber(); });
+  // Sortierung (Th-Klick)
+  document.querySelectorAll('#stats-table th').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.key;
+      if (_statsState.sortKey === key) {
+        _statsState.sortDir = _statsState.sortDir === 'desc' ? 'asc' : 'desc';
+      } else {
+        _statsState.sortKey = key;
+        _statsState.sortDir = 'desc';
+      }
+      renderBetreiber();
+    });
+  });
+  // Größenklassen
+  document.querySelectorAll('#groesse-toggle .gbtn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#groesse-toggle .gbtn').forEach(x => x.classList.toggle('active', x === b));
+      _statsState.groesseTech = b.dataset.tech;
+      renderGroesse();
+    });
+  });
+  document.addEventListener('mousemove', moveBarTip);
+}
+
+function openStats() {
+  document.getElementById('stats-panel').classList.add('open');
+  document.getElementById('stats-overlay').classList.add('open');
+  renderBetreiber();
+  renderGroesse();
+}
+function closeStats() {
+  document.getElementById('stats-panel').classList.remove('open');
+  document.getElementById('stats-overlay').classList.remove('open');
+}
+
+// ----- Betreiber-Tabelle -----
+function renderBetreiber() {
+  const tbody = document.getElementById('stats-tbody');
+  if (!_stats || !_stats.betreiber) {
+    tbody.innerHTML = '<tr><td colspan="4">Keine Statistik-Daten</td></tr>';
+    return;
+  }
+  let rows = [..._stats.betreiber];
+  // Technologie-Filter
+  if (_statsState.tech) {
+    rows = rows.filter(b => b.tech[_statsState.tech] > 0);
+  }
+  // Textfilter (accent-/case-unabhängig)
+  const nf = norm(_statsState.filter);
+  if (nf) {
+    rows = rows.filter(b => norm(b.name).includes(nf));
+  }
+  // Sortierung
+  const key = _statsState.sortKey;
+  rows.sort((a, b) => {
+    let va = a[key], vb = b[key];
+    if (key === 'name') va = (va||'').toLowerCase(), vb = (vb||'').toLowerCase();
+    if (typeof va === 'string') return _statsState.sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+    va = va ?? 0; vb = vb ?? 0;
+    return _statsState.sortDir === 'asc' ? va - vb : vb - va;
+  });
+  // Top-N
+  const total = rows.length;
+  if (_statsState.top !== 'all') {
+    rows = rows.slice(0, parseInt(_statsState.top, 10));
+  }
+  // Render
+  tbody.innerHTML = rows.map(b => {
+    const techBadge = (b.tech.wind && b.tech.pv) ? ' ⚡🟠' : (b.tech.wind ? ' ⚡' : ' 🟠');
+    return `<tr data-betreiber="${esc(b.name)}">
+      <td class="name" title="${esc(b.name)}">${esc(b.name.split(')')[0].split('(')[0].trim())}${techBadge}</td>
+      <td class="num">${b.anzahl}</td>
+      <td class="num">${b.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:0})}</td>
+      <td class="num">${b.avg_mw.toLocaleString('de-DE', {maximumFractionDigits:1})}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="4">Keine Treffer</td></tr>';
+  // Klick auf Zeile -> Karte filtert Betreiber
+  tbody.querySelectorAll('tr[data-betreiber]').forEach(tr => {
+    tr.addEventListener('click', () => selectBetreiber(tr.dataset.betreiber));
+  });
+  // Sortier-Indikatoren
+  document.querySelectorAll('#stats-table th').forEach(th => {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    if (th.dataset.key === _statsState.sortKey) th.classList.add(_statsState.sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+  });
+  document.getElementById('stats-count').textContent =
+    `${rows.length} angezeigt von ${total} Betreibern`;
+}
+
+// Betreiber auf der Karte filtern (B7)
+function selectBetreiber(name) {
+  const matching = allUnits.filter(u => u.ab === name);
+  if (!matching.length) return;
+  renderMarkers(matching);
+  if (matching.length === 1) {
+    map.setView([matching[0].lat, matching[0].lon], 11);
+  } else {
+    map.fitBounds(matching.map(u => [u.lat, u.lon]), { padding: [30, 30] });
+  }
+  document.getElementById('search-input').value = matching.length > 1
+    ? `Betreiber: ${name} (${matching.length} Anlagen)`
+    : name;
+  document.getElementById('search-clear').style.display = 'block';
+  closeStats();
+}
+
+// ----- Größenklassen-Balken -----
+function renderGroesse() {
+  const chart = document.getElementById('groesse-chart');
+  if (!_stats || !_stats.groessenklassen) { chart.innerHTML = '<p>Keine Daten</p>'; return; }
+  const tech = _statsState.groesseTech;
+  const isWind = tech === 'wind';
+  const klassen = _stats.groessenklassen[tech];
+  if (!klassen || !klassen.length) { chart.innerHTML = '<p>Keine Daten</p>'; return; }
+  const maxAnzahl = Math.max(...klassen.map(k => k.anzahl));
+  chart.innerHTML = klassen.map(k => {
+    const width = Math.max(3, Math.round(100 * k.anzahl / maxAnzahl));
+    const color = isWind ? 'wind' : 'pv';
+    return `<div class="bar-row" data-tip='${JSON.stringify({
+        klasse: k.label + ' MW', anzahl: k.anzahl, sum: k.sum_mw, avg: k.anteil_anzahl, sumshare: k.anteil_summe
+      })}'>
+      <span class="bar-label">${esc(k.label)}</span>
+      <span class="bar-track"><span class="bar-fill ${color}" style="width:${width}%"></span></span>
+      <span class="bar-val">${k.anzahl.toLocaleString('de-DE')} · ${k.sum_mw.toLocaleString('de-DE',{maximumFractionDigits:0})} MW</span>
+    </div>`;
+  }).join('');
+  chart.querySelectorAll('.bar-row').forEach(row => {
+    row.addEventListener('mouseenter', e => showBarTip(e, row.dataset.tip));
+    row.addEventListener('mousemove', moveBarTip);
+    row.addEventListener('mouseleave', hideBarTip);
+  });
+}
+
+function showBarTip(e, data) {
+  const tip = document.getElementById('bar-tip');
+  let d;
+  try { d = JSON.parse(data); } catch { d = {}; }
+  tip.innerHTML = `<b>${esc(d.klasse || '')}</b><br>Anlagen: ${d.anzahl}<br>Summe: ${Number(d.sum).toLocaleString('de-DE',{maximumFractionDigits:0})} MW<br>Ø: ${d.avg}% der Anlagen · ${d.sunshare}% der Leistung`;
+  tip.style.display = 'block';
+  moveBarTip(e);
+}
+function moveBarTip(e) {
+  const tip = document.getElementById('bar-tip');
+  if (!tip || tip.style.display === 'none') return;
+  tip.style.left = (e.clientX + 14) + 'px';
+  tip.style.top = (e.clientY - 10) + 'px';
+}
+function hideBarTip() { document.getElementById('bar-tip').style.display = 'none'; }
 
 init();
 </script>

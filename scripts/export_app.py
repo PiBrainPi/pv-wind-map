@@ -79,6 +79,78 @@ def build_units(rows) -> list[dict]:
     return units
 
 
+def build_statistiken(db) -> dict:
+    """Berechnet aus der Datenbank die Statistiken für das Statistik-Panel.
+
+    Liefert:
+      betreiber:  Liste {name, anzahl, sum_mw, avg_mw, tech:{pv,wind}} — nach sum_mw absteigend
+      groessenklassen: { wind: [...], pv: [...] } -> {label, von, bis, anzahl, sum_mw, anteil_anzahl, anteil_summe}
+      gesamt:     {wind_anzahl, pv_anzahl, total_anzahl, wind_max_mw, pv_max_mw}
+    """
+    # Betreiber-Aggregation (nur georeferenzierte Anlagen, wie die Karte)
+    betreiber = {}
+    for r in db.execute(
+        "SELECT anlagenbetreiber, energietraeger_name, bruttoleistung_mw "
+        "FROM einheiten WHERE geolokation=1 AND anlagenbetreiber IS NOT NULL"
+    ).fetchall():
+        name, et, mw = r[0], r[1], r[2] or 0.0
+        b = betreiber.setdefault(name, {"name": name, "anzahl": 0, "sum_mw": 0.0, "tech": {"pv": 0, "wind": 0}})
+        b["anzahl"] += 1
+        b["sum_mw"] += mw
+        key = "pv" if et == "Solare Strahlungsenergie" else "wind"
+        b["tech"][key] += 1
+    betreiber_list = sorted(betreiber.values(), key=lambda x: -x["sum_mw"])
+    for b in betreiber_list:
+        b["avg_mw"] = round(b["sum_mw"] / b["anzahl"], 3)
+        b["sum_mw"] = round(b["sum_mw"], 3)
+
+    # Größenklassen je Technologie (feste Staffel, bis zum realen Maximum)
+    klassen = {
+        "wind": [("1–2", 1, 2), ("2–3", 2, 3), ("3–4", 3, 4), ("4–5", 4, 5),
+                 ("5–7", 5, 7), ("7–10", 7, 10), ("10–20", 10, 20),
+                 ("20–50", 20, 50), ("50–100", 50, 100), ("100+", 100, 1e9)],
+        "pv":   [("1–2", 1, 2), ("2–5", 2, 5), ("5–10", 5, 10),
+                 ("10–30", 10, 30), ("30–60", 30, 60), ("60–100", 60, 100),
+                 ("100–200", 100, 200), ("200+", 200, 1e9)],
+    }
+    et_ids = {"wind": 2497, "pv": 2495}
+    groessen = {"wind": [], "pv": []}
+    maxima = {}
+    for tech, kliste in klassen.items():
+        rows = db.execute(
+            "SELECT bruttoleistung_mw FROM einheiten WHERE geolokation=1 AND energietraeger_id=?",
+            (et_ids[tech],)).fetchall()
+        mws = [r[0] for r in rows if r[0] is not None]
+        total_mw = sum(mws)
+        total_n = len(mws)
+        maxima[tech] = round(max(mws), 2) if mws else 0
+        for label, von, bis in kliste:
+            n = sum(1 for v in mws if von <= v < bis)
+            s = sum(v for v in mws if von <= v < bis)
+            if n == 0:
+                continue  # leere Klassen weglassen
+            groessen[tech].append({
+                "label": label, "von": von, "bis": bis,
+                "anzahl": n, "sum_mw": round(s, 2),
+                "anteil_anzahl": round(100.0 * n / total_n, 1) if total_n else 0,
+                "anteil_summe": round(100.0 * s / total_mw, 1) if total_mw else 0,
+            })
+
+    totals = {
+        "wind_anzahl": sum(x["anzahl"] for x in betreiber_list if x["tech"]["wind"]),
+        "pv_anzahl": sum(x["anzahl"] for x in betreiber_list if x["tech"]["pv"]),
+        "total_anzahl": db.execute("SELECT COUNT(*) FROM einheiten WHERE geolokation=1").fetchone()[0],
+        "wind_max_mw": maxima["wind"],
+        "pv_max_mw": maxima["pv"],
+    }
+
+    return {
+        "betreiber": betreiber_list,
+        "groessenklassen": groessen,
+        "gesamt": totals,
+    }
+
+
 def main() -> None:
     DIST.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(DB_PATH)
@@ -102,15 +174,23 @@ def main() -> None:
         "total_geolokation": len(units),
     }
 
+    # Statistik-Panel
+    db = sqlite3.connect(DB_PATH)
+    statistiken = build_statistiken(db)
+    db.close()
+
     with open(DIST / "einheiten.json", "w", encoding="utf-8") as f:
         json.dump(units, f, ensure_ascii=False)
     with open(DIST / "meta.json", "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False)
-
+    with open(DIST / "statistiken.json", "w", encoding="utf-8") as f:
+        json.dump(statistiken, f, ensure_ascii=False)
     size = (DIST / "einheiten.json").stat().st_size / 1024 / 1024
     print(f"Export: {len(units)} Anlagen -> dist/assets/einheiten.json ({size:.1f} MB)")
-    print(f"Metadaten -> dist/assets/meta.json")
+    print("Metadaten -> dist/assets/meta.json")
     print(f"Zähler: {counts}")
+    stat_et = statistiken["gesamt"]
+    print(f"Statistik: {len(statistiken['betreiber'])} Betreiber | Wind max {stat_et['wind_max_mw']} MW | PV max {stat_et['pv_max_mw']} MW | gesamt {stat_et['total_anzahl']} -> dist/assets/statistiken.json")
 
 
 if __name__ == "__main__":
