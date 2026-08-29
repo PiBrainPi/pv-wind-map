@@ -2,8 +2,6 @@
 data/raw/
 data/*.db
 data/*.sqlite
-dist/data/*.json
-dist/data/*.json.gz
 
 # --- Build & Cache ---
 dist/

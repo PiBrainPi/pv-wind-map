@@ -4,10 +4,12 @@
 
 ## Überblick (DE)
 
-Das Projekt ist eine **statische, offline-fähige Web-App** (eine HTML-Datei) plus eine
-**Python-Pipeline**, die die Daten aus dem Marktstammdatenregister (MaStR) der
+Das Projekt ist eine **statische, offline-fähige Web-App** (Single-File + hostbare Version)
+plus eine **Python-Pipeline**, die die Daten aus dem Marktstammdatenregister (MaStR) der
 Bundesnetzagentur lädt, bereinigt, in eine lokale SQLite-Datenbank importiert und in
-ein kompaktes JSON-Format für die Karte exportiert.
+kompakte JSON-Dateien für die Karte (inkl. Statistik) exportiert.
+
+**Build:** `scripts/build.sh` (fetch → import → export → bundle, ein Befehl).
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌──────────────────┐    ┌──────────────┐
@@ -15,12 +17,24 @@ ein kompaktes JSON-Format für die Karte exportiert.
 │ öffentl. JSON   │    │  (Roh-JSON)      │    │  (Normalisierung)│    │  mastr.db    │
 └─────────────────┘    └──────────────────┘    └──────────────────┘    └──────┬───────┘
                                                                                │
-                                                     export_app.py             │
-                                                     bundle_singlefile.py      ▼
-                                               ┌─────────────────────────┐  ┌──────────┐
-                                               │ src/index.html          │  │ dist/    │
-                                               │ (Leaflet + MarkerCluster)│  │ hostbar  │
-                                               └─────────────────────────┘  └──────────┘
+                                            ┌────────────────────────────────┘
+                                            ▼ export_app.py
+                                     ┌───────────────────────────┐
+                                     │ dist/assets/¹              │
+                                     │  einheiten.json           │
+                                     │  meta.json                │
+                                     │  statistiken.json         │
+                                     └──────────┬────────────────┘
+                                                │
+                      bundle_singlefile.py ──────┤  cp src/index.html
+                                            ▼    ▼
+                                    ┌──────────────────────┐   ┌────────────────┐
+                                    │ src/index.html       │──▶│ dist/index.html│
+                                    │ (Leaflet+Marker+     │   │ (hostbar,      │
+                                    │  Cluster+Suche+      │   │  fetch Daten)  │
+                                    │  Statistik-Panel)    │   └────────────────┘
+                                    └──────────────────────┘
+  ¹ build.sh fasst fetch→import→export→bundle in einem Befehl zusammen.
 ```
 
 ### Komponenten
@@ -42,8 +56,13 @@ ein kompaktes JSON-Format für die Karte exportiert.
    - PV:   `Energieträger~eq~2495~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~999`
    - Pagination mit `page`/`pageSize`, `chunkedLoading`-freundlich.
 2. **import_mastr.py** normalisiert und speichert in SQLite.
-3. **export_app.py** wählt nur Anlagen mit `geolokation=1` und schreibt die schlanken Karten-Datensätze.
-4. **src/index.html** lädt die Daten (eingebettet aus Single-File ODER per `fetch()` im hostbaren Modus) und rendert Leaflet-Cluster.
+3. **export_app.py** wählt nur Anlagen mit `geolokation=1`, schreibt die schlanken Karten-Datensätze
+   (`einheiten.json`, `meta.json`) und berechnet zusätzlich die **Statistik** (`statistiken.json`:
+   Betreiber-Aggregation + Größenklassen je Technologie).
+4. **src/index.html** lädt die Daten (eingebettet aus Single-File ODER per `fetch()` im hostbaren Modus),
+   rendert Leaflet-Cluster und bietet Suche + Statistik-Panel.
+5. **build.sh** bündelt `fetch → import → export → bundle` in einem nicht-interaktiven Befehl
+   (manuell oder als Cronjob; Pi5: in Cron kein `execute_code`).
 
 ### Warum zwei Ausgabeformen?
 

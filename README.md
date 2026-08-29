@@ -9,9 +9,9 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
 ## Funktionen
 
 - 🗺️ Interaktive Karte (Leaflet) mit automatischem Clustering — Deutschland-Übersicht bis Einzelpunkt
-- 🔍 **Suche mit Autocomplete:** Tippe Teil eines Anlagenamen ein (z. B. „Döll") → Vorschläge ab
+- 🔍 **Suche mit Autocomplete:** Tippe Teil eines Anlagenamen ein (z. B. „Döllen") → Vorschläge ab
   2 Zeichen; sucht auch im Solarpark-/Windpark- und Gemeindenamen, akzent-/groß-/klein-unabhängig
-  („dol" findet „Döllen"). Auswahl per Klick oder Pfeiltasten+Enter → Fly-to + Popup.
+  („dol" findet „Döllen"). Auswahl per Klick oder Pfeiltasten+Enter → Fly-to + Popup. ✕-Button leert die Suche.
 - 🎯 Klick auf Anlage → Detail-Popup mit allen MaStR-Daten (MaStR-Nr., Leistung, Standort, Netzbetreiber,
   Betreiber, wind-/PV-spezifische Felder)
 - 🔍 Filter nach Typ (Wind/PV) und Bundesland (inkl. Offshore)
@@ -22,22 +22,24 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
 
 ## Schnellstart (Build)
 
+Ein-Befehl-Build (fetch → import → export → bundle, Single-File inklusive):
+
+```bash
+python3 scripts/build.sh
+```
+
+Oder einzeln, wenn du die Schritte nachvollziehen willst:
 ```bash
 # 1. Daten aus dem MaStR laden (Wind >= 1 MW, PV >= 1 MWp, In Betrieb)
 python3 scripts/fetch_mastr.py       # → data/raw/wind.json + pv.json
-
 # 2. In SQLite importieren (Single Source of Truth)
 python3 scripts/import_mastr.py      # → data/mastr.db
-
-# 3. Export für die Karten-App (nur Anlagen mit Geolokation)
+# 3. Export für die Karten-App (nur Anlagen mit Geolokation + Statistik)
 python3 scripts/export_app.py        # → dist/assets/*.json
-
 # 4. Hostbare App bauen
 mkdir -p dist/assets && cp src/index.html dist/index.html
-
-# 5. Optional: eigenständige Einze-Datei (direkt klickbar, Daten eingebettet)
+# 5. Optional: eigenständige Einzel-Datei (direkt klickbar, Daten eingebettet)
 python3 scripts/bundle_singlefile.py # → dist/index_singlefile.html
-
 # 6. Lokal testen (hostbare Version braucht einen HTTP-Server)
 python3 -m http.server --directory dist 8080
 # öffne http://localhost:8080
@@ -49,9 +51,7 @@ Die Pipeline ist nicht-interaktiv und damit direkt als Cronjob verwendbar
 (Hinweis: in Cron auf dem Pi5 kein `execute_code` nutzen — nur shell/Python).
 
 ```bash
-python3 scripts/fetch_mastr.py && python3 scripts/import_mastr.py && \
-python3 scripts/export_app.py && cp src/index.html dist/index.html && \
-python3 scripts/bundle_singlefile.py
+python3 scripts/build.sh   # fetch + import + export + bundle in einem Schritt
 ```
 
 ## Datenbasis & Abgrenzung
@@ -71,7 +71,7 @@ python3 scripts/bundle_singlefile.py
 - [ANFORDERUNGEN.md](ANFORDERUNGEN.md) – Anforderungen (A1–A11)
 - [ENTSCHEIDUNGEN.md](ENTSCHEIDUNGEN.md) – Architektur-Entscheidungen
 - [PLAN.md](PLAN.md) – 30-Schritt-Plan
-- [docs/](docs/) – detaillierte Doku (Architektur, Datenmodell, Update, Hosting)
+- [docs/](docs/) – detaillierte Doku (Architektur, Datenmodell, Update, Hosting, Fehlerbehebung, Statistik)
 
 ## Lizenz
 

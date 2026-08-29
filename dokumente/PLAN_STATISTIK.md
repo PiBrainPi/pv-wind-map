@@ -1,9 +1,11 @@
 # PLAN — Statistik-Modul: Betreiber-Auswertung & Größenklassen
 
-> Stand: 2026-08-29 · Entwurf zur Freigabe
+> Stand: 2026-08-29 · Status: **umgesetzt** (Sidebar-Panel, Betreiber-Tabelle mit Filter/
+> Sortierung/Top-N, Größenklassen-Balken mit Anlagen⇄Leistung-Toggle, Karten-Kopplung).
 > Ziel: Auf der Karten-HTML-Seite Statistiken anzeigen — (1) welcher Betreiber wie viele
 > Anlagen & Summe MW hat, mit Filter/Sortierung/optimierter Tabelle; (2) Verteilung der
 > Anlagengrößen ab 1 MW bis zur höchsten je im MaStR angegebenen MW-Größe, je Technologie.
+> Umsetzung dokumentiert in `docs/statistik.md`.
 
 ## Datenbasis (verifiziert, aus `dist/assets/einheiten.json`)
 
@@ -70,12 +72,12 @@
 
 ---
 
-## Offene Detailfragen (zu entscheiden)
-- Panel: **Overlay/Sidebar** (empfohlen) vs. separates Tab.
-- Sortierung initial: Summe MW (empfohlen) vs. Anzahl.
-- Größenklassen: feste Staffel (empfohlen, s. o.) vs. dynamisch (equidistant/Legend).
-- Betreibernamen bereinigen? (z. B. „natürliche Person (ABR…)" zusammenfassen) — ja, als Option.
-- CSV-Export nötig? D8 ist optional → bestätigen.
+## Offene Detailfragen — entschieden (2026-08-29)
+- **Panel-Typ:** Overlay-Sidebar rechts (umgesetzt).
+- **Sortierung initial:** Summe MW absteigend (umgesetzt; alle Spalten sortierbar).
+- **Größenklassen:** feste Staffel je Technologie bis zum realen Maximum (umgesetzt).
+- **CSV-Export:** **bewusst nicht umgesetzt** — vom User abgelehnt (kein CSV-Export nötig).
+- **Karten-Kopplung:** Klick auf Betreiber-Zeile filtert die Karte auf dessen Anlagen (umgesetzt).
 
-> Hinweis: Der User-Wunsch nach **Filtern & Sortieren der Betreiber + tabellarischer
-> Auflistung (Betreiber/Anzahl/Summe MW)** ist in A2, B2–B8 abgedeckt.
+> Der User-Wunsch nach **Filtern & Sortieren der Betreiber + tabellarischer
+> Auflistung (Betreiber/Anzahl/Summe MW)** ist in A2, B2–B8 abgedeckt und umgesetzt.

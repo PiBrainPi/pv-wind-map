@@ -36,3 +36,25 @@
 
 Die zuvor offenen Detailfragen (Clustering-Strategie, MaStR-Quelle, schlanke
 Remote-Feldliste) sind alle in den Entscheidungen 4–7 bzw. in docs/ dokumentiert.
+
+## Statistik-Modul — Entscheidungen (2026-08-29)
+
+8. **Panel-Typ:** Overlay-**Sidebar rechts** (statt separatem Tab/Karte) — öffnet per
+   „📊 Statistik"-Button in der Top-Bar; Overlay verdunkelt die Karte.
+   - Begründung: klare Fokustrennung (Karte ↔ Statistik), schlank, responsiv.
+
+9. **Größenklassen:** **feste Staffel** je Technologie (Wind: 1–2…50–100 MW; PV: 1–2…100–200 MW)
+   bis zum realen Maximum (Wind 80 MW, PV 162 MW). Keine dynamische/equidistante Skala.
+   - Begründung: einfacher, konsistenter und aussagekräftiger für die Zielnutzung.
+
+10. **CSV-Export:** **bewusst NICHT umgesetzt** — vom User explizit abgelehnt (Punkt B8 entfällt).
+
+11. **Betreiber-Kopplung:** Klick auf eine Betreiber-Zeile filtert die Karte auf dessen Anlagen
+    (bei mehreren Anlagen Fit-Bounds, bei einer Fly-to + Popup).
+
+## Wichtige Daten-Erkenntnis (Statistik)
+
+- **14.141 eindeutige Betreiber** über 36.175 georeferenzierte Anlagen. Top nach Leistung:
+  Borkum Riffgrund 3 (≈959 MW), EnBW He Dreiht (≈765 MW); nach Anzahl: PROKON (257 Anlagen).
+- Statistik-Aggregation erfolgt in `export_app.py` aus SQLite (nur `geolokation=1`,
+  konsistent zur Karte) → `dist/assets/statistiken.json`.

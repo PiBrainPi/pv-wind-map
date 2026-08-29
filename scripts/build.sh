@@ -1,18 +1,26 @@
 #!/usr/bin/env bash
-# build.sh — Erzeugt die hostbare Ausgabe in dist/ aus src/ + exportierten Daten.
+# build.sh — Kompletter Projekt-Build in einem Befehl:
+#   fetch (Daten vom MaStR) → import (SQLite) → export (+ Statistik) → bundle (Single-File)
+#   Danach ist dist/ komplett neu gebaut und die Single-File klickbereit.
+# Nicht-interaktiv → auch als Cronjob verwendbar (Pi5: kein execute_code in cron).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-echo "➜ 1/2 Export erzuegt (Daten aus SQLite)..."
+echo "➜ 1/4 Daten vom MaStR laden..."
+python3 scripts/fetch_mastr.py
+
+echo "➜ 2/4 Import in SQLite (Normalisierung, ≥1-MW-Filter)..."
+python3 scripts/import_mastr.py
+
+echo "➜ 3/4 Export (Karten-Daten + Statistik aus SQLite)..."
 python3 scripts/export_app.py
 
-echo "➜ 2/2 HTML nach dist/ kopieren..."
+echo "➜ 4/4 HTML + Single-File-Bundle..."
 mkdir -p dist/assets
 cp src/index.html dist/index.html
-cp -f dist/assets/einheiten.json dist/assets/einheiten.json
-cp -f dist/assets/meta.json dist/assets/meta.json
+python3 scripts/bundle_singlefile.py
 
 echo ""
-echo "Fertig. Starte lokal:  python3 -m http.server --directory dist 8080"
-echo "Dann öffnen:           http://localhost:8080"
+echo "Fertig. Starte lokal:   python3 -m http.server --directory dist 8080   → http://localhost:8080"
+echo "Oder direkt klickbar:   dist/index_singlefile.html"
 ls -la dist dist/assets

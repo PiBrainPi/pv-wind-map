@@ -8,6 +8,13 @@ Die komplette Pipeline ist nicht-interaktiv und kann als ein Befehl laufen:
 
 ```bash
 cd ~/Projects/pv-wind-map
+python3 scripts/build.sh   # fetch → import → export → bundle (ein Schritt, erzeugt auch Single-File)
+```
+
+Der vollständige Weg in Einzelschritten (falls du Zwischenschritte prüfen willst):
+
+```bash
+cd ~/Projects/pv-wind-map
 
 # 1. Daten aus dem MaStR neu laden (aktualisiert data/raw/*.json)
 python3 scripts/fetch_mastr.py
@@ -18,14 +25,10 @@ python3 scripts/import_mastr.py
 # 3. Für die Karte exportieren (nur Anlagen mit Geolokation → dist/assets/)
 python3 scripts/export_app.py
 
-# 4. Hostbare App auffrischen
+# 4. Hostbare App auffrischen + eigenständige Einzel-Datei erzeugen
 cp src/index.html dist/index.html
-
-# 5. Single-File (klickbare Datei) neu erzeugen
 python3 scripts/bundle_singlefile.py
 ```
-
-`python3 scripts/update.sh` (falls vorhanden) bündelt 1–5.
 
 ### Als Cronjob (automatisch)
 
@@ -35,9 +38,7 @@ Shell/Python. Beispiel-Crontab (monatlich, 3. Tag, 02:00):
 
 ```cron
 0 2 3 * * cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map && \
-  python3 scripts/fetch_mastr.py && python3 scripts/import_mastr.py && \
-  python3 scripts/export_app.py && cp src/index.html dist/index.html && \
-  python3 scripts/bundle_singlefile.py >> /tmp/pvwind_update.log 2>&1
+  python3 scripts/build.sh >> /tmp/pvwind_update.log 2>&1
 ```
 
 Danach optional die neue `dist/index_singlefile.html` verteilen (z. B. in den
@@ -49,8 +50,8 @@ Austauschordner `~/hermes_human-share/`).
   ≥ 1 MW / ≥ 1 MWp).
 - `import_mastr.py`: **leert** die Tabelle `einheiten` neu und baut sie wieder auf
   (einfach & robust für V0). Der `update_log` protokolliert Zählerstand.
-- `export_app.py`: schreibt `dist/assets/einheiten.json` + `meta.json`.
-- `bundle_singlefile.py`: erzeugt `dist/index_singlefile.html`.
+- `export_app.py`: schreibt `dist/assets/einheiten.json` + `meta.json` + **`statistiken.json`** (Betreiber, Größenklassen).
+- `bundle_singlefile.py`: erzeugt `dist/index_singlefile.html` (Daten + Statistik eingebettet).
 
 ### Verifikation nach Update
 
@@ -66,6 +67,13 @@ The whole pipeline is non-interactive and can run as one command:
 
 ```bash
 cd ~/Projects/pv-wind-map
+python3 scripts/build.sh   # fetch → import → export → bundle (single command, includes single-file)
+```
+
+Or step by step:
+
+```bash
+cd ~/Projects/pv-wind-map
 python3 scripts/fetch_mastr.py
 python3 scripts/import_mastr.py
 python3 scripts/export_app.py
@@ -76,7 +84,7 @@ python3 scripts/bundle_singlefile.py
 Or as a crontab job (monthly, 3rd, 02:00):
 
 ```cron
-0 2 3 * * cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map && python3 scripts/fetch_mastr.py && python3 scripts/import_mastr.py && python3 scripts/export_app.py && cp src/index.html dist/index.html && python3 scripts/bundle_singlefile.py >> /tmp/pvwind_update.log 2>&1
+0 2 3 * * cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map && python3 scripts/build.sh >> /tmp/pvwind_update.log 2>&1
 ```
 
 Note (Pi5): in cron contexts do not use `execute_code`; use plain shell/Python.
