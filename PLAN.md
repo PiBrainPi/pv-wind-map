@@ -11,8 +11,8 @@ die über den ursprünglichen Plan hinausgehen:
 - **Suche mit Autocomplete** + ✕-Button (Schritt 17 erweitert)
 - **Statistik-Panel** (Betreiber-Tabelle + Größenklassen) — siehe `dokumente/PLAN_STATISTIK.md`
 
-**Ergebnis:** funktionierende Karten-App (Leaflet + MarkerCluster) mit 40.703
-georeferenzierten Anlagen (31.114 Wind ≥100 kW + 9.589 PV ≥1 MWp), Single-File
+**Ergebnis:** funktionierende Karten-App (Leaflet + MarkerCluster) mit 53.482
+georeferenzierten Anlagen (31.114 Wind ≥100 kW + 22.368 PV ≥0,5 MWp), Single-File
 `dist/index_singlefile.html` (direkt klickbar) und hostbarer Version in `dist/`.
 Pipeline: `build.sh` = `fetch → import → export → bundle`. Doku zweisprachig in `docs/`.
 
@@ -77,7 +77,7 @@ Fremdverifikation (Schritt 28/29), Launch (Schritt 30).
 
 ### Schritt 8: Import-Pipeline bauen (`scripts/import_mastr.py`)
 - [ ] JSON → SQLite (normalisieren, Datenformate bereinigen, Datum konvertieren)
-- [x] **Leistungsgrenze anwenden:** nur Anlagen mit Bruttoleistung ≥ 100 kW (Wind) bzw. ≥ 1 MWp (PV)
+- [x] **Leistungsgrenze anwenden:** nur Anlagen mit Bruttoleistung ≥ 100 kW (Wind) bzw. ≥ 0,5 MWp (PV)
 - [x] Upsert (MaStRNummer unique), Duplikat-Schutz
 - **Verifikation:** Zählwerte in DB == Zähler aus MaStR (gefiltert auf ≥100 kW Wind); 0 Duplikat-Fehler
 
@@ -221,7 +221,7 @@ Fremdverifikation (Schritt 28/29), Launch (Schritt 30).
 ## Entscheidungen (verabschiedet)
 
 1. **Koordinaten:** nur vorhandene Geolokation; kein Geocoding → Schritt 9 angepasst.
-2. **Leistungsgrenze:** ≥ 100 kW (Wind) / ≥ 1 MWp (PV) → Schritt 8 angepasst.
+2. **Leistungsgrenze:** ≥ 100 kW (Wind) / ≥ 0,5 MWp (PV) → Schritt 8 angepasst.
 3. **Repo/Hosting:** lokal; zweisprachige Doku (DE+EN); Hosting nur vorbereitet → Schritte 27, 28.
 4. **Update:** manuell auslösbar, cronjob-fähig → Schritte 21, 23.
 

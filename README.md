@@ -31,7 +31,7 @@ bash scripts/build.sh
 
 Oder einzeln, wenn du die Schritte nachvollziehen willst:
 ```bash
-# 1. Daten aus dem MaStR laden (Wind >= 1 MW, PV >= 1 MWp, In Betrieb)
+# 1. Daten aus dem MaStR laden (Wind >= 100 kW, PV >= 0.5 MWp, In Betrieb)
 python3 scripts/fetch_mastr.py       # → data/raw/wind.json + pv.json
 # 2. In SQLite importieren (Single Source of Truth)
 python3 scripts/import_mastr.py      # → data/mastr.db
@@ -60,8 +60,8 @@ bash scripts/build.sh   # fetch + import + export + bundle in einem Schritt
 | Kategorie | Umfang | In DB | Mit Geolokation |
 |-----------|--------|-------|-----------------|
 | **Wind** | ≥ 100 kW (nach Einheiten-Normalisierung MW), Status „In Betrieb“ | 32.144 | 31.114 |
-| **Photovoltaik** | ≥ 1 MWp (Bruttoleistung ≥ 1000 kWp), Status „In Betrieb“ | 9.591 | 9.589 |
-| **Gesamt** | | **41.735** | **40.703** |
+| **Photovoltaik** | ≥ 0,5 MWp (Bruttoleistung ≥ 500 kWp), Status „In Betrieb“ | 22.371 | 22.368 |
+| **Gesamt** | | **54.515** | **53.482** |
 
 - **Geolokation**: nur Anlagen MIT vorhandenen Koordinaten im MaStR (kein Geocoding)
 - **Einheiten-Hinweis**: MaStR liefert PV in kWp und Wind gemischt (kW/MW) — der Import normalisiert auf MW (Details: docs/datenmodell.md)

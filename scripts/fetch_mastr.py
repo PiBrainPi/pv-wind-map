@@ -4,12 +4,12 @@ fetch_mastr.py — Lädt alle Wind- und PV-Anlagen aus dem Marktstammdatenregist
 
 Selektionskriterien (final, siehe ANFORDERUNGEN.md):
   - Wind:      Energieträger 2497, Betriebs-Status "In Betrieb" (35), Bruttoleistung > 0.1  [MW] (>= 100 kW)
-  - Photovoltaik: Energieträger 2495, Bruttoleistung > 999                              [kWp]
-                (>= 1 MWp; alle Arten: Freifläche 852 + Gebäude 853 + Sonstige 2484)
+  - Photovoltaik: Energieträger 2495, Bruttoleistung > 499.9 [kWp]
+                (>= 0.5 MWp; alle Arten: Freifläche 852 + Gebäude 853 + Sonstige 2484)
 
 Einheiten-Hinweis (wichtig!):
   - Wind Bruttoleistung in MW   -> Filter `Bruttoleistung der Einheit~gt~0.1`
-  - PV   Bruttoleistung in kWp  -> Filter `Bruttoleistung der Einheit~gt~999`
+  - PV   Bruttoleistung in kWp  -> Filter `Bruttoleistung der Einheit~gt~499.9`
   (MaStR nutzt MW bei Wind und kWp bei PV — wird im Import-Skript normalisiert.)
 
 Ausgabe: data/raw/wind.json und data/raw/pv.json (je eine Liste aller Datensätze)
@@ -56,8 +56,8 @@ def build_filter(energietraeger: int, in_betrieb: bool) -> str:
         conds.append("Betriebs-Status~eq~35")
     if energietraeger == 2497:          # Wind -> MW, >= 100 kW => > 0.1
         conds.append("Bruttoleistung der Einheit~gt~0.1")
-    else:                                # PV -> kWp, >= 1 MWp => > 999 kWp
-        conds.append("Bruttoleistung der Einheit~gt~999")
+    else:                                # PV -> kWp, >= 0.5 MWp => > 499.9 kWp
+        conds.append("Bruttoleistung der Einheit~gt~499.9")
     return "~and~".join(conds)
 
 
@@ -93,8 +93,8 @@ def fetch_category(energietraeger: int, label: str, in_betrieb: bool = True) -> 
 def main() -> None:
     RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-    # PV zuerst (größer, aber überschaubar ~10.500 bei >=1MWp)
-    print("=== Photovoltaik (>= 1 MWp) ===")
+    # PV zuerst (größer, aber überschaubar ~22.500 bei >=0.5MWp)
+    print("=== Photovoltaik (>= 0.5 MWp) ===")
     pv = fetch_category(2495, "PV")
     with open(RAW_DIR / "pv.json", "w", encoding="utf-8") as f:
         json.dump(pv, f, ensure_ascii=False)

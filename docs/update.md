@@ -47,7 +47,7 @@ Austauschordner `~/hermes_human-share/`).
 ### Was bei einem Update passiert
 
 - `fetch_mastr.py`: lädt Wind- und PV-Anlagen neu vom MaStR (Status „In Betrieb",
-  ≥ 1 MW / ≥ 1 MWp).
+  ≥ 100 kW / ≥ 0,5 MWp).
 - `import_mastr.py`: **leert** die Tabelle `einheiten` neu und baut sie wieder auf
   (einfach & robust für V0). Der `update_log` protokolliert Zählerstand.
 - `export_app.py`: schreibt `dist/assets/einheiten.json` + `meta.json` + **`statistiken.json`** (Betreiber, Größenklassen).

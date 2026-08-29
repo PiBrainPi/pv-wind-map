@@ -85,7 +85,7 @@ kW-Kleinstanlagen (≈ 0.1 MW) und werden korrekt als kW behandelt; Anlagen <100
 ### Selektionskriterien (final)
 
 - **Wind**: ≥ 100 kW nach Normalisierung, Status „In Betrieb".
-- **PV**: ≥ 1 MWp (Bruttoleistung ≥ 1000 kWp), Status „In Betrieb".
+- **PV**: ≥ 0,5 MWp (Bruttoleistung ≥ 500 kWp), Status „In Betrieb".
 - **Karte**: nur Anlagen mit vorhandener Geolokation (`geolokation=1`). Kein Geocoding.
 
 ## Aktuelle Datenkennzahlen (Import 2026-08-29)
@@ -93,8 +93,8 @@ kW-Kleinstanlagen (≈ 0.1 MW) und werden korrekt als kW behandelt; Anlagen <100
 | Kategorie | Gesamt in DB | Mit Geolokation |
 |-----------|-------------|-----------------|
 | Wind (≥100 kW) | 32.144 | 31.114 |
-| PV (≥1 MWp) | 9.591 | 9.589 |
-| **Summe** | **41.735** | **40.703** |
+| PV (≥0,5 MWp) | 22.371 | 22.368 |
+| **Summe** | **54.515** | **53.482** |
 
 ```sql
 -- Beispiel für eigene Abfragen
@@ -128,12 +128,12 @@ Values 81–99 mislabeled as “MW” (≈ 0.1 MW micro-turbines) are treated as
 
 ### Selection (final)
 - **Wind**: ≥ 100 kW (after normalization), status "In Betrieb".
-- **PV**: ≥ 1 MWp (≥ 1000 kWp), status "In Betrieb".
+- **PV**: ≥ 0.5 MWp (≥ 500 kWp), status "In Betrieb".
 - **Map**: only geolocated units (`geolokation=1`). No geocoding.
 
 ### Current figures (import 2026-08-29)
 | Category | In DB | Georeferenced |
 |----------|-------|---------------|
 | Wind (≥100 kW) | 32,144 | 31,114 |
-| PV (≥1 MWp) | 9,591 | 9,589 |
-| **Total** | **41,735** | **40,703** |
+| PV (≥0.5 MWp) | 22,371 | 22,368 |
+| **Total** | **54,515** | **53,482** |

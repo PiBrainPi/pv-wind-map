@@ -53,7 +53,7 @@ kompakte JSON-Dateien für die Karte (inkl. Statistik) exportiert.
 
 1. **fetch_mastr.py** fragt die MaStR-API mit Filter ab:
    - Wind: `Energieträger~eq~2497~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~0.1` (≥ 100 kW)
-   - PV:   `Energieträger~eq~2495~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~999`
+   - PV:   `Energieträger~eq~2495~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~499.9` (≥ 0,5 MWp)
    - Pagination mit `page`/`pageSize`, `chunkedLoading`-freundlich.
 2. **import_mastr.py** normalisiert und speichert in SQLite.
 3. **export_app.py** wählt nur Anlagen mit `geolokation=1`, schreibt die schlanken Karten-Datensätze

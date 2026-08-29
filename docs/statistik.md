@@ -69,11 +69,11 @@ Achsen-gestütztes Balkendiagramm (rein CSS/HTML, keine externe Chart-Bibliothek
 - **Hover-Tooltip** mit Klasse, Anlagen, Leistung, Anteil an Anlagen & Leistung (incl. Hinweis,
   ob Balkenhöhe = Anlagen oder Leistung).
 
-Datenbasis (Import 2026-08-29, Wind ≥100 kW / PV ≥1 MWp):
+Datenbasis (Import 2026-08-29, Wind ≥100 kW / PV ≥0,5 MWp):
 | | Wind | PV |
 |---|---|---|
-| Anlagen | 31.114 | 9.589 |
-| Min | 0,1 MW | 1,0 MW |
+| Anlagen | 31.114 | 22.368 |
+| Min | 0,1 MW | 0,5 MW |
 | Max | 80 MW | 162,26 MW |
 
 ### Datenfluss & Implementierung
@@ -85,7 +85,7 @@ Datenbasis (Import 2026-08-29, Wind ≥100 kW / PV ≥1 MWp):
   in der Single-File; `scripts/bundle_singlefile.py` bettet sie ein).
 - **Wichtig (Datenkonsistenz):** Es wird nur `geolokation=1` betrachtet, konsistent zur Karte.
   Leere Größenklassen werden ausgelassen.
-- **15.851 Betreiber** (Stand Import 2026-08-29) erfordern Lazy-Layout → Top-N + Filter, nicht
+- **23.216 Betreiber** (Stand Import 2026-08-29) erfordern Lazy-Layout → Top-N + Filter, nicht
   Volltext-Tabelle.
 
 ### Fehlerbehebungen (2026-08-29)
@@ -137,7 +137,7 @@ hover tooltip with class, plants, MW, share of plants & of capacity.
 `export_app.py::build_statistiken()` aggregates from SQLite → `dist/assets/statistiken.json`;
 `src/index.html` consumes it (fetch or embedded `window.__PVWIND_STATS__` in the single-file);
 `bundle_singlefile.py` embeds it. Only geolocated units are counted (consistent with the map).
-14,141 operators ⇒ Top-N + filter are required for a responsive table.
+23,216 operators ⇒ Top-N + filter are required for a responsive table.
 
 ### Bugfixes (2026-08-29)
 - `gesamt.wind_anzahl` / `pv_anzahl` were wrong (26,768 / 10,437 instead of 26,586 / 9,589) because the

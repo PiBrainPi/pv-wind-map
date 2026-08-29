@@ -8,11 +8,11 @@
 1. **Geolokation (2026-08-29):** Nur Anlagen mit **vorhandenen Koordinaten** im MaStR werden gezeichnet. **Kein** Geocoding fehlender Koordinaten.
    - Begründung: Geocoding von ~100k+ Adressen (MaStR liefert bei vielen PV-Anlagen keine Koordinaten) wäre teuer, langsam und datenschutzsensibel. Bewusste Abgrenzung auf präzise, vorhandene Daten.
 
-2. **Leistungsgrenze (2026-08-29):** Nur **Bruttoleistung ≥ 100 kW (Wind)** bzw. **≥ 1 MWp (PV)**.
+2. **Leistungsgrenze (2026-08-29):** Nur **Bruttoleistung ≥ 100 kW (Wind)** bzw. **≥ 0,5 MWp (PV)**.
    - Begründung: Fokussiert auf relevante Assets (alle gewerblichen WEA ab 100 kW + große PV),
      reduziert die Datenmenge gegenüber allen Kleinstanlagen, aber vollständiger als ≥1 MW.
-     **Änderung 2026-08-29:** Wind von ≥1 MW auf ≥100 kW gesenkt (Nutzer-Wunsch: mehr
-     Vollständigkeit für Recherche; PV bleibt bei ≥1 MWp).
+     **Änderungen 2026-08-29:** Wind von ≥1 MW auf ≥100 kW gesenkt (Nutzer-Wunsch) und PV von
+     ≥1 MWp auf ≥0,5 MWp gesenkt (Nutzer-Wunsch: mehr Vollständigkeit für Recherche).
 
 3. **Haltung / Repo (2026-08-29):** Nur **lokal**; Git-Repo lokal. Hosting wird **vorbereitet** (Doku, Hostbarkeit), aber nicht live geschaltet; ggf. später. Zweisprachige Doku (DE + EN).
    - Begründung: User möchte zunächst lokalableieren und hosten später entscheiden.
@@ -57,7 +57,7 @@ Remote-Feldliste) sind alle in den Entscheidungen 4–7 bzw. in docs/ dokumentie
 
 ## Wichtige Daten-Erkenntnis (Statistik)
 
-- **15.851 eindeutige Betreiber** über 40.703 georeferenzierte Anlagen
-  (31.114 Wind ≥100 kW + 9.589 PV ≥1 MWp). Top-Betreiber nach Anzahl: PROKON (257 Anlagen).
+- **23.216 eindeutige Betreiber** über 53.482 georeferenzierte Anlagen
+  (31.114 Wind ≥100 kW + 22.368 PV ≥0,5 MWp). Top-Betreiber nach Anzahl: PROKON (257 Anlagen).
 - Statistik-Aggregation erfolgt in `export_app.py` aus SQLite (nur `geolokation=1`,
   konsistent zur Karte) → `dist/assets/statistiken.json`.
