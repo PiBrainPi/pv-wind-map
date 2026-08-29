@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PV & Wind Karte – MaStR Deutschland</title>
+<!-- Leaflet + MarkerCluster -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
+#map { height:100%; width:100%; }
+
+/* Info-Bar oben */
+#infobar {
+  position:absolute; top:10px; left:50%; transform:translateX(-50%);
+  z-index:1000; background:#fff; padding:6px 16px; border-radius:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,.15); font-size:13px; color:#333;
+  white-space:nowrap; pointer-events:none;
+}
+
+/* Legende unten rechts */
+#legend {
+  position:absolute; bottom:30px; right:10px; z-index:1000;
+  background:#fff; padding:10px 14px; border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,.15); font-size:13px; line-height:1.8;
+  min-width:140px;
+}
+#legend .dot { display:inline-block; width:12px; height:12px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+.dot-wind { background:#2563eb; }
+.dot-pv   { background:#d97706; }
+#legend small { display:block; color:#888; font-size:11px; margin-top:4px; }
+
+/* Toolbar unten links (Filter) */
+#toolbar {
+  position:absolute; bottom:30px; left:10px; z-index:1000;
+  background:#fff; padding:8px 12px; border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,.15); font-size:13px;
+  display:flex; gap:8px; align-items:center;
+}
+#toolbar label { color:#555; font-size:12px; }
+#toolbar select { font-size:13px; padding:3px 6px; border:1px solid #ccc; border-radius:4px; }
+
+/* Popup */
+.leaflet-popup-content { font-size:13px; line-height:1.5; max-height:350px; overflow-y:auto; }
+.leaflet-popup-content h3 { font-size:14px; margin-bottom:4px; }
+.leaflet-popup-content table { width:100%; border-collapse:collapse; }
+.leaflet-popup-content td { padding:2px 4px; border-bottom:1px solid #eee; }
+.leaflet-popup-content td:first-child { color:#888; width:40%; }
+
+@media (max-width:600px) {
+  #infobar { font-size:11px; padding:4px 10px; }
+  #legend { font-size:11px; padding:6px 10px; min-width:100px; }
+  #toolbar { font-size:11px; padding:4px 8px; flex-wrap:wrap; }
+}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="infobar">Lade Daten…</div>
+<div id="toolbar">
+  <label>Typ</label>
+  <select id="filter-type"><option value="">Alle</option><option value="wind">Wind</option><option value="pv">PV</option></select>
+  <label>Bundesland</label>
+  <select id="filter-bl"><option value="">Alle</option></select>
+</div>
+<div id="legend">
+  <span class="dot dot-wind"></span> Wind (≥1 MW)<br>
+  <span class="dot dot-pv"></span> PV (≥1 MWp)<br>
+  <small id="data-stand">–</small>
+</div>
+
+<script>
+let map, allUnits = [], markers = {};
+let clusterGroup, currentLayer;
+
+async function init() {
+  map = L.map('map', { zoomControl: true }).setView([51.5, 10.0], 6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap',
+    maxZoom: 18,
+  }).addTo(map);
+
+  clusterGroup = L.markerClusterGroup({
+    chunkedLoading: true,
+    maxClusterRadius: 50,
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    disableClusteringAtZoom: 17,
+  });
+  map.addLayer(clusterGroup);
+  currentLayer = clusterGroup;
+
+  // Daten laden (eingebettet oder per HTTP)
+  try {
+    let einheiten, meta;
+    if (window.__PVWIND_DATA__ && window.__PVWIND_META__) {
+      einheiten = window.__PVWIND_DATA__;
+      meta = window.__PVWIND_META__;
+    } else {
+      [einheiten, meta] = await Promise.all([
+        fetch('assets/einheiten.json').then(r => r.json()),
+        fetch('assets/meta.json').then(r => r.json())
+      ]);
+    }
+    allUnits = einheiten;
+    document.getElementById('data-stand').textContent = 'Stand: ' + (meta.stand || '?');
+    const windCount = meta.counts?.Wind || 0;
+    const pvCount = meta.counts['Solare Strahlungsenergie'] || 0;
+    document.getElementById('infobar').textContent =
+      `PV & Wind Karte – ${windCount} Wind · ${pvCount} PV`;
+    populateFilterBl();
+    renderMarkers(einheiten);
+  } catch(e) {
+    document.getElementById('infobar').textContent = 'Fehler beim Laden: ' + e.message;
+  }
+
+  // Filter-Listener
+  document.getElementById('filter-type').addEventListener('change', applyFilters);
+  document.getElementById('filter-bl').addEventListener('change', applyFilters);
+}
+
+function populateFilterBl() {
+  const blSet = new Set();
+  allUnits.forEach(u => { if(u.b) blSet.add(u.b); });
+  const sel = document.getElementById('filter-bl');
+  [...blSet].sort().forEach(b => {
+    const o = document.createElement('option');
+    o.value = b; o.textContent = b; sel.appendChild(o);
+  });
+}
+
+function renderMarkers(units) {
+  clusterGroup.clearLayers();
+  const markers = units.map(u => {
+    const icon = L.divIcon({
+      html: `<div style="width:10px;height:10px;border-radius:50%;background:${u.t==='wind'?'#2563eb':'#d97706'};border:1px solid #fff;"></div>`,
+      iconSize: [12,12],
+      className: '',
+    });
+    const m = L.marker([u.lat, u.lon], { icon });
+    m.bindPopup(buildPopup(u));
+    return m;
+  });
+  clusterGroup.addLayers(markers);
+}
+
+function applyFilters() {
+  const type = document.getElementById('filter-type').value;
+  const bl   = document.getElementById('filter-bl').value;
+  let filtered = allUnits;
+  if (type) filtered = filtered.filter(u => u.t === type);
+  if (bl)   filtered = filtered.filter(u => u.b === bl);
+  renderMarkers(filtered);
+}
+
+function buildPopup(u) {
+  let html = `<h3>${esc(u.n)}</h3><table>`;
+  const add = (label, val) => { if (val != null && val !== '') html += `<tr><td>${label}</td><td>${esc(val)}</td></tr>`; };
+  add('MaStR-Nr.', u.m);
+  add('Typ', u.t === 'wind' ? 'Wind' : 'Photovoltaik');
+  add('Art', u.art);
+  add('Leistung', u.mw + ' MW' + (u.t==='pv'?'p':''));
+  add('Bundesland', u.b);
+  add('Landkreis', u.lk);
+  add('Gemeinde', u.g);
+  add('PLZ', u.plz);
+  add('Inbetriebnahme', u.inb);
+  add('Status', u.st);
+  add('Netzbetreiber', u.nb);
+  add('Betreiber', u.ab);
+  // PV-spezifisch
+  if (u.t === 'pv') {
+    add('Solar-Module', u.mod?.toLocaleString());
+    add('Ausrichtung', u.ausr);
+    add('Solarpark', u.park);
+  } else {
+    add('Nabenhöhe', u.nh ? u.nh + ' m' : null);
+    add('Rotordurchmesser', u.rd ? u.rd + ' m' : null);
+    add('Lichte Höhe', u.lhh ? u.lhh + ' m' : null);
+    add('Typ', u.typ);
+    add('Hersteller', u.herst);
+    add('Windpark', u.wp);
+    add('Lage', u.los);
+  }
+  html += '</table>';
+  return html;
+}
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+init();
+</script>
+</body>
+</html>
