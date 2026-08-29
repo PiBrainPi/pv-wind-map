@@ -171,8 +171,9 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .bar-cell { position:relative; }
 .bar-cell:not(:last-child) { margin-bottom:6px; }
 .bar-cell .bar-label {
-  font-size:11px; color:#6b7280; text-align:left; padding-left:2px; margin-top:1px;
+  font-size:12px; color:#374151; text-align:left; padding-left:2px; margin-top:1px;
 }
+.bar-cell .bar-label .bar-klasse { font-weight:600; }
 .bar-cell .bar-label small { color:#9ca3af; }
 .bar-row {
   display:flex; align-items:center; width:100%; position:relative; height:22px;
@@ -188,17 +189,13 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 }
 .bar-fill.wind { background:linear-gradient(90deg,#1d4ed8,#3b82f6); }
 .bar-fill.pv   { background:linear-gradient(90deg,#b45309,#f59e0b); }
-.bar-fill .bar-count {
-  position:absolute; right:6px; top:50%; transform:translateY(-50%);
-  color:#fff; font-size:11px; font-weight:700; text-shadow:0 1px 2px rgba(0,0,0,.35);
-  z-index:2; white-space:nowrap;
+/* Primärwert rechtsbündig in fester Spalte, immer sichtbar & sauber ausgerichtet */
+.bar-value {
+  min-width:96px; text-align:right; margin-left:8px; flex-shrink:0;
+  font-size:13px; font-weight:700; color:#111827; white-space:nowrap;
 }
-.bar-fill .bar-count.outside {
-  right:-4px; transform:translate(100%,-50%); color:#111827; text-shadow:none; font-size:11px;
-}
-.bar-amount {
-  font-size:12px; color:#6b7280; margin-left:8px; min-width:104px;
-  text-align:left; white-space:nowrap; flex-shrink:0;
+.bar-sublabel {
+  color:#9ca3af; font-weight:400; margin-left:8px; font-size:11px;
 }
 .bar-row:hover .bar-track { outline:2px solid #93c5fd; outline-offset:1px; }
 .bar-row:hover { cursor:pointer; }
@@ -218,7 +215,14 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .bar-tip .tip-row span:last-child { text-align:right; font-weight:600; }
 .bar-tip .tip-note { margin-top:4px; padding-top:4px; border-top:1px solid #374151; color:#9ca3af; font-size:11px; }
 
-/* Filter unten links (kompakt, wie bisher) */
+/* Feste Urheber-Info unten links (wie Leaflet-Attribution) */
+#filter-attribution {
+  position:absolute; bottom:4px; left:10px; z-index:1000;
+  font-size:11px; color:rgba(0,0,0,.55); pointer-events:none;
+  text-shadow:0 1px 1px rgba(255,255,255,.8);
+}
+
+/* Filter unten links (kompakt) */
 #toolbar {
   position:absolute; bottom:30px; left:10px; z-index:1000;
   background:#fff; padding:6px 10px; border-radius:8px;
@@ -266,7 +270,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 <div id="topbar">
   <div id="topbar-inner">
     <div id="search-wrapper">
-      <input type="text" id="search-input" placeholder="Suche Anlage… z.B. Döll" autocomplete="off">
+      <input type="text" id="search-input" placeholder="Suche Anlage… z.B. Döllen" autocomplete="off">
       <button type="button" id="search-clear" title="Suche löschen" style="display:none">✕</button>
       <div id="search-suggest"></div>
     </div>
@@ -357,6 +361,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   <span class="dot dot-pv"></span> PV (≥1 MWp)<br>
   <small id="data-stand">–</small>
 </div>
+<div id="filter-attribution">PiBrain by fabibuss@web.de</div>
 <div id="bar-tip" class="bar-tip"></div>
 
 <script>
@@ -831,7 +836,7 @@ function renderGroesse() {
   // mit y-Skala links und Klassen-Label unter dem Balken.
   let body = `<div class="chart-wrap">
     <div class="chart-y">
-      ${yTicks.map(t => `<div class="y-ticks ${t.pos===0?'top':t.pos===50?'mid':'bot'}">${fmtY(t.val)}</div>`).join('')}
+      ${yTicks.map(t => `<div class="y-ticks t${t.pos}">${fmtY(t.val)}</div>`).join('')}
     </div>
     <div class="chart-grid">`;
 
@@ -842,7 +847,6 @@ function renderGroesse() {
     const countLabel = measure === 'anzahl'
       ? k.anzahl.toLocaleString('de-DE')
       : k.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' MW';
-    const showInside = pct >= 26;
     const amountLabel = measure === 'anzahl'
       ? k.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' MW'
       : k.anzahl.toLocaleString('de-DE') + ' Anlagen';
@@ -853,14 +857,11 @@ function renderGroesse() {
         units: measure
       })}'>
         <div class="bar-track">
-          <span class="bar-fill ${color} ${showInside?'':'narrow'}" style="width:${widthByPct(pct)};"
-                data-pct="${pct}">
-            ${showInside ? `<span class="bar-count">${countLabel}</span>` : `<span class="bar-count outside">${countLabel}</span>`}
-          </span>
+          <span class="bar-fill ${color}" style="width:${widthByPct(pct)}"></span>
         </div>
-        <span class="bar-amount">${amountLabel}</span>
+        <span class="bar-value">${countLabel}</span>
       </div>
-      <div class="bar-label">${esc(k.label)}<small> MW</small></div>
+      <div class="bar-label"><span class="bar-klasse">${esc(k.label)}</span><small> MW</small><span class="bar-sublabel">${measure==='anzahl' ? 'Summe: ' + amountLabel : 'Anlagen: ' + amountLabel}</span></div>
     </div>`;
   }).join('');
 
