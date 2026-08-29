@@ -65,6 +65,7 @@ python3 scripts/build.sh   # fetch + import + export + bundle in einem Schritt
 - **Geolokation**: nur Anlagen MIT vorhandenen Koordinaten im MaStR (kein Geocoding)
 - **Einheiten-Hinweis**: MaStR liefert PV in kWp und Wind gemischt (kW/MW) — der Import normalisiert auf MW (Details: docs/datenmodell.md)
 - **Quelle**: Marktstammdatenregister (MaStR), BNetzA, öffentliche Daten
+- **Lizenz**: Datenlizenz Deutschland – Namensnennung – Version 2.0 (DL‑DE‑BY‑2.0), siehe https://www.govdata.de/dl-de/by-2-0
 
 ## Dokumentation
 

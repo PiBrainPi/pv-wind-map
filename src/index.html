@@ -215,16 +215,47 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .bar-tip .tip-row span:last-child { text-align:right; font-weight:600; }
 .bar-tip .tip-note { margin-top:4px; padding-top:4px; border-top:1px solid #374151; color:#9ca3af; font-size:11px; }
 
-/* Feste Urheber-Info unten links (wie Leaflet-Attribution) */
-#filter-attribution {
-  position:absolute; bottom:4px; left:10px; z-index:1000;
-  font-size:11px; color:rgba(0,0,0,.55); pointer-events:none;
-  text-shadow:0 1px 1px rgba(255,255,255,.8);
+/* Impressum-Modal */
+.modal {
+  position:fixed; top:0; left:0; width:100%; height:100%; z-index:3200;
+  background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center;
+  padding:20px;
 }
+.modal.open { display:flex; }
+.modal-box {
+  background:#fff; border-radius:12px; padding:28px; max-width:560px; width:100%;
+  max-height:86vh; overflow:auto; box-shadow:0 12px 40px rgba(0,0,0,.3); position:relative;
+}
+.modal-box h2 { font-size:20px; color:#111827; margin-bottom:6px; }
+.modal-box .modal-lead { color:#6b7280; font-size:13px; margin-bottom:20px; }
+.modal-section { margin-bottom:18px; }
+.modal-section h3 { font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:#6b7280; margin-bottom:6px; }
+.modal-section p { font-size:13px; line-height:1.6; color:#374151; }
+.modal-section a { color:#2563eb; text-decoration:none; }
+.modal-section a:hover { text-decoration:underline; }
+.modal-close {
+  position:absolute; top:14px; right:14px; background:none; border:none;
+  font-size:18px; color:#6b7280; cursor:pointer; padding:4px 8px; border-radius:6px;
+}
+.modal-close:hover { background:#f3f4f6; color:#111827; }
+
+/* Quellen- & Lizenzvermerk unten links */
+#attribution {
+  position:absolute; bottom:2px; left:10px; z-index:1000;
+  background:rgba(255,255,255,.92); border-radius:6px;
+  padding:4px 8px; box-shadow:0 1px 4px rgba(0,0,0,.12);
+  font-size:10px; line-height:1.5; color:#555;
+  max-width:480px;
+}
+#attribution .attr-line { display:inline; white-space:normal; }
+#attribution em { font-style:normal; color:#8a6d3b; }
+#attribution a { color:#2563eb; text-decoration:none; }
+#attribution a:hover { text-decoration:underline; }
+#attribution #filter-attribution { color:#999; font-size:10px; }
 
 /* Filter unten links (kompakt) */
 #toolbar {
-  position:absolute; bottom:30px; left:10px; z-index:1000;
+  position:absolute; bottom:48px; left:10px; z-index:1000;
   background:#fff; padding:6px 10px; border-radius:8px;
   box-shadow:0 2px 8px rgba(0,0,0,.15); font-size:13px;
   display:flex; gap:6px; align-items:center; flex-wrap:wrap;
@@ -255,6 +286,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   #infobar { font-size:11px; padding:4px 10px; top:64px; }
   #legend { font-size:11px; padding:6px 10px; min-width:100px; bottom:70px; }
   #toolbar { font-size:11px; padding:4px 8px; flex-wrap:wrap; }
+  #attribution { font-size:9px; max-width:calc(100vw - 20px); }
   #topbar { top:8px; right:8px; width:calc(100vw - 16px); max-width:none; }
   #topbar-inner { padding:8px 10px; }
   #search-input { font-size:14px; padding:8px 10px; }
@@ -361,7 +393,36 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   <span class="dot dot-pv"></span> PV (≥1 MWp)<br>
   <small id="data-stand">–</small>
 </div>
-<div id="filter-attribution">PiBrain by fabibuss@web.de</div>
+<div id="attribution">
+  <span class="attr-line">Datenquelle: Marktstammdatenregister der Bundesnetzagentur · <em>Daten bearbeitet</em></span>
+  <span class="attr-line">Lizenz: <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener noreferrer">Datenlizenz Deutschland – Namensnennung – Version 2.0</a> · <a href="#" id="impressum-link" rel="noopener noreferrer">Impressum</a> · <span id="filter-attribution">PiBrain by fabibuss@web.de</span></span>
+</div>
+
+<!-- Impressum-Modal (rechtssicher, funktioniert auch ab file://) -->
+<div id="impressum-modal" class="modal">
+  <div class="modal-box">
+    <button type="button" id="impressum-close" class="modal-close" aria-label="Schließen">✕</button>
+    <h2>Impressum</h2>
+    <p class="modal-lead">Angaben gemäß § 5 TMG für die Anwendung „PV &amp; Wind Karte (MaStR)".</p>
+    <div class="modal-section">
+      <h3>Diensteanbieter</h3>
+      <p>Hans Dampf<br>Dampfstraße 1<br>29439 Lüchow<br>E-Mail: <a href="mailto:fabibuss@web.de">fabibuss@web.de</a></p>
+    </div>
+    <div class="modal-section">
+      <h3>Datenquelle &amp; Lizenz</h3>
+      <p>Die visualisierten Daten stammen aus dem <a href="https://www.marktstammdatenregister.de" target="_blank" rel="noopener noreferrer">Marktstammdatenregister (MaStR)</a> der Bundesnetzagentur und stehen unter der <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener noreferrer">Datenlizenz Deutschland – Namensnennung – Version 2.0</a>. Die dargestellten Daten wurden für die Kartendarstellung aufbereitet und gefiltert („Daten bearbeitet").</p>
+    </div>
+    <div class="modal-section">
+      <h3>Haftungsausschluss</h3>
+      <p>Die bereitgestellten Informationen wurden nach bestem Wissen und Gewissen zusammengestellt. Eine Gewähr für die Richtigkeit, Vollständigkeit und Aktualität der Daten wird nicht übernommen. Die Daten beruhen auf den öffentlich zugänglichen Angaben des MaStR.</p>
+    </div>
+    <div class="modal-section">
+      <h3>Urheber der Anwendung</h3>
+      <p>PiBrain by fabibuss@web.de</p>
+    </div>
+  </div>
+</div>
+
 <div id="bar-tip" class="bar-tip"></div>
 
 <script>
@@ -424,6 +485,15 @@ async function init() {
   document.addEventListener('click', (e) => {
     if (!e.target.closest('#search-wrapper')) closeSuggest();
   });
+
+  // Impressum-Modal
+  const modal = document.getElementById('impressum-modal');
+  function openModal() { modal.classList.add('open'); }
+  function closeModal() { modal.classList.remove('open'); }
+  document.getElementById('impressum-link').addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+  document.getElementById('impressum-close').addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 }
 
 // Suchfeld leeren -> alle Anlagen wieder anzeigen

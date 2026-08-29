@@ -15,9 +15,10 @@ python3 scripts/import_mastr.py
 echo "➜ 3/4 Export (Karten-Daten + Statistik aus SQLite)..."
 python3 scripts/export_app.py
 
-echo "➜ 4/4 HTML + Single-File-Bundle..."
+echo "➜ 4/4 HTML + Impressum + Single-File-Bundle..."
 mkdir -p dist/assets
 cp src/index.html dist/index.html
+cp src/impressum.html dist/impressum.html
 python3 scripts/bundle_singlefile.py
 
 echo ""
