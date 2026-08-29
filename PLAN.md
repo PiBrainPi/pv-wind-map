@@ -61,17 +61,18 @@
 
 ### Schritt 8: Import-Pipeline bauen (`scripts/import_mastr.py`)
 - [ ] JSON → SQLite (normalisieren, Datenformate bereinigen, Datum konvertieren)
+- [ ] **Leistungsgrenze anwenden:** nur Anlagen mit Bruttoleistung ≥ 1 MW (Wind) bzw. ≥ 1 MWp (PV)
 - [ ] Upsert (MaStRNummer unique), Duplikat-Schutz
-- **Verifikation:** Zählwerte in DB == Zähler aus MaStR; 0 Duplikat-Fehler
+- **Verifikation:** Zählwerte in DB == Zähler aus MaStR (gefiltert auf ≥1 MW); 0 Duplikat-Fehler
 
-### Schritt 9: Geocoding-Strategie umsetzen
-- [ ] Entscheidung aus Schritt 5 umsetzen (Gemeinde-Centric / Nominatim-OSM / nur präzise)
-- [ ] Bei Gemeinde-Ebene: Gemeinde-Centroid aus offenem Datensatz (z. B. OSM/BKG) nutzen
-- [ ] Ergebnis als Attribut `koordinaten_typ` (exakt / gemeinde / keine) speichern
-- **Verifikation:** Anteil fehlender Koordinaten deutlich reduziert; Report wird aktualisiert
+### Schritt 9: Koordinaten-Abgrenzung (nur vorhandene Geolokation)
+- [ ] **Geocoding ist bewusst AUS** (Entscheidung 1). Anlagen ohne Koordinaten werden NICHT aufgelöst.
+- [ ] Import speichert auch Anlagen ohne Koordinaten, kennzeichnet sie jedoch `geolokation=0`
+- [ ] Frontend zeichnet deshalb nur Anlagen mit `geolokation=1`; Karte/Doku weist sichtbar auf die Abgrenzung hin
+- **Verifikation:** Karte zeigt keine erfundenen Positionen; Statistik „Anlagen mit/ohne Koordinaten“ korrekt
 
 ### Schritt 10: Datenqualitäts-Report
-- [ ] `scripts/quality_report.py`: Prüfungen (fehlende Koordinaten, Leistung=0, Datum vor 1990, Status-Konsistenz)
+- [ ] `scripts/quality_report.py`: Prüfungen (Anlagen mit/ohne Koordinaten, Leistung<1 MW-Werte, Datum vor 1990, Status-Konsistenz)
 - [ ] Ausgabe als Markdown/HTML — wird bei jedem Update mitgeliefert
 - **Verifikation:** Report zeigt 0 kritische Fehler
 
@@ -139,9 +140,9 @@
 
 ## Phase E — Update-Fähigkeit (21–23)
 
-### Schritt 21: Update-Skript & Automatisierung
-- [ ] `scripts/update.sh` → fetch → import → geocode → export → test (ein Befehl)
-- [ ] Cron-Anbindung Pi5 (z. B. monatlich; analog bestehender MSCI-Charts-Cron)
+### Schritt 21: Update-Skript & Automatisierung (manuell, cronjob-fähig)
+- [ ] `scripts/update.sh` → fetch → import → export → test (ein Befehl, **ohne Interaktion**, damit als Cron verwendbar)
+- [ ] Cron-Vorlage in `docs/` hinterlegen (crontab-Eintrag + Hinweis auf Pi5-Pflichten `execute_code` nicht nutzen → shell/Python-Skript)
 - **Verifikation:** `update.sh` läuft von Anfang bis Ende durch (trockener Lauf + echter Lauf)
 
 ### Schritt 22: Datenstand in der App anzeigen
@@ -173,18 +174,19 @@
 - [ ] Optional: Single-File-Bundle (alles in eine HTML) für einfache Verteilung
 - **Verifikation:** `dist/` funktioniert von `file://` UND über jeden Static-Server
 
-### Schritt 27: Hosting einrichten
-- [ ] Ziel: GitHub Pages (öffentlich, kostenlos) oder eigener Server (Pi5, Cloudflare) — Entscheidung mit User
-- [ ] HTTPS, Cusom-Domaine wenn gewünscht, Deployment-Anleitung in docs/
-- **Verifikation:** Live-URL aufrufbar; Datenstand sichtbar
+### Schritt 27: Hosting vorbereiten (nicht live)
+- [ ] Ziel: App als **statische Site** hostbar; Doku für GitHub Pages (öffentlich) UND eigenen Server (Pi5/Cloudflare) fertig
+- [ ] Relative Pfade, `dist/` von jedem Static-Server lauffähig
+- [ ] **Kein Live-Deployment** in dieser Iteration — Hosting später, sobald User entscheidet
+- **Verifikation:** `dist/` läuft lokal über `python3 -m http.server` + auf GitHub-Pages-Struktur prüfbar
 
 ---
 
 ## Phase G — Doku-Abschluss & Launch (28–30)
 
 ### Schritt 28: Detaillierte Doku
-- [ ] docs/architektur.md, docs/datenmodell.md, docs/update.md, docs/hosting.md, docs/fehlerbehebung.md
-- [ ] README mit Quickstart („Daten laden“, „Update“, „Bauen“, „Deploen“)
+- [ ] docs/architektur.md, docs/datenmodell.md, docs/update.md, docs/hosting.md, docs/fehlerbehebung.md — **je DE + EN**
+- [ ] README mit Quickstart („Daten laden“, „Update“, „Bauen“, „Hosting vorbereiten“) — DE + EN
 - **Verifikation:** Fremdperson (oder zweiter LLM) kann Projekt ohne Nachfragen benutzen
 
 ### Schritt 29: Verfizierung & Freigabe (le tzte I terationsschleife)
@@ -192,23 +194,22 @@
 - [ ] Brutal ehrliche Review: was fehlt noch, was ist überflüssig?
 - **Verifikation:** Abhaken-Liste komplett; Freigabe durch User
 
-### Schritt 30: Launch & Übergabe
-- [ ] Hosting live, Repo veröffentlicht (falls gewünscht), Doku verlinkt
-- [ ] Wartungsplan: Update-Rhythmus, Verantwortlichkeiten
+### Schritt 30: Launch & Übergabe (lokal)
+- [ ] Projekt fertig für lokale Nutzung & Doku; Hosting dokumentiert (nicht live)
+- [ ] Wartungsplan: Update-Rhythmus (manuell, Cron-fähig), Verantwortlichkeiten
 - **Verifikation:** Launch-Checkliste abgearbeitet, Übergabe-Notiz an User
 
 ---
 
-## Annahmen (vorläufig, werden in Schritt 3 verabschiedet)
+## Entscheidungen (verabschiedet)
 
-1. Standard-Darstellung: „In Betrieb“-Anlagen; andere Status als Filter.
-2. PV ohne Koordinaten → Gemeinde-Ebene (kein teures/risikantes Geocoding aller Adressen in V0).
-3. Frontend: Leaflet + Clustering zunächst; skallerbare Erweiterung (PMTiles) erst bei Bedarf.
-4. Sprache der künftigen öffentlichen Doku: **Englisch** (bei öffentlichem Repo); intern deutsch erlaubt.
-5. Keine sensiblen Daten im Repo: keine Adressen-Dumps, keine MaStR-Keys.
+1. **Koordinaten:** nur vorhandene Geolokation; kein Geocoding → Schritt 9 angepasst.
+2. **Leistungsgrenze:** ≥ 1 MW (Wind) / ≥ 1 MWp (PV) → Schritt 8 angepasst.
+3. **Repo/Hosting:** lokal; zweisprachige Doku (DE+EN); Hosting nur vorbereitet → Schritte 27, 28.
+4. **Update:** manuell auslösbar, cronjob-fähig → Schritte 21, 23.
 
-## Offene Fragen an den User
+## Offene Fragen an den User (abgeklärt)
 
-1. PV ohne Koordinaten: Gemeinde-Ebene ok, oder jede Adresse per Geocoding auflösen?
-2. Repo öffentlich (GitHub Pages, Doku dann Englisch) oder privat (eigenes Hosting)?
-3. Update-Rhythmus: automatisch per Pi5-Cron (monatlich) oder manuell?
+- ~~PV ohne Koordinaten?~~ → **entschieden:** nur vorhandene
+- ~~Repo öffentlich/privat?~~ → **entschieden:** lokal, Hosting vorbereitet
+- ~~Update-Rhythmus?~~ → **entschieden:** manuell, Cron-fähig
