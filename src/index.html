@@ -131,6 +131,12 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #stats-table td.name { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #stats-count { margin-top:8px; font-size:12px; color:#888; }
 
+/* Hersteller-Tab: Hinweis-Feld */
+#hersteller-hint {
+  background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af;
+  border-radius:8px; padding:6px 10px; font-size:12px; margin-bottom:8px;
+}
+
 /* Größenklassen-Balken (professionell mit Achsen) */
 #groesse-header {
   display:flex; justify-content:space-between; align-items:center; gap:8px;
@@ -325,6 +331,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     <!-- Tabs -->
     <div id="stats-tabs">
       <button class="tab active" data-tab="betreiber">Betreiber</button>
+      <button class="tab" data-tab="hersteller">Hersteller</button>
       <button class="tab" data-tab="groesse">Größenklassen</button>
     </div>
 
@@ -356,6 +363,31 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         <tbody id="stats-tbody"></tbody>
       </table>
       <div id="stats-count"></div>
+    </section>
+
+    <!-- Hersteller-Ansicht (nur Wind — PV hat keine Herstellerangaben im MaStR) -->
+    <section id="tab-hersteller" class="stats-tab">
+      <div id="hersteller-hint">Hersteller­angaben sind nur bei Wind­kraftanlagen verfügbar.</div>
+      <div class="stats-controls">
+        <select id="hersteller-top">
+          <option value="10">Top 10</option>
+          <option value="50" selected>Top 50</option>
+          <option value="all">Alle</option>
+        </select>
+        <input type="text" id="hersteller-filter" placeholder="Hersteller filtern…">
+      </div>
+      <table id="hersteller-table">
+        <thead>
+          <tr>
+            <th data-key="name">Hersteller</th>
+            <th data-key="anzahl" class="num">Anzahl</th>
+            <th data-key="sum_mw" class="num">Summe MW</th>
+            <th data-key="avg_mw" class="num">Ø MW</th>
+          </tr>
+        </thead>
+        <tbody id="hersteller-tbody"></tbody>
+      </table>
+      <div id="hersteller-count"></div>
     </section>
 
     <!-- Größenklassen-Ansicht -->
@@ -736,7 +768,11 @@ let _statsState = {         // UI-Zustand
   sortKey: 'sum_mw',
   sortDir: 'desc',
   groesseTech: 'wind',
-  groesseMeasure: 'anzahl'  // 'anzahl' | 'leistung'
+  groesseMeasure: 'anzahl', // 'anzahl' | 'leistung'
+  herstellerTop: '50',
+  herstellerFilter: '',
+  herstellerSortKey: 'sum_mw',
+  herstellerSortDir: 'desc',
 };
 
 function initStats() {
@@ -751,6 +787,24 @@ function initStats() {
       document.querySelectorAll('#stats-tabs .tab').forEach(b => b.classList.toggle('active', b === btn));
       document.querySelectorAll('.stats-tab').forEach(s => s.classList.toggle('active', s.id === 'tab-' + btn.dataset.tab));
       _statsState.tab = btn.dataset.tab;
+      if (btn.dataset.tab === 'betreiber') renderBetreiber();
+      if (btn.dataset.tab === 'hersteller') renderHersteller();
+      if (btn.dataset.tab === 'groesse') renderGroesse();
+    });
+  });
+  // Hersteller-Controls
+  document.getElementById('hersteller-top').addEventListener('change', e => { _statsState.herstellerTop = e.target.value; renderHersteller(); });
+  document.getElementById('hersteller-filter').addEventListener('input', e => { _statsState.herstellerFilter = e.target.value; renderHersteller(); });
+  document.querySelectorAll('#hersteller-table th').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.key;
+      if (_statsState.herstellerSortKey === key) {
+        _statsState.herstellerSortDir = _statsState.herstellerSortDir === 'desc' ? 'asc' : 'desc';
+      } else {
+        _statsState.herstellerSortKey = key;
+        _statsState.herstellerSortDir = 'desc';
+      }
+      renderHersteller();
     });
   });
   // Betreiber-Controls
@@ -866,6 +920,65 @@ function selectBetreiber(name) {
   document.getElementById('search-input').value = matching.length > 1
     ? `Betreiber: ${name} (${matching.length} Anlagen)`
     : name;
+  document.getElementById('search-clear').style.display = 'block';
+  closeStats();
+}
+
+// ----- Hersteller-Tabelle (nur Wind) -----
+function renderHersteller() {
+  const tbody = document.getElementById('hersteller-tbody');
+  if (!_stats || !_stats.hersteller) {
+    tbody.innerHTML = '<tr><td colspan="4">Keine Hersteller-Daten</td></tr>';
+    return;
+  }
+  let rows = [..._stats.hersteller];
+  // Textfilter (akzent-/case-unabhängig)
+  const nf = norm(_statsState.herstellerFilter);
+  if (nf) {
+    rows = rows.filter(h => norm(h.name).includes(nf));
+  }
+  // Sortierung
+  const key = _statsState.herstellerSortKey;
+  rows.sort((a, b) => {
+    let va = a[key], vb = b[key];
+    if (key === 'name') va = (va||'').toLowerCase(), vb = (vb||'').toLowerCase();
+    if (typeof va === 'string') return _statsState.herstellerSortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+    va = va ?? 0; vb = vb ?? 0;
+    return _statsState.herstellerSortDir === 'asc' ? va - vb : vb - va;
+  });
+  // Top-N
+  const total = rows.length;
+  if (_statsState.herstellerTop !== 'all') {
+    rows = rows.slice(0, parseInt(_statsState.herstellerTop, 10));
+  }
+  // Render
+  tbody.innerHTML = rows.map(h => `
+    <tr data-hersteller="${esc(h.name)}">
+      <td class="name" title="${esc(h.name)}">${esc(h.name)}</td>
+      <td class="num">${h.anzahl}</td>
+      <td class="num">${h.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:0})}</td>
+      <td class="num">${h.avg_mw.toLocaleString('de-DE', {maximumFractionDigits:1})}</td>
+    </tr>`).join('') || '<tr><td colspan="4">Keine Treffer</td></tr>';
+  // Klick auf Zeile -> Karte zeigt nur Anlagen dieses Herstellers
+  tbody.querySelectorAll('tr[data-hersteller]').forEach(tr => {
+    tr.addEventListener('click', () => selectHersteller(tr.dataset.hersteller));
+  });
+  // Sortier-Indikatoren
+  document.querySelectorAll('#hersteller-table th').forEach(th => {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    if (th.dataset.key === _statsState.herstellerSortKey) th.classList.add(_statsState.herstellerSortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+  });
+  document.getElementById('hersteller-count').textContent =
+    `${rows.length} angezeigt von ${total} Herstellern`;
+}
+
+// Hersteller auf der Karte filtern (nur Windanlagen)
+function selectHersteller(name) {
+  const matching = allUnits.filter(u => (u.herst||'').trim() === name);
+  if (!matching.length) return;
+  renderMarkers(matching);
+  map.fitBounds(matching.map(u => [u.lat, u.lon]), { padding: [30, 30] });
+  document.getElementById('search-input').value = `Hersteller: ${name} (${matching.length} Anlagen)`;
   document.getElementById('search-clear').style.display = 'block';
   closeStats();
 }

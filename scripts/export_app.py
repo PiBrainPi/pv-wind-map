@@ -84,6 +84,7 @@ def build_statistiken(db) -> dict:
 
     Liefert:
       betreiber:  Liste {name, anzahl, sum_mw, avg_mw, tech:{pv,wind}} — nach sum_mw absteigend
+      hersteller: Liste {name, anzahl, sum_mw, avg_mw} — nur Wind (PV hat keine Herstellerangaben im MaStR)
       groessenklassen: { wind: [...], pv: [...] } -> {label, von, bis, anzahl, sum_mw, anteil_anzahl, anteil_summe}
       gesamt:     {wind_anzahl, pv_anzahl, total_anzahl, wind_max_mw, pv_max_mw}
     """
@@ -103,6 +104,22 @@ def build_statistiken(db) -> dict:
     for b in betreiber_list:
         b["avg_mw"] = round(b["sum_mw"] / b["anzahl"], 3)
         b["sum_mw"] = round(b["sum_mw"], 3)
+
+    # Hersteller-Aggregation (nur Wind — PV hat keine Herstellerangaben im MaStR)
+    hersteller = {}
+    for r in db.execute(
+        "SELECT hersteller, bruttoleistung_mw FROM einheiten "
+        "WHERE geolokation=1 AND energietraeger_id=2497 "
+        "AND hersteller IS NOT NULL AND hersteller != ''"
+    ).fetchall():
+        name, mw = (r[0] or "Unbekannt").strip(), r[1] or 0.0
+        h = hersteller.setdefault(name, {"name": name, "anzahl": 0, "sum_mw": 0.0})
+        h["anzahl"] += 1
+        h["sum_mw"] += mw
+    hersteller_list = sorted(hersteller.values(), key=lambda x: -x["sum_mw"])
+    for h in hersteller_list:
+        h["avg_mw"] = round(h["sum_mw"] / h["anzahl"], 3)
+        h["sum_mw"] = round(h["sum_mw"], 3)
 
     # Größenklassen je Technologie (feste Staffel, bis zum realen Maximum)
     klassen = {
@@ -146,6 +163,7 @@ def build_statistiken(db) -> dict:
 
     return {
         "betreiber": betreiber_list,
+        "hersteller": hersteller_list,
         "groessenklassen": groessen,
         "gesamt": totals,
     }
