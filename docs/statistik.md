@@ -31,19 +31,32 @@ Bedienelemente (oberhalb der Tabelle):
 Klick auf eine **Zeile** → die Karte zeigt nur die Anlagen dieses Betreibers
 (bei 1 Anlage Fly-to + Popup, sonst Fit-Bounds). Panel schließt sich dabei.
 
-### Hersteller-Tabelle (nur Wind)
+### Hersteller-Tabelle (nur Wind) + Verteilungs-Pie-Chart
 
 | Spalte | Beschreibung |
 |--------|--------------|
 | **Hersteller** | Name aus dem MaStR (`HerstellerWindenergieanlageBezeichnung`) |
-| **Anzahl / Summe MW / Ø MW** | wie bei Betreibern |
+| **Anzahl** | Zahl der Windanlagen dieses Herstellers |
+| **Anteil** | %-Anteil an allen Windanlagen mit Herstellerangabe (Basis 26.469) |
+| **Summe MW / Ø MW** | wie bei Betreibern |
 
 - **Nur Windkraftanlagen** — das MaStR enthält **keine** Herstellerangaben für PV
   (verifiziert: 0 von 9.589 PV-Anlagen). Hinweis-Feld im Tab erklärt das.
-- **53 Hersteller** über 26.469 Windanlagen (99,6 % mit Angabe). Top: ENERCON (~9.987),
-  Vestas (~5.773), Siemens Wind Power (~1.455), Nordex (~1.987), Senvion (~1.390).
-- Bedienelemente wie bei Betreibern (Top-N, Textfilter, Spaltensortierung, Standard Summe MW).
+- **53 Hersteller** über 26.469 Windanlagen (99,6 % mit Angabe). Top: ENERCON (~9.987 = 37,7 %),
+  Vestas (~5.773 = 21,8 %), Nordex (~1.987 = 7,5 %), Siemens Wind Power (~1.455 = 5,5 %),
+  Senvion (~1.390 = 5,3 %).
+- Bedienelemente wie bei Betreibern (Top-N, Textfilter mit ✕-Button, Spaltensortierung inkl. Anteil, Standard Summe MW).
 - Klick auf eine **Zeile** → Karte zeigt nur die Windanlagen dieses Herstellers.
+
+**Pie-Chart „Verteilung nach Hersteller"** (unter der Tabelle, beim Scrollen sichtbar):
+- Interaktives **Donut-Diagramm** (Canvas, keine Chart-Bibliothek, offline-fähig).
+- Zeigt die **Top-10 Hersteller einzeln** + Rest als „Übrige Hersteller" zusammengefasst; jedes Segment
+  ist farbcodiert, die **zentrale Ziffer** im Loch zeigt die Gesamtzahl (26.469).
+- **Hover** auf ein Segment (oder Legenden-Zeile) → Segment hebt sich hervor, Legende markiert.
+- **Klick** auf Segment/Legende → Karte filtert auf die Anlagen genau dieses Herstellers (außer „Übrige").
+- Legende rechts: Farbfeld + Name + Anlagenzahl + %-Anteil je Hersteller.
+- Notiz unter dem Chart: „Anteil jedes Herstellers an allen 26.469 Windanlagen mit Herstellerangabe ·
+  Top 10 einzeln, Rest zusammengefasst · Hover oder Legenden-Klick für Details."
 
 ### Größenklassen-Diagramm
 
@@ -65,14 +78,25 @@ Datenbasis (Import 2026-08-29):
 
 ### Datenfluss & Implementierung
 - `scripts/export_app.py` → `build_statistiken(db)` aggregiert aus SQLite: Betreiber
-  (`name, anzahl, sum_mw, avg_mw, tech{pv,wind}`) und Größenklassen je Technologie
-  (`label, anzahl, sum_mw, anteil_anzahl, anteil_summe`); schreibt `dist/assets/statistiken.json`.
+  (`name, anzahl, sum_mw, avg_mw, tech{pv,wind}`), Hersteller (`name, anzahl, sum_mw, avg_mw`; nur Wind),
+  und Größenklassen je Technologie (`label, anzahl, sum_mw, anteil_anzahl, anteil_summe`);
+  schreibt `dist/assets/statistiken.json`.
 - `src/index.html` lädt die Statistik (fetch im Host-Modus / eingebettet via `window.__PVWIND_STATS__`
   in der Single-File; `scripts/bundle_singlefile.py` bettet sie ein).
 - **Wichtig (Datenkonsistenz):** Es wird nur `geolokation=1` betrachtet, konsistent zur Karte.
   Leere Größenklassen werden ausgelassen.
 - **14.141 Betreiber** (Stand Import 2026-08-29) erfordern Lazy-Layout → Top-N + Filter, nicht
   Volltext-Tabelle.
+
+### Fehlerbehebungen (2026-08-29)
+- **`gesamt.wind_anzahl`/`pv_anzahl` waren falsch** (26.768/10.437 statt 26.586/9.589): die Summe
+  lief über alle Betreiber-Einträge mit `tech[wind]`, womit Mehrfach-Technologie-Betreiber doppelt
+  in die Wind-Zahl zählten. Fix: **Direktzählung** aus SQLite (`COUNT(*) WHERE geolokation=1 AND …`).
+  Neu: `herstellbar_wind` = 26.469 (Summe der Hersteller, konsistent).
+- **Doppeltes „Anlagen" im Größenklassen-Sublabel** („Anlagen: 5.014 Anlagen" im Leistungs-Modus):
+  Label-Text wurde aus einem bereits mit „Anlagen" suffizierten Wert erzeugt.
+- **Pie-Canvas:** `#hersteller-pie` muss ein `<canvas>`-Element sein (nicht `<div>`), sonst
+  `getContext is not a function`.
 
 ---
 
@@ -89,11 +113,18 @@ Columns: **Operator** (name + Wind/PV badges), **Count**, **Sum MW**, **Avg MW**
 Controls: technology filter, Top-N (10/50/100/All), live text filter, and click-to-sort
 columns (default: Sum MW desc). Clicking a row filters the map to that operator’s plants.
 
-### Manufacturer table (wind only)
-Columns **Manufacturer / Count / Sum MW / Avg MW** and the same controls (Top-N, text filter, sorting).
+### Manufacturer table (wind only) + share pie-chart
+Columns **Manufacturer / Count / Share / Sum MW / Avg MW** and the same controls (Top-N, text filter with ✕,
+sorting incl. share). Share = % of all wind plants with a manufacturer entry (base 26,469).
 **Wind only** — MaStR carries no manufacturer data for PV (verified: 0 of 9,589 PV plants).
 53 manufacturers over 26,469 wind turbines (99.6% with an entry). Clicking a row filters the map
 to that manufacturer’s turbines.
+
+**“Distribution by manufacturer” donut chart** below the table (visible when scrolling):
+interactive Canvas donut (no chart library, offline-capable). Top-10 manufacturers shown individually,
+remainder aggregated as “Übrige Hersteller”; central figure in the hole shows the total (26,469).
+Hover highlights the segment + legend row; clicking a segment/legend row filters the map to that
+manufacturer. Right-side legend shows color swatch, name, plant count and % share per manufacturer.
 
 ### Size-class chart
 Axis-based horizontal bars (pure CSS/HTML, no chart library, offline-capable). Wind/PV toggle and
@@ -106,3 +137,10 @@ hover tooltip with class, plants, MW, share of plants & of capacity.
 `src/index.html` consumes it (fetch or embedded `window.__PVWIND_STATS__` in the single-file);
 `bundle_singlefile.py` embeds it. Only geolocated units are counted (consistent with the map).
 14,141 operators ⇒ Top-N + filter are required for a responsive table.
+
+### Bugfixes (2026-08-29)
+- `gesamt.wind_anzahl` / `pv_anzahl` were wrong (26,768 / 10,437 instead of 26,586 / 9,589) because the
+  sum ran over all operator entries with a wind tech badge, double-counting multi-tech operators.
+  Fixed by **direct COUNT(*) from SQLite**. New: `herstellbar_wind` = 26,469.
+- Duplicate “Anlagen” in the size-class sublabel (Leistung mode).
+- `#hersteller-pie` must be a `<canvas>` element (not `<div>`), else `getContext is not a function`.
