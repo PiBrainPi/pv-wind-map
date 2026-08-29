@@ -33,10 +33,14 @@ Klick auf eine **Zeile** → die Karte zeigt nur die Anlagen dieses Betreibers
 
 ### Größenklassen-Diagramm
 
-Vertikale Balken (rein CSS/HTML, no externe Chart-Bibliothek — offline-fähig):
-- Toggle **Wind/PV**; je Technologie eigene Klassen-Staffelung von 1 MW bis zum realen Maximum.
-- Balkenlänge = Anzahl je Klasse; Wert rechts = „Anzahl · Summe MW".
-- **Hover** zeigt Tooltip: Klasse, Anzahl, Summe, Anteil (%) an Anlagen und Leistung.
+Achsen-gestütztes Balkendiagramm (rein CSS/HTML, keine externe Chart-Bibliothek — offline-fähig):
+- Toggle **Wind/PV** und **Anlagen ⇄ Leistung (MW)**; je Technologie eigene Klassen-Staffelung
+  von 1 MW bis zum realen Maximum.
+- **Summary-Box** oben: Technologie, Gesamtanzahl, Gesamtleistung (MW), max. Einzelanlage (MW).
+- **Achsen:** Y-Skala (0/50/100 % des Maximalwerts), Wert direkt **im** Balken (bei wenig Platz daneben),
+  rechts außen der Sekundärwert. Beschriftung "MW"/"Anlagen" überall explizit.
+- **Hover-Tooltip** mit Klasse, Anlagen, Leistung, Anteil an Anlagen & Leistung (incl. Hinweis,
+  ob Balkenhöhe = Anlagen oder Leistung).
 
 Datenbasis (Import 2026-08-29):
 | | Wind | PV |
@@ -72,8 +76,10 @@ Controls: technology filter, Top-N (10/50/100/All), live text filter, and click-
 columns (default: Sum MW desc). Clicking a row filters the map to that operator’s plants.
 
 ### Size-class chart
-Pure CSS/HTML horizontal bars (no chart library, offline-capable). Wind/PV toggle, hover tooltip
-with count/sum/share. Classes start at 1 MW and go to the real max (Wind 80 MW, PV 162.26 MW).
+Axis-based horizontal bars (pure CSS/HTML, no chart library, offline-capable). Wind/PV toggle and
+**Anlagen ⇄ Leistung (MW)** measure toggle; summary box (tech, total plants, total MW, max single plant);
+y-axis scale (0/50/100% of max); value shown inside/next to each bar with explicit "MW"/"Anlagen" units;
+hover tooltip with class, plants, MW, share of plants & of capacity.
 
 ### Implementation
 `export_app.py::build_statistiken()` aggregates from SQLite → `dist/assets/statistiken.json`;
