@@ -77,14 +77,14 @@ Wind: value > 80  -> /1000    (kW)
       value <= 80 -> value    (ist bereits MW)
 ```
 
-Begründung Schwellwert 80: Reale Einzel-WEA liegen zwischen ~1 und ~16 MW
-(MW-Werte also 1..16) ODER als kW zwischen ~81 und 15000. Werte 81-99 als „MW"
-(wie 95, 100) sind falsch etikettierte kW-Kleinstanlagen (z. B. „Windmühle 95 KW")
-und werden korrekt als kW behandelt und anschließend (<1 MW) aussortiert.
+Begründung Schwellwert 80: Reale Einzel-WEA (≥ 100 kW) liegen bei 1..16 MW als MW-Wert,
+sonst als kW (100..15000). Werte 81-99 als „MW" (z. B. 95, 100) sind falsch etikettierte
+kW-Kleinstanlagen (≈ 0.1 MW) und werden korrekt als kW behandelt; Anlagen <100 kW
+(Mikro-Windräder mit Werten wie 0.5) werden per Schwellwert-Anforderung ausgeschlossen.
 
 ### Selektionskriterien (final)
 
-- **Wind**: ≥ 1 MW nach Normalisierung, Status „In Betrieb".
+- **Wind**: ≥ 100 kW nach Normalisierung, Status „In Betrieb".
 - **PV**: ≥ 1 MWp (Bruttoleistung ≥ 1000 kWp), Status „In Betrieb".
 - **Karte**: nur Anlagen mit vorhandener Geolokation (`geolokation=1`). Kein Geocoding.
 
@@ -92,9 +92,9 @@ und werden korrekt als kW behandelt und anschließend (<1 MW) aussortiert.
 
 | Kategorie | Gesamt in DB | Mit Geolokation |
 |-----------|-------------|-----------------|
-| Wind (≥1 MW) | 27.397 | 26.586 |
+| Wind (≥100 kW) | 32.144 | 31.114 |
 | PV (≥1 MWp) | 9.591 | 9.589 |
-| **Summe** | **36.988** | **36.175** |
+| **Summe** | **41.735** | **40.703** |
 
 ```sql
 -- Beispiel für eigene Abfragen
@@ -122,18 +122,18 @@ PV:   value / 1000            (always kWp)
 Wind: value > 80  -> /1000    (kW)
       value <= 80 -> value    (already MW)
 ```
-Rationale: single turbines span ~1–16 MW in MW terms, or ~81–15000 in kW terms.
-Values 81–99 mislabeled as "MW" (e.g. 95 kW micro-turbines) are treated as kW and
-then filtered out (< 1 MW).
+Rationale: real single turbines (≥ 100 kW) reach 1–16 MW as MW, or 100–15000 as kW.
+Values 81–99 mislabeled as “MW” (≈ 0.1 MW micro-turbines) are treated as kW; units below
+100 kW (micro-wind values like 0.5) are excluded by the threshold requirement.
 
 ### Selection (final)
-- **Wind**: ≥ 1 MW (after normalization), status "In Betrieb".
+- **Wind**: ≥ 100 kW (after normalization), status "In Betrieb".
 - **PV**: ≥ 1 MWp (≥ 1000 kWp), status "In Betrieb".
 - **Map**: only geolocated units (`geolokation=1`). No geocoding.
 
 ### Current figures (import 2026-08-29)
 | Category | In DB | Georeferenced |
 |----------|-------|---------------|
-| Wind (≥1 MW) | 27,397 | 26,586 |
+| Wind (≥100 kW) | 32,144 | 31,114 |
 | PV (≥1 MWp) | 9,591 | 9,589 |
-| **Total** | **36,988** | **36,175** |
+| **Total** | **41,735** | **40,703** |

@@ -3,12 +3,12 @@
 fetch_mastr.py — Lädt alle Wind- und PV-Anlagen aus dem Marktstammdatenregister (MaStR).
 
 Selektionskriterien (final, siehe ANFORDERUNGEN.md):
-  - Wind:      Energieträger 2497, Betriebs-Status "In Betrieb" (35), Bruttoleistung > 1  [MW]
+  - Wind:      Energieträger 2497, Betriebs-Status "In Betrieb" (35), Bruttoleistung > 0.1  [MW] (>= 100 kW)
   - Photovoltaik: Energieträger 2495, Bruttoleistung > 999                              [kWp]
                 (>= 1 MWp; alle Arten: Freifläche 852 + Gebäude 853 + Sonstige 2484)
 
 Einheiten-Hinweis (wichtig!):
-  - Wind Bruttoleistung in MW   -> Filter `Bruttoleistung der Einheit~gt~1`
+  - Wind Bruttoleistung in MW   -> Filter `Bruttoleistung der Einheit~gt~0.1`
   - PV   Bruttoleistung in kWp  -> Filter `Bruttoleistung der Einheit~gt~999`
   (MaStR nutzt MW bei Wind und kWp bei PV — wird im Import-Skript normalisiert.)
 
@@ -54,8 +54,8 @@ def build_filter(energietraeger: int, in_betrieb: bool) -> str:
     conds = [f"Energieträger~eq~{energietraeger}"]
     if in_betrieb:
         conds.append("Betriebs-Status~eq~35")
-    if energietraeger == 2497:          # Wind -> MW
-        conds.append("Bruttoleistung der Einheit~gt~1")
+    if energietraeger == 2497:          # Wind -> MW, >= 100 kW => > 0.1
+        conds.append("Bruttoleistung der Einheit~gt~0.1")
     else:                                # PV -> kWp, >= 1 MWp => > 999 kWp
         conds.append("Bruttoleistung der Einheit~gt~999")
     return "~and~".join(conds)
@@ -101,7 +101,7 @@ def main() -> None:
     print(f"  -> gespeichert: {RAW_DIR / 'pv.json'} ({len(pv)})")
 
     # Wind
-    print("\n=== Wind (>= 1 MW, In Betrieb) ===")
+    print("\n=== Wind (>= 100 kW, In Betrieb) ===")
     wind = fetch_category(2497, "Wind")
     with open(RAW_DIR / "wind.json", "w", encoding="utf-8") as f:
         json.dump(wind, f, ensure_ascii=False)

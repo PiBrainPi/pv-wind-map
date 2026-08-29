@@ -26,7 +26,7 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
 Ein-Befehl-Build (fetch → import → export → bundle, Single-File inklusive):
 
 ```bash
-python3 scripts/build.sh
+bash scripts/build.sh
 ```
 
 Oder einzeln, wenn du die Schritte nachvollziehen willst:
@@ -52,16 +52,16 @@ Die Pipeline ist nicht-interaktiv und damit direkt als Cronjob verwendbar
 (Hinweis: in Cron auf dem Pi5 kein `execute_code` nutzen — nur shell/Python).
 
 ```bash
-python3 scripts/build.sh   # fetch + import + export + bundle in einem Schritt
+bash scripts/build.sh   # fetch + import + export + bundle in einem Schritt
 ```
 
 ## Datenbasis & Abgrenzung
 
 | Kategorie | Umfang | In DB | Mit Geolokation |
 |-----------|--------|-------|-----------------|
-| **Wind** | ≥ 1 MW (nach Einheiten-Normalisierung MW), Status „In Betrieb“ | 27.397 | 26.586 |
+| **Wind** | ≥ 100 kW (nach Einheiten-Normalisierung MW), Status „In Betrieb“ | 32.144 | 31.114 |
 | **Photovoltaik** | ≥ 1 MWp (Bruttoleistung ≥ 1000 kWp), Status „In Betrieb“ | 9.591 | 9.589 |
-| **Gesamt** | | **36.988** | **36.175** |
+| **Gesamt** | | **41.735** | **40.703** |
 
 - **Geolokation**: nur Anlagen MIT vorhandenen Koordinaten im MaStR (kein Geocoding)
 - **Einheiten-Hinweis**: MaStR liefert PV in kWp und Wind gemischt (kW/MW) — der Import normalisiert auf MW (Details: docs/datenmodell.md)

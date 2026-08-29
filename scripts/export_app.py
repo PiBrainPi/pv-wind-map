@@ -123,7 +123,7 @@ def build_statistiken(db) -> dict:
 
     # Größenklassen je Technologie (feste Staffel, bis zum realen Maximum)
     klassen = {
-        "wind": [("1–2", 1, 2), ("2–3", 2, 3), ("3–4", 3, 4), ("4–5", 4, 5),
+        "wind": [("0.1–1", 0.1, 1), ("1–2", 1, 2), ("2–3", 2, 3), ("3–4", 3, 4), ("4–5", 4, 5),
                  ("5–7", 5, 7), ("7–10", 7, 10), ("10–20", 10, 20),
                  ("20–50", 20, 50), ("50–100", 50, 100), ("100+", 100, 1e9)],
         "pv":   [("1–2", 1, 2), ("2–5", 2, 5), ("5–10", 5, 10),
@@ -188,7 +188,7 @@ def main() -> None:
     meta = {
         "stand": stand or datetime.now().isoformat(timespec="seconds"),
         "quelle": "Marktstammdatenregister (BNetzA)",
-        "abgrenzung": "Wind >= 1 MW und PV >= 1 MWp, Status 'In Betrieb', nur Anlagen mit vorhandener Geolokation",
+        "abgrenzung": "Wind >= 100 kW und PV >= 1 MWp, Status 'In Betrieb', nur Anlagen mit vorhandener Geolokation",
         "counts": counts,
         "total_geolokation": len(units),
     }

@@ -124,16 +124,16 @@ def to_mw(r, et_id: int) -> float | None:
     MaStR-Einheiten sind inkonsistent (empirisch verifiziert an den Rohdaten):
       - PV:   Bruttoleistung in kWp   -> durch 1000 (z. B. 1617 = 1.6 MWp)
       - Wind: Mischung! Moderne Anlagen wie V236-15MW (=15000), SWT-6.0-154
-              (=6300), E-126 (=7580) werden in kW geliefert; alte kleine Anlagen
-              (V47=660, E-53=800, N43=600) ebenfalls kW. Nur sehr wenige Einträge
-              liegen bereits in MW vor (z. B. 3.0, 4.5, 2.3).
+              (=6300), E-126 (=7580) werden in kW geliefert; kleine Anlagen
+              (500..1000 kW) ebenfalls kW. Nur sehr wenige Einträge liegen
+              bereits in MW vor (z. B. 3.0, 4.5, 2.3).
       Heuristik: Wert > 80 -> kW (durch 1000); Wert <= 80 -> MW (bereits).
-      Begründung Schwellwert 80: reale Einzel-WEA liegen zwischen 1 und ~16 MW
-      (MW-Werte also 1..16) ODER als kW zwischen ~81 und 15000. Einzelne kW-Werte
-      <80 (z. B. 0-80) kommen als MW vor (2.3 MW). Der Schwellwert 80 trennt
-      eindeutig kW (>80) von MW (<=80). Werte 81-99 als "MW" (z. B. 95, 100)
-      sind falsch etikettierte kW-Kleinstanlagen und werden korrekt als kW
-      behandelt und anschließend (<1 MW) aussortiert.
+      Begründung Schwellwert 80: reale Einzel-WEA (>= 100 kW) haben kW-Werte
+      zwischen ~80 und 15000 (also >80) ODER als MW-Werte zwischen 1 und ~16
+      (also <= 80 trennt nicht eindeutig, da 1..16 <= 80). Werte 81-99 sind
+      kW-Kleinstanlagen (= 0.08..0.099 MW). Mikro-Windanlagen unter 80 (z. B.
+      0.5 = 0.5 kW, 0.6 = 0.6 kW) werden als MW missverstanden, sind aber per
+      Schwellwert-Anforderung >= 100 kW ohnehin auszuschliessen.
     """
     v = as_float(r, "Bruttoleistung")
     if v is None:
@@ -200,16 +200,16 @@ def main() -> None:
 
     pv_inserted = 0
     wind_inserted = 0
-    wind_filtered_lt1mw = 0
+    wind_filtered_lt100kw = 0
     for r in pv:
         db.execute(psql, make_row(r, 2495, "Solare Strahlungsenergie"))
         pv_inserted += 1
     for r in wind:
         mw = to_mw(r, 2497)
-        # Anforderung: Wind >= 1 MW (nach Einheiten-Normalisierung).
+        # Anforderung: Wind >= 100 kW (= >= 0.1 MW) nach Einheiten-Normalisierung.
         # durch die gemischten kW/MW-Werte müssen wir hier nachfiltern.
-        if mw is not None and mw < 1.0:
-            wind_filtered_lt1mw += 1
+        if mw is not None and mw < 0.1:
+            wind_filtered_lt100kw += 1
             continue
         db.execute(psql, make_row(r, 2497, "Wind"))
         wind_inserted += 1
@@ -220,7 +220,7 @@ def main() -> None:
     db.execute("INSERT OR REPLACE INTO metadaten VALUES (?,?)", ("einheiten_pv", str(pv_inserted)))
     db.execute("INSERT OR REPLACE INTO metadaten VALUES (?,?)", ("einheiten_wind", str(wind_inserted)))
     db.execute("INSERT INTO update_log (timestamp,pv_count,wind_count,notes) VALUES (?,?,?,?)",
-               (now, pv_inserted, wind_inserted, f"Initialimport (Wind <1MW gefiltert: {wind_filtered_lt1mw})"))
+               (now, pv_inserted, wind_inserted, f"Initialimport (Wind <100kW gefiltert: {wind_filtered_lt100kw})"))
 
     db.commit()
     rows = db.execute("SELECT energietraeger_name, COUNT(*) FROM einheiten GROUP BY energietraeger_name").fetchall()
@@ -229,7 +229,7 @@ def main() -> None:
     for name, cnt in rows:
         print(f"  {name}: {cnt}")
     print(f"  davon mit Geolokation: {geolok}")
-    print(f"  Wind (<1 MW nach Normalisierung weggefiltert): {wind_filtered_lt1mw}")
+    print(f"  Wind (<100 kW, = <0.1 MW, nach Normalisierung weggefiltert): {wind_filtered_lt100kw}")
     db.close()
 
 

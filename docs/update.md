@@ -8,7 +8,7 @@ Die komplette Pipeline ist nicht-interaktiv und kann als ein Befehl laufen:
 
 ```bash
 cd ~/Projects/pv-wind-map
-python3 scripts/build.sh   # fetch → import → export → bundle (ein Schritt, erzeugt auch Single-File)
+bash scripts/build.sh   # fetch → import → export → bundle (ein Schritt, erzeugt auch Single-File)
 ```
 
 Der vollständige Weg in Einzelschritten (falls du Zwischenschritte prüfen willst):
@@ -38,7 +38,7 @@ Shell/Python. Beispiel-Crontab (monatlich, 3. Tag, 02:00):
 
 ```cron
 0 2 3 * * cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map && \
-  python3 scripts/build.sh >> /tmp/pvwind_update.log 2>&1
+  bash scripts/build.sh >> /tmp/pvwind_update.log 2>&1
 ```
 
 Danach optional die neue `dist/index_singlefile.html` verteilen (z. B. in den
@@ -67,7 +67,7 @@ The whole pipeline is non-interactive and can run as one command:
 
 ```bash
 cd ~/Projects/pv-wind-map
-python3 scripts/build.sh   # fetch → import → export → bundle (single command, includes single-file)
+bash scripts/build.sh   # fetch → import → export → bundle (single command, includes single-file)
 ```
 
 Or step by step:
@@ -84,7 +84,7 @@ python3 scripts/bundle_singlefile.py
 Or as a crontab job (monthly, 3rd, 02:00):
 
 ```cron
-0 2 3 * * cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map && python3 scripts/build.sh >> /tmp/pvwind_update.log 2>&1
+0 2 3 * * cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map && bash scripts/build.sh >> /tmp/pvwind_update.log 2>&1
 ```
 
 Note (Pi5): in cron contexts do not use `execute_code`; use plain shell/Python.

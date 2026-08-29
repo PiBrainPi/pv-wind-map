@@ -15,7 +15,7 @@ mit allen relevanten Stammdaten pro Anlage.
 |----|-------------|--------------|
 | A1 | **HTML-Datei** | Das Ergebnis ist eine (weitgehend) eigenständige HTML-App, die im Browser läuft. |
 | A2 | **Interaktive Karte** | Pan/Zoom, Klick auf Anlage → Detailinfos. |
-| A3 | **Alle Wind- & PV-Anlagen (≥1 MW)** | Alle MaStR-Anlagen der Energieträger Wind (Onshore/Offshore) und Photovoltaik — **nur Bruttoleistung ≥ 1 MW (Wind) bzw. ≥ 1 MWp (PV)**. Kleinere (v. a. Dach-)Anlagen sind bewusst ausgeschlossen. |
+| A3 | **Alle Wind- & PV-Anlagen (≥100 kW / ≥1 MWp)** | Alle MaStR-Anlagen der Energieträger Wind (Onshore/Offshore) — **Bruttoleistung ≥ 100 kW** — und Photovoltaik — **≥ 1 MWp**. Kleinere Anlagen (v. a. Dach-PV) sind bewusst ausgeschlossen. |
 | A4 | **Vollständige Infos** | Standort (Gemeinde, PLZ, Landkreis, Bundesland, Adresse), Größe/Leistung (Bruttoleistung, EEG-Leistung), Status, Inbetriebnahme, MaStR-Nr., Netzbetreiber usw. — alles, was MaStR liefert. |
 | A5 | **Update-Fähigkeit** | Datenbasis muss bei Bedarf aktualisierbar sein (ohne Neuentwicklung). Vorbereitet für spätere Automatisierung (Cronjob), aber initial manuell auslösbar. |
 | A6 | **Datengrundlage MaStR** | Quelle: Marktstammdatenregister der Bundesnetzagentur (öffentliche Daten / Webdienst / Download). |
@@ -39,10 +39,10 @@ mit allen relevanten Stammdaten pro Anlage.
 - **Einheiten-Konvention:** PV-Bruttoleistung in **kWp**; Wind **gemischt** (kW/MW).
   → Import normalisiert auf **MW** (Heuristik: PV /1000; Wind >80 → /1000).
 - Selektionsfilter (final):
-  - Wind: `Energieträger~eq~2497~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~1`
+  - Wind: `Energieträger~eq~2497~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~0.1` (≥ 100 kW)
   - PV:   `Energieträger~eq~2495~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~999`
-- **Anzahl (Import 2026-08-29):** Wind ≥1 MW = 27.397 (26.586 mit Geolokation);
-  PV ≥1 MWp = 9.591 (9.589 mit Geolokation). Gesamt darstellbar = 36.175 Anlagen.
+- **Anzahl (Import 2026-08-29):** Wind ≥100 kW = 32.144 (31.114 mit Geolokation);
+  PV ≥1 MWp = 9.591 (9.589 mit Geolokation). Gesamt darstellbar = 40.703 Anlagen.
 - Viele PV-Dachanlagen (klein) haben keine Koordinaten — bewusst nur ≥1 MWp betrachtet.
 - Filter-Operatoren der API: `~eq~`, `~and~`, `~gt~` (nur `gt` für Zahlen funktioniert zuverlässig);
   Feld-/Filter-Namen sind lokalisiert (mit Umlauten, z. B. „Energieträger").
@@ -50,7 +50,7 @@ mit allen relevanten Stammdaten pro Anlage.
 ## 4. Umfang & Abgrenzung (final)
 
 - **Energieträger:** Wind (Onshore + Offshore) und Photovoltaik (alle Größenklassen).
-- **Leistungsgrenze:** nur Anlagen mit **Bruttoleistung ≥ 1 MW (Wind)** bzw. **≥ 1 MWp (PV)**. Kleinere Anlagen (v. a. Dach-PV) werden **nicht** importiert.
+- **Leistungsgrenze:** nur Anlagen mit **Bruttoleistung ≥ 100 kW (Wind)** bzw. **≥ 1 MWp (PV)**. Kleinere Anlagen (v. a. Dach-PV) werden **nicht** importiert.
 - **Geolokation:** Es werden **nur Anlagen mit vorhandenen Koordinaten** im MaStR gezeichnet. Anlagen ohne Koordinaten werden im Datensatz gespeichert (Statistik/Transparenz), aber **nicht** per Geocoding nachträglich aufgelöst.
 - **Status:** Standardmäßig „In Betrieb“, Filter für andere Status (geplant, Stillgelegt, etc.) wünschenswert.
 - **Nicht im Scope (V0):** Keine Biomasse/Wasser/Konventionell, keine Netz- oder Lokationsgrafiken, kein Login/Bot, kein Geocoding fehlender Koordinaten, kein Live-Hosting (nur vorbereitet).
@@ -68,7 +68,7 @@ mit allen relevanten Stammdaten pro Anlage.
 Siehe `ENTSCHEIDUNGEN.md` — die zuvor offenen Punkte sind jeweils entschieden:
 
 - ~~Wie mit fehlenden Koordinaten umgehen?~~ → **Entschieden:** Nur vorhandene Geolokation; kein Geocoding.
-- ~~Leistungsgrenze~~ → **Entschieden:** ≥ 1 MW (Wind) / ≥ 1 MWp (PV).
+- ~~Leistungsgrenze~~ → **Entschieden:** ≥ 100 kW (Wind) / ≥ 1 MWp (PV).
 - ~~Repo/Hosting~~ → **Entschieden:** Lokal; Hosting nur vorbereitet (nicht live).
 - ~~Update-Rhythmus~~ → **Entschieden:** Manuell auslösbar; jederzeit Cronjob-fähig.
 

@@ -9,13 +9,13 @@
 
 ## Datenbasis (verifiziert, aus `dist/assets/einheiten.json`)
 
-- 36.175 georeferenzierte Anlagen: **26.586 Wind** (≥1 MW) + **9.589 PV** (≥1 MWp)
-- **Betreiber**: Alle 36.175 haben ein Betreiber-Feld (`ab`); **14.141 eindeutige Betreiber**.
+- 40.703 georeferenzierte Anlagen: **31.114 Wind** (≥100 kW) + **9.589 PV** (≥1 MWp)
+- **Betreiber**: Alle 40.703 haben ein Betreiber-Feld (`ab`); **15.851 eindeutige Betreiber**.
   - Top-Betreiber nach Anzahl: PROKON (257), RWE Wind Onshore & PV (222) …
   - Top-Betreiber nach Summe MW: Borkum Riffgrund 3 (959 MW), EnBW He Dreiht (765 MW) …
 - **Größenklassen-Reichweiten**:
   - **PV**: min 1,0 MW → **max 162,26 MW** (1 großer Freiflächenpark). 1–2 MW dominant (3.588).
-  - **Wind**: min 1,0 MW → **max 80 MW**. 2–3 MW dominant (10.051).
+  - **Wind**: min 0,1 MW → **max 80 MW**. 2–3 MW dominant (10.051); neue 0,1–1-MW-Klasse (~4.600).
 - WICHTIG (Datenqualität): Wind-max 80 MW ist ein einzelner stark ausgeprägter Wert;
   PV-max 162 MW ebenso. Klassen-Definition bezieht sich auf die realen Maxima.
 

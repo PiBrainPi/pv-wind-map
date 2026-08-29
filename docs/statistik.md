@@ -8,8 +8,8 @@ Das Statistik-Panel ist ein Seiten-Overlay (Sidebar rechts) in der Karten-App. E
 beantwortet zwei Fragen:
 1. **Betreiber-Statistik:** welcher im MaStR hinterlegte Betreiber wie viele Anlagen
    (und welche Gesamt-/durchschnittliche MW-Leistung) betreibt.
-2. **Größenklassen:** wie sich die Anlagen je Technologie (Wind/PV) von 1 MW bis zur
-   höchsten bekannten MW-Größe verteilen.
+2. **Größenklassen:** wie sich die Anlagen je Technologie (Wind/PV) von der unteren
+   Leistungsgrenze (Wind 0,1 MW / PV 1 MW) bis zur höchsten bekannten MW-Größe verteilen.
 
 Öffnen: Klick auf **„📊 Statistik"** in der oberen Leiste.
 
@@ -37,43 +37,43 @@ Klick auf eine **Zeile** → die Karte zeigt nur die Anlagen dieses Betreibers
 |--------|--------------|
 | **Hersteller** | Name aus dem MaStR (`HerstellerWindenergieanlageBezeichnung`) |
 | **Anzahl** | Zahl der Windanlagen dieses Herstellers |
-| **Anteil** | %-Anteil an allen Windanlagen mit Herstellerangabe (Basis 26.469) |
+| **Anteil** | %-Anteil an allen Windanlagen mit Herstellerangabe (Basis 30.947) |
 | **Summe MW / Ø MW** | wie bei Betreibern |
 
 - **Nur Windkraftanlagen** — das MaStR enthält **keine** Herstellerangaben für PV
   (verifiziert: 0 von 9.589 PV-Anlagen). Hinweis-Feld im Tab erklärt das.
-- **53 Hersteller** über 26.469 Windanlagen (99,6 % mit Angabe). Top: ENERCON (~9.987 = 37,7 %),
-  Vestas (~5.773 = 21,8 %), Nordex (~1.987 = 7,5 %), Siemens Wind Power (~1.455 = 5,5 %),
-  Senvion (~1.390 = 5,3 %).
+- **63 Hersteller** über 30.947 Windanlagen (99,5 % mit Angabe). Top: ENERCON (~12.354 = 39,9 %),
+  Vestas (~6.404 = 20,7 %), Nordex (~2.091 = 6,8 %), Siemens Wind Power (~1.465 = 4,7 %),
+  Senvion (~1.413 = 4,6 %).
 - Bedienelemente wie bei Betreibern (Top-N, Textfilter mit ✕-Button, Spaltensortierung inkl. Anteil, Standard Summe MW).
 - Klick auf eine **Zeile** → Karte zeigt nur die Windanlagen dieses Herstellers.
 
 **Pie-Chart „Verteilung nach Hersteller"** (unter der Tabelle, beim Scrollen sichtbar):
 - Interaktives **Donut-Diagramm** (Canvas, keine Chart-Bibliothek, offline-fähig).
 - Zeigt die **Top-10 Hersteller einzeln** + Rest als „Übrige Hersteller" zusammengefasst; jedes Segment
-  ist farbcodiert, die **zentrale Ziffer** im Loch zeigt die Gesamtzahl (26.469).
+  ist farbcodiert, die **zentrale Ziffer** im Loch zeigt die Gesamtzahl (30.947).
 - **Hover** auf ein Segment (oder Legenden-Zeile) → Segment hebt sich hervor, Legende markiert.
 - **Klick** auf Segment/Legende → Karte filtert auf die Anlagen genau dieses Herstellers (außer „Übrige").
 - Legende rechts: Farbfeld + Name + Anlagenzahl + %-Anteil je Hersteller.
-- Notiz unter dem Chart: „Anteil jedes Herstellers an allen 26.469 Windanlagen mit Herstellerangabe ·
+- Notiz unter dem Chart: „Anteil jedes Herstellers an allen 30.947 Windanlagen mit Herstellerangabe ·
   Top 10 einzeln, Rest zusammengefasst · Hover oder Legenden-Klick für Details."
 
 ### Größenklassen-Diagramm
 
 Achsen-gestütztes Balkendiagramm (rein CSS/HTML, keine externe Chart-Bibliothek — offline-fähig):
 - Toggle **Wind/PV** und **Anlagen ⇄ Leistung (MW)**; je Technologie eigene Klassen-Staffelung
-  von 1 MW bis zum realen Maximum.
+  von 0,1 MW (Wind) / 1 MW (PV) bis zum realen Maximum.
 - **Summary-Box** oben: Technologie, Gesamtanzahl, Gesamtleistung (MW), max. Einzelanlage (MW).
 - **Achsen:** Y-Skala (0/50/100 % des Maximalwerts), Wert direkt **im** Balken (bei wenig Platz daneben),
   rechts außen der Sekundärwert. Beschriftung "MW"/"Anlagen" überall explizit.
 - **Hover-Tooltip** mit Klasse, Anlagen, Leistung, Anteil an Anlagen & Leistung (incl. Hinweis,
   ob Balkenhöhe = Anlagen oder Leistung).
 
-Datenbasis (Import 2026-08-29):
+Datenbasis (Import 2026-08-29, Wind ≥100 kW / PV ≥1 MWp):
 | | Wind | PV |
 |---|---|---|
-| Anlagen | 26.586 | 9.589 |
-| Min | 1,0 MW | 1,0 MW |
+| Anlagen | 31.114 | 9.589 |
+| Min | 0,1 MW | 1,0 MW |
 | Max | 80 MW | 162,26 MW |
 
 ### Datenfluss & Implementierung
@@ -85,7 +85,7 @@ Datenbasis (Import 2026-08-29):
   in der Single-File; `scripts/bundle_singlefile.py` bettet sie ein).
 - **Wichtig (Datenkonsistenz):** Es wird nur `geolokation=1` betrachtet, konsistent zur Karte.
   Leere Größenklassen werden ausgelassen.
-- **14.141 Betreiber** (Stand Import 2026-08-29) erfordern Lazy-Layout → Top-N + Filter, nicht
+- **15.851 Betreiber** (Stand Import 2026-08-29) erfordern Lazy-Layout → Top-N + Filter, nicht
   Volltext-Tabelle.
 
 ### Fehlerbehebungen (2026-08-29)
@@ -104,7 +104,8 @@ Datenbasis (Import 2026-08-29):
 
 A right-side overlay panel answering two questions:
 1. **Operator stats:** how many plants (and total/avg MW) each MaStR-registered operator runs.
-2. **Size classes:** how plants distribute per technology from 1 MW up to the largest MW known.
+2. **Size classes:** how plants distribute per technology from the lower threshold
+   (wind 0.1 MW / PV 1 MW) up to the largest MW known.
 
 Open via the **“📊 Statistik”** button in the top bar.
 
@@ -115,14 +116,14 @@ columns (default: Sum MW desc). Clicking a row filters the map to that operator�
 
 ### Manufacturer table (wind only) + share pie-chart
 Columns **Manufacturer / Count / Share / Sum MW / Avg MW** and the same controls (Top-N, text filter with ✕,
-sorting incl. share). Share = % of all wind plants with a manufacturer entry (base 26,469).
+sorting incl. share). Share = % of all wind plants with a manufacturer entry (base 30,947).
 **Wind only** — MaStR carries no manufacturer data for PV (verified: 0 of 9,589 PV plants).
-53 manufacturers over 26,469 wind turbines (99.6% with an entry). Clicking a row filters the map
+63 manufacturers over 30,947 wind turbines (99.5% with an entry). Clicking a row filters the map
 to that manufacturer’s turbines.
 
 **“Distribution by manufacturer” donut chart** below the table (visible when scrolling):
 interactive Canvas donut (no chart library, offline-capable). Top-10 manufacturers shown individually,
-remainder aggregated as “Übrige Hersteller”; central figure in the hole shows the total (26,469).
+remainder aggregated as “Übrige Hersteller”; central figure in the hole shows the total (30,947).
 Hover highlights the segment + legend row; clicking a segment/legend row filters the map to that
 manufacturer. Right-side legend shows color swatch, name, plant count and % share per manufacturer.
 

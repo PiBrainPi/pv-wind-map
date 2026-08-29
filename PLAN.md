@@ -11,8 +11,8 @@ die über den ursprünglichen Plan hinausgehen:
 - **Suche mit Autocomplete** + ✕-Button (Schritt 17 erweitert)
 - **Statistik-Panel** (Betreiber-Tabelle + Größenklassen) — siehe `dokumente/PLAN_STATISTIK.md`
 
-**Ergebnis:** funktionierende Karten-App (Leaflet + MarkerCluster) mit 36.175
-georeferenzierten Anlagen (26.586 Wind ≥1 MW + 9.589 PV ≥1 MWp), Single-File
+**Ergebnis:** funktionierende Karten-App (Leaflet + MarkerCluster) mit 40.703
+georeferenzierten Anlagen (31.114 Wind ≥100 kW + 9.589 PV ≥1 MWp), Single-File
 `dist/index_singlefile.html` (direkt klickbar) und hostbarer Version in `dist/`.
 Pipeline: `build.sh` = `fetch → import → export → bundle`. Doku zweisprachig in `docs/`.
 
@@ -77,9 +77,9 @@ Fremdverifikation (Schritt 28/29), Launch (Schritt 30).
 
 ### Schritt 8: Import-Pipeline bauen (`scripts/import_mastr.py`)
 - [ ] JSON → SQLite (normalisieren, Datenformate bereinigen, Datum konvertieren)
-- [ ] **Leistungsgrenze anwenden:** nur Anlagen mit Bruttoleistung ≥ 1 MW (Wind) bzw. ≥ 1 MWp (PV)
-- [ ] Upsert (MaStRNummer unique), Duplikat-Schutz
-- **Verifikation:** Zählwerte in DB == Zähler aus MaStR (gefiltert auf ≥1 MW); 0 Duplikat-Fehler
+- [x] **Leistungsgrenze anwenden:** nur Anlagen mit Bruttoleistung ≥ 100 kW (Wind) bzw. ≥ 1 MWp (PV)
+- [x] Upsert (MaStRNummer unique), Duplikat-Schutz
+- **Verifikation:** Zählwerte in DB == Zähler aus MaStR (gefiltert auf ≥100 kW Wind); 0 Duplikat-Fehler
 
 ### Schritt 9: Koordinaten-Abgrenzung (nur vorhandene Geolokation)
 - [ ] **Geocoding ist bewusst AUS** (Entscheidung 1). Anlagen ohne Koordinaten werden NICHT aufgelöst.
@@ -221,7 +221,7 @@ Fremdverifikation (Schritt 28/29), Launch (Schritt 30).
 ## Entscheidungen (verabschiedet)
 
 1. **Koordinaten:** nur vorhandene Geolokation; kein Geocoding → Schritt 9 angepasst.
-2. **Leistungsgrenze:** ≥ 1 MW (Wind) / ≥ 1 MWp (PV) → Schritt 8 angepasst.
+2. **Leistungsgrenze:** ≥ 100 kW (Wind) / ≥ 1 MWp (PV) → Schritt 8 angepasst.
 3. **Repo/Hosting:** lokal; zweisprachige Doku (DE+EN); Hosting nur vorbereitet → Schritte 27, 28.
 4. **Update:** manuell auslösbar, cronjob-fähig → Schritte 21, 23.
 

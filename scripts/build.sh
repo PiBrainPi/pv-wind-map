@@ -9,7 +9,7 @@ cd "$(dirname "$0")/.."
 echo "➜ 1/4 Daten vom MaStR laden..."
 python3 scripts/fetch_mastr.py
 
-echo "➜ 2/4 Import in SQLite (Normalisierung, ≥1-MW-Filter)..."
+echo "➜ 2/4 Import in SQLite (Normalisierung, ≥100-kW-Wind-Filter)..."
 python3 scripts/import_mastr.py
 
 echo "➜ 3/4 Export (Karten-Daten + Statistik aus SQLite)..."

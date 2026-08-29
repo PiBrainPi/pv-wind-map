@@ -52,7 +52,7 @@ kompakte JSON-Dateien für die Karte (inkl. Statistik) exportiert.
 ### Datenfluss-Details
 
 1. **fetch_mastr.py** fragt die MaStR-API mit Filter ab:
-   - Wind: `Energieträger~eq~2497~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~1`
+   - Wind: `Energieträger~eq~2497~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~0.1` (≥ 100 kW)
    - PV:   `Energieträger~eq~2495~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~999`
    - Pagination mit `page`/`pageSize`, `chunkedLoading`-freundlich.
 2. **import_mastr.py** normalisiert und speichert in SQLite.
@@ -83,7 +83,7 @@ local SQLite database, and exports it as compact JSON for the map.
 |-----------|------|---------|
 | MaStR API | `GetErweiterteOeffentlicheEinheitStromerzeugung` | Public JSON endpoint (no login). |
 | Download  | `scripts/fetch_mastr.py` | Paginated fetch, error handling, retry. |
-| Import    | `scripts/import_mastr.py` | SQLite schema, unit normalization, ≥1 MW filter. |
+| Import    | `scripts/import_mastr.py` | SQLite schema, unit normalization, ≥100 kW wind filter. |
 | Export    | `scripts/export_app.py` | SQLite → compact JSON (geo-only). |
 | App       | `src/index.html`   | Leaflet map + MarkerCluster + filters + popups. |
 | Bundle    | `scripts/bundle_singlefile.py` | Single self-contained HTML (embedded data). |
@@ -91,7 +91,7 @@ local SQLite database, and exports it as compact JSON for the map.
 
 ### Data flow
 
-1. `fetch_mastr.py` queries the MaStR API with filters (Wind/PV, "In Betrieb", ≥1 MW).
+1. `fetch_mastr.py` queries the MaStR API with filters (Wind/PV, "In Betrieb", ≥100 kW wind).
 2. `import_mastr.py` normalizes (kW↔MW, dates) and stores into SQLite.
 3. `export_app.py` selects only geolocated units and writes compact JSON.
 4. `src/index.html` renders Leaflet clusters (embedded data or fetch()).
