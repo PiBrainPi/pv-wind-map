@@ -11,8 +11,9 @@ in Betrieb**, aus dem Marktstammdatenregister (MaStR, BNetzA). Klickbare Single-
 - **Datenbasis:** Wind 32.144 (31.114 georeferenziert) · PV 22.371 (22.368 georeferenziert)
   → **53.482 Anlagen auf der Karte**. Betreiber: 23.216.
 - **Schwellen (final):** Wind ≥100 kW, PV ≥0,5 MWp (beide 2026-08-29 durch Nutzer-Wunsch gesenkt).
-- **HEAD:** `4a39fff` (Popup-Deeplinks Koordinaten/Betreiber) — Vorgänger: `456c113` (Betreiber-Suche),
-  `5583654` (PV ≥0,5 MWp). Uncommittet: Badge-Removal + „(Google Maps öffnen)"-Hinweis-Entfernung (siehe Unten).
+- **HEAD:** `86031e1` (Hersteller-Tabelle = Betreiber-CSS) — Commit-Kette der letzten Runden:
+  `86031e1` → `af2ef2c` (Badge/Emoji entfernt) → `4a39fff` (Popup-Deeplinks) → `456c113` (Betreiber-Suche)
+  → `5583654` (PV ≥0,5 MWp) → `5f417e7` (Wind ≥100 kW). **Working tree ist sauber/committet.**
 - **Klickbare Datei:** `dist/index_singlefile.html` (24,9 MB) + Kopie im Austauschordner
   `/home/claw_01_rasbpi5_1/hermes_human-share/PV-Wind-Karte_MaStR.html`.
 
@@ -54,12 +55,12 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
 - **Rechtliches:** Quellenvermerk DL-De-BY-2.0 + Impressum (§5 TMG) fest in der App (Modal).
 
 ## Offene Punkte / nächste Schritte (Vorschlag)
-- [ ] **Commit** der uncommitteten Änderungen (Betreiber-Suche, Hersteller-Formatierung, Doku-Update).
-- [ ] Prüfen: `docs/statistik.md` & `docs/datenmodell.md` vollständig mit den neuen PV/Wind-Zahlen konsistent?
-  (derzeit aktualisiert; bei Daten-Refresh im Doku-Stand „Import 2026-08-29" aktualisieren).
+- [x] **Alle Revisionen committet** (Betreiber-Suche, Hersteller-Formatierung, Badge-Removal, Deeplinks, Doku). Working tree sauber.
+- [x] `docs/statistik.md` & `docs/datenmodell.md` auf neue PV/Wind-Zahlen konsistent (Import 2026-08-29).
 - [ ] **Performance:** Single-File ist auf 24,9 MB gewachsen — optional PHP/hostbare Version nutzen,
       Daten-CDN, oder GeoJSON-Minify. Bei `file://`-Laden beachten (einmal war eine leere Seite transient).
 - [ ] Hosting (nur vorbereitet, nichts live): `docs/hosting.md` als Anleitung.
+- [ ] **GitHub-Publishing** optional: Repo ist lokal `main` ohne Remote; kein automatischer Push.
 
 ## Besondere Hinweise für neue Sessions
 - **Kein JSON/HTML-Rohcode in Telegram-Chat**; klickbare Datei per `MEDIA:` oder send_telegram_file senden.
