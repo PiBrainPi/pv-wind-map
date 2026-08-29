@@ -335,6 +335,12 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .leaflet-popup-content table { width:100%; border-collapse:collapse; }
 .leaflet-popup-content td { padding:2px 4px; border-bottom:1px solid #eee; }
 .leaflet-popup-content td:first-child { color:#888; width:40%; }
+/* Deeplinks im Popup (Betreiber -> NorthData, Koordinaten -> Google Maps) */
+.leaflet-popup-content a.popup-link {
+  color:#2563eb; text-decoration:none; font-weight:500;
+}
+.leaflet-popup-content a.popup-link:hover { text-decoration:underline; color:#1d4ed8; }
+.leaflet-popup-content a.popup-link small { font-weight:400; color:#64748b; text-decoration:none; }
 
 @media (max-width:600px) {
   #infobar { font-size:11px; padding:4px 10px; top:64px; }
@@ -840,6 +846,8 @@ function flyToUnit(u, label) {
 function buildPopup(u) {
   let html = `<h3>${esc(u.n)}</h3><table>`;
   const add = (label, val) => { if (val != null && val !== '') html += `<tr><td>${label}</td><td>${esc(val)}</td></tr>`; };
+  // HTML-sicheres Text-Insert für Werte, die nicht escaped werden dürfen (Links/Inhalt)
+  const addHtml = (label, valHtml) => { if (valHtml) html += `<tr><td>${label}</td><td>${valHtml}</td></tr>`; };
   add('MaStR-Nr.', u.m);
   add('Typ', u.t === 'wind' ? 'Wind' : 'Photovoltaik');
   add('Art', u.art);
@@ -851,7 +859,17 @@ function buildPopup(u) {
   add('Inbetriebnahme', u.inb);
   add('Status', u.st);
   add('Netzbetreiber', u.nb);
-  add('Betreiber', u.ab);
+  // Betreiber mit NorthData-Deeplink (Firmenprofil direkt öffnen)
+  if (u.ab) {
+    const ndUrl = 'https://www.northdata.de/' + northdataSlug(u.ab);
+    addHtml('Betreiber', `<a class="popup-link" href="${esc(ndUrl)}" target="_blank" rel="noopener">${esc(u.ab)} ↗</a>`);
+  }
+  // Koordinaten in Dezimalgrad mit Google-Maps-Deeplink
+  if (u.lat != null && u.lon != null) {
+    const lat = u.lat.toFixed(6), lon = u.lon.toFixed(6);
+    const gmap = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+    addHtml('Koordinaten', `<a class="popup-link" href="${esc(gmap)}" target="_blank" rel="noopener">${lat}, ${lon} ↗<br><small>(Google Maps öffnen)</small></a>`);
+  }
   // PV-spezifisch
   if (u.t === 'pv') {
     add('Solar-Module', u.mod?.toLocaleString());
@@ -873,6 +891,16 @@ function buildPopup(u) {
 function esc(s) {
   if (s == null) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// NorthData-Pfad-Slug für Firmensuche: Leerzeichen -> '+', Sonderzeichen URL-encode.
+// NorthData leitet `northdata.de/<Firmenname>` auf die passende Firmenseite weiter
+// (signifikante Treffer) bzw. auf die Suchseite. Das MaStR nutzt oft den vollen Breit-
+// Ampersand '＆' (U+FF06); NorthData erwartet '&' -> wir normalisieren beides auf '&'.
+// Beispiel: 'CEE PVF Eckolstädt GmbH & Co. KG'
+// -> 'CEE+PVF+Eckolst%C3%A4dt+GmbH+%26+Co.+KG'
+function northdataSlug(name) {
+  return encodeURIComponent(String(name).replace(/\uFF06/g, '&')).replace(/%20/g, '+');
 }
 
 /* ===================== Statistik-Panel ===================== */
