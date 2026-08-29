@@ -128,7 +128,7 @@ Fremdverifikation (Schritt 28/29), Launch (Schritt 30).
 
 ### Schritt 17: Filter & Suche
 - [ ] Filter: Energieträger (Wind/PV), Bundesland, Landkreis, Gemeinde, Leistungsklassen, Status, Koordinaten-Typ
-- [ ] Suche: Ort/PLZ/MaStR-Nr/Einheitname
+- [x] **Suche mit Autocomplete:** Anlagename, Solarpark-/Windpark- und Gemeindenamen, akzent-/groß/klein-unabhängig (z. B. „Döll"/„dol" → „Döllen II..."), Vorschläge ab 2 Zeichen, Pfeiltasten+Enter, Klick → Fly-to + Popup
 - **Verifikation:** Jeder Filter liefert erwartete Ergebnismenge
 
 ---

@@ -40,10 +40,31 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   position:absolute; bottom:30px; left:10px; z-index:1000;
   background:#fff; padding:8px 12px; border-radius:8px;
   box-shadow:0 2px 8px rgba(0,0,0,.15); font-size:13px;
-  display:flex; gap:8px; align-items:center;
+  display:flex; gap:8px; align-items:center; flex-wrap:wrap; max-width:calc(100% - 40px);
 }
 #toolbar label { color:#555; font-size:12px; }
 #toolbar select { font-size:13px; padding:3px 6px; border:1px solid #ccc; border-radius:4px; }
+
+/* Suchfeld + Vorschläge */
+#search-wrapper { position:relative; }
+#search-input {
+  font-size:13px; padding:5px 8px; border:1px solid #ccc; border-radius:4px;
+  width:220px; max-width:56vw;
+}
+#search-input:focus { outline:none; border-color:#2563eb; box-shadow:0 0 0 2px rgba(37,99,235,.15); }
+#search-suggest {
+  position:absolute; top:100%; left:0; right:0; z-index:2000;
+  background:#fff; border:1px solid #ccc; border-radius:0 0 6px 6px;
+  max-height:280px; overflow-y:auto; display:none; box-shadow:0 4px 12px rgba(0,0,0,.18);
+}
+#search-suggest.open { display:block; }
+#search-suggest .sug-item {
+  padding:6px 10px; cursor:pointer; border-bottom:1px solid #f0f0f0;
+  display:flex; justify-content:space-between; align-items:center; gap:8px;
+}
+#search-suggest .sug-item:hover, #search-suggest .sug-item.active { background:#eef3ff; }
+#search-suggest .sug-item b { color:#2563eb; }
+#search-suggest .sug-item .sug-meta { color:#888; font-size:11px; white-space:nowrap; }
 
 /* Popup */
 .leaflet-popup-content { font-size:13px; line-height:1.5; max-height:350px; overflow-y:auto; }
@@ -63,6 +84,10 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 <div id="map"></div>
 <div id="infobar">Lade Daten…</div>
 <div id="toolbar">
+  <div id="search-wrapper">
+    <input type="text" id="search-input" placeholder="Suche Anlage… z.B. Döll" autocomplete="off">
+    <div id="search-suggest"></div>
+  </div>
   <label>Typ</label>
   <select id="filter-type"><option value="">Alle</option><option value="wind">Wind</option><option value="pv">PV</option></select>
   <label>Bundesland</label>
@@ -122,6 +147,13 @@ async function init() {
   // Filter-Listener
   document.getElementById('filter-type').addEventListener('change', applyFilters);
   document.getElementById('filter-bl').addEventListener('change', applyFilters);
+
+  // Suche
+  document.getElementById('search-input').addEventListener('input', onSearchInput);
+  document.getElementById('search-input').addEventListener('keydown', onSearchKeydown);
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#search-wrapper')) closeSuggest();
+  });
 }
 
 function populateFilterBl() {
@@ -156,6 +188,143 @@ function applyFilters() {
   if (type) filtered = filtered.filter(u => u.t === type);
   if (bl)   filtered = filtered.filter(u => u.b === bl);
   renderMarkers(filtered);
+}
+
+/* ---------- Suche mit Autocomplete ---------- */
+// Normalisierung: Groß-/Kleinschreibung + Umlaute ignorieren
+function norm(s) {
+  return (s || '').toLowerCase()
+    .replace(/ä/g,'a').replace(/ö/g,'o').replace(/ü/g,'u')
+    .replace(/ß/g,'ss').replace(/é|è|ê/g,'e').replace(/à|â/g,'a')
+    .replace(/ç/g,'c').trim();
+}
+
+let _suggestCache = null;
+function searchIndex() {
+  // einmalig alle durchsuchbaren Strings je Anlage bauen
+  if (_suggestCache) return _suggestCache;
+  _suggestCache = allUnits.map(u => {
+    const park = u.park || u.wp || '';
+    return {
+      u,
+      hay: norm([u.n, park, u.g].join(' ')),
+      matches: [] // gefüllte Match-Stellen (offsetSets)
+    };
+  });
+  return _suggestCache;
+}
+
+// Fuzzy-Prefix/contains-Matching: Suche "döll" findet alles, wo n/park/g "döll" enthält
+function searchUnits(q) {
+  const nq = norm(q);
+  if (nq.length < 2) return [];
+  const hits = [];
+  for (const it of searchIndex()) {
+    const idx = it.hay.indexOf(nq);
+    if (idx !== -1) hits.push({ u: it.u, idx });
+  }
+  // 1. Einträge, deren NAME mit dem Suchstring beginnt, zuerst
+  hits.sort((a,b) => {
+    const an = norm(a.u.n).startsWith(nq) ? 0 : 1;
+    const bn = norm(b.u.n).startsWith(nq) ? 0 : 1;
+    if (an !== bn) return an - bn;
+    return a.idx - b.idx;
+  });
+  return hits;
+}
+
+function highlightName(name, q) {
+  const nq = norm(q);
+  if (!nq) return esc(name);
+  // Finde Startposition des normierten Musters im Original
+  let j = 0, k = 0, start = -1;
+  const nl = norm(name);
+  while (j < name.length && k < nq.length) {
+    if (nl[j] === nq[k]) { if (k===0) start=j; k++; }
+    else if (k>0) break;
+    j++;
+  }
+  if (start === -1) return esc(name);
+  const end = start + nq.length;
+  return esc(name.slice(0,start)) + '<b>' + esc(name.slice(start,end)) + '</b>' + esc(name.slice(end));
+}
+
+function showSuggest(hits) {
+  const box = document.getElementById('search-suggest');
+  if (!hits.length) { box.classList.remove('open'); box.innerHTML=''; return; }
+  const q = document.getElementById('search-input').value;
+  box.innerHTML = hits.slice(0,8).map((h, i) => {
+    const u = h.u;
+    const meta = [u.mw + ' MW' + (u.t==='pv'?'p':''), u.g].filter(Boolean).join(' · ');
+    return `<div class="sug-item ${i===0?'active':''}" data-i="${i}">
+      <span>${highlightName(u.n, q)}</span>
+      <span class="sug-meta">${esc(meta)}</span></div>`;
+  }).join('');
+  box.classList.add('open');
+  // Klick auf Vorschlag
+  box.querySelectorAll('.sug-item').forEach(el => {
+    el.onclick = () => selectSuggestion(parseInt(el.dataset.i));
+  });
+}
+
+function closeSuggest() { document.getElementById('search-suggest').classList.remove('open'); }
+
+let _activeSuggest = -1;
+function selectSuggestion(i) {
+  const box = document.getElementById('search-suggest');
+  const items = box.querySelectorAll('.sug-item');
+  const q = document.getElementById('search-input').value;
+  const hits = searchUnits(q);
+  if (!hits.length || items.length === 0) return;
+  const target = hits[i];
+  flyToUnit(target.u, target.u.n);
+  document.getElementById('search-input').value = target.u.n;
+  closeSuggest();
+}
+
+function onSearchInput() {
+  const q = document.getElementById('search-input').value;
+  if (norm(q).length < 2) { closeSuggest(); return; }
+  const hits = searchUnits(q);
+  _activeSuggest = 0;
+  showSuggest(hits);
+}
+
+function onSearchKeydown(e) {
+  const q = document.getElementById('search-input').value;
+  const box = document.getElementById('search-suggest');
+  const items = box.querySelectorAll('.sug-item');
+  if (!box.classList.contains('open')) {
+    if (e.key === 'Enter' && norm(q).length >= 2) {
+      const hits = searchUnits(q);
+      if (hits.length) { flyToUnit(hits[0].u, hits[0].u.n); }
+    }
+    return;
+  }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    const next = e.key === 'ArrowDown' ? Math.min(_activeSuggest+1, items.length-1) : Math.max(_activeSuggest-1, 0);
+    _activeSuggest = next;
+    items.forEach((el,i) => el.classList.toggle('active', i===next));
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    selectSuggestion(_activeSuggest);
+  } else if (e.key === 'Escape') {
+    closeSuggest();
+  }
+}
+
+function flyToUnit(u, label) {
+  // auf Treffer zoomen, Vorschläge ausschalten, nur diese(n) Marker zeigen
+  const single = allUnits.filter(x => x.m === u.m);
+  renderMarkers(single);
+  map.setView([u.lat, u.lon], 11);
+  // Popup öffnen
+  setTimeout(() => {
+    // Marker in Cluster-Gruppe suchen
+    const m = clusterGroup.getLayers().find(l => l._latlng && l._latlng.lat === u.lat && l._latlng.lng === u.lon);
+    if (m) m.openPopup();
+  }, 300);
 }
 
 function buildPopup(u) {

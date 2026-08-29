@@ -6,6 +6,16 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
 **Live-Ansicht (Single-File):** `dist/index_singlefile.html` — einfach im Browser öffnen
 (Internet für die Kartenkacheln von OpenStreetMap nötig).
 
+## Funktionen
+
+- 🗺️ Interaktive Karte (Leaflet) mit automatischem Clustering — Deutschland-Übersicht bis Einzelpunkt
+- 🔍 **Suche mit Autocomplete:** Tippe Teil eines Anlagenamen ein (z. B. „Döll") → Vorschläge ab
+  2 Zeichen; sucht auch im Solarpark-/Windpark- und Gemeindenamen, akzent-/groß-/klein-unabhängig
+  („dol" findet „Döllen"). Auswahl per Klick oder Pfeiltasten+Enter → Fly-to + Popup.
+- 🎯 Klick auf Anlage → Detail-Popup mit allen MaStR-Daten (MaStR-Nr., Leistung, Standort, Netzbetreiber,
+  Betreiber, wind-/PV-spezifische Felder)
+- 🔍 Filter nach Typ (Wind/PV) und Bundesland (inkl. Offshore)
+
 ---
 
 ## Schnellstart (Build)
