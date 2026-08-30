@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PV & Wind Karte – MaStR Deutschland</title>
+<!-- Leaflet + MarkerCluster -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
+#map { height:100%; width:100%; }
+
+/* Info-Bar oben (Mitte) */
+#infobar {
+  position:absolute; top:10px; left:50%; transform:translateX(-50%);
+  z-index:1000; background:#fff; padding:6px 16px; border-radius:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,.15); font-size:13px; color:#333;
+  white-space:nowrap; pointer-events:none;
+}
+
+/* Top-Bar oben rechts (Suchbereich, ~20% der Karte einnehmend) */
+#topbar {
+  position:absolute; top:10px; right:10px;
+  width:320px; max-width:calc(100vw - 30px);
+  z-index:1000;
+}
+#topbar-inner {
+  background:#fff; border-radius:10px;
+  box-shadow:0 3px 14px rgba(0,0,0,.18);
+  padding:10px 12px;
+}
+#search-wrapper { position:relative; }
+#search-input {
+  font-size:14px; padding:9px 34px 9px 12px; border:1px solid #ccc; border-radius:8px;
+  width:100%; box-sizing:border-box;
+}
+#search-input:focus { outline:none; border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.15); }
+#search-clear {
+  position:absolute; right:4px; top:50%; transform:translateY(-50%);
+  width:24px; height:24px; border:none; background:#e5e7eb; color:#4b5563;
+  border-radius:6px; font-size:13px; line-height:1; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+#search-clear:hover { background:#fca5a5; color:#991b1b; }
+#search-suggest {
+  position:absolute; top:100%; left:0; right:0; z-index:2000;
+  background:#fff; border:1px solid #ccc; border-top:none; border-radius:0 0 8px 8px;
+  max-height:340px; overflow-y:auto; display:none;
+  box-shadow:0 6px 20px rgba(0,0,0,.2);
+}
+#search-suggest.open { display:block; }
+#search-suggest .sug-item {
+  padding:9px 12px; cursor:pointer; border-bottom:1px solid #f0f0f0;
+  display:flex; justify-content:space-between; align-items:center; gap:8px;
+  font-size:13px;
+}
+#search-suggest .sug-item:last-child { border-bottom:none; border-radius:0 0 8px 8px; }
+#search-suggest .sug-item:hover, #search-suggest .sug-item.active { background:#dbeafe; }
+#search-suggest .sug-item b { color:#2563eb; }
+#search-suggest .sug-item .sug-meta { color:#888; font-size:11px; white-space:nowrap; }
+/* Dedizierter Betreiber-Suchtreffer (alle Anlagen des Betreibers auf der Karte) */
+#search-suggest .sug-betreiber {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px; cursor:pointer;
+  border-bottom:1px solid #e5e7eb; border-radius:8px 8px 0 0;
+  background:linear-gradient(180deg,#eff6ff,#f8fafc);
+  font-size:13px;
+}
+#search-suggest .sug-betreiber:hover { background:#dbeafe; }
+#search-suggest .sug-betreiber-icon { font-size:16px; color:#2563eb; flex-shrink:0; }
+#search-suggest .sug-betreiber-txt { flex:1; line-height:1.3; }
+#search-suggest .sug-betreiber-txt b { color:#1e40af; }
+#search-suggest .sug-betreiber-txt small { color:#64748b; }
+#search-suggest .sug-betreiber .sug-meta { color:#2563eb; font-size:15px; }
+#topbar-hits {
+  font-size:11px; color:#888; margin-top:4px; padding:0 2px;
+}
+
+/* Statistik-Button in Top-Bar */
+#topbar-actions { margin-top:6px; display:flex; justify-content:flex-end; }
+#btn-stats {
+  font-size:13px; padding:6px 14px; border:1px solid #2563eb; background:#2563eb;
+  color:#fff; border-radius:8px; cursor:pointer; font-weight:600;
+}
+#btn-stats:hover { background:#1d4ed8; }
+
+/* Overlay */
+#stats-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:1500;
+  display:none; opacity:0; transition:opacity .2s;
+}
+#stats-overlay.open { display:block; opacity:1; }
+
+/* Sidebar */
+#stats-panel {
+  position:fixed; top:0; right:-460px; width:440px; max-width:94vw; height:100%;
+  background:#fff; z-index:1600; box-shadow:-4px 0 24px rgba(0,0,0,.3);
+  display:flex; flex-direction:column;
+  transition:right .25s ease; border-radius:12px 0 0 12px;
+}
+#stats-panel.open { right:0; }
+#stats-header {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 18px; border-bottom:1px solid #eee;
+}
+#stats-header h2 { font-size:18px; margin:0; }
+#stats-close {
+  width:30px; height:30px; border:none; background:#e5e7eb; color:#4b5563;
+  border-radius:8px; font-size:15px; cursor:pointer;
+}
+#stats-close:hover { background:#fca5a5; color:#991b1b; }
+
+/* Tabs */
+#stats-tabs { display:flex; gap:4px; padding:10px 18px 0; border-bottom:1px solid #eee; }
+#stats-tabs .tab {
+  flex:1; padding:9px; border:1px solid #ddd; border-bottom:none; border-radius:8px 8px 0 0;
+  background:#f5f5f5; color:#555; font-size:13px; font-weight:600; cursor:pointer;
+}
+#stats-tabs .tab.active { background:#fff; color:#2563eb; border-color:#e0e0e0; }
+
+/* Panel-Inhalt scrollbar */
+#stats-body { flex:1; overflow-y:auto; padding-bottom:20px; }
+.stats-tab { display:none; padding:14px 18px; }
+.stats-tab.active { display:block; }
+
+/* Controls + Betreiber-Tabelle */
+.stats-controls { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+.stats-controls select, .stats-controls input {
+  font-size:13px; padding:5px 8px; border:1px solid #ccc; border-radius:6px;
+}
+/* Textfilter mit ✕-Löschbutton (wie in der Karten-Suche) */
+.filter-wrap { position:relative; flex:1 1 140px; min-width:120px; }
+.filter-wrap input {
+  width:100%; box-sizing:border-box; padding:5px 26px 5px 8px;
+}
+.filter-x-clear {
+  position:absolute; right:4px; top:50%; transform:translateY(-50%);
+  width:20px; height:20px; border:none; background:#e5e7eb; color:#4b5563;
+  border-radius:5px; font-size:12px; line-height:1; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; padding:0;
+}
+.filter-x-clear:hover { background:#d1d5db; color:#111827; }
+.stats-controls input { flex:1; min-width:120px; }
+#stats-table { width:100%; border-collapse:collapse; font-size:13px; }
+#stats-table th, #stats-table td { padding:7px 8px; border-bottom:1px solid #eee; text-align:left; }
+#stats-table th { background:#f7f9fc; color:#333; cursor:pointer; user-select:none; }
+#stats-table th.num, #stats-table td.num { text-align:right; white-space:nowrap; }
+#stats-table th.sorted-asc::after { content:" ▲"; color:#2563eb; font-size:10px; }
+#stats-table th.sorted-desc::after { content:" ▼"; color:#2563eb; font-size:10px; }
+#stats-table tbody tr { cursor:pointer; }
+#stats-table tbody tr:hover { background:#eef3ff; }
+#stats-table td.name { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#stats-count { margin-top:8px; font-size:12px; color:#888; }
+
+/* Hersteller-Tab: Hinweis-Feld */
+#hersteller-hint {
+  background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af;
+  border-radius:8px; padding:6px 10px; font-size:12px; margin-bottom:8px;
+}
+
+/* Hersteller: Verteilungs-Pie-Chart */
+#hersteller-chart-section { margin-top:18px; padding-top:14px; border-top:1px dashed #e5e7eb; }
+#hersteller-chart-section h3 { font-size:14px; color:#111827; margin-bottom:4px; }
+#hersteller-chart-wrap { display:flex; gap:16px; align-items:center; margin:10px 0 8px; }
+#hersteller-pie {
+  width:200px; height:200px; border-radius:50%; flex-shrink:0;
+  position:relative; box-shadow:0 2px 8px rgba(0,0,0,.12);
+  cursor:pointer; background:#fbfdff;
+}
+#hersteller-pie-side { flex:1; font-size:12px; }
+#hersteller-pie-side .pie-legend-row {
+  display:flex; align-items:center; gap:6px; padding:3px 0; cursor:pointer;
+}
+#hersteller-pie-side .pie-legend-row .swatch { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
+#hersteller-pie-side .pie-legend-row .pl-name { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#hersteller-pie-side .pie-legend-row .pl-val { color:#6b7280; }
+#hersteller-pie-side .pie-legend-row:hover { background:#f3f4f6; }
+#hersteller-pie-note { font-size:11px; color:#9ca3af; }
+
+/* Anteil-Spalte in der Hersteller-Tabelle */
+#hersteller-table td.pct { font-weight:600; color:#2563eb; }
+
+/* Hersteller-Tabelle: identische Formatierung wie die Betreiber-Tabelle (#stats-table) —
+   Schriftgröße, Zellpadding, Kopfzeilen-Hintergrund, Sortier-Pfeile, Hover, Namens-Ellipsis */
+#hersteller-table { width:100%; border-collapse:collapse; font-size:13px; }
+#hersteller-table th, #hersteller-table td { padding:7px 8px; border-bottom:1px solid #eee; text-align:left; }
+#hersteller-table th { background:#f7f9fc; color:#333; cursor:pointer; user-select:none; }
+#hersteller-table th.num, #hersteller-table td.num { text-align:right; white-space:nowrap; }
+#hersteller-table th.sorted-asc::after { content:" ▲"; color:#2563eb; font-size:10px; }
+#hersteller-table th.sorted-desc::after { content:" ▼"; color:#2563eb; font-size:10px; }
+#hersteller-table tbody tr { cursor:pointer; }
+#hersteller-table tbody tr:hover { background:#eef3ff; }
+#hersteller-table td.name { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#hersteller-count { margin-top:8px; font-size:12px; color:#888; }
+
+/* Größenklassen-Balken (professionell mit Achsen) */
+#groesse-header {
+  display:flex; justify-content:space-between; align-items:center; gap:8px;
+  flex-wrap:wrap; margin-bottom:8px;
+}
+#groesse-toggle { display:flex; gap:4px; }
+#groesse-toggle .gbtn, #groesse-measure .mbtn {
+  padding:6px 14px; border:1px solid #ddd; border-radius:8px; background:#f5f5f5;
+  color:#555; font-size:13px; font-weight:600; cursor:pointer;
+}
+#groesse-toggle .gbtn.active { background:#2563eb; color:#fff; border-color:#2563eb; }
+#groesse-toggle .gbtn[data-tech="pv"].active { background:#d97706; border-color:#d97706; }
+#groesse-measure { display:flex; gap:4px; }
+#groesse-measure .mbtn.active { background:#111827; color:#fff; border-color:#111827; }
+
+#groesse-summary {
+  background:#f7f9fc; border:1px solid #e5e7eb; border-radius:8px;
+  padding:8px 12px; margin-bottom:12px; font-size:13px; color:#374151;
+  display:flex; gap:20px; flex-wrap:wrap; line-height:1.5;
+}
+#groesse-summary b { color:#111827; }
+
+/* Chart-Achsen-Layout */
+.chart-wrap { display:flex; gap:8px; align-items:stretch; }
+.chart-y { display:flex; flex-direction:column; width:66px; flex-shrink:0; }
+.chart-grid { flex:1; position:relative; }
+.chart-grid::before {
+  content:''; position:absolute; left:0; right:0; top:0; bottom:0;
+  background-image:linear-gradient(to bottom, #eef2f7 1px, transparent 1px);
+  background-size:100% 60px; opacity:.5; pointer-events:none;
+}
+.chart-y .y-ticks { font-size:11px; color:#9ca3af; line-height:1; padding:0 6px 0 0; text-align:right; }
+.chart-y .y-ticks.t0 { height:20px; display:flex; align-items:flex-start; justify-content:flex-end; }
+.chart-y .y-ticks.t50 { height:40px; display:flex; align-items:flex-start; justify-content:flex-end; padding-top:2px; }
+.chart-y .y-ticks.t100 { flex:1; display:flex; align-items:flex-end; justify-content:flex-end; padding-bottom:18px; }
+
+/* Eine Zelle je Klasse: Balkenzeile + Label darunter */
+.bar-cell { position:relative; }
+.bar-cell:not(:last-child) { margin-bottom:6px; }
+.bar-cell .bar-label {
+  font-size:12px; color:#374151; text-align:left; padding-left:2px; margin-top:1px;
+}
+.bar-cell .bar-label .bar-klasse { font-weight:600; }
+.bar-cell .bar-label small { color:#9ca3af; }
+.bar-row {
+  display:flex; align-items:center; width:100%; position:relative; height:22px;
+}
+.bar-track {
+  flex:1; height:18px; background:#f3f4f6; border-radius:4px;
+  position:relative; overflow:visible;
+}
+.bar-fill {
+  height:100%; border-radius:4px 0 0 4px; min-width:6px;
+  display:flex; align-items:center; justify-content:flex-end;
+  position:relative; transition:width .2s ease;
+}
+.bar-fill.wind { background:linear-gradient(90deg,#1d4ed8,#3b82f6); }
+.bar-fill.pv   { background:linear-gradient(90deg,#b45309,#f59e0b); }
+/* Primärwert rechtsbündig in fester Spalte, immer sichtbar & sauber ausgerichtet */
+.bar-value {
+  min-width:96px; text-align:right; margin-left:8px; flex-shrink:0;
+  font-size:13px; font-weight:700; color:#111827; white-space:nowrap;
+}
+.bar-sublabel {
+  color:#9ca3af; font-weight:400; margin-left:8px; font-size:11px;
+}
+.bar-row:hover .bar-track { outline:2px solid #93c5fd; outline-offset:1px; }
+.bar-row:hover { cursor:pointer; }
+
+#groesse-legend {
+  margin-top:10px; font-size:11px; color:#9ca3af; border-top:1px solid #eee;
+  padding-top:8px;
+}
+.bar-tip {
+  position:fixed; background:#111827; color:#f9fafb; padding:8px 12px; border-radius:8px;
+  font-size:12px; line-height:1.6; pointer-events:none; z-index:3000; display:none;
+  max-width:300px; box-shadow:0 4px 16px rgba(0,0,0,.4);
+}
+.bar-tip b { color:#fff; display:block; margin-bottom:2px; }
+.bar-tip .tip-row { display:flex; justify-content:space-between; gap:16px; }
+.bar-tip .tip-row span:first-child { color:#9ca3af; }
+.bar-tip .tip-row span:last-child { text-align:right; font-weight:600; }
+.bar-tip .tip-note { margin-top:4px; padding-top:4px; border-top:1px solid #374151; color:#9ca3af; font-size:11px; }
+
+/* Impressum-Modal */
+.modal {
+  position:fixed; top:0; left:0; width:100%; height:100%; z-index:3200;
+  background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center;
+  padding:20px;
+}
+.modal.open { display:flex; }
+.modal-box {
+  background:#fff; border-radius:12px; padding:28px; max-width:560px; width:100%;
+  max-height:86vh; overflow:auto; box-shadow:0 12px 40px rgba(0,0,0,.3); position:relative;
+}
+.modal-box h2 { font-size:20px; color:#111827; margin-bottom:6px; }
+.modal-box .modal-lead { color:#6b7280; font-size:13px; margin-bottom:20px; }
+.modal-section { margin-bottom:18px; }
+.modal-section h3 { font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:#6b7280; margin-bottom:6px; }
+.modal-section p { font-size:13px; line-height:1.6; color:#374151; }
+.modal-section a { color:#2563eb; text-decoration:none; }
+.modal-section a:hover { text-decoration:underline; }
+.modal-close {
+  position:absolute; top:14px; right:14px; background:none; border:none;
+  font-size:18px; color:#6b7280; cursor:pointer; padding:4px 8px; border-radius:6px;
+}
+.modal-close:hover { background:#f3f4f6; color:#111827; }
+
+/* Quellen- & Lizenzvermerk unten links */
+#attribution {
+  position:absolute; bottom:2px; left:10px; z-index:1000;
+  background:rgba(255,255,255,.92); border-radius:6px;
+  padding:4px 8px; box-shadow:0 1px 4px rgba(0,0,0,.12);
+  font-size:10px; line-height:1.5; color:#555;
+  max-width:480px;
+}
+#attribution .attr-line { display:inline; white-space:normal; }
+#attribution em { font-style:normal; color:#8a6d3b; }
+#attribution a { color:#2563eb; text-decoration:none; }
+#attribution a:hover { text-decoration:underline; }
+#attribution #filter-attribution { color:#999; font-size:10px; }
+
+/* Filter unten links (kompakt) */
+#toolbar {
+  position:absolute; bottom:48px; left:10px; z-index:1000;
+  background:#fff; padding:6px 10px; border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,.15); font-size:13px;
+  display:flex; gap:6px; align-items:center; flex-wrap:wrap;
+}
+#toolbar label { color:#555; font-size:11px; }
+#toolbar select { font-size:12px; padding:2px 5px; border:1px solid #ccc; border-radius:4px; }
+
+/* Legende unten rechts */
+#legend {
+  position:absolute; bottom:30px; right:10px; z-index:1000;
+  background:#fff; padding:10px 14px; border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,.15); font-size:13px; line-height:1.8;
+  min-width:140px;
+}
+#legend .dot { display:inline-block; width:12px; height:12px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+.dot-wind { background:#2563eb; }
+.dot-pv   { background:#d97706; }
+#legend small { display:block; color:#888; font-size:11px; margin-top:4px; }
+
+/* Popup */
+.leaflet-popup-content { font-size:13px; line-height:1.5; max-height:350px; overflow-y:auto; }
+.leaflet-popup-content h3 { font-size:14px; margin-bottom:4px; }
+.leaflet-popup-content table { width:100%; border-collapse:collapse; }
+.leaflet-popup-content td { padding:2px 4px; border-bottom:1px solid #eee; }
+.leaflet-popup-content td:first-child { color:#888; width:40%; }
+/* Deeplinks im Popup (Betreiber -> NorthData, Koordinaten -> Google Maps) */
+.leaflet-popup-content a.popup-link {
+  color:#2563eb; text-decoration:none; font-weight:500;
+}
+.leaflet-popup-content a.popup-link:hover { text-decoration:underline; color:#1d4ed8; }
+.leaflet-popup-content a.popup-link small { font-weight:400; color:#64748b; text-decoration:none; }
+
+@media (max-width:600px) {
+  #infobar { font-size:11px; padding:4px 10px; top:64px; }
+  #legend { font-size:11px; padding:6px 10px; min-width:100px; bottom:70px; }
+  #toolbar { font-size:11px; padding:4px 8px; flex-wrap:wrap; }
+  #attribution { font-size:9px; max-width:calc(100vw - 20px); }
+  #topbar { top:8px; right:8px; width:calc(100vw - 16px); max-width:none; }
+  #topbar-inner { padding:8px 10px; }
+  #search-input { font-size:14px; padding:8px 10px; }
+  #search-suggest { max-height:280px; }
+}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="infobar">Lade Daten…</div>
+
+<!-- Obere Leiste oben rechts: Suche (prominent) -->
+<div id="topbar">
+  <div id="topbar-inner">
+    <div id="search-wrapper">
+      <input type="text" id="search-input" placeholder="Suche Anlage… z.B. Döllen" autocomplete="off">
+      <button type="button" id="search-clear" title="Suche löschen" style="display:none">✕</button>
+      <div id="search-suggest"></div>
+    </div>
+    <div id="topbar-hits" style="display:none">0 Treffer · <span id="topbar-result"></span></div>
+    <div id="topbar-actions">
+      <button type="button" id="btn-stats" title="Statistik öffnen">📊 Statistik</button>
+    </div>
+  </div>
+</div>
+
+<!-- Statistik-Sidebar (Overlay) -->
+<div id="stats-overlay"></div>
+<aside id="stats-panel">
+  <header id="stats-header">
+    <h2>Statistik</h2>
+    <button type="button" id="stats-close" title="Schließen">✕</button>
+  </header>
+  <div id="stats-body">
+
+    <!-- Tabs -->
+    <div id="stats-tabs">
+      <button class="tab active" data-tab="betreiber">Betreiber</button>
+      <button class="tab" data-tab="hersteller">Hersteller</button>
+      <button class="tab" data-tab="groesse">Größenklassen</button>
+    </div>
+
+    <!-- Betreiber-Ansicht -->
+    <section id="tab-betreiber" class="stats-tab active">
+      <div class="stats-controls">
+        <select id="stats-tech">
+          <option value="">Alle</option>
+          <option value="wind">Wind</option>
+          <option value="pv">PV</option>
+        </select>
+        <select id="stats-top">
+          <option value="10">Top 10</option>
+          <option value="50" selected>Top 50</option>
+          <option value="100">Top 100</option>
+          <option value="all">Alle</option>
+        </select>
+        <div class="filter-wrap">
+          <input type="text" id="stats-filter" placeholder="Betreiber filtern…">
+          <button type="button" id="stats-filter-clear" class="filter-x-clear" title="Filter löschen" aria-label="Filter löschen" style="display:none">✕</button>
+        </div>
+      </div>
+      <table id="stats-table">
+        <thead>
+          <tr>
+            <th data-key="name">Betreiber</th>
+            <th data-key="anzahl" class="num">Anzahl</th>
+            <th data-key="sum_mw" class="num">Summe MW</th>
+            <th data-key="avg_mw" class="num">Ø MW</th>
+          </tr>
+        </thead>
+        <tbody id="stats-tbody"></tbody>
+      </table>
+      <div id="stats-count"></div>
+    </section>
+
+    <!-- Hersteller-Ansicht (nur Wind — PV hat keine Herstellerangaben im MaStR) -->
+    <section id="tab-hersteller" class="stats-tab">
+      <div id="hersteller-hint">Hersteller­angaben sind nur bei Wind­kraftanlagen verfügbar.</div>
+      <div class="stats-controls">
+        <select id="hersteller-top">
+          <option value="10">Top 10</option>
+          <option value="50" selected>Top 50</option>
+          <option value="all">Alle</option>
+        </select>
+        <div class="filter-wrap">
+          <input type="text" id="hersteller-filter" placeholder="Hersteller filtern…">
+          <button type="button" id="hersteller-filter-clear" class="filter-x-clear" title="Filter löschen" aria-label="Filter löschen" style="display:none">✕</button>
+        </div>
+      </div>
+      <table id="hersteller-table">
+        <thead>
+          <tr>
+            <th data-key="name">Hersteller</th>
+            <th data-key="anzahl" class="num">Anzahl</th>
+            <th data-key="pct" class="num">Anteil</th>
+            <th data-key="sum_mw" class="num">Summe MW</th>
+            <th data-key="avg_mw" class="num">Ø MW</th>
+          </tr>
+        </thead>
+        <tbody id="hersteller-tbody"></tbody>
+      </table>
+      <div id="hersteller-count"></div>
+      <div id="hersteller-chart-section">
+        <h3>Verteilung nach Hersteller</h3>
+        <div id="hersteller-chart-wrap">
+          <canvas id="hersteller-pie" width="200" height="200"></canvas>
+          <div id="hersteller-pie-side"></div>
+        </div>
+        <div id="hersteller-pie-note"></div>
+      </div>
+    </section>
+
+    <!-- Größenklassen-Ansicht -->
+    <section id="tab-groesse" class="stats-tab">
+      <div id="groesse-header">
+        <div id="groesse-toggle">
+          <button class="gbtn active" data-tech="wind">Wind</button>
+          <button class="gbtn" data-tech="pv">PV</button>
+        </div>
+        <div id="groesse-measure">
+          <button class="mbtn active" data-measure="anzahl">Anlagen</button>
+          <button class="mbtn" data-measure="leistung">Leistung (MW)</button>
+        </div>
+      </div>
+      <div id="groesse-summary"></div>
+      <div id="groesse-chart"></div>
+      <div id="groesse-legend">
+        <span>Balken = Anzahl Anlagen je Größenklasse</span>
+      </div>
+    </section>
+
+  </div>
+</aside>
+
+<!-- Filter unten links -->
+<div id="toolbar">
+  <label>Typ</label>
+  <select id="filter-type"><option value="">Alle</option><option value="wind">Wind</option><option value="pv">PV</option></select>
+  <label>Bundesland</label>
+  <select id="filter-bl"><option value="">Alle</option></select>
+</div>
+
+<div id="legend">
+  <span class="dot dot-wind"></span> Wind (≥100 kW)<br>
+  <span class="dot dot-pv"></span> PV (≥0,5 MWp)<br>
+  <small id="data-stand">–</small>
+</div>
+<div id="attribution">
+  <span class="attr-line">Datenquelle: Marktstammdatenregister der Bundesnetzagentur · <em>Daten bearbeitet</em></span>
+  <span class="attr-line">Lizenz: <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener noreferrer">Datenlizenz Deutschland – Namensnennung – Version 2.0</a> · <a href="#" id="impressum-link" rel="noopener noreferrer">Impressum</a> · <span id="filter-attribution">PiBrain by fabibuss@web.de</span></span>
+</div>
+
+<!-- Impressum-Modal (rechtssicher, funktioniert auch ab file://) -->
+<div id="impressum-modal" class="modal">
+  <div class="modal-box">
+    <button type="button" id="impressum-close" class="modal-close" aria-label="Schließen">✕</button>
+    <h2>Impressum</h2>
+    <p class="modal-lead">Angaben gemäß § 5 TMG für die Anwendung „PV &amp; Wind Karte (MaStR)".</p>
+    <div class="modal-section">
+      <h3>Diensteanbieter</h3>
+      <p>Hans Dampf<br>Dampfstraße 1<br>29439 Lüchow<br>E-Mail: <a href="mailto:fabibuss@web.de">fabibuss@web.de</a></p>
+    </div>
+    <div class="modal-section">
+      <h3>Datenquelle &amp; Lizenz</h3>
+      <p>Die visualisierten Daten stammen aus dem <a href="https://www.marktstammdatenregister.de" target="_blank" rel="noopener noreferrer">Marktstammdatenregister (MaStR)</a> der Bundesnetzagentur und stehen unter der <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener noreferrer">Datenlizenz Deutschland – Namensnennung – Version 2.0</a>. Die dargestellten Daten wurden für die Kartendarstellung aufbereitet und gefiltert („Daten bearbeitet").</p>
+    </div>
+    <div class="modal-section">
+      <h3>Haftungsausschluss</h3>
+      <p>Die bereitgestellten Informationen wurden nach bestem Wissen und Gewissen zusammengestellt. Eine Gewähr für die Richtigkeit, Vollständigkeit und Aktualität der Daten wird nicht übernommen. Die Daten beruhen auf den öffentlich zugänglichen Angaben des MaStR.</p>
+    </div>
+    <div class="modal-section">
+      <h3>Urheber der Anwendung</h3>
+      <p>PiBrain by fabibuss@web.de</p>
+    </div>
+  </div>
+</div>
+
+<div id="bar-tip" class="bar-tip"></div>
+
+<script>
+let map, allUnits = [], markers = {};
+let clusterGroup, currentLayer;
+
+async function init() {
+  map = L.map('map', { zoomControl: true }).setView([51.5, 10.0], 6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap',
+    maxZoom: 18,
+  }).addTo(map);
+
+  clusterGroup = L.markerClusterGroup({
+    chunkedLoading: true,
+    maxClusterRadius: 50,
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    disableClusteringAtZoom: 17,
+  });
+  map.addLayer(clusterGroup);
+  currentLayer = clusterGroup;
+
+  // Daten laden (eingebettet oder per HTTP)
+  try {
+    let einheiten, meta, statistiken = null;
+    if (window.__PVWIND_DATA__ && window.__PVWIND_META__) {
+      einheiten = window.__PVWIND_DATA__;
+      meta = window.__PVWIND_META__;
+      statistiken = window.__PVWIND_STATS__ || null;
+    } else {
+      [einheiten, meta, statistiken] = await Promise.all([
+        fetch('assets/einheiten.json').then(r => r.json()),
+        fetch('assets/meta.json').then(r => r.json()),
+        fetch('assets/statistiken.json').then(r => r.json()).catch(() => null)
+      ]);
+    }
+    allUnits = einheiten;
+    window.__STATS__ = statistiken;  // für Statistik-Panel
+    document.getElementById('data-stand').textContent = 'Stand: ' + (meta.stand || '?');
+    const windCount = meta.counts?.Wind || 0;
+    const pvCount = meta.counts['Solare Strahlungsenergie'] || 0;
+    document.getElementById('infobar').textContent =
+      `PV & Wind Karte – ${windCount} Wind · ${pvCount} PV`;
+    populateFilterBl();
+    renderMarkers(einheiten);
+    initStats();
+  } catch(e) {
+    document.getElementById('infobar').textContent = 'Fehler beim Laden: ' + e.message;
+  }
+
+  // Filter-Listener
+  document.getElementById('filter-type').addEventListener('change', applyFilters);
+  document.getElementById('filter-bl').addEventListener('change', applyFilters);
+
+  // Suche
+  document.getElementById('search-input').addEventListener('input', onSearchInput);
+  document.getElementById('search-input').addEventListener('keydown', onSearchKeydown);
+  document.getElementById('search-clear').addEventListener('click', clearSearch);
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#search-wrapper')) closeSuggest();
+  });
+
+  // Impressum-Modal
+  const modal = document.getElementById('impressum-modal');
+  function openModal() { modal.classList.add('open'); }
+  function closeModal() { modal.classList.remove('open'); }
+  document.getElementById('impressum-link').addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+  document.getElementById('impressum-close').addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+}
+
+// Suchfeld leeren -> alle Anlagen wieder anzeigen
+function clearSearch() {
+  document.getElementById('search-input').value = '';
+  closeSuggest();
+  document.getElementById('search-clear').style.display = 'none';
+  applyFilters();
+  document.getElementById('search-input').focus();
+}
+
+function populateFilterBl() {
+  const blSet = new Set();
+  allUnits.forEach(u => { if(u.b) blSet.add(u.b); });
+  const sel = document.getElementById('filter-bl');
+  [...blSet].sort().forEach(b => {
+    const o = document.createElement('option');
+    o.value = b; o.textContent = b; sel.appendChild(o);
+  });
+}
+
+function renderMarkers(units) {
+  clusterGroup.clearLayers();
+  const markers = units.map(u => {
+    const icon = L.divIcon({
+      html: `<div style="width:10px;height:10px;border-radius:50%;background:${u.t==='wind'?'#2563eb':'#d97706'};border:1px solid #fff;"></div>`,
+      iconSize: [12,12],
+      className: '',
+    });
+    const m = L.marker([u.lat, u.lon], { icon });
+    m.bindPopup(buildPopup(u));
+    return m;
+  });
+  clusterGroup.addLayers(markers);
+}
+
+function applyFilters() {
+  const type = document.getElementById('filter-type').value;
+  const bl   = document.getElementById('filter-bl').value;
+  let filtered = allUnits;
+  if (type) filtered = filtered.filter(u => u.t === type);
+  if (bl)   filtered = filtered.filter(u => u.b === bl);
+  renderMarkers(filtered);
+}
+
+/* ---------- Suche mit Autocomplete ---------- */
+// Normalisierung: Groß-/Kleinschreibung + Umlaute ignorieren
+function norm(s) {
+  return (s || '').toLowerCase()
+    .replace(/ä/g,'a').replace(/ö/g,'o').replace(/ü/g,'u')
+    .replace(/ß/g,'ss').replace(/é|è|ê/g,'e').replace(/à|â/g,'a')
+    .replace(/ç/g,'c').trim();
+}
+
+let _suggestCache = null;
+function searchIndex() {
+  // einmalig alle durchsuchbaren Strings je Anlage bauen
+  if (_suggestCache) return _suggestCache;
+  _suggestCache = allUnits.map(u => {
+    const park = u.park || u.wp || '';
+    return {
+      u,
+      hay: norm([u.n, park, u.g, u.ab].join(' ')),   // inkl. Betreibername (u.ab)
+      matches: [] // gefüllte Match-Stellen (offsetSets)
+    };
+  });
+  return _suggestCache;
+}
+
+// Fuzzy-Prefix/contains-Matching: Suche "döll" findet alles, wo n/park/g "döll" enthält
+function searchUnits(q) {
+  const nq = norm(q);
+  if (nq.length < 2) return [];
+  const hits = [];
+  for (const it of searchIndex()) {
+    const idx = it.hay.indexOf(nq);
+    if (idx !== -1) hits.push({ u: it.u, idx });
+  }
+  // 1. Einträge, deren NAME mit dem Suchstring beginnt, zuerst
+  hits.sort((a,b) => {
+    const an = norm(a.u.n).startsWith(nq) ? 0 : 1;
+    const bn = norm(b.u.n).startsWith(nq) ? 0 : 1;
+    if (an !== bn) return an - bn;
+    return a.idx - b.idx;
+  });
+  return hits;
+}
+
+// Eindeutige Betreiber, deren Name die normalisierte Zeichenkette enthält
+function searchBetreiber(nq) {
+  const byName = new Map();
+  for (const u of allUnits) {
+    if (!u.ab) continue;
+    const key = u.ab;
+    const e = byName.get(key) || { name: key, count: 0 };
+    e.count += 1;
+    byName.set(key, e);
+  }
+  const found = [];
+  for (const b of byName.values()) {
+    if (norm(b.name).includes(nq)) found.push(b);
+  }
+  return found.sort((a, b) => b.count - a.count);
+}
+
+// Alle Anlagen der Betreiber, deren Name den Suchtext enthält, auf der Karte ausgeben
+function selectBetreiberSearch(q) {
+  const nq = norm(q);
+  const matching = allUnits.filter(u => u.ab && norm(u.ab).includes(nq));
+  if (!matching.length) return;
+  renderMarkers(matching);
+  map.fitBounds(matching.map(u => [u.lat, u.lon]), { padding: [30, 30] });
+  const betreiber = [...new Set(matching.map(u => u.ab))];
+  const label = betreiber.length > 1
+    ? `Betreiber enthält „${q}": ${betreiber.length} Betreiber · ${matching.length} Anlagen`
+    : `Betreiber: ${betreiber[0]} (${matching.length} Anlagen)`;
+  document.getElementById('search-input').value = label;
+  document.getElementById('search-clear').style.display = 'block';
+  closeSuggest();
+  closeStats();
+}
+
+function highlightName(name, q) {
+  const nq = norm(q);
+  if (!nq) return esc(name);
+  // Finde Startposition des normierten Musters im Original
+  let j = 0, k = 0, start = -1;
+  const nl = norm(name);
+  while (j < name.length && k < nq.length) {
+    if (nl[j] === nq[k]) { if (k===0) start=j; k++; }
+    else if (k>0) break;
+    j++;
+  }
+  if (start === -1) return esc(name);
+  const end = start + nq.length;
+  return esc(name.slice(0,start)) + '<b>' + esc(name.slice(start,end)) + '</b>' + esc(name.slice(end));
+}
+
+function showSuggest(hits) {
+  const box = document.getElementById('search-suggest');
+  const hitsEl = document.getElementById('topbar-hits');
+  const resultEl = document.getElementById('topbar-result');
+  const q = document.getElementById('search-input').value;
+  const nq = norm(q);
+
+  // Dedizierter Betreiber-Treffer: alle Anlagen, deren Betreibername den Suchtext enthält
+  const abHits = nq.length >= 2 ? searchBetreiber(nq) : [];
+  let html = '';
+  if (abHits.length) {
+    const totalUnits = abHits.reduce((s, b) => s + b.count, 0);
+    html += `<div class="sug-betreiber" data-absearch="${esc(q)}" title="Alle Anlagen dieser Betreiber auf der Karte anzeigen">
+      <span class="sug-betreiber-icon">⛁</span>
+      <span class="sug-betreiber-txt"><b>Betreiber: ${esc(q)}</b><br><small>${abHits.length} Betreiber · ${totalUnits} Anlagen in ganz Deutschland — alle anzeigen</small></span>
+      <span class="sug-meta">→</span></div>`;
+  }
+
+  if (!hits.length && !abHits.length) {
+    box.classList.remove('open'); box.innerHTML='';
+    hitsEl.style.display='none'; return;
+  }
+
+  const anlagen = hits.slice(0,8).map((h, i) => {
+    const u = h.u;
+    const meta = [u.mw + ' MW' + (u.t==='pv'?'p':''), u.g].filter(Boolean).join(' · ');
+    return `<div class="sug-item ${i===0?'active':''}" data-i="${i}">
+      <span>${highlightName(u.n, q)}</span>
+      <span class="sug-meta">${esc(meta)}</span></div>`;
+  }).join('');
+
+  box.innerHTML = html + anlagen;
+  box.classList.add('open');
+  // Klick auf Betreiber-Treffer -> alle Anlagen der gematchten Betreiber auf der Karte
+  const abBtn = box.querySelector('[data-absearch]');
+  if (abBtn) abBtn.onclick = () => selectBetreiberSearch(q);
+  // Klick auf Vorschlag
+  box.querySelectorAll('.sug-item').forEach(el => {
+    el.onclick = () => selectSuggestion(parseInt(el.dataset.i));
+  });
+  // Trefferzahl anzeigen
+  const totalHits = hits.length + (abHits.length ? 1 : 0);
+  hitsEl.style.display='block';
+  resultEl.textContent = totalHits > 8 ? totalHits + ' Treffer (zeige 8)' : totalHits + ' Treffer';
+}
+
+function closeSuggest() {
+  document.getElementById('search-suggest').classList.remove('open');
+  document.getElementById('topbar-hits').style.display='none';
+}
+
+let _activeSuggest = -1;
+function selectSuggestion(i) {
+  const box = document.getElementById('search-suggest');
+  const items = box.querySelectorAll('.sug-item');
+  const q = document.getElementById('search-input').value;
+  const hits = searchUnits(q);
+  if (!hits.length || items.length === 0) return;
+  const target = hits[i];
+  flyToUnit(target.u, target.u.n);
+  document.getElementById('search-input').value = target.u.n;
+  closeSuggest();
+}
+
+function onSearchInput() {
+  const q = document.getElementById('search-input').value;
+  document.getElementById('search-clear').style.display = q ? 'block' : 'none';
+  if (norm(q).length < 2) { closeSuggest(); return; }
+  const hits = searchUnits(q);
+  _activeSuggest = 0;
+  showSuggest(hits);
+}
+
+function onSearchKeydown(e) {
+  const q = document.getElementById('search-input').value;
+  const box = document.getElementById('search-suggest');
+  const items = box.querySelectorAll('.sug-item');
+  if (!box.classList.contains('open')) {
+    if (e.key === 'Enter' && norm(q).length >= 2) {
+      const hits = searchUnits(q);
+      if (hits.length) { flyToUnit(hits[0].u, hits[0].u.n); }
+    }
+    return;
+  }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    const next = e.key === 'ArrowDown' ? Math.min(_activeSuggest+1, items.length-1) : Math.max(_activeSuggest-1, 0);
+    _activeSuggest = next;
+    items.forEach((el,i) => el.classList.toggle('active', i===next));
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    selectSuggestion(_activeSuggest);
+  } else if (e.key === 'Escape') {
+    closeSuggest();
+  }
+}
+
+function flyToUnit(u, label) {
+  // auf Treffer zoomen, Vorschläge ausschalten, nur diese(n) Marker zeigen
+  const single = allUnits.filter(x => x.m === u.m);
+  renderMarkers(single);
+  map.setView([u.lat, u.lon], 11);
+  // Popup öffnen
+  setTimeout(() => {
+    // Marker in Cluster-Gruppe suchen
+    const m = clusterGroup.getLayers().find(l => l._latlng && l._latlng.lat === u.lat && l._latlng.lng === u.lon);
+    if (m) m.openPopup();
+  }, 300);
+}
+
+function buildPopup(u) {
+  let html = `<h3>${esc(u.n)}</h3><table>`;
+  const add = (label, val) => { if (val != null && val !== '') html += `<tr><td>${label}</td><td>${esc(val)}</td></tr>`; };
+  // HTML-sicheres Text-Insert für Werte, die nicht escaped werden dürfen (Links/Inhalt)
+  const addHtml = (label, valHtml) => { if (valHtml) html += `<tr><td>${label}</td><td>${valHtml}</td></tr>`; };
+  add('MaStR-Nr.', u.m);
+  add('Typ', u.t === 'wind' ? 'Wind' : 'Photovoltaik');
+  add('Art', u.art);
+  add('Leistung', u.mw + ' MW' + (u.t==='pv'?'p':''));
+  add('Bundesland', u.b);
+  add('Landkreis', u.lk);
+  add('Gemeinde', u.g);
+  add('PLZ', u.plz);
+  add('Inbetriebnahme', u.inb);
+  add('Status', u.st);
+  add('Netzbetreiber', u.nb);
+  // Betreiber mit NorthData-Deeplink (Firmenprofil direkt öffnen)
+  if (u.ab) {
+    const ndUrl = 'https://www.northdata.de/' + northdataSlug(u.ab);
+    addHtml('Betreiber', `<a class="popup-link" href="${esc(ndUrl)}" target="_blank" rel="noopener">${esc(u.ab)} ↗</a>`);
+  }
+  // Koordinaten in Dezimalgrad mit Google-Maps-Deeplink
+  if (u.lat != null && u.lon != null) {
+    const lat = u.lat.toFixed(6), lon = u.lon.toFixed(6);
+    const gmap = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+    addHtml('Koordinaten', `<a class="popup-link" href="${esc(gmap)}" target="_blank" rel="noopener">${lat}, ${lon} ↗</a>`);
+  }
+  // PV-spezifisch
+  if (u.t === 'pv') {
+    add('Solar-Module', u.mod?.toLocaleString());
+    add('Ausrichtung', u.ausr);
+    add('Solarpark', u.park);
+  } else {
+    add('Nabenhöhe', u.nh ? u.nh + ' m' : null);
+    add('Rotordurchmesser', u.rd ? u.rd + ' m' : null);
+    add('Lichte Höhe', u.lhh ? u.lhh + ' m' : null);
+    add('Typ', u.typ);
+    add('Hersteller', u.herst);
+    add('Windpark', u.wp);
+    add('Lage', u.los);
+  }
+  html += '</table>';
+  return html;
+}
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// NorthData-Pfad-Slug für Firmensuche: Leerzeichen -> '+', Sonderzeichen URL-encode.
+// NorthData leitet `northdata.de/<Firmenname>` auf die passende Firmenseite weiter
+// (signifikante Treffer) bzw. auf die Suchseite. Das MaStR nutzt oft den vollen Breit-
+// Ampersand '＆' (U+FF06); NorthData erwartet '&' -> wir normalisieren beides auf '&'.
+// Beispiel: 'CEE PVF Eckolstädt GmbH & Co. KG'
+// -> 'CEE+PVF+Eckolst%C3%A4dt+GmbH+%26+Co.+KG'
+function northdataSlug(name) {
+  return encodeURIComponent(String(name).replace(/\uFF06/g, '&')).replace(/%20/g, '+');
+}
+
+/* ===================== Statistik-Panel ===================== */
+let _stats = null;          // rohe Statistiken aus statistiken.json
+let _statsState = {         // UI-Zustand
+  tab: 'betreiber',
+  tech: '',                 // '' | 'wind' | 'pv'
+  top: '50',
+  filter: '',
+  sortKey: 'sum_mw',
+  sortDir: 'desc',
+  groesseTech: 'wind',
+  groesseMeasure: 'anzahl', // 'anzahl' | 'leistung'
+  herstellerTop: '50',
+  herstellerFilter: '',
+  herstellerSortKey: 'sum_mw',
+  herstellerSortDir: 'desc',
+};
+
+function initStats() {
+  _stats = window.__STATS__;
+  // Buttons
+  document.getElementById('btn-stats').addEventListener('click', openStats);
+  document.getElementById('stats-close').addEventListener('click', closeStats);
+  document.getElementById('stats-overlay').addEventListener('click', closeStats);
+  // Tabs
+  document.querySelectorAll('#stats-tabs .tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#stats-tabs .tab').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.stats-tab').forEach(s => s.classList.toggle('active', s.id === 'tab-' + btn.dataset.tab));
+      _statsState.tab = btn.dataset.tab;
+      if (btn.dataset.tab === 'betreiber') renderBetreiber();
+      if (btn.dataset.tab === 'hersteller') renderHersteller();
+      if (btn.dataset.tab === 'groesse') renderGroesse();
+    });
+  });
+  // Hersteller-Controls
+  document.getElementById('hersteller-top').addEventListener('change', e => { _statsState.herstellerTop = e.target.value; renderHersteller(); });
+  document.getElementById('hersteller-filter').addEventListener('input', function(e) { _statsState.herstellerFilter = e.target.value; this.nextElementSibling.style.display = this.value ? 'block' : 'none'; renderHersteller(); });
+  document.getElementById('hersteller-filter-clear').addEventListener('click', function() {
+    const f = document.getElementById('hersteller-filter'); f.value = ''; _statsState.herstellerFilter = ''; this.style.display = 'none'; renderHersteller(); f.focus();
+  });
+  document.querySelectorAll('#hersteller-table th').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.key;
+      if (_statsState.herstellerSortKey === key) {
+        _statsState.herstellerSortDir = _statsState.herstellerSortDir === 'desc' ? 'asc' : 'desc';
+      } else {
+        _statsState.herstellerSortKey = key;
+        _statsState.herstellerSortDir = 'desc';
+      }
+      renderHersteller();
+    });
+  });
+  // Betreiber-Controls
+  document.getElementById('stats-tech').addEventListener('change', e => { _statsState.tech = e.target.value; renderBetreiber(); });
+  document.getElementById('stats-top').addEventListener('change', e => { _statsState.top = e.target.value; renderBetreiber(); });
+  document.getElementById('stats-filter').addEventListener('input', function(e) { _statsState.filter = e.target.value; this.nextElementSibling.style.display = this.value ? 'block' : 'none'; renderBetreiber(); });
+  document.getElementById('stats-filter-clear').addEventListener('click', function() {
+    const f = document.getElementById('stats-filter'); f.value = ''; _statsState.filter = ''; this.style.display = 'none'; renderBetreiber(); f.focus();
+  });
+  // Sortierung (Th-Klick)
+  document.querySelectorAll('#stats-table th').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.key;
+      if (_statsState.sortKey === key) {
+        _statsState.sortDir = _statsState.sortDir === 'desc' ? 'asc' : 'desc';
+      } else {
+        _statsState.sortKey = key;
+        _statsState.sortDir = 'desc';
+      }
+      renderBetreiber();
+    });
+  });
+  // Größenklassen
+  document.querySelectorAll('#groesse-toggle .gbtn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#groesse-toggle .gbtn').forEach(x => x.classList.toggle('active', x === b));
+      _statsState.groesseTech = b.dataset.tech;
+      renderGroesse();
+    });
+  });
+  document.querySelectorAll('#groesse-measure .mbtn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#groesse-measure .mbtn').forEach(x => x.classList.toggle('active', x === b));
+      _statsState.groesseMeasure = b.dataset.measure;
+      renderGroesse();
+    });
+  });
+  document.addEventListener('mousemove', moveBarTip);
+}
+
+function openStats() {
+  document.getElementById('stats-panel').classList.add('open');
+  document.getElementById('stats-overlay').classList.add('open');
+  renderBetreiber();
+  renderGroesse();
+}
+function closeStats() {
+  document.getElementById('stats-panel').classList.remove('open');
+  document.getElementById('stats-overlay').classList.remove('open');
+}
+
+// ----- Betreiber-Tabelle -----
+function renderBetreiber() {
+  const tbody = document.getElementById('stats-tbody');
+  if (!_stats || !_stats.betreiber) {
+    tbody.innerHTML = '<tr><td colspan="4">Keine Statistik-Daten</td></tr>';
+    return;
+  }
+  let rows = [..._stats.betreiber];
+  // Technologie-Filter
+  if (_statsState.tech) {
+    rows = rows.filter(b => b.tech[_statsState.tech] > 0);
+  }
+  // Textfilter (accent-/case-unabhängig)
+  const nf = norm(_statsState.filter);
+  if (nf) {
+    rows = rows.filter(b => norm(b.name).includes(nf));
+  }
+  // Sortierung
+  const key = _statsState.sortKey;
+  rows.sort((a, b) => {
+    let va = a[key], vb = b[key];
+    if (key === 'name') va = (va||'').toLowerCase(), vb = (vb||'').toLowerCase();
+    if (typeof va === 'string') return _statsState.sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+    va = va ?? 0; vb = vb ?? 0;
+    return _statsState.sortDir === 'asc' ? va - vb : vb - va;
+  });
+  // Top-N
+  const total = rows.length;
+  if (_statsState.top !== 'all') {
+    rows = rows.slice(0, parseInt(_statsState.top, 10));
+  }
+  // Render (ohne Tech-Badge — Nutzer-Wunsch)
+  tbody.innerHTML = rows.map(b => {
+    return `<tr data-betreiber="${esc(b.name)}">
+      <td class="name" title="${esc(b.name)}">${esc(b.name.split(')')[0].split('(')[0].trim())}</td>
+      <td class="num">${b.anzahl}</td>
+      <td class="num">${b.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:0})}</td>
+      <td class="num">${b.avg_mw.toLocaleString('de-DE', {maximumFractionDigits:1})}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="4">Keine Treffer</td></tr>';
+  // Klick auf Zeile -> Karte filtert Betreiber
+  tbody.querySelectorAll('tr[data-betreiber]').forEach(tr => {
+    tr.addEventListener('click', () => selectBetreiber(tr.dataset.betreiber));
+  });
+  // Sortier-Indikatoren
+  document.querySelectorAll('#stats-table th').forEach(th => {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    if (th.dataset.key === _statsState.sortKey) th.classList.add(_statsState.sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+  });
+  document.getElementById('stats-count').textContent =
+    `${rows.length} angezeigt von ${total} Betreibern`;
+}
+
+// Betreiber auf der Karte filtern (B7)
+function selectBetreiber(name) {
+  const matching = allUnits.filter(u => u.ab === name);
+  if (!matching.length) return;
+  renderMarkers(matching);
+  if (matching.length === 1) {
+    map.setView([matching[0].lat, matching[0].lon], 11);
+  } else {
+    map.fitBounds(matching.map(u => [u.lat, u.lon]), { padding: [30, 30] });
+  }
+  document.getElementById('search-input').value = matching.length > 1
+    ? `Betreiber: ${name} (${matching.length} Anlagen)`
+    : name;
+  document.getElementById('search-clear').style.display = 'block';
+  closeStats();
+}
+
+// ----- Hersteller-Tabelle (nur Wind) -----
+function renderHersteller() {
+  const tbody = document.getElementById('hersteller-tbody');
+  if (!_stats || !_stats.hersteller) {
+    tbody.innerHTML = '<tr><td colspan="5">Keine Hersteller-Daten</td></tr>';
+    return;
+  }
+  let rows = [..._stats.hersteller];
+  // Textfilter (akzent-/case-unabhängig)
+  const nf = norm(_statsState.herstellerFilter);
+  if (nf) {
+    rows = rows.filter(h => norm(h.name).includes(nf));
+  }
+  const gesamtBase = (_stats.gesamt && (_stats.gesamt.herstellbar_wind || _stats.gesamt.wind_anzahl)) || 1;
+  rows.forEach(h => { h.pct = gesamtBase ? Math.round(1000 * h.anzahl / gesamtBase) / 10 : 0; });
+  // Sortierung
+  const key = _statsState.herstellerSortKey;
+  rows.sort((a, b) => {
+    let va = a[key], vb = b[key];
+    if (key === 'name') va = (va||'').toLowerCase(), vb = (vb||'').toLowerCase();
+    if (typeof va === 'string') return _statsState.herstellerSortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+    va = va ?? 0; vb = vb ?? 0;
+    return _statsState.herstellerSortDir === 'asc' ? va - vb : vb - va;
+  });
+  // Top-N
+  const total = rows.length;
+  if (_statsState.herstellerTop !== 'all') {
+    rows = rows.slice(0, parseInt(_statsState.herstellerTop, 10));
+  }
+  // Render (Formatierung analog Betreiber-Tabelle: Name vor Klammern + Wind-Badge)
+  tbody.innerHTML = rows.map(h => `
+    <tr data-hersteller="${esc(h.name)}">
+      <td class="name" title="${esc(h.name)}">${esc(h.name.split(')')[0].split('(')[0].trim())}</td>
+      <td class="num">${h.anzahl}</td>
+      <td class="num pct">${h.pct.toLocaleString('de-DE', {maximumFractionDigits:1})}%</td>
+      <td class="num">${h.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:0})}</td>
+      <td class="num">${h.avg_mw.toLocaleString('de-DE', {maximumFractionDigits:1})}</td>
+    </tr>`).join('') || '<tr><td colspan="5">Keine Treffer</td></tr>';
+  // Klick auf Zeile -> Karte zeigt nur Anlagen dieses Herstellers
+  tbody.querySelectorAll('tr[data-hersteller]').forEach(tr => {
+    tr.addEventListener('click', () => selectHersteller(tr.dataset.hersteller));
+  });
+  // Sortier-Indikatoren
+  document.querySelectorAll('#hersteller-table th').forEach(th => {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    if (th.dataset.key === _statsState.herstellerSortKey) th.classList.add(_statsState.herstellerSortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+  });
+  document.getElementById('hersteller-count').textContent =
+    `${rows.length} angezeigt von ${total} Herstellern · Basis ${gesamtBase.toLocaleString('de-DE')} Windanlagen`;
+
+  renderHerstellerChart(rows, gesamtBase);
+}
+
+// Hersteller auf der Karte filtern (nur Windanlagen)
+function selectHersteller(name) {
+  const matching = allUnits.filter(u => (u.herst||'').trim() === name);
+  if (!matching.length) return;
+  renderMarkers(matching);
+  map.fitBounds(matching.map(u => [u.lat, u.lon]), { padding: [30, 30] });
+  document.getElementById('search-input').value = `Hersteller: ${name} (${matching.length} Anlagen)`;
+  document.getElementById('search-clear').style.display = 'block';
+  closeStats();
+}
+
+const PIE_COLORS = ['#2563eb','#16a34a','#f59e0b','#dc2626','#7c3aed','#0891b2','#db2777','#65a30d','#ea580c','#4f46e5','#64748b'];
+
+// Interaktives Pie-Chart: Verteilung der Hersteller-Anlagen in % an der Basis
+function renderHerstellerChart(rows, base) {
+  const canvas = document.getElementById('hersteller-pie');
+  const side = document.getElementById('hersteller-pie-side');
+  const note = document.getElementById('hersteller-pie-note');
+  if (!rows.length) { canvas.innerHTML = ''; side.innerHTML = ''; note.textContent = 'Keine Daten'; return; }
+
+  // Top-10 für das Pie + "Übrige" zusammenfassen
+  const top = rows.slice(0, 10);
+  const restSum = rows.slice(10).reduce((s, h) => s + h.anzahl, 0);
+  const segs = top.map(h => ({ name: h.name, anzahl: h.anzahl, pct: 100 * h.anzahl / base }));
+  if (restSum > 0) segs.push({ name: 'Übrige Hersteller', anzahl: restSum, pct: 100 * restSum / base });
+  const totalSeg = segs.reduce((s, e) => s + e.anzahl, 0);
+
+  // maxwidth/height 200 (aus CSS)
+  const size = 200, cx = size/2, cy = size/2, R = size/2 - 4;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = size * dpr; canvas.height = size * dpr;
+  canvas.style.width = size + 'px'; canvas.style.height = size + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, size, size);
+
+  // Ring (Donut): innerer Radius für Loch
+  const rIn = R * 0.55, rOut = R;
+  let start = -Math.PI / 2;
+  const seg = [];
+
+  segs.forEach((s, i) => {
+    const sweep = 2 * Math.PI * s.anzahl / totalSeg;
+    const idx = i % PIE_COLORS.length;
+    seg.push({ ...s, color: PIE_COLORS[idx], start, sweep });
+    ctx.beginPath();
+    ctx.arc(cx, cy, rOut, start, start + sweep);
+    ctx.arc(cx, cy, rIn, start + sweep, start, true);
+    ctx.closePath();
+    ctx.fillStyle = PIE_COLORS[idx];
+    ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+    start += sweep;
+  });
+
+  // nur Top-10 (+Übrige) im Pie; Hover auf einem Segment
+  let hoverIdx = -1;
+  function drawHover() {
+    ctx.clearRect(0, 0, size, size);
+    let a = -Math.PI / 2;
+    seg.forEach((s, i) => {
+      ctx.beginPath();
+      ctx.arc(cx, cy, i === hoverIdx ? rOut + 6 : rOut, a, a + s.sweep);
+      ctx.arc(cx, cy, rIn, a + s.sweep, a, true);
+      ctx.closePath();
+      ctx.fillStyle = s.color;
+      ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = i === hoverIdx ? 3 : 1.5; ctx.stroke();
+      a += s.sweep;
+    });
+    // zentrale Zahl im Loch
+    ctx.fillStyle = '#111827'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = 'bold 17px system-ui, sans-serif';
+    ctx.fillText(totalSeg.toLocaleString('de-DE'), cx, cy - 6);
+    ctx.font = '11px system-ui, sans-serif'; ctx.fillStyle = '#6b7280';
+    ctx.fillText('Anlagen', cx, cy + 12);
+  }
+  function angleOf(e) {
+    const rect = canvas.getBoundingClientRect();
+    const px = e.clientX - rect.left - rect.width/2;
+    const py = e.clientY - rect.top - rect.height/2;
+    let ang = Math.atan2(py, px);
+    if (ang < -Math.PI/2) ang += 2 * Math.PI;
+    return ang;
+  }
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const dx = e.clientX - rect.left - rect.width/2;
+    const dy = e.clientY - rect.top - rect.height/2;
+    const dist = Math.hypot(dx, dy);
+    if (dist < rect.width/2 * rIn / rOut || dist > rect.width/2) { if (hoverIdx !== -1) { hoverIdx = -1; drawHover(); sideHighlight(-1); } return; }
+    let ang = angleOf(e);
+    let idx = -1;
+    for (let i = 0; i < seg.length; i++) {
+      let s0 = seg[i].start, s1 = s0 + seg[i].sweep;
+      let a0 = s0; while (a0 < -Math.PI/2) a0 += 2*Math.PI;
+      let a1 = a0 + seg[i].sweep;
+      // normalisieren
+      let aa = ang < a0 - 0.001 ? ang + 2*Math.PI : ang;
+      if (aa >= a0 && aa <= a1) { idx = i; break; }
+    }
+    if (idx !== hoverIdx) { hoverIdx = idx; drawHover(); sideHighlight(idx); }
+  });
+  canvas.addEventListener('mouseleave', () => { if (hoverIdx !== -1) { hoverIdx = -1; drawHover(); sideHighlight(-1); } });
+  drawHover(); // initial rendern (mit zentraler Zahl)
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const dx = e.clientX - rect.left - rect.width/2;
+    const dy = e.clientY - rect.top - rect.height/2;
+    const dist = Math.hypot(dx, dy);
+    if (dist < rect.width/2 * rIn / rOut) return;
+    let ang = angleOf(e);
+    for (let i = 0; i < seg.length; i++) {
+      let a0 = seg[i].start; while (a0 < -Math.PI/2) a0 += 2*Math.PI;
+      let a1 = a0 + seg[i].sweep;
+      let aa = ang < a0 - 0.001 ? ang + 2*Math.PI : ang;
+      if (aa >= a0 && aa <= a1) { if (seg[i].name !== 'Übrige Hersteller') selectHersteller(seg[i].name); break; }
+    }
+  });
+
+  // Legende rechts
+  side.innerHTML = seg.map((s, i) => `
+    <div class="pie-legend-row" data-i="${i}">
+      <span class="swatch" style="background:${s.color}"></span>
+      <span class="pl-name" title="${esc(s.name)}">${esc(s.name)}</span>
+      <span class="pl-val">${s.anzahl.toLocaleString('de-DE')} · ${s.pct.toLocaleString('de-DE',{maximumFractionDigits:1})}%</span>
+    </div>`).join('');
+  function sideHighlight(idx) {
+    side.querySelectorAll('.pie-legend-row').forEach((r, i) => r.style.background = i === idx ? '#eef2ff' : '');
+  }
+  side.querySelectorAll('.pie-legend-row').forEach(r => {
+    r.addEventListener('mouseenter', () => { hoverIdx = parseInt(r.dataset.i,10); drawHover(); sideHighlight(hoverIdx); });
+    r.addEventListener('mouseleave', () => { hoverIdx = -1; drawHover(); sideHighlight(-1); });
+    r.addEventListener('click', () => { const i = parseInt(r.dataset.i,10); if (i < seg.length && seg[i].name !== 'Übrige Hersteller') selectHersteller(seg[i].name); });
+  });
+
+  note.textContent = `Anteil jedes Herstellers an allen ${base.toLocaleString('de-DE')} Windanlagen mit Herstellerangabe · Top 10 einzeln, Rest zusammengefasst · Hover oder Legenden-Klick für Details.`;
+}
+
+// ----- Größenklassen-Balken (professionell mit Achsen) -----
+function renderGroesse() {
+  const chart = document.getElementById('groesse-chart');
+  if (!_stats || !_stats.groessenklassen) { chart.innerHTML = '<p>Keine Daten</p>'; return; }
+  const tech = _statsState.groesseTech;
+  const isWind = tech === 'wind';
+  const klassen = _stats.groessenklassen[tech];
+  if (!klassen || !klassen.length) { chart.innerHTML = '<p>Keine Daten</p>'; return; }
+
+  const measure = _statsState.groesseMeasure; // 'anzahl' | 'leistung'
+  const maxVal = Math.max(...klassen.map(k => measure === 'anzahl' ? k.anzahl : k.sum_mw));
+  const gesTotal = _stats.gesamt;
+
+  // Summary-Box
+  const sumAnzahl = klassen.reduce((s, k) => s + k.anzahl, 0);
+  const sumMW = klassen.reduce((s, k) => s + k.sum_mw, 0);
+  document.getElementById('groesse-summary').innerHTML =
+    `<span><b>${isWind ? 'Wind' : 'Photovoltaik'}</b></span>` +
+    `<span>Anlagen: <b>${sumAnzahl.toLocaleString('de-DE')}</b></span>` +
+    `<span>Gesamtleistung: <b>${sumMW.toLocaleString('de-DE', {maximumFractionDigits:0})} MW</b></span>` +
+    `<span>Max Einzelanlage: <b>${(isWind ? gesTotal.wind_max_mw : gesTotal.pv_max_mw).toLocaleString('de-DE', {maximumFractionDigits:0})} MW</b></span>`;
+  document.getElementById('groesse-legend').innerHTML =
+    `<span>Balken = ${measure === 'anzahl' ? 'Anzahl der Anlagen' : 'installierte Leistung'} je Größenklasse · Hover für Details</span>`;
+
+  // Achsen-Skala: 0 / 50 / 100 %
+  const yTicks = [
+    { pos: 0, val: maxVal },
+    { pos: 50, val: Math.round(maxVal / 2) },
+    { pos: 100, val: 0 }
+  ];
+
+  // Klassische vertikale Balken: jeder Balken hat Titel über + Wert im Balken.
+  // Layout: horizontal als Balkenreihen übereinander (horizontaler Balkenschart)
+  // mit y-Skala links und Klassen-Label unter dem Balken.
+  let body = `<div class="chart-wrap">
+    <div class="chart-y">
+      ${yTicks.map(t => `<div class="y-ticks t${t.pos}">${fmtY(t.val)}</div>`).join('')}
+    </div>
+    <div class="chart-grid">`;
+
+  body += klassen.map(k => {
+    const rawVal = measure === 'anzahl' ? k.anzahl : k.sum_mw;
+    const pct = Math.max(4, Math.round(100 * rawVal / maxVal));
+    const color = isWind ? 'wind' : 'pv';
+    const countLabel = measure === 'anzahl'
+      ? k.anzahl.toLocaleString('de-DE')
+      : k.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' MW';
+    const amountLabel = measure === 'anzahl'
+      ? k.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' MW'
+      : k.anzahl.toLocaleString('de-DE') + ' Anlagen';
+    return `<div class="bar-cell">
+      <div class="bar-row" data-tip='${JSON.stringify({
+        klasse: k.label + ' MW', anzahl: k.anzahl, sum: k.sum_mw,
+        anteil_anzahl: k.anteil_anzahl, anteil_summe: k.anteil_summe,
+        units: measure
+      })}'>
+        <div class="bar-track">
+          <span class="bar-fill ${color}" style="width:${widthByPct(pct)}"></span>
+        </div>
+        <span class="bar-value">${countLabel}</span>
+      </div>
+      <div class="bar-label"><span class="bar-klasse">${esc(k.label)}</span><small> MW</small><span class="bar-sublabel">${measure==='anzahl' ? 'Summe: ' + amountLabel : 'Anlagen: ' + k.anzahl.toLocaleString('de-DE')}</span></div>
+    </div>`;
+  }).join('');
+
+  body += `</div></div>`;
+  chart.innerHTML = body;
+
+  // Klick auf Zeile -> nichts (nur Tooltip)
+  chart.querySelectorAll('.bar-row').forEach(row => {
+    row.addEventListener('mouseenter', e => showBarTip(e, row.dataset.tip));
+    row.addEventListener('mousemove', moveBarTip);
+    row.addEventListener('mouseleave', hideBarTip);
+  });
+}
+
+function widthByPct(pct) {
+  // für sehr schmale Balken den Label außerhalb positionieren; pct als Zahl
+  return Math.max(4, pct) + '%';
+}
+
+function fmtY(v) {
+  if (v >= 1000000) return (v / 1e6).toLocaleString('de-DE', {maximumFractionDigits:1}) + ' M';
+  if (v >= 1000) return (v / 1e3).toLocaleString('de-DE', {maximumFractionDigits:1}) + 'k';
+  return v.toLocaleString('de-DE');
+}
+
+function showBarTip(e, data) {
+  const tip = document.getElementById('bar-tip');
+  let d;
+  try { d = JSON.parse(data); } catch { d = {}; }
+  const isAnzahl = d.units === 'anzahl';
+  const countFmt = Number(d.anzahl).toLocaleString('de-DE');
+  const sumFmt = Number(d.sum).toLocaleString('de-DE', {maximumFractionDigits:0}) + ' MW';
+  tip.innerHTML = `
+    <b>Klasse ${esc(d.klasse)}</b>
+    <div class="tip-row"><span>Anlagen</span><span>${countFmt}</span></div>
+    <div class="tip-row"><span>Leistung</span><span>${sumFmt}</span></div>
+    <div class="tip-row"><span>Anteil Anlagen</span><span>${d.anteil_anzahl}%</span></div>
+    <div class="tip-row"><span>Anteil Leistung</span><span>${d.anteil_summe}%</span></div>
+    ${isAnzahl ? '<div class="tip-note">Balkenhöhe = Anlagen</div>' : '<div class="tip-note">Balkenhöhe = installierte Leistung</div>'}`;
+  tip.style.display = 'block';
+  moveBarTip(e);
+}
+function moveBarTip(e) {
+  const tip = document.getElementById('bar-tip');
+  if (!tip || tip.style.display === 'none') return;
+  // am rechten Rand umklappen, damit Tooltip nicht aus dem Viewport fällt
+  const pad = 12;
+  let left = e.clientX + pad;
+  if (left + tip.offsetWidth + pad > window.innerWidth) left = e.clientX - tip.offsetWidth - pad;
+  let top = e.clientY + pad;
+  if (top + tip.offsetHeight + pad > window.innerHeight) top = e.clientY - tip.offsetHeight - pad;
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+}
+function hideBarTip() { document.getElementById('bar-tip').style.display = 'none'; }
+
+init();
+</script>
+</body>
+</html>
