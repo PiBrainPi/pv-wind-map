@@ -509,7 +509,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 </div>
 <div id="attribution">
   <span class="attr-line">Datenquelle: Marktstammdatenregister der Bundesnetzagentur · <em>Daten bearbeitet</em></span>
-  <span class="attr-line">Lizenz: <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener noreferrer">Datenlizenz Deutschland – Namensnennung – Version 2.0</a> · <a href="#" id="impressum-link" rel="noopener noreferrer">Impressum</a> · <span id="filter-attribution">PiBrain by fabibuss@web.de</span></span>
+  <span class="attr-line">Lizenz: <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener noreferrer">Datenlizenz Deutschland – Namensnennung – Version 2.0</a> · <a href="#" id="impressum-link" rel="noopener noreferrer">Impressum</a> · <a href="#" id="datenschutz-footer-link" rel="noopener noreferrer">Datenschutz</a> · <span id="filter-attribution">Fabian Bussenius</span></span>
 </div>
 
 <!-- Impressum-Modal (rechtssicher, funktioniert auch ab file://) -->
@@ -517,10 +517,10 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   <div class="modal-box">
     <button type="button" id="impressum-close" class="modal-close" aria-label="Schließen">✕</button>
     <h2>Impressum</h2>
-    <p class="modal-lead">Angaben gemäß § 5 TMG für die Anwendung „PV &amp; Wind Karte (MaStR)".</p>
+    <p class="modal-lead">Angaben gemäß § 5 DDG für die Anwendung „PV &amp; Wind Karte (MaStR)".</p>
     <div class="modal-section">
       <h3>Diensteanbieter</h3>
-      <p>Hans Dampf<br>Dampfstraße 1<br>29439 Lüchow<br>E-Mail: <a href="mailto:fabibuss@web.de">fabibuss@web.de</a></p>
+      <p>Fabian Bussenius<br>Jüthornstraße 50<br>22043 Hamburg<br>E-Mail: <a href="mailto:fabibuss@web.de">fabibuss@web.de</a></p>
     </div>
     <div class="modal-section">
       <h3>Datenquelle &amp; Lizenz</h3>
@@ -532,12 +532,55 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     </div>
     <div class="modal-section">
       <h3>Urheber der Anwendung</h3>
-      <p>PiBrain by fabibuss@web.de</p>
+      <p>Fabian Bussenius</p>
+    </div>
+    <div class="modal-section">
+      <h3>Datenschutz</h3>
+      <p>Informationen zur Verarbeitung personenbezogener Daten finden Sie in der
+      <a href="#" id="datenschutz-link" rel="noopener noreferrer">Datenschutzerklärung</a>.</p>
     </div>
   </div>
 </div>
 
 <div id="bar-tip" class="bar-tip"></div>
+
+<!-- Datenschutz-Modal -->
+<div id="datenschutz-modal" class="modal">
+  <div class="modal-box">
+    <button type="button" id="datenschutz-close" class="modal-close" aria-label="Schließen">✕</button>
+    <h2>Datenschutzerklärung</h2>
+    <p class="modal-lead">für die Anwendung „PV &amp; Wind Karte (MaStR)" auf den Seiten von Fabian Bussenius.</p>
+    <div class="modal-section">
+      <h3>Verantwortlicher</h3>
+      <p>Fabian Bussenius<br>Jüthornstraße 50<br>22043 Hamburg<br>E-Mail: <a href="mailto:fabibuss@web.de">fabibuss@web.de</a></p>
+    </div>
+    <div class="modal-section">
+      <h3>Grundsatz</h3>
+      <p>Diese Anwendung ist eine rein statische Website. Der Schutz Ihrer personenbezogenen Daten ist uns wichtig. Es werden weder Cookies zur Analyse gesetzt noch Tracking-Dienste (z. B. Google Analytics) eingesetzt.</p>
+    </div>
+    <div class="modal-section">
+      <h3>Daten beim Aufruf (Server-Logs)</h3>
+      <p>Beim Aufruf dieser Website über den Hosting-Anbieter (GitHub Pages) können technisch notwendige
+      Server-Logdaten anfallen (z. B. IP-Adresse, Zeitpunkt, aufgerufene Ressource). Diese werden vom
+      Hosting-Anbieter für den Betrieb und die Sicherheit temporär verarbeitet. Wir selbst speichern
+      keine personenbezogenen Daten.</p>
+    </div>
+    <div class="modal-section">
+      <h3>Externe Dienste</h3>
+      <p>Die Kartendarstellung nutzt Kartenkacheln von <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> sowie
+      die Bibliotheken <a href="https://leafletjs.com" target="_blank" rel="noopener noreferrer">Leaflet</a> und
+      <a href="https://github.com/Leaflet/Leaflet.markercluster" target="_blank" rel="noopener noreferrer">MarkerCluster</a>.
+      Dabei wird Ihre IP-Adresse an diese Dienste übertragen. Weitere Informationen finden Sie in den
+      Datenschutzhinweisen der jeweiligen Anbieter.</p>
+    </div>
+    <div class="modal-section">
+      <h3>Ihre Rechte</h3>
+      <p>Sie haben das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung Ihrer
+      personenbezogenen Daten sowie auf Datenübertragbarkeit. Etwaige Beschwerden richten Sie an eine
+      Datenschutz-Aufsichtsbehörde.</p>
+    </div>
+  </div>
+</div>
 
 <script>
 let map, allUnits = [], markers = {};
@@ -607,7 +650,16 @@ async function init() {
   document.getElementById('impressum-link').addEventListener('click', (e) => { e.preventDefault(); openModal(); });
   document.getElementById('impressum-close').addEventListener('click', closeModal);
   modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeDS(); } });
+
+  // Datenschutz-Modal
+  const dsModal = document.getElementById('datenschutz-modal');
+  function openDS() { dsModal.classList.add('open'); }
+  function closeDS() { dsModal.classList.remove('open'); }
+  document.getElementById('datenschutz-link').addEventListener('click', (e) => { e.preventDefault(); openDS(); });
+  document.getElementById('datenschutz-footer-link').addEventListener('click', (e) => { e.preventDefault(); openDS(); });
+  document.getElementById('datenschutz-close').addEventListener('click', closeDS);
+  dsModal.addEventListener('click', (e) => { if (e.target === dsModal) closeDS(); });
 }
 
 // Suchfeld leeren -> alle Anlagen wieder anzeigen
