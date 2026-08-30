@@ -1,6 +1,7 @@
 # 30-Schritt-Plan — PV & Wind Karte (MaStR)
 
-> Stand: 2026-08-29 · Status: **V1 umgesetzt (Karte + Suche + Statistik) — Feinschliff & Hosting offen**
+> Stand: 2026-08-30 · Status: **V1 umgesetzt (Karte + Suche + Statistik) + LIVE gehostet auf GitHub Pages
+> unter eigener Domain `ingenieur-tools.de`**
 > Ziel: Interaktive, hostbare HTML-Karte aller deutschen Wind- & PV-Anlagen
 > aus dem Marktstammdatenregister, mit lokaler Datenbasis und Update-Pipeline.
 
@@ -16,8 +17,11 @@ georeferenzierten Anlagen (31.114 Wind ≥100 kW + 22.368 PV ≥0,5 MWp), Single
 `dist/index_singlefile.html` (direkt klickbar) und hostbarer Version in `dist/`.
 Pipeline: `build.sh` = `fetch → import → export → bundle`. Doku zweisprachig in `docs/`.
 
+**🌐 Hosting:** Live auf GitHub Pages unter eigener Domain. Karte: `https://wind-pv-map.ingenieur-tools.de/` ·
+Portal: `https://ingenieur-tools.de/`. Details in `docs/DEPLOYMENT.md`.
+
 **Noch offen:** Feinschliff-QA (Schritt 20), Cron-Live Einrichtung (Teil von 21/23),
-Hosting live schalten (Schritt 27 — nur vorbereitet, bewusst nicht live), vollständige
+Portal-HTTPS-Zertifikat (in Ausstellung, < 1 Std.), vollständige
 Fremdverifikation (Schritt 28/29), Launch (Schritt 30).
 
 ## Phasenübersicht
@@ -191,11 +195,13 @@ Fremdverifikation (Schritt 28/29), Launch (Schritt 30).
 - [ ] Optional: Single-File-Bundle (alles in eine HTML) für einfache Verteilung
 - **Verifikation:** `dist/` funktioniert von `file://` UND über jeden Static-Server
 
-### Schritt 27: Hosting vorbereiten (nicht live)
-- [ ] Ziel: App als **statische Site** hostbar; Doku für GitHub Pages (öffentlich) UND eigenen Server (Pi5/Cloudflare) fertig
-- [ ] Relative Pfade, `dist/` von jedem Static-Server lauffähig
-- [ ] **Kein Live-Deployment** in dieser Iteration — Hosting später, sobald User entscheidet
-- **Verifikation:** `dist/` läuft lokal über `python3 -m http.server` + auf GitHub-Pages-Struktur prüfbar
+### Schritt 27: Hosting — LIVE umgesetzt (Stand 2026-08-30)
+- [x] Ziel: App als **statische Site** hostbar; Doku für GitHub Pages (öffentlich) UND eigenen Server (Pi5/Cloudflare) fertig
+- [x] Relative Pfade, `dist/` von jedem Static-Server lauffähig
+- [x] **Live-Deployment** umgesetzt: GitHub Pages (öffentlich), Repos `pv-wind-map` + `ingenieur-tools-portal`,
+      eigene Domain `ingenieur-tools.de` (netcup). Details: `docs/DEPLOYMENT.md`.
+- **Verifikation:** Karte `https://wind-pv-map.ingenieur-tools.de/` live; Portal `https://ingenieur-tools.de/`
+  (HTTPS-Zertifikat in Ausstellung).
 
 ---
 
