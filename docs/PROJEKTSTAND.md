@@ -11,11 +11,11 @@ in Betrieb**, aus dem Marktstammdatenregister (MaStR, BNetzA). Klickbare Single-
 - **Datenbasis:** Wind 32.144 (31.114 georeferenziert) · PV 22.371 (22.368 georeferenziert)
   → **53.482 Anlagen auf der Karte**. Betreiber: 23.216.
 - **Schwellen (final):** Wind ≥100 kW, PV ≥0,5 MWp (beide 2026-08-29 durch Nutzer-Wunsch gesenkt).
-- **HEAD:** `86031e1` (Hersteller-Tabelle = Betreiber-CSS) — Commit-Kette der letzten Runden:
-  `86031e1` → `af2ef2c` (Badge/Emoji entfernt) → `4a39fff` (Popup-Deeplinks) → `456c113` (Betreiber-Suche)
-  → `5583654` (PV ≥0,5 MWp) → `5f417e7` (Wind ≥100 kW). **Working tree ist sauber/committet.**
+- **HEAD:** `c55f865` (Doku-Finalisierung) — Vollständige Commit-Historie inkl. neuer GitHub-Pages-Einrichtung.
+- **Remote:** `PiBrainPi/pv-wind-map` auf GitHub (**öffentlich**, `main`) + `gh-pages`-Branch (Deploy).
 - **Klickbare Datei:** `dist/index_singlefile.html` (24,9 MB) + Kopie im Austauschordner
   `/home/claw_01_rasbpi5_1/hermes_human-share/PV-Wind-Karte_MaStR.html`.
+- **Live auf GitHub Pages:** `https://pibrainpi.github.io/pv-wind-map/` (detailliert in `docs/DEPLOYMENT.md`).
 
 ## Features
 - **Karte:** Leaflet + MarkerCluster, Filter nach Typ (Wind/PV) und Bundesland, Detail-Popups.
@@ -59,8 +59,9 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
 - [x] `docs/statistik.md` & `docs/datenmodell.md` auf neue PV/Wind-Zahlen konsistent (Import 2026-08-29).
 - [ ] **Performance:** Single-File ist auf 24,9 MB gewachsen — optional PHP/hostbare Version nutzen,
       Daten-CDN, oder GeoJSON-Minify. Bei `file://`-Laden beachten (einmal war eine leere Seite transient).
-- [ ] Hosting (nur vorbereitet, nichts live): `docs/hosting.md` als Anleitung.
-- [ ] **GitHub-Publishing** optional: Repo ist lokal `main` ohne Remote; kein automatischer Push.
+- [ ] **Domain-Anbindung** (ausstehend): `ingenieur-tools.de` + `wind-pv-map.ingenieur-tools.de` DNS-Records
+      setzen, Custom-Domain in beiden Repos eintragen. Anleitung in `docs/DEPLOYMENT.md`.
+- [x] **GitHub-Publishing** umgesetzt: beide Repos öffentlich auf GitHub + GitHub Pages live.
 
 ## Besondere Hinweise für neue Sessions
 - **Kein JSON/HTML-Rohcode in Telegram-Chat**; klickbare Datei per `MEDIA:` oder send_telegram_file senden.

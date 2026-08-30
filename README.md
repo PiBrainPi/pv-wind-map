@@ -78,6 +78,7 @@ bash scripts/build.sh   # fetch + import + export + bundle in einem Schritt
 - [ENTSCHEIDUNGEN.md](ENTSCHEIDUNGEN.md) – Architektur-Entscheidungen
 - [PLAN.md](PLAN.md) – 30-Schritt-Plan
 - [docs/PROJEKTSTAND.md](docs/PROJEKTSTAND.md) – **aktueller Projektstand (Handover für neue Sessions)**
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) – **GitHub-Pages-Deployment + Domain-Anbindung**
 - [docs/](docs/) – detaillierte Doku (Architektur, Datenmodell, Update, Hosting, Fehlerbehebung, Statistik)
 
 ## Lizenz
