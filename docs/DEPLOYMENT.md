@@ -34,26 +34,35 @@ Beide Repos nutzen den **`gh-pages`-Branch** als Pages-Quelle (statisch, keine G
 - `main` = `index.html` (Startseite). `gh-pages` = identischer Inhalt (Pages-Quelle).
 - Einfach: Startseite ändern → `main` + `gh-pages` pushen.
 
-## Domain-Anbindung (ausstehend — braucht USER-DNS)
+## Domain-Anbindung (Stand 2026-08-30)
 
-Sobald die Domain aktiv ist, werden folgende DNS-Records beim Registrar gesetzt:
+### DNS-Records bei netcup (CCP → Domains → 🔍 → CloudDNS)
 
-| Ziel | Record-Typ | Wert |
+| Host | Typ | Wert | Zweck | Status |
+|---|---|---|---|---|
+| *(leer)* | A | `185.199.108.153` | Portal Apex | ✅ gesetzt |
+| `www` | CNAME | `pibrainpi.github.io` | Portal kanonisch | ✅ gesetzt |
+| `wind-pv-map` | CNAME | `pibrainpi.github.io` | Karte | ✅ gesetzt |
+| `galton-board` | CNAME | `pibrainpi.github.io` | Galton-Board (Repo folgt) | ✅ DNS vorbereitet |
+
+> netcup erlaubt **keinen CNAME direkt auf der Apex** (Konflikt mit SOA/NS) → für `ingenieur-tools.de` wird ein **A-Record** verwendet. Die anderen sind CNAMEs.
+
+### Custom-Domains in den Repos (GitHub Pages)
+
+| Repo | Custom Domain | Status |
 |---|---|---|
-| `ingenieur-tools.de` (Portal) | CNAME | `pibrainpi.github.io` |
-| `wind-pv-map.ingenieur-tools.de` (Karte) | CNAME | `pibrainpi.github.io` |
+| `pv-wind-map` (Karte) | `wind-pv-map.ingenieur-tools.de` | ✅ HTTPS fertig (Let's Encrypt) |
+| `ingenieur-tools-portal` | `www.ingenieur-tools.de` | ⏳ HTTPS-Zertifikat in Ausstellung |
 
-Danach in beiden GitHub-Repos die **Custom Domain** setzen:
-- Karte → `wind-pv-map.ingenieur-tools.de`
-- Portal → `ingenieur-tools.de`
+> Portal nutzt `www` als kanonische Domain — GitHub leitet `www` → Apex automatisch um. Zertifikat braucht nach CNAME-Setup Zeit (~30–60 Min.).
 
-GitHub stellt automatisch kostenlose TLS-Zertifikate aus (nach DNS-Propagation).
-
-## Verifikation (durchgeführt 2026-08-30)
+### Verifikation (durchgeführt 2026-08-30)
 
 - ✅ Karte `index.html` → HTTP 200, Leaflet lädt, `assets/einheiten.json` (22,1 MB) → 53.482 Einheiten
 - ✅ Portal `index.html` → HTTP 200, enthält Link zur Karten-Subdomain
 - ✅ Single-File rekonstruiert, SHA-identisch mit Backup (kein Datenverlust)
+- ✅ `www.ingenieur-tools.de` + `galton-board.ingenieur-tools.de` DNS propagiert (Cloudflare DoH)
+- ✅ Karte HTTPS fertig; Portal HTTPS-Zertifikat in Ausstellung
 
 ## Wichtige Hinweise
 
