@@ -53,6 +53,11 @@ Austauschordner `~/hermes_human-share/`).
 - `export_app.py`: schreibt `dist/assets/einheiten.json` + `meta.json` + **`statistiken.json`** (Betreiber, Größenklassen).
 - `bundle_singlefile.py`: erzeugt `dist/index_singlefile.html` (Daten + Statistik eingebettet).
 
+> **Wichtig (Hosting):** Nach einem Daten-Update müssen geänderte `dist/assets/*.json` auch
+> auf die **Live-Website** übertragen werden — der `gh-pages`-Branch des Repos enthält die
+> deploybare Site. Ablauf: `dist/` neu bauen → `gh-pages`-Branch aus `dist/` aktualisieren →
+> push → GitHub-Pages deployed automatisch. Details siehe `docs/DEPLOYMENT.md`.
+
 ### Verifikation nach Update
 
 1. `python3 scripts/export_app.py` zeigt die Zähler (Wind/PV, Geolokation).

@@ -3,8 +3,11 @@
 Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
 **Marktstammdatenregister (MaStR)** der Bundesnetzagentur.
 
-**Live-Ansicht (Single-File):** `dist/index_singlefile.html` — einfach im Browser öffnen
-(Internet für die Kartenkacheln von OpenStreetMap nötig).
+**🌐 Live im Internet:** **[https://wind-pv-map.ingenieur-tools.de/](https://wind-pv-map.ingenieur-tools.de/)**
+(Portal: [https://ingenieur-tools.de/](https://ingenieur-tools.de/))
+
+**Lokale Live-Ansicht (Single-File):** `dist/index_singlefile.html` — einfach im Browser öffnen
+(Internet für die Kartenkacheln von OpenStreetMap nötig). Hosting-Details: `docs/DEPLOYMENT.md`.
 
 ## Funktionen
 

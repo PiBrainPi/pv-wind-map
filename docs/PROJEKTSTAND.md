@@ -15,7 +15,8 @@ in Betrieb**, aus dem Marktstammdatenregister (MaStR, BNetzA). Klickbare Single-
 - **Remote:** `PiBrainPi/pv-wind-map` auf GitHub (**öffentlich**, `main`) + `gh-pages`-Branch (Deploy).
 - **Klickbare Datei:** `dist/index_singlefile.html` (24,9 MB) + Kopie im Austauschordner
   `/home/claw_01_rasbpi5_1/hermes_human-share/PV-Wind-Karte_MaStR.html`.
-- **Live auf GitHub Pages:** `https://pibrainpi.github.io/pv-wind-map/` (detailliert in `docs/DEPLOYMENT.md`).
+- **Live im Internet:** `https://wind-pv-map.ingenieur-tools.de/` (Karte, HTTPS aktiv) ·
+  `https://ingenieur-tools.de/` (Portal) — Details in `docs/DEPLOYMENT.md`.
 
 ## Features
 - **Karte:** Leaflet + MarkerCluster, Filter nach Typ (Wind/PV) und Bundesland, Detail-Popups.
@@ -59,14 +60,15 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
 - [x] `docs/statistik.md` & `docs/datenmodell.md` auf neue PV/Wind-Zahlen konsistent (Import 2026-08-29).
 - [ ] **Performance:** Single-File ist auf 24,9 MB gewachsen — optional PHP/hostbare Version nutzen,
       Daten-CDN, oder GeoJSON-Minify. Bei `file://`-Laden beachten (einmal war eine leere Seite transient).
-- [ ] **Domain-Anbindung** (ausstehend): `ingenieur-tools.de` + `wind-pv-map.ingenieur-tools.de` DNS-Records
-      setzen, Custom-Domain in beiden Repos eintragen. Anleitung in `docs/DEPLOYMENT.md`.
+- [ ] **Domain/HTTPS-Abschluss:** Portal-Zertifikat (`ingenieur-tools.de`) wird von GitHub ausgestellt
+      (in < 1 Std. live); Karte läuft bereits über HTTPS. Danach Regression beider URLs.
+      Galton-Board-Subdomain ist DNS-vorbereitet (`galton-board.ingenieur-tools.de`); Repo & Pages folgen auf Wunsch.
 - [x] **GitHub-Publishing** umgesetzt: beide Repos öffentlich auf GitHub + GitHub Pages live.
 
 ## Besondere Hinweise für neue Sessions
 - **Kein JSON/HTML-Rohcode in Telegram-Chat**; klickbare Datei per `MEDIA:` oder send_telegram_file senden.
 - **Ergebnis-Kommunikation:** deutsch, kurze Alarm-Nachrichten bei Fehlern, hart prüfen (kein Halluzinieren),
   Änderungsliste mit Quellen.
-- **GitHub-Publishing** (falls gewünscht): Repo ist lokal `main` ohne Remote; kein automatischer Push.
-  Doku/README Englisch, keine Secrets, Default privat.
+- **GitHub-Publishing** (umsgesetzt): Repo `pv-wind-map` (und `ingenieur-tools-portal`) sind öffentlich auf
+  GitHub, `main` ist das Quell-Repo, `gh-pages`-Branch deployt die Site. Keine Secrets im Repo.
 - **Andere LLMs prüfen Ergebnisse gegengegen** — gemeldete Bugs ernst nehmen, verifizieren, fixen.
