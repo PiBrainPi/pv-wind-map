@@ -81,11 +81,22 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   font-size:11px; color:#888; margin-top:4px; padding:0 2px;
 }
 
-/* Statistik-Button in Top-Bar */
-#topbar-actions { margin-top:6px; display:flex; justify-content:flex-end; }
+/* Statistik-Button + Daten-Footer in Top-Bar */
+#topbar-actions {
+  margin-top:6px; display:flex; justify-content:space-between; align-items:center; gap:8px;
+}
+/* Kompakte Farblegende + Datenstand (in der Top-Bar, links neben Statistik-Button) */
+#topbar-meta {
+  font-size:11px; color:#555; line-height:1.4; min-width:0;
+}
+#topbar-meta .m-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:4px; vertical-align:middle; }
+#topbar-meta .m-dot-wind { background:#2563eb; }
+#topbar-meta .m-dot-pv   { background:#d97706; }
+#topbar-meta .m-line { display:block; white-space:nowrap; }
+#topbar-meta #data-stand { color:#888; }
 #btn-stats {
   font-size:13px; padding:6px 14px; border:1px solid #2563eb; background:#2563eb;
-  color:#fff; border-radius:8px; cursor:pointer; font-weight:600;
+  color:#fff; border-radius:8px; cursor:pointer; font-weight:600; flex-shrink:0;
 }
 #btn-stats:hover { background:#1d4ed8; }
 
@@ -329,18 +340,12 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 }
 #toolbar label { color:#555; font-size:11px; }
 #toolbar select { font-size:12px; padding:2px 5px; border:1px solid #ccc; border-radius:4px; }
-
-/* Legende unten rechts */
-#legend {
-  position:absolute; bottom:30px; right:10px; z-index:1000;
-  background:#fff; padding:10px 14px; border-radius:8px;
-  box-shadow:0 2px 8px rgba(0,0,0,.15); font-size:13px; line-height:1.8;
-  min-width:140px;
+/* Anzeige der gefilterten Anlagen-Anzahl direkt neben dem Art-Dropdown */
+#toolbar .filter-count {
+  font-size:12px; font-weight:600; color:#2563eb;
+  background:#eef4ff; border:1px solid #c7dbff; border-radius:6px;
+  padding:2px 8px; white-space:nowrap;
 }
-#legend .dot { display:inline-block; width:12px; height:12px; border-radius:50%; margin-right:6px; vertical-align:middle; }
-.dot-wind { background:#2563eb; }
-.dot-pv   { background:#d97706; }
-#legend small { display:block; color:#888; font-size:11px; margin-top:4px; }
 
 /* Popup */
 .leaflet-popup-content { font-size:13px; line-height:1.5; max-height:350px; overflow-y:auto; }
@@ -357,7 +362,6 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
 @media (max-width:600px) {
   #infobar { font-size:11px; padding:4px 10px; top:64px; }
-  #legend { font-size:11px; padding:6px 10px; min-width:100px; bottom:70px; }
   #toolbar { font-size:11px; padding:4px 8px; flex-wrap:wrap; }
   #attribution { font-size:9px; max-width:calc(100vw - 20px); }
   #topbar { top:8px; right:8px; width:calc(100vw - 16px); max-width:none; }
@@ -381,6 +385,10 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     </div>
     <div id="topbar-hits" style="display:none">0 Treffer · <span id="topbar-result"></span></div>
     <div id="topbar-actions">
+      <div id="topbar-meta">
+        <span class="m-line"><span class="m-dot m-dot-wind"></span>Wind (≥100 kW) · <span class="m-dot m-dot-pv"></span>PV (≥0,5 MWp)</span>
+        <span class="m-line">Stand: <span id="data-stand">–</span></span>
+      </div>
       <button type="button" id="btn-stats" title="Statistik öffnen">📊 Statistik</button>
     </div>
   </div>
@@ -500,13 +508,11 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   <select id="filter-type"><option value="">Alle</option><option value="wind">Wind</option><option value="pv">PV</option></select>
   <label>Bundesland</label>
   <select id="filter-bl"><option value="">Alle</option></select>
+  <label>Art</label>
+  <select id="filter-art"><option value="">Alle</option></select>
+  <span id="art-count" class="filter-count" hidden></span>
 </div>
 
-<div id="legend">
-  <span class="dot dot-wind"></span> Wind (≥100 kW)<br>
-  <span class="dot dot-pv"></span> PV (≥0,5 MWp)<br>
-  <small id="data-stand">–</small>
-</div>
 <div id="attribution">
   <span class="attr-line">Datenquelle: Marktstammdatenregister der Bundesnetzagentur · <em>Daten bearbeitet</em></span>
   <span class="attr-line">Lizenz: <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener noreferrer">Datenlizenz Deutschland – Namensnennung – Version 2.0</a> · <a href="#" id="impressum-link" rel="noopener noreferrer">Impressum</a> · <a href="#" id="datenschutz-footer-link" rel="noopener noreferrer">Datenschutz</a> · <span id="filter-attribution">Fabian Bussenius</span></span>
@@ -619,12 +625,13 @@ async function init() {
     }
     allUnits = einheiten;
     window.__STATS__ = statistiken;  // für Statistik-Panel
-    document.getElementById('data-stand').textContent = 'Stand: ' + (meta.stand || '?');
+    document.getElementById('data-stand').textContent = (meta.stand || '?').slice(0, 10);
     const windCount = meta.counts?.Wind || 0;
     const pvCount = meta.counts['Solare Strahlungsenergie'] || 0;
     document.getElementById('infobar').textContent =
       `PV & Wind Karte – ${windCount} Wind · ${pvCount} PV`;
     populateFilterBl();
+    populateFilterArt();
     renderMarkers(einheiten);
     initStats();
   } catch(e) {
@@ -634,6 +641,7 @@ async function init() {
   // Filter-Listener
   document.getElementById('filter-type').addEventListener('change', applyFilters);
   document.getElementById('filter-bl').addEventListener('change', applyFilters);
+  document.getElementById('filter-art').addEventListener('change', applyFilters);
 
   // Suche
   document.getElementById('search-input').addEventListener('input', onSearchInput);
@@ -681,6 +689,17 @@ function populateFilterBl() {
   });
 }
 
+// Art-Filter befüllen: eindeutige Asset-Arten (u.art) aus dem Datensatz
+function populateFilterArt() {
+  const artSet = new Set();
+  allUnits.forEach(u => { if (u.art) artSet.add(u.art); });
+  const sel = document.getElementById('filter-art');
+  [...artSet].sort().forEach(a => {
+    const o = document.createElement('option');
+    o.value = a; o.textContent = a; sel.appendChild(o);
+  });
+}
+
 function renderMarkers(units) {
   clusterGroup.clearLayers();
   const markers = units.map(u => {
@@ -699,10 +718,23 @@ function renderMarkers(units) {
 function applyFilters() {
   const type = document.getElementById('filter-type').value;
   const bl   = document.getElementById('filter-bl').value;
+  const art  = document.getElementById('filter-art').value;
   let filtered = allUnits;
   if (type) filtered = filtered.filter(u => u.t === type);
   if (bl)   filtered = filtered.filter(u => u.b === bl);
+  if (art)  filtered = filtered.filter(u => (u.art || '') === art);
   renderMarkers(filtered);
+
+  // Anzahl der gefilterten Anlagen anzeigen, sobald Art- oder Bundesland-Filter aktiv ist.
+  // Es wird immer die tatsächlich sichtbare Menge gezählt (= inkl. evtl. Wind/PV-Filter), damit
+  // die Zahl konsistent mit den auf der Karte gezeichneten Anlagen ist (Variante A).
+  const countEl = document.getElementById('art-count');
+  if (art || bl) {
+    countEl.textContent = 'Anzahl: ' + filtered.length.toLocaleString('de-DE');
+    countEl.hidden = false;
+  } else {
+    countEl.hidden = true;
+  }
 }
 
 /* ---------- Suche mit Autocomplete ---------- */
