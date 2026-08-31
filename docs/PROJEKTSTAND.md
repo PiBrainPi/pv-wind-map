@@ -20,13 +20,17 @@ in Betrieb**, aus dem Marktstammdatenregister (MaStR, BNetzA). Klickbare Single-
   `https://ingenieur-tools.de/` (Portal) — Details in `docs/DEPLOYMENT.md`.
 
 ## Features
-- **Karte:** Leaflet + MarkerCluster, Filter nach Typ (Wind/PV), Bundesland und **Art des Assets**
-  (Freiflächen-/Gebäude-/Sonstige Solaranlage, Windkraft an Land/auf See), Detail-Popups.
-- **Anlagen-Anzahl-Badge (Filter):** Sobald der **Art- oder Bundesland-**Filter gesetzt ist, zeigt ein
-  blauer Badge direkt neben dem Art-Dropdown `Anzahl: <n>`. Logik (Var. A): die Zahl zählt immer die
-  **tatsächlich sichtbaren** Anlagen (Art + Bundesland **+ evtl. Wind/PV-Filter**), ist also stets
-  konsistent mit den Marker-Clustern. Ohne Art-/BL-Filter ist der Badge versteckt. Format:
-  Tausendertrennung (`de-DE`).
+- **Karte:** Leaflet + MarkerCluster, Filter nach Typ (Wind/PV), Bundesland, **Art des Assets**
+  (Freiflächen-/Gebäude-/Sonstige Solaranlage, Windkraft an Land/auf See) und **Leistung (MW)** in
+  festen Größenklassen `[von, bis)` (0.1–0.5 … 150–200, 200+), Detail-Popups.
+- **Anlagen-Anzahl-Badge (Filter):** Sobald ein **Art-, Bundesland- oder Leistungs-**Filter gesetzt ist,
+  zeigt ein blauer Badge `Anzahl: <n>`. Logik (Var. A): die Zahl zählt immer die **tatsächlich sichtbaren**
+  Anlagen (alle gesetzten Filter inkl. Wind/PV), konsistent mit den Marker-Clustern. Ohne Filter versteckt.
+  Format: Tausendertrennung (`de-DE`).
+- **Größenklassen-Skala (feste Staffel, Nutzer-Vorgabe 2026-08-31):**
+  `0.1–0.5 · 0.5–1 · 1–2 · 2–5 · 5–10 · 10–30 · 30–60 · 60–100 · 100–104 · 104–150 · 150–200 · 200+`
+  (immer `>= von && < bis`, in MW/MWp). Klassen ab `100–104` sind **Kritis-relevant** (kritische AC-Schwellen;
+  MaStR unterscheidet nicht zwischen MWp und MWac — PV ≈ MWp, Wind ≈ MW/MWac).
 - **Suche mit Autocomplete:** Anlagen-, Park-, Gemeinde- **und Betreibername** (akzent-/case-unabhängig).
 - **⛁ Betreiber-Suche:** Suchtext im Betreibernamen → ein Klick filtert **alle** Anlagen aller
   gematchten Betreiber (deutschlandweit, Fit-Bounds). Beispiel: „CEE" → 60 Betreiber/184 Anlagen.
@@ -35,8 +39,8 @@ in Betrieb**, aus dem Marktstammdatenregister (MaStR, BNetzA). Klickbare Single-
   (Deeplink `northdata.de/<Firmenname-Slug>`; MaStR-typischer Vollbreite-Ampersand ＆ wird auf `&` normalisiert).
 - **Statistik-Panel:** Betreiber-Tabelle (Filter/Top-N/Sortierung, Klick → Karte; **ohne** Technik-Badge/Emoji),
   Hersteller-Tabelle (nur Wind, +%Anteil-Spalte, **identische CSS-Formatierung wie Betreiber** — Schrift/Farbe/
-  Kopfzeilen/Hover/Sortierpfeile, **ohne** Badge), Größenklassen-Diagramm (Wind/PV),
-  Hersteller-Verteilungs-Donut-Chart (interaktiv, Canvas).
+  Kopfzeilen/Hover/Sortierpfeile, **ohne** Badge), **Größenklassen-Diagramme** mit Toggle **Wind / PV / Wind + PV**
+  (gemeinsames Diagramm beider Technologien), Hersteller-Verteilungs-Donut-Chart (interaktiv, Canvas).
 
 ## Build (Ein-Befehl)
 ```bash
@@ -50,7 +54,8 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
 |---------|-------|-------|
 | Fetch | `scripts/fetch_mastr.py` | MaStR-API (Wind ≥100 kW, PV ≥0,5 MWp) → `data/raw/*.json` |
 | Import | `scripts/import_mastr.py` | Normalisierung (kW↔MW) + SQLite `data/mastr.db` |
-| Export | `scripts/export_app.py` | `dist/assets/*.json` (nur georeferenziert) + Statistik |
+| Export | `scripts/export_app.py` | `dist/assets/*.json` (nur georeferenziert) + Statistik (inkl. `groessenklassen.gesamt`) |
+| Klassen-Rebuild | `scripts/rebuild_groessen.py` | DB-freies Rebuild der Größenklassen in `statistiken.json` (falls `mastr.db` fehlt, identische Logik) |
 | Bundle | `scripts/bundle_singlefile.py` | `dist/index_singlefile.html` (eingebettete Daten) |
 | App | `src/index.html` | Leaflet-Karte + Suche + Statistik-Panel + Impressum-Modal |
 
@@ -58,21 +63,31 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
 - **Einheiten-Normalisierung:** Wind gemischt (kW/MW); Heuristik `>80 → kW`, sonst MW. PV immer kWp `/1000`.
 - **Geolokation:** Nur Anlagen mit vorhandenen Koordinaten werden gezeichnet (kein Geocoding).
 - **Statistik (gesamt):** `gesamt.wind_anzahl`/`pv_anzahl` = Direktzählung aus SQLite (Bugfix).
-  `herstellbar_wind` = Summe der Hersteller. **Achtung:** nach Nutzer-Änderung evtl. Grenzwerte prüfen.
-- **Größenklassen:** Wind ab `0.1–1` MW, PV ab `0.5–1` MW (feste Staffeln in `export_app.py`).
+  `herstellbar_wind` = Summe der Hersteller.
+- **Größenklassen (Staffel):** Feste 12-Klassen-Skala `0.1–0.5 … 150–200` + `200+`, gültig für Wind, PV
+  und das gemeinsame Diagramm („Wind + PV"); definiert in `export_app.py` (`_staffel()`-Funktion).
+  **Alle 12 Klassen werden immer gelistet** (auch leere), damit Kritis-Schwellen-Klassen sichtbar sind.
+  Das Feld `kritis: true/false` im JSON markiert Kritis-relevante Klassen (ab `100–104`).
+  Die Karten-Statistik (`dist/assets/statistiken.json`) enthält den neuen Schlüssel
+  `groessenklassen.gesamt` für das gemeinsame Diagramm (zusätzlich zu `wind`/`pv`).
+- **Kritis-Klassen:** Im Diagramm 🔴 rot markiert (`bar-fill.kritis`), mit `KRITIS`-Badge im Label +
+  Tooltip-Hinweis. Leere Kritis-Klassen bei Wind (100–200) bleiben sichtbar.
+- **Größen-Filter in der Toolbar:** HTML `<select id="filter-gr">` mit den 12 Größen-Klassen als
+  `value="von,bis"` (z. B. `"0.5,1"`). `applyFilters()` parst `Number.parseFloat`, filtert
+  `u.mw >= von && u.mw < bis`. Der Badge (`#art-count`) wird aktiviert bei `art || bl || gr`.
 - **Rechtliches:** Quellenvermerk DL-De-BY-2.0 + Impressum (§5 DDG) fest in der App (Modal).
-- **Anlagen-Anzahl-Badge (Implementierung):** HTML-Element `#art-count` (mit Klasse `filter-count`)
-  direkt nach dem `#filter-art`-Select in der Toolbar; CSS in `#toolbar .filter-count`; Logik in
-  `applyFilters()` (zeigt Badge, sobald `art || bl` aktiv, zählt `filtered.length`). Verifikation:
-  siehe § Verifikation in diesem Dokument bzw. Browser-Test über `applyFilters()`.
 - **`data/`-Ist-Stand:** `data/raw/ + data/mastr.db` sind gitignored und aktuell **nicht vorhanden**;
   `fetch_mastr.py` legt sie beim nächsten vollständigen Update automatisch neu an.
+- **rebuild_groessen.py:** Temporäres Hilfsskript (DB-frei) zur Neuberechnung der Größenklassen in
+  `dist/assets/statistiken.json` aus `einheiten.json`, für den Fall, dass die SQLite-DB fehlt.
+  Dieselbe Logik wie `export_app.py::build_statistiken()`.
 
 ## Offene Punkte / nächste Schritte (Vorschlag)
 - [x] **Alle Revisionen committet** (Betreiber-Suche, Hersteller-Formatierung, Badge-Removal, Deeplinks,
-      Art-Filter, Anlagen-Anzahl-Badge, Doku). Working tree sauber (Stand nach Commit dieses Dokuments).
+      Art-Filter, Anlagen-Anzahl-Badge, Größen-Filter + Leistungsklassen, Kritis-Markierung, Gesamt-Diagramm,
+      Pipeline + Doku). Working tree sauber (Stand nach Commit dieses Dokuments).
 - [x] `docs/statistik.md`, `docs/datenmodell.md`, `docs/update.md`, `docs/architektur.md` auf neue
-      PV/Wind-Zahlen + Badge-Feature konsistent (Import 2026-08-29 / Badge 2026-08-31).
+      PV/Wind-Zahlen, Badge und Staffeln konsistent.
 - [ ] **Performance:** Single-File ist auf ~25 MB gewachsen — optional hostbare Version nutzen,
       Daten-CDN, oder GeoJSON-Minify. Bei `file://`-Laden beachten (einmal war eine leere Seite transient).
 - [ ] **Domain/HTTPS-Rest:** Portal-Zertifikat (`ingenieur-tools.de`) in Ausstellung; Sun-Tracker
@@ -80,20 +95,26 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
       `d9880f4fff1e`). Karte + Galton laufen bereits über HTTPS.
 - [x] **GitHub-Publishing** umgesetzt: Karten-Repo öffentlich auf GitHub + GitHub Pages live.
 
-## Verifikation: Anlagen-Anzahl-Badge (per Browser-Konsole, reproduzierbar)
+## Verifikation: Filter + Anlagen-Anzahl-Badge (per Browser-Konsole, reproduzierbar)
 Sobald die App geladen ist (`allUnits` befüllt), im Devtools-Konsolen-`window`-Kontext:
 ```js
-const set=(type,bl,art)=>{document.getElementById('filter-type').value=type;
+const set=(type,bl,art,gr)=>{document.getElementById('filter-type').value=type;
  document.getElementById('filter-bl').value=bl;document.getElementById('filter-art').value=art;
+ document.getElementById('filter-gr').value=gr||'';
  applyFilters();const e=document.getElementById('art-count');
  return {text:e.textContent,hidden:e.hidden};};
-set('','','Freiflächensolaranlage');   // → {text:"Anzahl: 11.707", hidden:false}
-set('','Bayern','');                   // → {text:"Anzahl: 7.042", hidden:false}
-set('','Bayern','Freiflächensolaranlage'); // → {text:"Anzahl: 4.396", hidden:false}
-set('','','');                         // → hidden:true
+set('','','Freiflächensolaranlage','');      // → {text:"Anzahl: 11.707", hidden:false}
+set('','Bayern','','');                      // → {text:"Anzahl: 7.042", hidden:false}
+set('','Bayern','Freiflächensolaranlage','');// → {text:"Anzahl: 4.396", hidden:false}
+set('pv','','','104,150');                   // → {text:"Anzahl: 2", hidden:false}   (PV 104–150 MW)
+set('wind','','','0.5,1');                   // → {text:"Anzahl: 4.079", hidden:false}
+set('','','','');                            // → hidden:true
 ```
-Referenzwerte (53.482-konsistenter Datensatz): Freifläche 11.707, Bayern 7.042, Bayern+Freifläche 4.396.
-Die Zahl muss stets `allUnits.filter(...)` für die gerade aktiven (Art, BL, Typ-)Filter entsprechen.
+Referenzwerte (53.482-Datensatz): Freifläche 11.707, Bayern 7.042, Bayern+Freifläche 4.396,
+PV 104–150 MW = 2, Wind 0.5–1 MW = 4.079. Die Zahl muss stets `allUnits.filter(...)` für die
+gerade aktiven (Art, BL, Gr, Typ-)Filter entsprechen.
+Die Größenklassen in `_stats.groessenklassen` haben `wind`/`pv`/`gesamt` mit je 12 Einträgen;
+Kritis-Klassen tragen `kritis:true` (Summen: Wind 31.114 · PV 22.368 · Gesamt 53.482).
 
 ## Besondere Hinweise für neue Sessions
 - **Kein JSON/HTML-Rohcode in Telegram-Chat**; klickbare Datei per `MEDIA:` oder send_telegram_file senden.

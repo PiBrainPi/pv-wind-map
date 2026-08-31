@@ -121,14 +121,26 @@ def build_statistiken(db) -> dict:
         h["avg_mw"] = round(h["sum_mw"] / h["anzahl"], 3)
         h["sum_mw"] = round(h["sum_mw"], 3)
 
-    # Größenklassen je Technologie (feste Staffel, bis zum realen Maximum)
+    # Größenklassen je Technologie (feste Staffel nach Nutzer-Vorgabe 2026-08-31)
+    # → gemeinsame Leistungsskala [von, bis) in MW / MWp:
+    #   0.1·0.5 · 0.5·1 · 1·2 · 2·5 · 5·10 · 10·30 · 30·60 · 60·100 · 100·104 · 104·150 · 150·200 (+200+)
+    #   Klassen ab "100–104" sind KRITIS-relevant (kritische AC-Schwellen; MaStR unterscheidet
+    #   nicht zwischen MWp und MWac — PV ≈ MWp, Wind ≈ MW / MWac).
+    #   Bei Wind werden die Kritis-Klassen gezeigt, auch wenn sie real (meist) leer sind.
+    # kritis=True markiert Klassen, die einen kritischen Schwellwert betreffen.
+    def _staffel():
+        base = [
+            ("0.1–0.5", 0.1, 0.5, False), ("0.5–1", 0.5, 1, False),
+            ("1–2", 1, 2, False), ("2–5", 2, 5, False), ("5–10", 5, 10, False),
+            ("10–30", 10, 30, False), ("30–60", 30, 60, False), ("60–100", 60, 100, False),
+            ("100–104", 100, 104, True), ("104–150", 104, 150, True),
+            ("150–200", 150, 200, True), ("200+", 200, 1e9, False),
+        ]
+        return base
+
     klassen = {
-        "wind": [("0.1–1", 0.1, 1), ("1–2", 1, 2), ("2–3", 2, 3), ("3–4", 3, 4), ("4–5", 4, 5),
-                 ("5–7", 5, 7), ("7–10", 7, 10), ("10–20", 10, 20),
-                 ("20–50", 20, 50), ("50–100", 50, 100), ("100+", 100, 1e9)],
-        "pv":   [("0.5–1", 0.5, 1), ("1–2", 1, 2), ("2–5", 2, 5), ("5–10", 5, 10),
-                 ("10–30", 10, 30), ("30–60", 30, 60), ("60–100", 60, 100),
-                 ("100–200", 100, 200), ("200+", 200, 1e9)],
+        "wind": _staffel(),   # gleiche Skala; Kritis-Klassen bei Wind meist 0 Anlagen, bleiben sichtbar
+        "pv":   _staffel(),
     }
     et_ids = {"wind": 2497, "pv": 2495}
     groessen = {"wind": [], "pv": []}
@@ -141,17 +153,35 @@ def build_statistiken(db) -> dict:
         total_mw = sum(mws)
         total_n = len(mws)
         maxima[tech] = round(max(mws), 2) if mws else 0
-        for label, von, bis in kliste:
+        for label, von, bis, kritis in kliste:
             n = sum(1 for v in mws if von <= v < bis)
             s = sum(v for v in mws if von <= v < bis)
-            if n == 0:
-                continue  # leere Klassen weglassen
+            # Klassen IMMER listen (auch n=0), damit Kritis-Schwellen sichtbar bleiben
             groessen[tech].append({
-                "label": label, "von": von, "bis": bis,
+                "label": label, "von": von, "bis": bis, "kritis": kritis,
                 "anzahl": n, "sum_mw": round(s, 2),
                 "anteil_anzahl": round(100.0 * n / total_n, 1) if total_n else 0,
                 "anteil_summe": round(100.0 * s / total_mw, 1) if total_mw else 0,
             })
+
+    # Gemeinsames Diagramm (Wind + PV zusammen) über dieselbe Klassenskala.
+    all_rows = db.execute(
+        "SELECT bruttoleistung_mw FROM einheiten WHERE geolokation=1"
+    ).fetchall()
+    all_mws = [r[0] for r in all_rows if r[0] is not None]
+    all_total_mw = sum(all_mws)
+    all_total_n = len(all_mws)
+    gesamt_klassen = []
+    for label, von, bis, kritis in _staffel():
+        n = sum(1 for v in all_mws if von <= v < bis)
+        s = sum(v for v in all_mws if von <= v < bis)
+        gesamt_klassen.append({
+            "label": label, "von": von, "bis": bis, "kritis": kritis,
+            "anzahl": n, "sum_mw": round(s, 2),
+            "anteil_anzahl": round(100.0 * n / all_total_n, 1) if all_total_n else 0,
+            "anteil_summe": round(100.0 * s / all_total_mw, 1) if all_total_mw else 0,
+        })
+    groessen["gesamt"] = gesamt_klassen
 
     totals = {
         "wind_anzahl": db.execute("SELECT COUNT(*) FROM einheiten WHERE geolokation=1 AND energietraeger_id=2497").fetchone()[0],

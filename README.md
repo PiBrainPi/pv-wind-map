@@ -21,10 +21,14 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
   gebündelt auf der Karte (Fit-Bounds). Ideal für Konzerne/SPVs mit mehreren Assets.
 - 🎯 Klick auf Anlage → Detail-Popup mit allen MaStR-Daten (MaStR-Nr., Leistung, Standort, Netzbetreiber,
   Betreiber, wind-/PV-spezifische Felder)
-- 🔍 Filter nach Typ (Wind/PV), Bundesland (inkl. Offshore) und **Art des Assets** (z. B. Windkraft an Land/auf See, Freiflächen-/Gebäudesolaranlage, Sonstige Solaranlage). Sobald der **Art-** oder **Bundesland-**Filter gesetzt ist, zeigt ein Badge neben dem Art-Dropdown die **Anzahl der aktuell sichtbaren Anlagen** (`Anzahl: n` — zählt inkl. evtl. Wind/PV-Filter, konsistent mit den Marker-Clustern).
-- 📊 **Statistik-Panel:** Betreiber-Tabelle (Name/Anzahl/Summe MW/Ø MW) mit Filter, Top-N & Sortierung;
-  Hersteller-Tab (nur Wind, mit %-Anteil + interaktivem Verteilungs-Pie-Chart); Größenklassen-Balken je
-  Technologie von 1 MW bis max. (Wind/PV); Klick auf Betreiber-/Hersteller-Zeile filtert die Karte
+- 🔍 **Filter (4):** Typ (Wind/PV), Bundesland (inkl. Offshore), **Art des Assets** (Freiflächen-/Gebäude-/Sonstige Solaranlage, Windkraft an Land/auf See) und **Leistung (MW)** in festen Größenklassen `[von, bis)`:
+  `0.1–0.5 · 0.5–1 · 1–2 · 2–5 · 5–10 · 10–30 · 30–60 · 60–100 · 100–104 · 104–150 · 150–200 · 200+`
+  (Wind ≈ Nennleistung/MW, PV = MWp — das MaStR unterscheidet nicht zwischen AC/DC; Klassen ab `100–104` betreffen **Kritis-Schwellwerte**). Sobald ein Art-/Bundesland-/Leistungs-Filter gesetzt ist, zeigt ein Badge neben dem Leistungs-Dropdown die **Anzahl der aktuell sichtbaren Anlagen** (`Anzahl: n` — zählt **alle** gesetzten Filter inkl. Wind/PV, konsistent mit den Marker-Clustern).
+- 📊 **Statistik-Panel:** Betreiber-Tabelle (Filter, Top-N, Sortierung, Klick → Karte) und Hersteller-Tab
+  (nur Wind, + %-Anteil + interaktiver Donut). **Größenklassen-Diagramme** (Toggle **Wind / PV / Wind + PV**)
+  mit fester Leistungsskala `[von, bis)` (Min 0.1 MW bis `200+`); **Kritis-Klassen** (`100–104 · 104–150 ·
+  150–200`) sind 🔴 rot markiert mit KRITIS-Badge; „Wind + PV" zeigt beide Technologien gemeinsam.
+  Anlagen ⇄ Leistung (MW)-Umschalter.
 
 ---
 

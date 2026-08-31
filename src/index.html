@@ -221,6 +221,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 }
 #groesse-toggle .gbtn.active { background:#2563eb; color:#fff; border-color:#2563eb; }
 #groesse-toggle .gbtn[data-tech="pv"].active { background:#d97706; border-color:#d97706; }
+#groesse-toggle .gbtn[data-tech="gesamt"].active { background:#4f46e5; border-color:#4f46e5; }
 #groesse-measure { display:flex; gap:4px; }
 #groesse-measure .mbtn.active { background:#111827; color:#fff; border-color:#111827; }
 
@@ -230,6 +231,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   display:flex; gap:20px; flex-wrap:wrap; line-height:1.5;
 }
 #groesse-summary b { color:#111827; }
+#groesse-summary .kritis-hint { color:#b91c1c; font-size:12px; }
 
 /* Chart-Achsen-Layout */
 .chart-wrap { display:flex; gap:8px; align-items:stretch; }
@@ -267,6 +269,10 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 }
 .bar-fill.wind { background:linear-gradient(90deg,#1d4ed8,#3b82f6); }
 .bar-fill.pv   { background:linear-gradient(90deg,#b45309,#f59e0b); }
+.bar-fill.gesamt { background:linear-gradient(90deg,#4338ca,#818cf8); }
+.bar-fill.kritis { background:linear-gradient(90deg,#b91c1c,#f87171) !important; }
+.bar-label .kritis-badge { display:inline-block; margin-left:4px; padding:0 5px; border-radius:4px;
+  background:#fee2e2; color:#b91c1c; font-size:10px; font-weight:700; }
 /* Primärwert rechtsbündig in fester Spalte, immer sichtbar & sauber ausgerichtet */
 .bar-value {
   min-width:96px; text-align:right; margin-left:8px; flex-shrink:0;
@@ -486,6 +492,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         <div id="groesse-toggle">
           <button class="gbtn active" data-tech="wind">Wind</button>
           <button class="gbtn" data-tech="pv">PV</button>
+          <button class="gbtn" data-tech="gesamt">Wind + PV</button>
         </div>
         <div id="groesse-measure">
           <button class="mbtn active" data-measure="anzahl">Anlagen</button>
@@ -510,6 +517,22 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   <select id="filter-bl"><option value="">Alle</option></select>
   <label>Art</label>
   <select id="filter-art"><option value="">Alle</option></select>
+  <label>Leistung (MW)</label>
+  <select id="filter-gr" title="Wind ≈ Nennleistung (MW) · PV = MWp · MaStR unterscheidet nicht AC/DC">
+    <option value="">Alle</option>
+    <option value="0.1,0.5">0.1–0.5</option>
+    <option value="0.5,1">0.5–1</option>
+    <option value="1,2">1–2</option>
+    <option value="2,5">2–5</option>
+    <option value="5,10">5–10</option>
+    <option value="10,30">10–30</option>
+    <option value="30,60">30–60</option>
+    <option value="60,100">60–100</option>
+    <option value="100,104">100–104</option>
+    <option value="104,150">104–150</option>
+    <option value="150,200">150–200</option>
+    <option value="200,1e9">200+</option>
+  </select>
   <span id="art-count" class="filter-count" hidden></span>
 </div>
 
@@ -642,6 +665,7 @@ async function init() {
   document.getElementById('filter-type').addEventListener('change', applyFilters);
   document.getElementById('filter-bl').addEventListener('change', applyFilters);
   document.getElementById('filter-art').addEventListener('change', applyFilters);
+  document.getElementById('filter-gr').addEventListener('change', applyFilters);
 
   // Suche
   document.getElementById('search-input').addEventListener('input', onSearchInput);
@@ -719,17 +743,25 @@ function applyFilters() {
   const type = document.getElementById('filter-type').value;
   const bl   = document.getElementById('filter-bl').value;
   const art  = document.getElementById('filter-art').value;
+  const gr   = document.getElementById('filter-gr').value;
   let filtered = allUnits;
   if (type) filtered = filtered.filter(u => u.t === type);
   if (bl)   filtered = filtered.filter(u => u.b === bl);
   if (art)  filtered = filtered.filter(u => (u.art || '') === art);
+  if (gr) {
+    const [von, bis] = gr.split(',').map(Number.parseFloat);
+    if (!Number.isNaN(von) && !Number.isNaN(bis))
+      filtered = filtered.filter(u => {
+        const mw = u.mw;
+        return mw != null && mw >= von && mw < bis;
+      });
+  }
   renderMarkers(filtered);
 
-  // Anzahl der gefilterten Anlagen anzeigen, sobald Art- oder Bundesland-Filter aktiv ist.
-  // Es wird immer die tatsächlich sichtbare Menge gezählt (= inkl. evtl. Wind/PV-Filter), damit
-  // die Zahl konsistent mit den auf der Karte gezeichneten Anlagen ist (Variante A).
+  // Anzahl-Badge: immer wenn einer der Filter (Art, BL, Gr) aktiv ist.
+  // Zählt die tatsächlich sichtbare Menge (= inkl. Wind/PV-Filter — Variante A).
   const countEl = document.getElementById('art-count');
-  if (art || bl) {
+  if (art || bl || gr) {
     countEl.textContent = 'Anzahl: ' + filtered.length.toLocaleString('de-DE');
     countEl.hidden = false;
   } else {
@@ -1367,8 +1399,7 @@ function renderHerstellerChart(rows, base) {
 function renderGroesse() {
   const chart = document.getElementById('groesse-chart');
   if (!_stats || !_stats.groessenklassen) { chart.innerHTML = '<p>Keine Daten</p>'; return; }
-  const tech = _statsState.groesseTech;
-  const isWind = tech === 'wind';
+  const tech = _statsState.groesseTech; // 'wind' | 'pv' | 'gesamt'
   const klassen = _stats.groessenklassen[tech];
   if (!klassen || !klassen.length) { chart.innerHTML = '<p>Keine Daten</p>'; return; }
 
@@ -1379,13 +1410,18 @@ function renderGroesse() {
   // Summary-Box
   const sumAnzahl = klassen.reduce((s, k) => s + k.anzahl, 0);
   const sumMW = klassen.reduce((s, k) => s + k.sum_mw, 0);
+  let techName, maxMw;
+  if (tech === 'wind') { techName = 'Wind'; maxMw = gesTotal.wind_max_mw; }
+  else if (tech === 'pv') { techName = 'Photovoltaik'; maxMw = gesTotal.pv_max_mw; }
+  else { techName = 'Wind + PV'; maxMw = Math.max(gesTotal.wind_max_mw || 0, gesTotal.pv_max_mw || 0); }
   document.getElementById('groesse-summary').innerHTML =
-    `<span><b>${isWind ? 'Wind' : 'Photovoltaik'}</b></span>` +
+    `<span><b>${techName}</b></span>` +
     `<span>Anlagen: <b>${sumAnzahl.toLocaleString('de-DE')}</b></span>` +
     `<span>Gesamtleistung: <b>${sumMW.toLocaleString('de-DE', {maximumFractionDigits:0})} MW</b></span>` +
-    `<span>Max Einzelanlage: <b>${(isWind ? gesTotal.wind_max_mw : gesTotal.pv_max_mw).toLocaleString('de-DE', {maximumFractionDigits:0})} MW</b></span>`;
+    `<span>Max Einzelanlage: <b>${maxMw.toLocaleString('de-DE', {maximumFractionDigits:0})} MW</b></span>` +
+    `<span class="kritis-hint">🔴 = Kritis-Schwellwert-Klasse</span>`;
   document.getElementById('groesse-legend').innerHTML =
-    `<span>Balken = ${measure === 'anzahl' ? 'Anzahl der Anlagen' : 'installierte Leistung'} je Größenklasse · Hover für Details</span>`;
+    `<span>Balken = ${measure === 'anzahl' ? 'Anzahl der Anlagen' : 'installierte Leistung'} je Größenklasse · Hover für Details · Klassen: [von, bis) in MW/MWp</span>`;
 
   // Achsen-Skala: 0 / 50 / 100 %
   const yTicks = [
@@ -1394,9 +1430,6 @@ function renderGroesse() {
     { pos: 100, val: 0 }
   ];
 
-  // Klassische vertikale Balken: jeder Balken hat Titel über + Wert im Balken.
-  // Layout: horizontal als Balkenreihen übereinander (horizontaler Balkenschart)
-  // mit y-Skala links und Klassen-Label unter dem Balken.
   let body = `<div class="chart-wrap">
     <div class="chart-y">
       ${yTicks.map(t => `<div class="y-ticks t${t.pos}">${fmtY(t.val)}</div>`).join('')}
@@ -1406,25 +1439,27 @@ function renderGroesse() {
   body += klassen.map(k => {
     const rawVal = measure === 'anzahl' ? k.anzahl : k.sum_mw;
     const pct = Math.max(4, Math.round(100 * rawVal / maxVal));
-    const color = isWind ? 'wind' : 'pv';
+    let color = tech === 'wind' ? 'wind' : (tech === 'pv' ? 'pv' : 'gesamt');
+    if (k.kritis) color = 'kritis';
     const countLabel = measure === 'anzahl'
       ? k.anzahl.toLocaleString('de-DE')
       : k.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' MW';
     const amountLabel = measure === 'anzahl'
       ? k.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' MW'
       : k.anzahl.toLocaleString('de-DE') + ' Anlagen';
+    const kritisBadge = k.kritis ? '<span class="kritis-badge">KRITIS</span>' : '';
     return `<div class="bar-cell">
       <div class="bar-row" data-tip='${JSON.stringify({
         klasse: k.label + ' MW', anzahl: k.anzahl, sum: k.sum_mw,
         anteil_anzahl: k.anteil_anzahl, anteil_summe: k.anteil_summe,
-        units: measure
+        kritis: !!k.kritis, units: measure
       })}'>
         <div class="bar-track">
           <span class="bar-fill ${color}" style="width:${widthByPct(pct)}"></span>
         </div>
         <span class="bar-value">${countLabel}</span>
       </div>
-      <div class="bar-label"><span class="bar-klasse">${esc(k.label)}</span><small> MW</small><span class="bar-sublabel">${measure==='anzahl' ? 'Summe: ' + amountLabel : 'Anlagen: ' + k.anzahl.toLocaleString('de-DE')}</span></div>
+      <div class="bar-label"><span class="bar-klasse">${esc(k.label)}</span><small> MW</small>${kritisBadge}<span class="bar-sublabel">${measure==='anzahl' ? 'Summe: ' + amountLabel : 'Anlagen: ' + k.anzahl.toLocaleString('de-DE')}</span></div>
     </div>`;
   }).join('');
 
@@ -1458,7 +1493,7 @@ function showBarTip(e, data) {
   const countFmt = Number(d.anzahl).toLocaleString('de-DE');
   const sumFmt = Number(d.sum).toLocaleString('de-DE', {maximumFractionDigits:0}) + ' MW';
   tip.innerHTML = `
-    <b>Klasse ${esc(d.klasse)}</b>
+    <b>Klasse ${esc(d.klasse)}</b>${d.kritis ? ' <span style="color:#b91c1c;font-weight:700">KRITIS</span>' : ''}
     <div class="tip-row"><span>Anlagen</span><span>${countFmt}</span></div>
     <div class="tip-row"><span>Leistung</span><span>${sumFmt}</span></div>
     <div class="tip-row"><span>Anteil Anlagen</span><span>${d.anteil_anzahl}%</span></div>
