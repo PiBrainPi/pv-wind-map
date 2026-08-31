@@ -6,12 +6,13 @@ Die hostbare App (dist/) lädt Daten per fetch() aus assets/*.json — das brauc
 HTTP-Server (fetch() ab file:// ist wegen CORS blockiert). Für eine direkt klickbare,
 einzelne Datei (doppelklick -> Browser öffnet) betten wir die Daten direkt ein.
 
-Hinweis: Leaflet & MarkerCluster werden weiter von CDN geladen (benötigt Internet).
-         Für 100% Offline (ohne CDN) müssten die Bibliotheken zusätzlich eingebettet werden.
-
 Ausgabe: dist/index_singlefile.html  (funktioniert ab file:// mit Internetverbindung)
 
 Nutzung: python3 scripts/bundle_singlefile.py
+
+Hinweis: Leaflet & MarkerCluster werden seit 2026-08-31 (DSGVO) LOKAL aus src/vendor/ inline
+eingebettet und von DIESEM Skript mit in die Single-File übernommen (es liest dist/index.html,
+das die eingebetteten Vendor-Libs enthält). Kein externes CDN (unpkg) mehr nötig.
 """
 import json
 from pathlib import Path

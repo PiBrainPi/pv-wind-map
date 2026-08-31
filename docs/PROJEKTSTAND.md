@@ -88,6 +88,11 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
   Dieselbe Logik wie `export_app.py::build_statistiken()`.
 
 ## Offene Punkte / nächste Schritte (Vorschlag)
+- [x] **DSGVO-Update (2026-08-31, Revision v2, lokal — noch NICHT gepusht):** unpkg-CDN entfernt
+      (Leaflet/MarkerCluster inline aus `src/vendor/`), OSM-Kacheln nur nach 2-Klick-Consent
+      (localStorage `pvw_tiles_consent`), Datenschutz-Modal komplett überarbeitet (Drittland USA/UK,
+      DPF, OSMF/UK-AD, TDDDG §25, HmbBfDI, Widerspruch, Deeplinks, Stand 31.08.2026), Meta
+      `referrer`/`robots`. Details + Revisionen: `~/Projects/Domain_Hosting/ingenieur-tools.de/DSGVO/`.
 - [x] **Alle Revisionen committet** (Betreiber-Suche, Hersteller-Formatierung, Badge-Removal, Deeplinks,
       Art-Filter, Anlagen-Anzahl-Badge, Größen-Filter + Leistungsklassen, Kritis-Markierung, Gesamt-Diagramm,
       Pipeline + Doku). Working tree sauber (Stand nach Commit dieses Dokuments).

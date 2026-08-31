@@ -1,0 +1,4 @@
+Leaflet 1.9.4 + Leaflet.markercluster 1.5.3 (geladen von unpkg.com am 2026-08-31, in src/index.html inline eingebettet).
+Lizenzen: BSD-2-Clause (Leaflet, Leaflet.markercluster).
+Quellen: https://unpkg.com/leaflet@1.9.4/dist/ , https://unpkg.com/leaflet.markercluster@1.5.3/dist/
+Copyright (c) 2010-2023 Volodymyr Agafonkin / CloudMade, Leaflet contributors; Leaflet.markercluster (c) Dave Leaver.

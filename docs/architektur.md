@@ -45,7 +45,7 @@ kompakte JSON-Dateien für die Karte (inkl. Statistik) exportiert.
 | **Download** | `scripts/fetch_mastr.py` | Paginierte Abfrage, Robustheit (Retry, Rate-Limit), Ausgabe `data/raw/{wind,pv}.json`. |
 | **Import** | `scripts/import_mastr.py` | SQLite-Schema, Einheiten-Normalisierung, ≥100-kW-Wind / ≥0,5-MWp-PV-Filter, `data/mastr.db`. |
 | **Export** | `scripts/export_app.py` | SQLite → kompaktes JSON für Karte (`dist/assets/*.json`) + Statistik (`statistiken.json`), nur Anlagen mit Geolokation. |
-| **App** | `src/index.html` | Leaflet-Karte + MarkerCluster + Filter + Detail-Popups + **Statistik-Panel**. |
+| **App** | `src/index.html` | Leaflet-Karte + MarkerCluster (beide **lokal in `src/vendor/`, inline eingebettet** seit 2026-08-31 / DSGVO — kein unpkg-CDN) + Filter + Detail-Popups + **Statistik-Panel** + **2-Klick-Consent für OSM-Kacheln**. |
 | **Bundle** | `scripts/bundle_singlefile.py` | Erzeugt `dist/index_singlefile.html` (Daten eingebettet, direkt klickbar). |
 | **Build** | `scripts/build.sh` | Ein-Befehl-Build (Export + Kopieren). |
 

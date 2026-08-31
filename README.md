@@ -78,6 +78,11 @@ bash scripts/build.sh   # fetch + import + export + bundle in einem Schritt
 - **Einheiten-Hinweis**: MaStR liefert PV in kWp und Wind gemischt (kW/MW) — der Import normalisiert auf MW (Details: docs/datenmodell.md)
 - **Quelle**: Marktstammdatenregister (MaStR), BNetzA, öffentliche Daten
 - **Lizenz**: Datenlizenz Deutschland – Namensnennung – Version 2.0 (DL‑DE‑BY‑2.0), siehe https://www.govdata.de/dl-de/by-2-0
+- **Hinweis zu Betreiberdaten**: Die Karte zeigt Betreibernamen (Feld `ab`) aller Anlagen, einschließlich
+  natürlicher Personen (das MaStR kennzeichnet diese teils als „natürliche Person (…)"). Die Anzeige ist
+  datenschutzrechtlich vertretbar, weil das Marktstammdatenregister ein gesetzlich öffentliches Register
+  ist (Veröffentlichungspflicht, EnWG) und die Daten unter der DL‑DE‑BY‑2.0‑Lizenz veröffentlicht sind;
+  es werden keine privaten Adressen oder Standorte natürlicher Personen angezeigt (nur der Anlagen-Standort).
 
 ## Dokumentation
 
