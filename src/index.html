@@ -1413,7 +1413,7 @@ let map, allUnits = [], markers = {};
 let clusterGroup, currentLayer;
 
 async function init() {
-  map = L.map('map', { zoomControl: true }).setView([51.5, 10.0], 6);
+  map = L.map('map', { zoomControl: true, maxZoom: 18 }).setView([51.5, 10.0], 6);
 
   /* DSGVO Punkt 12: OSM-Kacheln nur nach 2-Klick-Einwilligung */
   var tilesOn = false;
@@ -1469,33 +1469,63 @@ async function init() {
   map.addLayer(clusterGroup);
   currentLayer = clusterGroup;
 
-  // Daten laden (eingebettet oder per HTTP)
+  // Daten laden (eingebettet oder per HTTP) — robust: kein Promise.all-Deadlock.
+  // Jedes Asset einzeln laden; ein hängender/fehlerhafter Fetch blockiert nie die anderen.
   try {
-    let einheiten, meta, statistiken = null;
+    let einheiten = null, meta = null, statistiken = null;
+
+    async function fetchJson(url, optional) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) { if (optional) return null; throw new Error('HTTP ' + res.status); }
+        return await res.json();
+      } catch (e) {
+        if (optional) return null;
+        throw e;
+      }
+    }
+
     if (window.__PVWIND_DATA__ && window.__PVWIND_META__) {
       einheiten = window.__PVWIND_DATA__;
       meta = window.__PVWIND_META__;
       statistiken = window.__PVWIND_STATS__ || null;
     } else {
-      [einheiten, meta, statistiken] = await Promise.all([
-        fetch('assets/einheiten.json').then(r => r.json()),
-        fetch('assets/meta.json').then(r => r.json()),
-        fetch('assets/statistiken.json').then(r => r.json()).catch(() => null)
-      ]);
+      einheiten   = await fetchJson('assets/einheiten.json', false);   // Pflicht (Kern-Daten)
+      meta        = await fetchJson('assets/meta.json', false);        // Pflicht (Zähler/Stand)
+      statistiken = await fetchJson('assets/statistiken.json', true);  // optional (Statistik-Panel)
     }
+
+    if (!einheiten || !einheiten.length) {
+      throw new Error('Leere Anlagen-Daten.');
+    }
+    if (!meta) meta = {};
+
     allUnits = einheiten;
     window.__STATS__ = statistiken;  // für Statistik-Panel
-    document.getElementById('data-stand').textContent = (meta.stand || '?').slice(0, 10);
-    const windCount = meta.counts?.Wind || 0;
-    const pvCount = meta.counts['Solare Strahlungsenergie'] || 0;
-    document.getElementById('infobar').textContent =
-      `PV & Wind Karte – ${windCount} Wind · ${pvCount} PV`;
+
+    const standEl = document.getElementById('data-stand');
+    if (standEl) standEl.textContent = (meta.stand || '?').slice(0, 10);
+
+    let windCount = 0, pvCount = 0;
+    try {
+      windCount = meta.counts?.Wind || 0;
+      pvCount = meta.counts['Solare Strahlungsenergie'] || 0;
+    } catch (_) {}
+    // Fallback 1: Zähler direkt aus den Daten berechnen, falls meta keine counts hat
+    if (!windCount && !pvCount) {
+      windCount = einheiten.filter(u => u.t === 'wind').length;
+      pvCount = einheiten.filter(u => u.t === 'pv').length;
+    }
+    const ib = document.getElementById('infobar');
+    if (ib) ib.textContent = `PV & Wind Karte – ${windCount} Wind · ${pvCount} PV`;
+
     populateFilterBl();
     populateFilterArt();
     renderMarkers(einheiten);
-    initStats();
+    if (typeof initStats === 'function') initStats();
   } catch(e) {
-    document.getElementById('infobar').textContent = 'Fehler beim Laden: ' + e.message;
+    const ib = document.getElementById('infobar');
+    if (ib) ib.textContent = 'Fehler beim Laden: ' + (e && e.message ? e.message : e);
   }
 
   // Filter-Listener
