@@ -20,9 +20,9 @@ cd ~/Projects/pv-wind-map/dist && python3 -m http.server 8080
 Alternativer Hintergrundkarten-Dienst wäre konfigurierbar (z. B. Carto).
 
 ### 3. Markierungen/Cluster fehlen, obwohl App lädt
-**Möglichkeit A — Filter aktiv:** Prüfe den Typ-Filter („Wind"/„PV") und den
-Bundesland-Filter. Auf „Alle" zurücksetzen.
-**Möglichkeit B — veraltete Daten:** Datenstand im Footer prüfen. Update laufen lassen
+**Möglichkeit A — Filter aktiv:** Prüfe den Typ-Filter („Wind"/„PV"), den Bundesland-Filter
+und den Art-Filter (z. B. „Gebäudesolaranlage"). Auf „Alle" zurücksetzen.
+**Möglichkeit B — veraltete Daten:** Datenstand oben rechts in der Suchleiste prüfen („Stand: YYYY-MM-DD"). Update laufen lassen
 (siehe `docs/update.md`).
 **Möglichkeit C — falsches Datenmodell nach manueller Änderung:** Erneut exportieren:
 `python3 scripts/export_app.py` und `python3 scripts/bundle_singlefile.py`.

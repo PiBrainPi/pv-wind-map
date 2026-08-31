@@ -21,7 +21,7 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
   gebündelt auf der Karte (Fit-Bounds). Ideal für Konzerne/SPVs mit mehreren Assets.
 - 🎯 Klick auf Anlage → Detail-Popup mit allen MaStR-Daten (MaStR-Nr., Leistung, Standort, Netzbetreiber,
   Betreiber, wind-/PV-spezifische Felder)
-- 🔍 Filter nach Typ (Wind/PV) und Bundesland (inkl. Offshore)
+- 🔍 Filter nach Typ (Wind/PV), Bundesland (inkl. Offshore) und **Art des Assets** (z. B. Windkraft an Land/auf See, Freiflächen-/Gebäudesolaranlage, Sonstige Solaranlage). Sobald der **Art-** oder **Bundesland-**Filter gesetzt ist, zeigt ein Badge neben dem Art-Dropdown die **Anzahl der aktuell sichtbaren Anlagen** (`Anzahl: n` — zählt inkl. evtl. Wind/PV-Filter, konsistent mit den Marker-Clustern).
 - 📊 **Statistik-Panel:** Betreiber-Tabelle (Name/Anzahl/Summe MW/Ø MW) mit Filter, Top-N & Sortierung;
   Hersteller-Tab (nur Wind, mit %-Anteil + interaktivem Verteilungs-Pie-Chart); Größenklassen-Balken je
   Technologie von 1 MW bis max. (Wind/PV); Klick auf Betreiber-/Hersteller-Zeile filtert die Karte

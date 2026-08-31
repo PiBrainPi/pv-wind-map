@@ -19,7 +19,7 @@ cd ~/Projects/pv-wind-map
 # 1. Daten aus dem MaStR neu laden (aktualisiert data/raw/*.json)
 python3 scripts/fetch_mastr.py
 
-# 2. In SQLite importieren (Normalisierung + ≥1-MW-Filter, überschreibt mastr.db)
+# 2. In SQLite importieren (Normalisierung + ≥100-kW-Wind / ≥0,5-MWp-PV-Filter, überschreibt mastr.db)
 python3 scripts/import_mastr.py
 
 # 3. Für die Karte exportieren (nur Anlagen mit Geolokation → dist/assets/)
@@ -57,11 +57,21 @@ Austauschordner `~/hermes_human-share/`).
 > auf die **Live-Website** übertragen werden — der `gh-pages`-Branch des Repos enthält die
 > deploybare Site. Ablauf: `dist/` neu bauen → `gh-pages`-Branch aus `dist/` aktualisieren →
 > push → GitHub-Pages deployed automatisch. Details siehe `docs/DEPLOYMENT.md`.
+> Auch **Code-Änderungen an `src/index.html`** (z. B. neue Filter/UI) gehören mit `cp
+> src/index.html dist/index.html` in den Deploy übernommen, bevor man `bundle_singlefile.py`
+> und den `gh-pages`-Push ausführt.
+
+> **Hinweis `data/` (Ist-Stand):** `data/raw/` und `data/mastr.db` sind **gitignored** und im
+> Working-Tree aktuell (2026-08-31) **nicht vorhanden** — sie werden vom `fetch_mastr.py`
+> automatisch neu angelegt (`mkdir`). Ein vollständiger Update-Refresh benötigt daher einen
+> kompletten `fetch` (paginiert, dauert je nach Register einige Minuten). Die zuletzt
+> exportierten Karten-Daten liegen fertig in `dist/assets/*.json` bzw. in der Single-File;
+> für eine reine UI-/Code-Revision (ohne Daten-Refresh) genügt Schritt 4 (`cp` + bundle).
 
 ### Verifikation nach Update
 
 1. `python3 scripts/export_app.py` zeigt die Zähler (Wind/PV, Geolokation).
-2. App öffnen und prüfen, dass „Stand:" im Footer neu ist.
+2. App öffnen und prüfen, dass „Stand:" oben rechts in der Suchleiste neu ist (auf den Tag gekürzt).
 3. Optional: ein paar bekannte Anlagen (MaStR-Nr.) in der Karte gegenprüfen.
 
 ---

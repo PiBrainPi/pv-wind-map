@@ -43,7 +43,7 @@ kompakte JSON-Dateien für die Karte (inkl. Statistik) exportiert.
 |------------|-------|-------|
 | **MaStR-API** | `https://www.marktstammdatenregister.de/MaStR/Einheit/EinheitJson/GetErweiterteOeffentlicheEinheitStromerzeugung` | Öffentlicher JSON-Endpoint (ohne Login). |
 | **Download** | `scripts/fetch_mastr.py` | Paginierte Abfrage, Robustheit (Retry, Rate-Limit), Ausgabe `data/raw/{wind,pv}.json`. |
-| **Import** | `scripts/import_mastr.py` | SQLite-Schema, Einheiten-Normalisierung, ≥1-MW-Filter, `data/mastr.db`. |
+| **Import** | `scripts/import_mastr.py` | SQLite-Schema, Einheiten-Normalisierung, ≥100-kW-Wind / ≥0,5-MWp-PV-Filter, `data/mastr.db`. |
 | **Export** | `scripts/export_app.py` | SQLite → kompaktes JSON für Karte (`dist/assets/*.json`) + Statistik (`statistiken.json`), nur Anlagen mit Geolokation. |
 | **App** | `src/index.html` | Leaflet-Karte + MarkerCluster + Filter + Detail-Popups + **Statistik-Panel**. |
 | **Bundle** | `scripts/bundle_singlefile.py` | Erzeugt `dist/index_singlefile.html` (Daten eingebettet, direkt klickbar). |
@@ -83,7 +83,7 @@ local SQLite database, and exports it as compact JSON for the map.
 |-----------|------|---------|
 | MaStR API | `GetErweiterteOeffentlicheEinheitStromerzeugung` | Public JSON endpoint (no login). |
 | Download  | `scripts/fetch_mastr.py` | Paginated fetch, error handling, retry. |
-| Import    | `scripts/import_mastr.py` | SQLite schema, unit normalization, ≥100 kW wind filter. |
+| Import    | `scripts/import_mastr.py` | SQLite schema, unit normalization, ≥100 kW wind / ≥0.5 MWp PV filter. |
 | Export    | `scripts/export_app.py` | SQLite → compact JSON (geo-only). |
 | App       | `src/index.html`   | Leaflet map + MarkerCluster + filters + popups. |
 | Bundle    | `scripts/bundle_singlefile.py` | Single self-contained HTML (embedded data). |

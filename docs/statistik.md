@@ -97,7 +97,7 @@ Datenbasis (Import 2026-08-29, Wind ≥100 kW / PV ≥0,5 MWp):
 - **`gesamt.wind_anzahl`/`pv_anzahl` waren falsch** (26.768/10.437 statt 26.586/9.589): die Summe
   lief über alle Betreiber-Einträge mit `tech[wind]`, womit Mehrfach-Technologie-Betreiber doppelt
   in die Wind-Zahl zählten. Fix: **Direktzählung** aus SQLite (`COUNT(*) WHERE geolokation=1 AND …`).
-  Neu: `herstellbar_wind` = 26.469 (Summe der Hersteller, konsistent).
+  Aktueller Wert (≥100-kW-Schwelle): `herstellbar_wind` = **30.947** (= Summe der Hersteller, konsistent).
 - **Doppeltes „Anlagen" im Größenklassen-Sublabel** („Anlagen: 5.014 Anlagen" im Leistungs-Modus):
   Label-Text wurde aus einem bereits mit „Anlagen" suffizierten Wert erzeugt.
 - **Pie-Canvas:** `#hersteller-pie` muss ein `<canvas>`-Element sein (nicht `<div>`), sonst
@@ -147,6 +147,6 @@ hover tooltip with class, plants, MW, share of plants & of capacity.
 ### Bugfixes (2026-08-29)
 - `gesamt.wind_anzahl` / `pv_anzahl` were wrong (26,768 / 10,437 instead of 26,586 / 9,589) because the
   sum ran over all operator entries with a wind tech badge, double-counting multi-tech operators.
-  Fixed by **direct COUNT(*) from SQLite**. New: `herstellbar_wind` = 26,469.
+  Fixed by **direct COUNT(*) from SQLite**. Current value (≥100 kW threshold): `herstellbar_wind` = 30,947.
 - Duplicate “Anlagen” in the size-class sublabel (Leistung mode).
 - `#hersteller-pie` must be a `<canvas>` element (not `<div>`), else `getContext is not a function`.
