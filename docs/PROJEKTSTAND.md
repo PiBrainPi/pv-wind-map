@@ -27,10 +27,11 @@ in Betrieb**, aus dem Marktstammdatenregister (MaStR, BNetzA). Klickbare Single-
   zeigt ein blauer Badge `Anzahl: <n>`. Logik (Var. A): die Zahl zählt immer die **tatsächlich sichtbaren**
   Anlagen (alle gesetzten Filter inkl. Wind/PV), konsistent mit den Marker-Clustern. Ohne Filter versteckt.
   Format: Tausendertrennung (`de-DE`).
-- **Größenklassen-Skala (feste Staffel, Nutzer-Vorgabe 2026-08-31):**
-  `0.1–0.5 · 0.5–1 · 1–2 · 2–5 · 5–10 · 10–30 · 30–60 · 60–100 · 100–104 · 104–150 · 150–200 · 200+`
-  (immer `>= von && < bis`, in MW/MWp). Klassen ab `100–104` sind **Kritis-relevant** (kritische AC-Schwellen;
-  MaStR unterscheidet nicht zwischen MWp und MWac — PV ≈ MWp, Wind ≈ MW/MWac).
+- **Größenklassen-Skala (feste Staffel, Nutzer-Vorgabe + Kritis-Recherche):**
+  `0.1–0.5 · 0.5–1 · 1–2 · 2–5 · 5–10 · 10–30 · 30–60 · 60–100 · 100–104 · 104–150 · 150+`
+  (immer `>= von && < bis`, in MW/MWp). **Kritis-Schwelle:** Erzeugungsanlagen sind erst **ab 104 MW**
+  installierter Nettonennleistung kritisrelevant (BSI-KritisV Anhang 1, Kat. 1.1.1). Daher ist NUR die
+  Klasse ab `104` Kritis (`104–150`, `150+`); die Klasse `100–104` ist **kein** Kritis.
 - **Suche mit Autocomplete:** Anlagen-, Park-, Gemeinde- **und Betreibername** (akzent-/case-unabhängig).
 - **⛁ Betreiber-Suche:** Suchtext im Betreibernamen → ein Klick filtert **alle** Anlagen aller
   gematchten Betreiber (deutschlandweit, Fit-Bounds). Beispiel: „CEE" → 60 Betreiber/184 Anlagen.
@@ -64,17 +65,21 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
 - **Geolokation:** Nur Anlagen mit vorhandenen Koordinaten werden gezeichnet (kein Geocoding).
 - **Statistik (gesamt):** `gesamt.wind_anzahl`/`pv_anzahl` = Direktzählung aus SQLite (Bugfix).
   `herstellbar_wind` = Summe der Hersteller.
-- **Größenklassen (Staffel):** Feste 12-Klassen-Skala `0.1–0.5 … 150–200` + `200+`, gültig für Wind, PV
-  und das gemeinsame Diagramm („Wind + PV"); definiert in `export_app.py` (`_staffel()`-Funktion).
-  **Alle 12 Klassen werden immer gelistet** (auch leere), damit Kritis-Schwellen-Klassen sichtbar sind.
-  Das Feld `kritis: true/false` im JSON markiert Kritis-relevante Klassen (ab `100–104`).
-  Die Karten-Statistik (`dist/assets/statistiken.json`) enthält den neuen Schlüssel
-  `groessenklassen.gesamt` für das gemeinsame Diagramm (zusätzlich zu `wind`/`pv`).
+- **Größenklassen (Staffel):** Feste 11-Klassen-Skala `0.1–0.5 … 100–104 · 104–150 · 150+`, einheitlich
+  für Wind, PV und das gemeinsame Diagramm („Wind + PV"); definiert in `export_app.py` (`_staffel()`).
+  **Alle Klassen werden immer gelistet** (auch leere), damit Kritis-Schwellen-Klassen sichtbar sind.
+  Das Feld `kritis: true/false` markiert Kritis-relevante Klassen. **Kritis gilt erst ab 104 MW**
+  (BSI-KritisV Kat. 1.1.1): nur `104–150` und `150+` tragen `kritis:true`; `100–104` ist **kein** Kritis.
+  Die Karten-Statistik (`dist/assets/statistiken.json`) enthält den Schlüssel `groessenklassen.gesamt`
+  für das gemeinsame Diagramm (zusätzlich zu `wind`/`pv`).
 - **Kritis-Klassen:** Im Diagramm 🔴 rot markiert (`bar-fill.kritis`), mit `KRITIS`-Badge im Label +
-  Tooltip-Hinweis. Leere Kritis-Klassen bei Wind (100–200) bleiben sichtbar.
-- **Größen-Filter in der Toolbar:** HTML `<select id="filter-gr">` mit den 12 Größen-Klassen als
-  `value="von,bis"` (z. B. `"0.5,1"`). `applyFilters()` parst `Number.parseFloat`, filtert
-  `u.mw >= von && u.mw < bis`. Der Badge (`#art-count`) wird aktiviert bei `art || bl || gr`.
+  Tooltip-Hinweis. Leere Kritis-Klassen bei Wind (104+ real leer) bleiben sichtbar.
+- **Gesamt-Diagramm („Wind + PV"):** zeigt pro Klasse **zwei Balken** (Wind blau, PV orange) nebeneinander
+  mit getrennten Werten im Tooltip (Wind/PV Anlagen + Leistung), damit beide Technologien sichtbar sind.
+- **Größen-Filter in der Toolbar:** HTML `<select id="filter-gr">` mit den 11 Größen-Klassen als
+  `value="von,bis"` (z. B. `"0.5,1"`, `"104,150"`, `"150,1e9"`). `applyFilters()` parst
+  `Number.parseFloat`, filtert `u.mw >= von && u.mw < bis`. Der Badge (`#art-count`) wird aktiviert
+  bei `art || bl || gr`.
 - **Rechtliches:** Quellenvermerk DL-De-BY-2.0 + Impressum (§5 DDG) fest in der App (Modal).
 - **`data/`-Ist-Stand:** `data/raw/ + data/mastr.db` sind gitignored und aktuell **nicht vorhanden**;
   `fetch_mastr.py` legt sie beim nächsten vollständigen Update automatisch neu an.
@@ -111,10 +116,11 @@ set('wind','','','0.5,1');                   // → {text:"Anzahl: 4.079", hidde
 set('','','','');                            // → hidden:true
 ```
 Referenzwerte (53.482-Datensatz): Freifläche 11.707, Bayern 7.042, Bayern+Freifläche 4.396,
-PV 104–150 MW = 2, Wind 0.5–1 MW = 4.079. Die Zahl muss stets `allUnits.filter(...)` für die
-gerade aktiven (Art, BL, Gr, Typ-)Filter entsprechen.
-Die Größenklassen in `_stats.groessenklassen` haben `wind`/`pv`/`gesamt` mit je 12 Einträgen;
-Kritis-Klassen tragen `kritis:true` (Summen: Wind 31.114 · PV 22.368 · Gesamt 53.482).
+PV 104–150 MW = 2, Wind 0.5–1 MW = 4.079, PV 100–104 MW = 1, PV 150+ MW = 3. Die Zahl muss
+stets `allUnits.filter(...)` für die gerade aktiven (Art, BL, Gr, Typ-)Filter entsprechen.
+Die Größenklassen in `_stats.groessenklassen` haben `wind`/`pv`/`gesamt` mit je **11 Einträgen**;
+Kritis-Klassen (`kritis:true`) sind nur `104–150` und `150+` (Summen: Wind 31.114 · PV 22.368 ·
+Gesamt 53.482).
 
 ## Besondere Hinweise für neue Sessions
 - **Kein JSON/HTML-Rohcode in Telegram-Chat**; klickbare Datei per `MEDIA:` oder send_telegram_file senden.

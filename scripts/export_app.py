@@ -121,25 +121,27 @@ def build_statistiken(db) -> dict:
         h["avg_mw"] = round(h["sum_mw"] / h["anzahl"], 3)
         h["sum_mw"] = round(h["sum_mw"], 3)
 
-    # Größenklassen je Technologie (feste Staffel nach Nutzer-Vorgabe 2026-08-31)
-    # → gemeinsame Leistungsskala [von, bis) in MW / MWp:
-    #   0.1·0.5 · 0.5·1 · 1·2 · 2·5 · 5·10 · 10·30 · 30·60 · 60·100 · 100·104 · 104·150 · 150·200 (+200+)
-    #   Klassen ab "100–104" sind KRITIS-relevant (kritische AC-Schwellen; MaStR unterscheidet
-    #   nicht zwischen MWp und MWac — PV ≈ MWp, Wind ≈ MW / MWac).
-    #   Bei Wind werden die Kritis-Klassen gezeigt, auch wenn sie real (meist) leer sind.
-    # kritis=True markiert Klassen, die einen kritischen Schwellwert betreffen.
+    # Größenklassen je Technologie (feste Staffel, Nutzer-Vorgabe + Recherche Kritis 2026-08-31):
+    # → Basis-Leistungsskala [von, bis) in MW / MWp:
+    #   0.1·0.5 · 0.5·1 · 1·2 · 2·5 · 5·10 · 10·30 · 30·60 · 60·100 · 100·104 · 104–150 · 150–200
+    # KRITIS-Schwelle (recherchiert, BSI-KritisV Anhang 1, Kategorie 1.1.1 Erzeugungsanlage):
+    #   Erzeugungsanlagen sind ab 104 MW installierter Nettonennleistung Kritis-relevant.
+    #   ⇒ kritis=True gilt NUR für Klassen ab der 104er-Grenze (104–150, 150+); die Klasse 100–104
+    #   ist KEINE Kritis (unterhalb der Schwelle). Alle drei Tabs (Wind/PV/Gesamt) nutzen DIESELBE
+    #   einheitliche Skala mit der Klassengrenze bei 104 (die frühere 103er-Variante entfällt: sie
+    #   lag unterhalb der Schwelle und war ein Irrweg).
     def _staffel():
-        base = [
+        return [
             ("0.1–0.5", 0.1, 0.5, False), ("0.5–1", 0.5, 1, False),
             ("1–2", 1, 2, False), ("2–5", 2, 5, False), ("5–10", 5, 10, False),
             ("10–30", 10, 30, False), ("30–60", 30, 60, False), ("60–100", 60, 100, False),
-            ("100–104", 100, 104, True), ("104–150", 104, 150, True),
-            ("150–200", 150, 200, True), ("200+", 200, 1e9, False),
+            ("100–104", 100, 104, False),      # UNTERHALB der Kritis-Schwelle → kein Kritis
+            ("104–150", 104, 150, True),        # Kritis ≥104 MW
+            ("150+", 150, 1e9, True),           # Kritis (Restklasse)
         ]
-        return base
 
     klassen = {
-        "wind": _staffel(),   # gleiche Skala; Kritis-Klassen bei Wind meist 0 Anlagen, bleiben sichtbar
+        "wind": _staffel(),
         "pv":   _staffel(),
     }
     et_ids = {"wind": 2497, "pv": 2495}

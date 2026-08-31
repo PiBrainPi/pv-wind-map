@@ -271,8 +271,17 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .bar-fill.pv   { background:linear-gradient(90deg,#b45309,#f59e0b); }
 .bar-fill.gesamt { background:linear-gradient(90deg,#4338ca,#818cf8); }
 .bar-fill.kritis { background:linear-gradient(90deg,#b91c1c,#f87171) !important; }
+/* Gesamt-Diagramm: zwei Balken (Wind+PV) nebeneinander in einer Zeile */
+.bar-track-gesamt { position:relative; display:flex; gap:2px; height:16px; flex:1; }
+.bar-row-gesamt { display:flex; align-items:center; gap:8px; }
+.bar-fill.kritis-glow { position:absolute; left:0; top:-2px; bottom:-2px; right:0;
+  border:1px solid #f87171; border-radius:4px; pointer-events:none; }
 .bar-label .kritis-badge { display:inline-block; margin-left:4px; padding:0 5px; border-radius:4px;
   background:#fee2e2; color:#b91c1c; font-size:10px; font-weight:700; }
+#groesse-legend .legend-swatch { display:inline-block; width:12px; height:12px; border-radius:3px;
+  vertical-align:middle; margin:0 2px 0 6px; }
+#groesse-legend .sw-wind { background:#2563eb; }
+#groesse-legend .sw-pv   { background:#d97706; }
 /* Primärwert rechtsbündig in fester Spalte, immer sichtbar & sauber ausgerichtet */
 .bar-value {
   min-width:96px; text-align:right; margin-left:8px; flex-shrink:0;
@@ -530,8 +539,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     <option value="60,100">60–100</option>
     <option value="100,104">100–104</option>
     <option value="104,150">104–150</option>
-    <option value="150,200">150–200</option>
-    <option value="200,1e9">200+</option>
+    <option value="150,1e9">150+</option>
   </select>
   <span id="art-count" class="filter-count" hidden></span>
 </div>
@@ -1421,7 +1429,10 @@ function renderGroesse() {
     `<span>Max Einzelanlage: <b>${maxMw.toLocaleString('de-DE', {maximumFractionDigits:0})} MW</b></span>` +
     `<span class="kritis-hint">🔴 = Kritis-Schwellwert-Klasse</span>`;
   document.getElementById('groesse-legend').innerHTML =
-    `<span>Balken = ${measure === 'anzahl' ? 'Anzahl der Anlagen' : 'installierte Leistung'} je Größenklasse · Hover für Details · Klassen: [von, bis) in MW/MWp</span>`;
+    (tech === 'gesamt'
+      ? `<span class="legend-swatch sw-wind"></span> Wind · <span class="legend-swatch sw-pv"></span> PV`
+      : `<span>Balken = ${measure === 'anzahl' ? 'Anzahl der Anlagen' : 'installierte Leistung'} je Größenklasse</span> ·`) +
+    ` Hover für Details · Klassen: [von, bis) in MW/MWp`;
 
   // Achsen-Skala: 0 / 50 / 100 %
   const yTicks = [
@@ -1436,7 +1447,49 @@ function renderGroesse() {
     </div>
     <div class="chart-grid">`;
 
+  // Helper: aggregiert Wind- bzw. PV-Klassen, die mit [von, bis) überlappen
+  function aggTech(techArr, von, bis) {
+    let n = 0, s = 0;
+    (techArr || []).forEach(k => {
+      const ovon = Math.max(von, k.von);
+      const obis = Math.min(bis, k.bis);
+      if (ovon < obis) { n += k.anzahl; s += k.sum_mw; }
+    });
+    return { n, s };
+  }
+  const isGesamt = tech === 'gesamt';
+
+  // Für den Gesamt-Tab: pro Klasse Wind- und PV-Werte getrennt zeigen
   body += klassen.map(k => {
+    if (isGesamt) {
+      const w = aggTech(_stats.groessenklassen.wind, k.von, k.bis);
+      const p = aggTech(_stats.groessenklassen.pv, k.von, k.bis);
+      const valW = measure === 'anzahl' ? w.n : w.s;
+      const valP = measure === 'anzahl' ? p.n : p.s;
+      const totalN = w.n + p.n;
+      const totalS = w.s + p.s;
+      const totalVal = isFinite(valW) && isFinite(valP) ? (measure==='anzahl' ? totalN : totalS) : 0;
+      const pctW = Math.max(4, Math.round(100 * valW / maxVal));
+      const pctP = Math.max(4, Math.round(100 * valP / maxVal));
+      const kritisBadge = k.kritis ? '<span class="kritis-badge">KRITIS</span>' : '';
+      const countLabel = measure === 'anzahl'
+        ? totalN.toLocaleString('de-DE')
+        : totalS.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' MW';
+      return `<div class="bar-cell">
+        <div class="bar-row bar-row-gesamt" data-tip='${JSON.stringify({
+          klasse: k.label + ' MW', anzahl: totalN, sum: totalS,
+          anzahl_wind: w.n, anzahl_pv: p.n, sum_wind: w.s, sum_pv: p.s,
+          kritis: !!k.kritis, units: measure
+        })}'>
+          <div class="bar-track-gesamt">
+            <span class="bar-fill wind" style="width:${widthByPct(pctW)}" title="Wind"></span>
+            <span class="bar-fill pv" style="width:${widthByPct(pctP)}" title="PV"></span>
+            ${k.kritis ? '<span class="bar-fill kritis-glow"></span>' : ''}
+          </div>
+        </div>
+        <div class="bar-label"><span class="bar-klasse">${esc(k.label)}</span><small> MW</small>${kritisBadge}<span class="bar-sublabel">${measure==='anzahl' ? 'Summe: ' + totalS.toLocaleString('de-DE',{maximumFractionDigits:0}) + ' MW' : 'Anlagen: ' + totalN.toLocaleString('de-DE')} · Wind ${w.n.toLocaleString('de-DE')} / PV ${p.n.toLocaleString('de-DE')}</span></div>
+      </div>`;
+    }
     const rawVal = measure === 'anzahl' ? k.anzahl : k.sum_mw;
     const pct = Math.max(4, Math.round(100 * rawVal / maxVal));
     let color = tech === 'wind' ? 'wind' : (tech === 'pv' ? 'pv' : 'gesamt');
@@ -1492,12 +1545,22 @@ function showBarTip(e, data) {
   const isAnzahl = d.units === 'anzahl';
   const countFmt = Number(d.anzahl).toLocaleString('de-DE');
   const sumFmt = Number(d.sum).toLocaleString('de-DE', {maximumFractionDigits:0}) + ' MW';
+  const windFmt = (d.anzahl_wind != null ? Number(d.anzahl_wind).toLocaleString('de-DE') + ' Anlagen' : '');
+  const pvFmt = (d.anzahl_pv != null ? Number(d.anzahl_pv).toLocaleString('de-DE') + ' Anlagen' : '');
+  const windMW = (d.sum_wind != null ? Number(d.sum_wind).toLocaleString('de-DE',{maximumFractionDigits:0}) + ' MW' : '');
+  const pvMW = (d.sum_pv != null ? Number(d.sum_pv).toLocaleString('de-DE',{maximumFractionDigits:0}) + ' MW' : '');
+  const gesamtRows = (d.anzahl_wind != null) ? `
+    <div class="tip-row"><span>Wind · Anlagen</span><span>${windFmt}</span></div>
+    <div class="tip-row"><span>PV · Anlagen</span><span>${pvFmt}</span></div>
+    <div class="tip-row"><span>Wind · Leistung</span><span>${windMW}</span></div>
+    <div class="tip-row"><span>PV · Leistung</span><span>${pvMW}</span></div>` : '';
   tip.innerHTML = `
     <b>Klasse ${esc(d.klasse)}</b>${d.kritis ? ' <span style="color:#b91c1c;font-weight:700">KRITIS</span>' : ''}
     <div class="tip-row"><span>Anlagen</span><span>${countFmt}</span></div>
     <div class="tip-row"><span>Leistung</span><span>${sumFmt}</span></div>
-    <div class="tip-row"><span>Anteil Anlagen</span><span>${d.anteil_anzahl}%</span></div>
-    <div class="tip-row"><span>Anteil Leistung</span><span>${d.anteil_summe}%</span></div>
+    ${gesamtRows}
+    ${d.anteil_anzahl != null ? `<div class="tip-row"><span>Anteil Anlagen</span><span>${d.anteil_anzahl}%</span></div>` : ''}
+    ${d.anteil_summe != null ? `<div class="tip-row"><span>Anteil Leistung</span><span>${d.anteil_summe}%</span></div>` : ''}
     ${isAnzahl ? '<div class="tip-note">Balkenhöhe = Anlagen</div>' : '<div class="tip-note">Balkenhöhe = installierte Leistung</div>'}`;
   tip.style.display = 'block';
   moveBarTip(e);

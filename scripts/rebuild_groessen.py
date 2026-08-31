@@ -1,17 +1,7 @@
 #!/usr/bin/env python3
 """
-rebuild_groessen.py — Einmaliger LOCAL Rebuild der Größenklassen in statistik.json ohne SQLite.
-
-Warum: data/mastr.db ist aktuell (noch) nicht vorhanden (gitignored, wird erst beim
-naechsten vollstaendigen fetch/import neu angelegt). Da das Statistik-Diagramm die
-Klassen aus dist/assets/statistiken.json liest, muessen die neuen Klassen (Nutzer-Vorgabe
-2026-08-31) hier DB-frei aus einheiten.json berechnet werden.
-
-Die Klassen-Logik ist identisch zu export_app.py::build_statistiken(). Sobald die DB wieder
-vorhanden ist, liefert export_app.py dieselben Werte — dieses Skript dient nur als lokale
-Migration bis dahin.
-
-Nutzung: python3 scripts/rebuild_groessen.py
+rebuild_groessen.py — DB-freies Rebuild der Größenklassen in statistik.json.
+Siehe export_app.py für die autoritative Staffeldefinition.
 """
 import json
 from pathlib import Path
@@ -20,21 +10,23 @@ ROOT = Path(__file__).resolve().parent.parent
 EINHEITEN = ROOT / "dist" / "assets" / "einheiten.json"
 STAT = ROOT / "dist" / "assets" / "statistiken.json"
 
-# Staffel [label, von, bis, kritis] — exakt wie im export_app.py
+# Einheitliche Staffel [label, von, bis, kritis] — identisch zu export_app.py
+# Kritis-Schwelle (BSI-KritisV): ≥104 MW. Klasse 100–104 = kein Kritis.
 STAFFEL = [
     ("0.1–0.5", 0.1, 0.5, False), ("0.5–1", 0.5, 1, False),
     ("1–2", 1, 2, False), ("2–5", 2, 5, False), ("5–10", 5, 10, False),
     ("10–30", 10, 30, False), ("30–60", 30, 60, False), ("60–100", 60, 100, False),
-    ("100–104", 100, 104, True), ("104–150", 104, 150, True),
-    ("150–200", 150, 200, True), ("200+", 200, 1e9, False),
+    ("100–104", 100, 104, False),   # unterhalb Kritis-Schwelle
+    ("104–150", 104, 150, True),    # Kritis ≥104 MW
+    ("150+", 150, 1e9, True),       # Kritis
 ]
 
 
-def compute(mws):
+def compute(mws, staffel):
     total_mw = sum(mws)
     total_n = len(mws)
     out = []
-    for label, von, bis, kritis in STAFFEL:
+    for label, von, bis, kritis in staffel:
         n = sum(1 for v in mws if von <= v < bis)
         s = sum(v for v in mws if von <= v < bis)
         out.append({
@@ -54,11 +46,10 @@ def main():
 
     stats = json.load(open(STAT, encoding="utf-8"))
     stats["groessenklassen"] = {
-        "wind": compute(wind),
-        "pv": compute(pv),
-        "gesamt": compute(alle),
+        "wind": compute(wind, STAFFEL),
+        "pv": compute(pv, STAFFEL),
+        "gesamt": compute(alle, STAFFEL),
     }
-    # Maxima (gem. gesamt-Feldern) aus den Daten ableiten
     ges = stats.setdefault("gesamt", {})
     ges["wind_max_mw"] = round(max(wind), 2) if wind else 0
     ges["pv_max_mw"] = round(max(pv), 2) if pv else 0
@@ -67,7 +58,7 @@ def main():
     print(f"Rebuild: wind {len(wind)} | pv {len(pv)} | gesamt {len(alle)}")
     for tech in ("wind", "pv", "gesamt"):
         for k in stats["groessenklassen"][tech]:
-            print(f"  [{tech}] {k['label']:>10}: {k['anzahl']:>6} Anlagen | {k['sum_mw']:>10.1f} MW | kritis={k['kritis']}")
+            print(f"  [{tech}] {k['label']:>10}: {k['anzahl']:>6} Anlagen | {k['sum_mw']:>10.1f} MW | kritis={'✅' if k['kritis'] else '❌'}")
 
 
 if __name__ == "__main__":
