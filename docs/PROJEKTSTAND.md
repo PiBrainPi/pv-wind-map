@@ -168,6 +168,17 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
       untereinander) — Höhe 31px statt ~50px. "Anlagen" entfernt aus Pie-Legende.
       Verifiziert: Canvas 280px, kein horizontaler Scroll, Topbar 31px, 0 JS-Fehler.
       **Gepusht auf main + gh-pages (01.09.2026).**
+- [x] **V6 — Art-Verteilungs-Pie + Sortierungs-Fixes (2026-09-01, LIVE):** Donut-Pie-Charts unter
+      den Größenklassen-Balkendiagrammen zeigen die Verteilung nach Anlagentyp (unabhängig der
+      Leistungsklasse). **Wind:** Windkraft an Land (29.343/94,3%) vs. Windkraft auf See (1.773/5,7%)
+      — umschaltbar Anzahlen/Leistung (79.196 MW vs. 10.969 MW). **PV:** Freiflächensolaranlage
+      (11.721/52,4%), Gebäudesolaranlage (10.629/47,5%), Sonstige Solaranlage (34/0,2%) — umschaltbar
+      Anzahlen/Leistung (45.092/9.598/40 MW). Canvas 240px Donut mit Loch, Prozent-Labels in Segmenten,
+      Legende rechts, Responsive (Mobile untereinander). Weitere Fixes: (5) Hinweistext Update-Historie
+      gekürzt ("NorthData/Google-Maps-Links" entfernt), (6) Hersteller-Sortierung auf Anzahl/desc
+      geändert (vorher Summe MW), (7) Betreiber bleibt Summe MW/desc.
+      Verifiziert: Alle 4 Pie-Kombinationen, 0 JS-Fehler.
+      **Gepusht auf main + gh-pages (01.09.2026).**
 
 ## Verifikation: Filter + Anlagen-Anzahl-Badge (per Browser-Konsole, reproduzierbar)
 Sobald die App geladen ist (`allUnits` befüllt), im Devtools-Konsolen-`window`-Kontext:

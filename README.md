@@ -33,6 +33,8 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
 
 - 📱 **Responsive Design:** 3 Breakpoints (PC ≥1024px: Stats-Panel 700px, Tablet 768–1023px: 560px,
   Mobile <768px: Vollbild + Topbar/Toolbar-Anpassungen). Kein horizontaler Scroll auf PC bei Statistik-Tabellen.
+- 🥧 **Art-Verteilungs-Pie:** Donut-Charts unter den Größenklassen-Balken zeigen Anlagen-/Leistungsverteilung
+  pro Anlagentyp (Wind: Land/See; PV: Freifläche/Gebäude/Sonstige).
 
 ---
 
