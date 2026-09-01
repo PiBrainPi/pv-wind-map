@@ -31,6 +31,9 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
   Klick → Karten-Filter), **Update-Historie** (Revisions-Tracker mit Snapshot-Vergleich, Delta-Summary,
   Verlauf-Tabelle, Bundesländer-Veränderung, Zeitleiste, Asset-Detail mit Deeplinks).
 
+- 📱 **Responsive Design:** 3 Breakpoints (PC ≥1024px: Stats-Panel 700px, Tablet 768–1023px: 560px,
+  Mobile <768px: Vollbild + Topbar/Toolbar-Anpassungen). Kein horizontaler Scroll auf PC bei Statistik-Tabellen.
+
 ---
 
 ## Schnellstart (Build)

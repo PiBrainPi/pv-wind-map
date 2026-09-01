@@ -134,9 +134,8 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
       Stand nach Import, berechnet Delta. `export_app.py` — generiert `historie.json`. `bundle_singlefile.py`
       — bettet `window.__PVWIND_HISTORIE__` ein. **Cronjob-Plan:** 1. & 15. des Monats (`0 3 1,15 * *`).
       Verifiziert: 53.500 Anlagen, 2 Snapshots, 0 JS-Fehler, alle UI-Elemente getestet.
-      Datei: `~/hermes_human-share/PV-Wind-Karte_V4_Update-Historie.html`.
-      **Push-Freigabe vom User ausstehend.**
-- [x] **V4b — Asset-Detail-Ansicht (2026-09-01, lokal, nicht gepusht):** Klickbare Verlauf-Zeilen
+      **Gepusht auf main + gh-pages (01.09.2026).**
+- [x] **V4b — Asset-Detail-Ansicht (2026-09-01):** Klickbare Verlauf-Zeilen
       in der Update-Historie öffnen ein Detail-Overlay mit 4 Tabs: **Neu: Wind**, **Neu: PV**,
       **Entfernt: Wind**, **Entfernt: PV**. Jeder Tab zeigt eine Tabelle aller hinzugefügten/entfernten
       Assets mit vollen Daten: Name, MW, Bundesland, Gemeinde, Inbetriebnahme, **Betreiber (NorthData-Deeplink)**,
@@ -146,16 +145,29 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
       Asset-Dicts. Historie-JSON wuchs von 5,3 KB auf 18,8 KB (19 Assets × volle Daten).
       Verifiziert: 19 added (3 Wind + 16 PV), 1 removed (Wind), 32 Deeplinks in PV-Tabelle,
       0 JS-Fehler, Overlay öffnet/schließt korrekt.
-      Datei: `~/hermes_human-share/PV-Wind-Karte_V4b_Asset-Detail.html`.
-      **Push-Freigabe vom User ausstehend.**
-- [x] **V4c — Formatierung (2026-09-01, lokal, nicht gepusht):** (1) Bundesländer-Veränderung als
+      **Gepusht auf main + gh-pages (01.09.2026).**
+- [x] **V4c — Formatierung (2026-09-01):** (1) Bundesländer-Veränderung als
       professionelle Tabelle mit 6 Spalten (Bundesland | Wind Δ | PV Δ | Wind MW Δ | PV MW Δ | Gesamt MW Δ),
       farbcodiert (grün=+, rot=−, grau=—), Spaltenüberschriften in Caps, sortiert nach absoluter
-      Veränderung. (2) Hinweis-Text unter "Daten-Verlauf": „💡 Klicke auf eine Zeile mit Δ-Wert, um die
+      Veränderung. (2) Hinweis-Text unter „Daten-Verlauf": „💡 Klicke auf eine Zeile mit Δ-Wert, um die
       detaillierte Auflistung aller hinzugefügten und entfernten Wind- und PV-Anlagen zu sehen".
       Verifiziert: 7 Bundesländer-Zeilen, 6 Spalten, Klick-Overlay funktioniert, 0 JS-Fehler.
-      Datei: `~/hermes_human-share/PV-Wind-Karte_V4c_Formatierung.html`.
-      **Push-Freigabe vom User ausstehend.**
+      **Gepusht auf main + gh-pages (01.09.2026).**
+- [x] **V5 — Responsive Design (2026-09-01, LIVE):** 3 Breakpoints via `@media`-Queries.
+      **PC (≥1024px):** Stats-Panel 700px breit (vorher 440px) — kein horizontaler Scroll mehr
+      bei Statistik-Tabellen. **Tablet (768–1023px):** Stats-Panel 560px. **Mobile (<768px):**
+      Stats-Panel 100vw Vollbild, Topbar vollbreit, Toolbar horizontal scrollbar, Modals/Overlay
+      vollbreit. Betreiber-/Hersteller-Tabellen: `max-width` für Namensspalte 200→280px.
+      Verifiziert: Panel 700px, Tabellen 649px kein horizontaler Scroll, 0 JS-Fehler.
+      **Gepusht auf main + gh-pages (01.09.2026).**
+- [x] **V5c — Three Fixes (2026-09-01, LIVE):** (1) Datenverlauf-Tabelle: `font-size:12px`,
+      `min-width:560px`, `white-space:nowrap` — lesbar wie Bundesländer-Tabelle, horizontaler
+      Scroll nur wenn Panel <560px. (2) Bundesländer-Pie: Canvas 220→280px, auf Mobile
+      `flex-direction:column` (Chart über Legende, max 320px) — Legende voll sichtbar auf
+      Smartphone. (3) Topbar: Meta-Legende + Statistik-Button **nebeneinander** (vorher
+      untereinander) — Höhe 31px statt ~50px. "Anlagen" entfernt aus Pie-Legende.
+      Verifiziert: Canvas 280px, kein horizontaler Scroll, Topbar 31px, 0 JS-Fehler.
+      **Gepusht auf main + gh-pages (01.09.2026).**
 
 ## Verifikation: Filter + Anlagen-Anzahl-Badge (per Browser-Konsole, reproduzierbar)
 Sobald die App geladen ist (`allUnits` befüllt), im Devtools-Konsolen-`window`-Kontext:
@@ -172,12 +184,12 @@ set('pv','','','104,150');                   // → {text:"Anzahl: 2", hidden:fa
 set('wind','','','0.5,1');                   // → {text:"Anzahl: 4.079", hidden:false}
 set('','','','');                            // → hidden:true
 ```
-Referenzwerte (53.482-Datensatz): Freifläche 11.707, Bayern 7.042, Bayern+Freifläche 4.396,
-PV 104–150 MW = 2, Wind 0.5–1 MW = 4.079, PV 100–104 MW = 1, PV 150+ MW = 3. Die Zahl muss
+Referenzwerte (53.500-Datensatz): Freifläche ~11.707, Bayern ~7.042, Bayern+Freifläche ~4.396,
+PV 104–150 MW = 2, Wind 0.5–1 MW ~4.079, PV 100–104 MW = 1, PV 150+ MW = 3. Die Zahl muss
 stets `allUnits.filter(...)` für die gerade aktiven (Art, BL, Gr, Typ-)Filter entsprechen.
 Die Größenklassen in `_stats.groessenklassen` haben `wind`/`pv`/`gesamt` mit je **11 Einträgen**;
-Kritis-Klassen (`kritis:true`) sind nur `104–150` und `150+` (Summen: Wind 31.114 · PV 22.368 ·
-Gesamt 53.482).
+Kritis-Klassen (`kritis:true`) sind nur `104–150` und `150+` (Summen: Wind 31.116 · PV 22.384 ·
+Gesamt 53.500).
 
 ## Besondere Hinweise für neue Sessions
 - **Kein JSON/HTML-Rohcode in Telegram-Chat**; klickbare Datei per `MEDIA:` oder send_telegram_file senden.
