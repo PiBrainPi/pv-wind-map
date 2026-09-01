@@ -41,7 +41,7 @@ Klick auf eine **Zeile** → die Karte zeigt nur die Anlagen dieses Betreibers
 | **Summe MW / Ø MW** | wie bei Betreibern |
 
 - **Nur Windkraftanlagen** — das MaStR enthält **keine** Herstellerangaben für PV
-  (verifiziert: 0 von 22.368 PV-Anlagen). Hinweis-Feld im Tab erklärt das.
+  (verifiziert: 0 von 22.384 PV-Anlagen). Hinweis-Feld im Tab erklärt das.
 - **63 Hersteller** über 30.947 Windanlagen (99,5 % mit Angabe). Top: ENERCON (~12.354 = 39,9 %),
   Vestas (~6.404 = 20,7 %), Nordex (~2.091 = 6,8 %), Siemens Wind Power (~1.465 = 4,7 %),
   Senvion (~1.413 = 4,6 %).
@@ -77,7 +77,7 @@ Achsen-gestütztes Balkendiagramm (rein CSS/HTML, keine externe Chart-Bibliothek
 Datenbasis (Import 2026-08-29, Wind ≥100 kW / PV ≥0,5 MWp):
 | | Wind | PV |
 |---|---|---|
-| Anlagen | 31.114 | 22.368 |
+| Anlagen | 31.116 | 22.384 |
 | Min | 0,1 MW | 0,5 MW |
 | Max | 80 MW | 162,26 MW |
 
@@ -90,7 +90,7 @@ Datenbasis (Import 2026-08-29, Wind ≥100 kW / PV ≥0,5 MWp):
   in der Single-File; `scripts/bundle_singlefile.py` bettet sie ein).
 - **Wichtig (Datenkonsistenz):** Es wird nur `geolokation=1` betrachtet, konsistent zur Karte.
   Leere Größenklassen werden ausgelassen.
-- **23.216 Betreiber** (Stand Import 2026-08-29) erfordern Lazy-Layout → Top-N + Filter, nicht
+- **23.225 Betreiber** (Stand Import 2026-09-01) erfordern Lazy-Layout → Top-N + Filter, nicht
   Volltext-Tabelle.
 
 ### Fehlerbehebungen (2026-08-29)

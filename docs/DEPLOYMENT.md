@@ -58,7 +58,7 @@ Beide Repos nutzen den **`gh-pages`-Branch** als Pages-Quelle (statisch, keine G
 
 ### Verifikation (durchgeführt 2026-08-30)
 
-- ✅ Karte `index.html` → HTTP 200, Leaflet lädt, `assets/einheiten.json` (22,1 MB) → 53.482 Einheiten
+- ✅ Karte `index.html` → HTTP 200, Leaflet lädt, `assets/einheiten.json` (24 MB) → 53.500 Einheiten
 - ✅ Portal `index.html` → HTTP 200, enthält Link zur Karten-Subdomain
 - ✅ Single-File rekonstruiert, SHA-identisch mit Backup (kein Datenverlust)
 - ✅ `www.ingenieur-tools.de` + `galton-board.ingenieur-tools.de` DNS propagiert (Cloudflare DoH)

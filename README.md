@@ -24,11 +24,12 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
 - 🔍 **Filter (4):** Typ (Wind/PV), Bundesland (inkl. Offshore), **Art des Assets** (Freiflächen-/Gebäude-/Sonstige Solaranlage, Windkraft an Land/auf See) und **Leistung (MW)** in festen Größenklassen `[von, bis)`:
   `0.1–0.5 · 0.5–1 · 1–2 · 2–5 · 5–10 · 10–30 · 30–60 · 60–100 · 100–104 · 104–150 · 150+`
   (Wind ≈ Nennleistung/MW, PV = MWp — das MaStR unterscheidet nicht zwischen AC/DC; **Kritis-Schwelle: erst ab 104 MW** nach BSI-KritisV → nur `104–150` und `150+` sind Kritis). Sobald ein Art-/Bundesland-/Leistungs-Filter gesetzt ist, zeigt ein Badge neben dem Leistungs-Dropdown die **Anzahl der aktuell sichtbaren Anlagen** (`Anzahl: n` — zählt **alle** gesetzten Filter inkl. Wind/PV, konsistent mit den Marker-Clustern).
-- 📊 **Statistik-Panel:** Betreiber-Tabelle (Filter, Top-N, Sortierung, Klick → Karte) und Hersteller-Tab
-  (nur Wind, + %-Anteil + interaktiver Donut). **Größenklassen-Diagramme** (Toggle **Wind / PV / Wind + PV**)
-  mit fester Leistungsskala `[von, bis)` (Min 0.1 MW bis `150+`); **Kritis-Klassen** (`104–150 · 150+` — ab
-  104 MW, BSI-KritisV) sind 🔴 rot markiert mit KRITIS-Badge; „Wind + PV" zeigt Wind und PV als **zwei
-  Balken nebeneinander** je Klasse. Anlagen ⇄ Leistung (MW)-Umschalter.
+- 📊 **Statistik-Panel** (5 Tabs): Betreiber-Tabelle (Filter, Top-N, Sortierung, Klick → Karte),
+  Hersteller-Tab (nur Wind, + %-Anteil + interaktiver Donut), **Größenklassen-Diagramme** (Toggle
+  Wind / PV / Wind + PV) mit fester Leistungsskala und Kritis-Markierung (ab 104 MW, BSI-KritisV),
+  **Bundesländer-Tab** (interaktives Donut-Chart mit Wind/PV/Gesamt-Modus, Anlagen/Leistung-Umschalter,
+  Klick → Karten-Filter), **Update-Historie** (Revisions-Tracker mit Snapshot-Vergleich, Delta-Summary,
+  Verlauf-Tabelle, Bundesländer-Veränderung, Zeitleiste, Asset-Detail mit Deeplinks).
 
 ---
 
@@ -70,9 +71,9 @@ bash scripts/build.sh   # fetch + import + export + bundle in einem Schritt
 
 | Kategorie | Umfang | In DB | Mit Geolokation |
 |-----------|--------|-------|-----------------|
-| **Wind** | ≥ 100 kW (nach Einheiten-Normalisierung MW), Status „In Betrieb“ | 32.144 | 31.114 |
-| **Photovoltaik** | ≥ 0,5 MWp (Bruttoleistung ≥ 500 kWp), Status „In Betrieb“ | 22.371 | 22.368 |
-| **Gesamt** | | **54.515** | **53.482** |
+| **Wind** | ≥ 100 kW (nach Einheiten-Normalisierung MW), Status „In Betrieb“ | 32.155 | 31.116 |
+| **Photovoltaik** | ≥ 0,5 MWp (Bruttoleistung ≥ 500 kWp), Status „In Betrieb“ | 22.389 | 22.384 |
+| **Gesamt** | | **54.544** | **53.500** |
 
 - **Geolokation**: nur Anlagen MIT vorhandenen Koordinaten im MaStR (kein Geocoding)
 - **Einheiten-Hinweis**: MaStR liefert PV in kWp und Wind gemischt (kW/MW) — der Import normalisiert auf MW (Details: docs/datenmodell.md)

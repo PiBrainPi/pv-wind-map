@@ -24,6 +24,7 @@ kompakte JSON-Dateien für die Karte (inkl. Statistik) exportiert.
                                      │  einheiten.json           │
                                      │  meta.json                │
                                      │  statistiken.json         │
+                                     │  historie.json (V4)       │
                                      └──────────┬────────────────┘
                                                 │
                       bundle_singlefile.py ──────┤  cp src/index.html
@@ -43,9 +44,10 @@ kompakte JSON-Dateien für die Karte (inkl. Statistik) exportiert.
 |------------|-------|-------|
 | **MaStR-API** | `https://www.marktstammdatenregister.de/MaStR/Einheit/EinheitJson/GetErweiterteOeffentlicheEinheitStromerzeugung` | Öffentlicher JSON-Endpoint (ohne Login). |
 | **Download** | `scripts/fetch_mastr.py` | Paginierte Abfrage, Robustheit (Retry, Rate-Limit), Ausgabe `data/raw/{wind,pv}.json`. |
-| **Import** | `scripts/import_mastr.py` | SQLite-Schema, Einheiten-Normalisierung, ≥100-kW-Wind / ≥0,5-MWp-PV-Filter, `data/mastr.db`. |
-| **Export** | `scripts/export_app.py` | SQLite → kompaktes JSON für Karte (`dist/assets/*.json`) + Statistik (`statistiken.json`), nur Anlagen mit Geolokation. |
-| **App** | `src/index.html` | Leaflet-Karte + MarkerCluster (beide **lokal in `src/vendor/`, inline eingebettet** seit 2026-08-31 / DSGVO — kein unpkg-CDN) + Filter + Detail-Popups + **Statistik-Panel** + **2-Klick-Consent für OSM-Kacheln**. |
+| **Import** | `scripts/import_mastr.py` | SQLite-Schema, Einheiten-Normalisierung, ≥100-kW-Wind / ≥0,5-MWp-PV-Filter, `data/mastr.db`. **V4:** Sichert alten Stand als Snapshot vor Rebuild, berechnet Delta nach Import. |
+| **Export** | `scripts/export_app.py` | SQLite → kompaktes JSON für Karte (`dist/assets/*.json`) + Statistik (`statistiken.json`) + Historie (`historie.json`), nur Anlagen mit Geolokation. |
+| **Snapshot** | `scripts/snapshot.py` | **V4 (neu):** SQLite-Schema für `snapshots` + `snapshot_einheiten` (26 Asset-Felder), `save_snapshot()`, `compute_delta()`, `build_historie()`. Grundlage für den Update-Historie-Tab. |
+| **App** | `src/index.html` | Leaflet-Karte + MarkerCluster (beide **lokal in `src/vendor/`, inline eingebettet** seit 2026-08-31 / DSGVO — kein unpkg-CDN) + Filter + Detail-Popups + **Statistik-Panel (5 Tabs)** + **2-Klick-Consent für OSM-Kacheln**. |
 | **Bundle** | `scripts/bundle_singlefile.py` | Erzeugt `dist/index_singlefile.html` (Daten eingebettet, direkt klickbar). |
 | **Build** | `scripts/build.sh` | Ein-Befehl-Build (Export + Kopieren). |
 

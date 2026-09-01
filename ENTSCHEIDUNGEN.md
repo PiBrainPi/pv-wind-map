@@ -68,7 +68,7 @@ Remote-Feldliste) sind alle in den Entscheidungen 4–7 bzw. in docs/ dokumentie
 
 ## Wichtige Daten-Erkenntnis (Statistik)
 
-- **23.216 eindeutige Betreiber** über 53.482 georeferenzierte Anlagen
-  (31.114 Wind ≥100 kW + 22.368 PV ≥0,5 MWp). Top-Betreiber nach Anzahl: PROKON (257 Anlagen).
+- **23.225 eindeutige Betreiber** über 53.500 georeferenzierte Anlagen
+  (31.116 Wind ≥100 kW + 22.384 PV ≥0,5 MWp). Top-Betreiber nach Anzahl: PROKON (275 Anlagen).
 - Statistik-Aggregation erfolgt in `export_app.py` aus SQLite (nur `geolokation=1`,
   konsistent zur Karte) → `dist/assets/statistiken.json`.

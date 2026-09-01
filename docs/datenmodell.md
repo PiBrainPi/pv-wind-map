@@ -92,9 +92,9 @@ kW-Kleinstanlagen (≈ 0.1 MW) und werden korrekt als kW behandelt; Anlagen <100
 
 | Kategorie | Gesamt in DB | Mit Geolokation |
 |-----------|-------------|-----------------|
-| Wind (≥100 kW) | 32.144 | 31.114 |
-| PV (≥0,5 MWp) | 22.371 | 22.368 |
-| **Summe** | **54.515** | **53.482** |
+| Wind (≥100 kW) | 32.155 | 31.116 |
+| PV (≥0,5 MWp) | 22.389 | 22.384 |
+| **Summe** | **54.544** | **53.500** |
 
 ```sql
 -- Beispiel für eigene Abfragen
