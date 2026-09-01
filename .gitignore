@@ -3,6 +3,9 @@ data/raw/
 data/*.db
 data/*.sqlite
 
+# --- Iterationen (lokal, ~25 MB pro Datei, NICHT committen) ---
+iterations/*.html
+
 # --- Build & Cache ---
 dist/
 __pycache__/

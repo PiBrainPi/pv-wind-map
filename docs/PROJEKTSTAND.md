@@ -209,3 +209,29 @@ Gesamt 53.500).
 - **GitHub-Publishing** (umsgesetzt): Repo `pv-wind-map` (und `ingenieur-tools-portal`) sind öffentlich auf
   GitHub, `main` ist das Quell-Repo, `gh-pages`-Branch deployt die Site. Keine Secrets im Repo.
 - **Andere LLMs prüfen Ergebnisse gegengegen** — gemeldete Bugs ernst nehmen, verifizieren, fixen.
+
+## ⚠️ Wichtige Regeln (unveränderlich)
+
+### 1. Snapshots — niemals löschen, überschreiben oder verändern
+Die in `data/mastr.db` gespeicherten Snapshots (Tabellen `snapshots` + `snapshot_einheiten`)
+sind die **historische Datenbasis** des Projekts. Sie dienen dem Revisions-Tracker
+(Update-Historie-Tab in der HTML-App) und bauen über Monate/Jahre eine vollständige
+Veränderungshistorie auf.
+
+- **Snapshots dürfen niemals gelöscht werden** — auch nicht alte oder scheinbar irrelevante.
+- **Snapshots dürfen niemals überschrieben oder verändert werden** — jeder Snapshot ist
+  ein unveränderlicher Punkt-in-Zeit-Datensatz.
+- **Neue Snapshots werden nur angefügt** (`INSERT`, niemals `UPDATE`/`DELETE` auf bestehende).
+- **`data/mastr.db` wird nicht auf GitHub gepusht** (gitignored, 64 MB) — die DB bleibt lokal.
+- Bei Verlust der DB (z. B. SD-Karte defekt) ist die Historie unwiederherstellbar.
+  `historie.json` (auf gh-pages, ~19 KB) enthält die aggregierten Deltas, aber nicht die
+  vollen Asset-Daten — diese leben nur in der SQLite-DB.
+
+### 2. Iterationen — alle speichern, niemals löschen
+Jeder klickbare HTML-Iterationsschritt, der während der Entwicklung erstellt wird, muss im
+Ordner `iterations/` gespeichert werden (`V<Version>_<Kurzbeschreibung>.html`).
+
+- **Jede Iteration muss gespeichert werden** — auch fehlerhafte oder verworfene.
+- **Dateien dürfen niemals gelöscht oder überschrieben werden.**
+- Der Ordner ist gitignored (Dateien ~25 MB), bleibt also lokal.
+- Übersicht: `iterations/README.md` (wird committet, enthält Versions-Tabelle).

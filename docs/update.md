@@ -80,6 +80,16 @@ Austauschordner `~/hermes_human-share/`).
 2. App öffnen und prüfen, dass „Stand:" oben rechts in der Suchleiste neu ist (auf den Tag gekürzt).
 3. Optional: ein paar bekannte Anlagen (MaStR-Nr.) in der Karte gegenprüfen.
 
+### ⚠️ Snapshot-Regel (unveränderlich)
+
+Die in `data/mastr.db` gespeicherten Snapshots sind die historische Datenbasis des Projekts.
+
+- **Snapshots dürfen niemals gelöscht, überschrieben oder verändert werden.**
+- Jeder Snapshot ist ein unveränderlicher Punkt-in-Zeit-Datensatz.
+- Neue Snapshots werden nur angefügt (`INSERT`, niemals `UPDATE`/`DELETE`).
+- `data/mastr.db` wird nicht auf GitHub gepusht (gitignored).
+- Die Historie wächst über Monate/Jahre und ist bei Verlust der DB unwiederherstellbar.
+
 ---
 
 ## Update (EN)
