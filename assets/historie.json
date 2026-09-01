@@ -1,0 +1,710 @@
+[
+  {
+    "datum": "2026-08-29",
+    "wind_anzahl": 31114,
+    "pv_anzahl": 22368,
+    "gesamt_anzahl": 53482,
+    "wind_mw": 90151.85,
+    "pv_mw": 54633.09,
+    "gesamt_mw": 144784.94,
+    "bundeslaender": {
+      "Nordrhein-Westfalen": {
+        "wind": 3953,
+        "pv": 2059,
+        "wind_mw": 13024.97,
+        "pv_mw": 2862.05
+      },
+      "Hessen": {
+        "wind": 1206,
+        "pv": 751,
+        "wind_mw": 2955.4,
+        "pv_mw": 1473.49
+      },
+      "Bayern": {
+        "wind": 1192,
+        "pv": 5850,
+        "wind_mw": 3120.84,
+        "pv_mw": 15552.62
+      },
+      "Baden-Württemberg": {
+        "wind": 854,
+        "pv": 1974,
+        "wind_mw": 2327.69,
+        "pv_mw": 3815.97
+      },
+      "Mecklenburg-Vorpommern": {
+        "wind": 1922,
+        "pv": 1384,
+        "wind_mw": 4557.07,
+        "pv_mw": 4096.73
+      },
+      "Rheinland-Pfalz": {
+        "wind": 1793,
+        "pv": 939,
+        "wind_mw": 4443.82,
+        "pv_mw": 2486.96
+      },
+      "Schleswig-Holstein": {
+        "wind": 3375,
+        "pv": 629,
+        "wind_mw": 11007.31,
+        "pv_mw": 2779.22
+      },
+      "Sachsen": {
+        "wind": 853,
+        "pv": 1449,
+        "wind_mw": 1572.61,
+        "pv_mw": 3623.42
+      },
+      "Sachsen-Anhalt": {
+        "wind": 2638,
+        "pv": 2010,
+        "wind_mw": 5708.1,
+        "pv_mw": 4411.8
+      },
+      "Niedersachsen": {
+        "wind": 6301,
+        "pv": 1655,
+        "wind_mw": 18162.69,
+        "pv_mw": 2978.82
+      },
+      "Thüringen": {
+        "wind": 853,
+        "pv": 1254,
+        "wind_mw": 1984.61,
+        "pv_mw": 1884.27
+      },
+      "Brandenburg": {
+        "wind": 4130,
+        "pv": 2114,
+        "wind_mw": 9849.55,
+        "pv_mw": 7948.33
+      },
+      "Hamburg": {
+        "wind": 61,
+        "pv": 35,
+        "wind_mw": 121.69,
+        "pv_mw": 31.94
+      },
+      "Saarland": {
+        "wind": 219,
+        "pv": 189,
+        "wind_mw": 572.63,
+        "pv_mw": 552.49
+      },
+      "Bremen": {
+        "wind": 81,
+        "pv": 35,
+        "wind_mw": 287.14,
+        "pv_mw": 51.41
+      },
+      "Berlin": {
+        "wind": 6,
+        "pv": 36,
+        "wind_mw": 16.57,
+        "pv_mw": 33.87
+      },
+      "Ausschließliche Wirtschaftszone": {
+        "wind": 1677,
+        "pv": 0,
+        "wind_mw": 10439.17,
+        "pv_mw": 0.0
+      }
+    },
+    "delta": null
+  },
+  {
+    "datum": "2026-09-01",
+    "wind_anzahl": 31116,
+    "pv_anzahl": 22384,
+    "gesamt_anzahl": 53500,
+    "wind_mw": 90164.71,
+    "pv_mw": 54729.37,
+    "gesamt_mw": 144894.08,
+    "bundeslaender": {
+      "Ausschließliche Wirtschaftszone": {
+        "wind": 1677,
+        "pv": 0,
+        "wind_mw": 10439.17,
+        "pv_mw": 0.0
+      },
+      "Baden-Württemberg": {
+        "wind": 854,
+        "pv": 1974,
+        "wind_mw": 2327.69,
+        "pv_mw": 3815.97
+      },
+      "Bayern": {
+        "wind": 1192,
+        "pv": 5854,
+        "wind_mw": 3120.84,
+        "pv_mw": 15575.82
+      },
+      "Berlin": {
+        "wind": 6,
+        "pv": 36,
+        "wind_mw": 16.57,
+        "pv_mw": 33.87
+      },
+      "Brandenburg": {
+        "wind": 4130,
+        "pv": 2116,
+        "wind_mw": 9849.55,
+        "pv_mw": 7954.34
+      },
+      "Bremen": {
+        "wind": 81,
+        "pv": 35,
+        "wind_mw": 287.14,
+        "pv_mw": 51.41
+      },
+      "Hamburg": {
+        "wind": 61,
+        "pv": 35,
+        "wind_mw": 121.69,
+        "pv_mw": 31.94
+      },
+      "Hessen": {
+        "wind": 1206,
+        "pv": 751,
+        "wind_mw": 2955.4,
+        "pv_mw": 1473.49
+      },
+      "Mecklenburg-Vorpommern": {
+        "wind": 1923,
+        "pv": 1384,
+        "wind_mw": 4564.36,
+        "pv_mw": 4096.73
+      },
+      "Niedersachsen": {
+        "wind": 6301,
+        "pv": 1656,
+        "wind_mw": 18162.69,
+        "pv_mw": 2989.04
+      },
+      "Nordrhein-Westfalen": {
+        "wind": 3954,
+        "pv": 2062,
+        "wind_mw": 13030.53,
+        "pv_mw": 2884.35
+      },
+      "Rheinland-Pfalz": {
+        "wind": 1793,
+        "pv": 939,
+        "wind_mw": 4443.82,
+        "pv_mw": 2486.96
+      },
+      "Saarland": {
+        "wind": 219,
+        "pv": 189,
+        "wind_mw": 572.63,
+        "pv_mw": 552.49
+      },
+      "Sachsen": {
+        "wind": 853,
+        "pv": 1449,
+        "wind_mw": 1572.61,
+        "pv_mw": 3623.42
+      },
+      "Sachsen-Anhalt": {
+        "wind": 2638,
+        "pv": 2010,
+        "wind_mw": 5708.1,
+        "pv_mw": 4411.8
+      },
+      "Schleswig-Holstein": {
+        "wind": 3375,
+        "pv": 634,
+        "wind_mw": 11007.31,
+        "pv_mw": 2808.19
+      },
+      "Thüringen": {
+        "wind": 853,
+        "pv": 1255,
+        "wind_mw": 1984.61,
+        "pv_mw": 1889.87
+      }
+    },
+    "delta": {
+      "old_datum": "2026-08-29",
+      "new_datum": "2026-09-01",
+      "wind_neu": 3,
+      "pv_neu": 16,
+      "gesamt_neu": 19,
+      "wind_mw_neu": 15.36,
+      "pv_mw_neu": 96.29,
+      "gesamt_mw_neu": 111.65,
+      "wind_diff_anzahl": 2,
+      "pv_diff_anzahl": 16,
+      "gesamt_diff_anzahl": 18,
+      "wind_diff_mw": 12.86,
+      "pv_diff_mw": 96.28,
+      "gesamt_diff_mw": 109.14,
+      "removed_anzahl": 1,
+      "bundeslaender_delta": {
+        "Bayern": {
+          "wind": 0,
+          "pv": 4,
+          "wind_mw": 0.0,
+          "pv_mw": 23.2
+        },
+        "Brandenburg": {
+          "wind": 0,
+          "pv": 2,
+          "wind_mw": 0.0,
+          "pv_mw": 6.01
+        },
+        "Mecklenburg-Vorpommern": {
+          "wind": 1,
+          "pv": 0,
+          "wind_mw": 7.29,
+          "pv_mw": 0.0
+        },
+        "Niedersachsen": {
+          "wind": 0,
+          "pv": 1,
+          "wind_mw": 0.0,
+          "pv_mw": 10.22
+        },
+        "Nordrhein-Westfalen": {
+          "wind": 1,
+          "pv": 3,
+          "wind_mw": 5.56,
+          "pv_mw": 22.3
+        },
+        "Schleswig-Holstein": {
+          "wind": 0,
+          "pv": 5,
+          "wind_mw": 0.0,
+          "pv_mw": 28.97
+        },
+        "Thüringen": {
+          "wind": 0,
+          "pv": 1,
+          "wind_mw": 0.0,
+          "pv_mw": 5.6
+        }
+      },
+      "added_assets": [
+        {
+          "m": "SEE903919401671",
+          "n": "Solar-Krebs",
+          "t": "pv",
+          "art": "Gebäudesolaranlage",
+          "mw": 5.6,
+          "b": "Thüringen",
+          "lk": "Kyffhäuserkreis",
+          "g": "Bad Frankenhausen/Kyffhäuser",
+          "plz": "06567",
+          "inb": "2026-08-31",
+          "lat": 51.385219,
+          "lon": 11.205428,
+          "nb": "Mitteldeutsche Netzgesellschaft Strom mbH (SNB916269213931)",
+          "ab": "natürliche Person (ABR974311234914)",
+          "st": "Aktiviert",
+          "mod": 14,
+          "ausr": "Süd-West",
+          "park": null
+        },
+        {
+          "m": "SEE913027869614",
+          "n": "Raa-Besenbek 1.2",
+          "t": "pv",
+          "art": "Freiflächensolaranlage",
+          "mw": 2.3391,
+          "b": "Schleswig-Holstein",
+          "lk": "Pinneberg",
+          "g": "Raa-Besenbek",
+          "plz": "25335",
+          "inb": "2026-08-24",
+          "lat": 53.769386,
+          "lon": 9.629504,
+          "nb": "Stadtwerke Elmshorn (SNB916743652645)",
+          "ab": "Sunnic Lighthouse Solar Invest 14 EU 10.2 GmbH ＆ Co. KG",
+          "st": "Aktiviert",
+          "mod": 3752,
+          "ausr": "Süd",
+          "park": "Raa-Besenbek 1"
+        },
+        {
+          "m": "SEE924061085342",
+          "n": "Aiko 465 Neostar 2S+",
+          "t": "pv",
+          "art": "Gebäudesolaranlage",
+          "mw": 9.765,
+          "b": "Nordrhein-Westfalen",
+          "lk": "Unna",
+          "g": "Unna",
+          "plz": "59427",
+          "inb": "2026-08-28",
+          "lat": 51.553785,
+          "lon": 7.810796,
+          "nb": "Stadtwerke Unna GmbH (SNB944150243392)",
+          "ab": "natürliche Person (ABR953021070982)",
+          "st": "Aktiviert",
+          "mod": 21,
+          "ausr": "Süd-Ost",
+          "park": null
+        },
+        {
+          "m": "SEE929662307596",
+          "n": "PVA Kempen",
+          "t": "pv",
+          "art": "Freiflächensolaranlage",
+          "mw": 11.55,
+          "b": "Nordrhein-Westfalen",
+          "lk": "Krefeld",
+          "g": "Krefeld",
+          "plz": "47906",
+          "inb": "2026-08-31",
+          "lat": 51.353429,
+          "lon": 6.470163,
+          "nb": "Stadtwerke Kempen GmbH (SNB943042904373)",
+          "ab": "ABO Energy Solarpark 1 GmbH ＆ Co. KG",
+          "st": "Aktiviert",
+          "mod": 18480,
+          "ausr": "Süd",
+          "park": null
+        },
+        {
+          "m": "SEE932980028739",
+          "n": "Tornesch 1.3",
+          "t": "pv",
+          "art": "Freiflächensolaranlage",
+          "mw": 3.2568,
+          "b": "Schleswig-Holstein",
+          "lk": "Pinneberg",
+          "g": "Tornesch",
+          "plz": "25436",
+          "inb": "2026-08-28",
+          "lat": 53.723327,
+          "lon": 9.746072,
+          "nb": "Schleswig-Holstein Netz GmbH (SNB990857029876)",
+          "ab": "ENERPARC Solar Invest 230 TU 18 GmbH ＆ Co. KG",
+          "st": "Aktiviert",
+          "mod": 5538,
+          "ausr": "Süd",
+          "park": "Tornesch 1"
+        },
+        {
+          "m": "SEE943999454259",
+          "n": "WEA 3, Greven Esch",
+          "t": "wind",
+          "art": "Windkraft an Land",
+          "mw": 5.56,
+          "b": "Nordrhein-Westfalen",
+          "lk": "Borken",
+          "g": "Borken",
+          "plz": "46325",
+          "inb": "2026-08-20",
+          "lat": 51.791296,
+          "lon": 6.902941,
+          "nb": "Westnetz GmbH (SNB921897286493)",
+          "ab": "Windenergie Marbeck Greven Esch GmbH ＆ Co. KG",
+          "st": "Aktiviert",
+          "nh": 166.6,
+          "rd": 160.0,
+          "lhh": null,
+          "typ": "Enercon E-160 EP5 E3",
+          "herst": "ENERCON GmbH",
+          "wp": "Windpark Borken Marbeck",
+          "los": "Windkraft an Land"
+        },
+        {
+          "m": "SEE947197491962",
+          "n": "Raa-Besenbek 2",
+          "t": "pv",
+          "art": "Freiflächensolaranlage",
+          "mw": 3.4044,
+          "b": "Schleswig-Holstein",
+          "lk": "Pinneberg",
+          "g": "Raa-Besenbek",
+          "plz": "25335",
+          "inb": "2026-08-25",
+          "lat": 53.768026,
+          "lon": 9.634808,
+          "nb": "Stadtwerke Elmshorn (SNB916743652645)",
+          "ab": "Sunnic Lighthouse Solar Invest 14 EU 10.2 GmbH ＆ Co. KG",
+          "st": "Aktiviert",
+          "mod": 5460,
+          "ausr": "Süd",
+          "park": "Raa-Besenbek 2"
+        },
+        {
+          "m": "SEE953209290102",
+          "n": "Wasserwerke Wittenhorst",
+          "t": "pv",
+          "art": "Freiflächensolaranlage",
+          "mw": 0.9856,
+          "b": "Nordrhein-Westfalen",
+          "lk": "Wesel",
+          "g": "Hamminkeln",
+          "plz": "46499",
+          "inb": "2026-08-27",
+          "lat": 51.739252,
+          "lon": 6.522823,
+          "nb": "Westnetz GmbH (SNB921897286493)",
+          "ab": "Wasserwerke Wittenhorst",
+          "st": "Aktiviert",
+          "mod": 2240,
+          "ausr": "Ost-West",
+          "park": "Wasserwerke-Wittenhorst"
+        },
+        {
+          "m": "SEE959901650466",
+          "n": "Ramelsloh 2.2",
+          "t": "pv",
+          "art": "Freiflächensolaranlage",
+          "mw": 10.2211,
+          "b": "Niedersachsen",
+          "lk": "Harburg",
+          "g": "Seevetal",
+          "plz": "21220",
+          "inb": "2026-08-28",
+          "lat": 53.331633,
+          "lon": 10.040915,
+          "nb": "Avacon Netz GmbH (SNB990362338043)",
+          "ab": "ENERPARC Solar Invest 230 TU 20 GmbH ＆ Co. KG",
+          "st": "Aktiviert",
+          "mod": 17472,
+          "ausr": "Süd",
+          "park": "Ramelsloh 2"
+        },
+        {
+          "m": "SEE959937628804",
+          "n": "Solarpark Sengenthal Reichertshofen 2.700 kWp (Ausschreibung)",
+          "t": "pv",
+          "art": "Freiflächensolaranlage",
+          "mw": 2.7,
+          "b": "Bayern",
+          "lk": "Neumarkt i.d. OPf.",
+          "g": "Sengenthal",
+          "plz": "92369",
+          "inb": "2026-08-31",
+          "lat": 49.22354,
+          "lon": 11.4266,
+          "nb": "Bayernwerk Netz GmbH (SNB940352624434)",
+          "ab": "Greeno Solarprojekt 72 GmbH ＆ Co. KG",
+          "st": "Aktiviert",
+          "mod": 4320,
+          "ausr": "Süd",
+          "park": "Solarpark Sengenthal Reichertshofen 2700 kWp (Ausschreibung)"
+        },
+        {
+          "m": "SEE961526086636",
+          "n": "Schlage Süd (Schlage V)_WEA 01_256506",
+          "t": "wind",
+          "art": "Windkraft an Land",
+          "mw": 5.6,
+          "b": "Mecklenburg-Vorpommern",
+          "lk": "Rostock",
+          "g": "Dummerstorf",
+          "plz": "18196",
+          "inb": "2026-07-30",
+          "lat": 54.023761,
+          "lon": 12.281977,
+          "nb": "WEMAG Netz GmbH (SNB928759560869)",
+          "ab": "Windertrag Dummerstorf Energie GmbH ＆ Co. KG",
+          "st": "Aktiviert",
+          "nh": 105.0,
+          "rd": 150.0,
+          "lhh": null,
+          "typ": "V150-5.6",
+          "herst": "Vestas Deutschland GmbH",
+          "wp": "Schlage Süd (Schlage V)",
+          "los": "Windkraft an Land"
+        },
+        {
+          "m": "SEE962034657066",
+          "n": "Felde 3.3",
+          "t": "pv",
+          "art": "Freiflächensolaranlage",
+          "mw": 0.9887,
+          "b": "Schleswig-Holstein",
+          "lk": "Rendsburg-Eckernförde",
+          "g": "Felde",
+          "plz": "24242",
+          "inb": "2026-08-25",
+          "lat": 54.315313,
+          "lon": 9.896681,
+          "nb": "Schleswig-Holstein Netz GmbH (SNB990857029876)",
+          "ab": "Sunnic Lighthouse Solar Invest 18 TU 6 GmbH ＆ Co. KG",
+          "st": "Aktiviert",
+          "mod": 1690,
+          "ausr": "Süd",
+          "park": "Felde 3"
+        },
+        {
+          "m": "SEE966850233022",
+          "n": "tLa52 - PV Laaber 5 Teil 2",
+          "t": "pv",
+          "art": "Freiflächensolaranlage",
+          "mw": 9.8646,
+          "b": "Bayern",
+          "lk": "Neumarkt i.d. OPf.",
+          "g": "Pilsach",
+          "plz": "92367",
+          "inb": "2026-08-26",
+          "lat": 49.32756,
+          "lon": 11.57063,
+          "nb": "Bayernwerk Netz GmbH (SNB940352624434)",
+          "ab": "Windpower Pilsach Solar GmbH ＆ Co. KG",
+          "st": "Aktiviert",
+          "mod": 15911,
+          "ausr": "Süd",
+          "park": null
+        },
+        {
+          "m": "SEE972455225287",
+          "n": "Felde 3.1",
+          "t": "pv",
+          "art": "Freiflächensolaranlage",
+          "mw": 18.9787,
+          "b": "Schleswig-Holstein",
+          "lk": "Rendsburg-Eckernförde",
+          "g": "Felde",
+          "plz": "24242",
+          "inb": "2026-08-27",
+          "lat": 54.313357,
+          "lon": 9.909113,
+          "nb": "Schleswig-Holstein Netz GmbH (SNB990857029876)",
+          "ab": "Sunnic Lighthouse Solar Invest 18 TU 6 GmbH ＆ Co. KG",
+          "st": "Aktiviert",
+          "mod": 32370,
+          "ausr": "Süd",
+          "park": "Felde 3"
+        },
+        {
+          "m": "SEE982135678845",
+          "n": "PV Freiflächenanlage 2.641,2 kWp Waldburgskirchen",
+          "t": "pv",
+          "art": "Freiflächensolaranlage",
+          "mw": 2.6412,
+          "b": "Bayern",
+          "lk": "Rottal-Inn",
+          "g": "Tann",
+          "plz": "84367",
+          "inb": "2026-08-31",
+          "lat": 48.38218,
+          "lon": 12.8982,
+          "nb": "Bayernwerk Netz GmbH (SNB940352624434)",
+          "ab": "GSt 102. Solarpark GmbH ＆ Co. KG",
+          "st": "Aktiviert",
+          "mod": 3720,
+          "ausr": "Süd",
+          "park": null
+        },
+        {
+          "m": "SEE984395239224",
+          "n": "Schlage Süd (Schlage V)_WEA 04_256504",
+          "t": "wind",
+          "art": "Windkraft an Land",
+          "mw": 4.2,
+          "b": "Mecklenburg-Vorpommern",
+          "lk": "Rostock",
+          "g": "Dummerstorf",
+          "plz": "18196",
+          "inb": "2026-08-14",
+          "lat": 54.022384,
+          "lon": 12.28787,
+          "nb": "WEMAG Netz GmbH (SNB928759560869)",
+          "ab": "Windertrag Dummerstorf Energie GmbH ＆ Co. KG",
+          "st": "Aktiviert",
+          "nh": 123.0,
+          "rd": 150.0,
+          "lhh": null,
+          "typ": "V150-4,2",
+          "herst": "Vestas Deutschland GmbH",
+          "wp": "Schlage Süd (Schlage V)",
+          "los": "Windkraft an Land"
+        },
+        {
+          "m": "SEE990020055367",
+          "n": "Frankfurt Oder West 2.2",
+          "t": "pv",
+          "art": "Freiflächensolaranlage",
+          "mw": 5.0144,
+          "b": "Brandenburg",
+          "lk": "Frankfurt (Oder)",
+          "g": "Frankfurt (Oder)",
+          "plz": "15234",
+          "inb": "2026-08-26",
+          "lat": 52.325632,
+          "lon": 14.472198,
+          "nb": "E.DIS Netz GmbH (SNB941690671609)",
+          "ab": "ENERPARC Solar Invest 243 EU 1.7 GmbH",
+          "st": "Aktiviert",
+          "mod": 8064,
+          "ausr": "Süd",
+          "park": "Frankfurt Oder West 2"
+        },
+        {
+          "m": "SEE991807581772",
+          "n": "tLa43 - PV Laaber 4 Teil 1.2",
+          "t": "pv",
+          "art": "Freiflächensolaranlage",
+          "mw": 7.9899,
+          "b": "Bayern",
+          "lk": "Neumarkt i.d. OPf.",
+          "g": "Pilsach",
+          "plz": "92367",
+          "inb": "2026-08-26",
+          "lat": 49.31506,
+          "lon": 11.55038,
+          "nb": "Bayernwerk Netz GmbH (SNB940352624434)",
+          "ab": "Windpower Pilsach Solar GmbH ＆ Co. KG",
+          "st": "Aktiviert",
+          "mod": 12887,
+          "ausr": "Süd",
+          "park": null
+        },
+        {
+          "m": "SEE993274515960",
+          "n": "Frankfurt Oder West 2.1",
+          "t": "pv",
+          "art": "Freiflächensolaranlage",
+          "mw": 0.9895,
+          "b": "Brandenburg",
+          "lk": "Frankfurt (Oder)",
+          "g": "Frankfurt (Oder)",
+          "plz": "15234",
+          "inb": "2026-08-25",
+          "lat": 52.323815,
+          "lon": 14.471809,
+          "nb": "E.DIS Netz GmbH (SNB941690671609)",
+          "ab": "ENERPARC Solar Invest 243 EU 1.7 GmbH",
+          "st": "Aktiviert",
+          "mod": 1596,
+          "ausr": "Süd",
+          "park": "Frankfurt Oder West 2"
+        }
+      ],
+      "removed_assets": [
+        {
+          "m": "SEE965292104525",
+          "n": "WP Buschmühlen 8003 - Neubuckow",
+          "t": "wind",
+          "art": "Windkraft an Land",
+          "mw": 2.5,
+          "b": "Mecklenburg-Vorpommern",
+          "lk": "Rostock",
+          "g": "Neubukow",
+          "plz": "18233",
+          "inb": "2001-12-21",
+          "lat": 54.025079,
+          "lon": 11.632612,
+          "nb": "E.DIS Netz GmbH (SNB941690671609)",
+          "ab": "e.disnatur Erneuerbare Energien GmbH",
+          "st": "Aktiviert",
+          "nh": 80.0,
+          "rd": 80.0,
+          "lhh": null,
+          "typ": "N-80",
+          "herst": "Nordex Energy GmbH",
+          "wp": "WP Buschmühlen 8003 - Neubuckow",
+          "los": "Windkraft an Land"
+        }
+      ]
+    }
+  }
+]
