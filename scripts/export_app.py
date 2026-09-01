@@ -13,6 +13,7 @@ Nutzung: python3 scripts/export_app.py
 """
 import json
 import sqlite3
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -242,6 +243,22 @@ def main() -> None:
     print(f"Zähler: {counts}")
     stat_et = statistiken["gesamt"]
     print(f"Statistik: {len(statistiken['betreiber'])} Betreiber | Wind max {stat_et['wind_max_mw']} MW | PV max {stat_et['pv_max_mw']} MW | gesamt {stat_et['total_anzahl']} -> dist/assets/statistiken.json")
+
+    # V4: Historie-JSON generieren (falls Snapshots existieren)
+    try:
+        sys.path.insert(0, str(ROOT / "scripts"))
+        from snapshot import build_historie, ensure_schema
+        ensure_schema(db)
+        historie = build_historie(db)
+        if historie:
+            with open(DIST / "historie.json", "w", encoding="utf-8") as f:
+                json.dump(historie, f, ensure_ascii=False, indent=2)
+            print(f"Historie: {len(historie)} Snapshots -> dist/assets/historie.json")
+        else:
+            print("Historie: keine Snapshots vorhanden (erst nach Update mit import_mastr.py)")
+    except Exception as e:
+        print(f"Historie: übersprungen ({e})")
+    db.close()
 
 
 if __name__ == "__main__":

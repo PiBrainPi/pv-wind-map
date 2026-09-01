@@ -27,6 +27,10 @@ ROOT = Path(__file__).resolve().parent.parent
 RAW_DIR = ROOT / "data" / "raw"
 DB_PATH = ROOT / "data" / "mastr.db"
 
+# Snapshot- & Delta-Logik (V4: Update-Historie-Tracker)
+sys.path.insert(0, str(ROOT / "scripts"))
+from snapshot import ensure_schema, save_snapshot, compute_delta, build_historie
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS einheiten (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -190,6 +194,17 @@ def main() -> None:
 
     db = sqlite3.connect(DB_PATH)
     db.executescript(SCHEMA)
+    ensure_schema(db)  # V4: Snapshot-Tabellen anlegen
+
+    # V4: Vor dem Rebuild — alten Snapshot sichern (falls Daten vorhanden)
+    old_snapshot_id = None
+    old_count = db.execute("SELECT COUNT(*) FROM einheiten").fetchone()[0]
+    if old_count > 0:
+        old_stand = db.execute("SELECT value FROM metadaten WHERE key='stand'").fetchone()
+        old_datum = old_stand[0][:10] if old_stand and old_stand[0] else "unknown"
+        old_snapshot_id = save_snapshot(db, old_datum)
+        print(f"Alter Stand gesichert: Snapshot #{old_snapshot_id} ({old_datum}, {old_count} Einheiten)")
+
     # Rebuild (robust für V0)
     db.execute("DELETE FROM einheiten")
     db.execute("DELETE FROM update_log")
@@ -230,6 +245,27 @@ def main() -> None:
         print(f"  {name}: {cnt}")
     print(f"  davon mit Geolokation: {geolok}")
     print(f"  Wind (<100 kW, = <0.1 MW, nach Normalisierung weggefiltert): {wind_filtered_lt100kw}")
+
+    # V4: Neuen Snapshot nach Import speichern + Delta berechnen
+    new_datum = now[:10]
+    new_snapshot_id = save_snapshot(db, new_datum)
+    if old_snapshot_id is not None:
+        delta = compute_delta(db, old_snapshot_id, new_snapshot_id)
+        print(f"\n=== Delta (Snapshot #{old_snapshot_id} → #{new_snapshot_id}) ===")
+        print(f"  Wind neu: +{delta['wind_neu']} Anlagen (+{delta['wind_mw_neu']} MW)")
+        print(f"  PV neu:   +{delta['pv_neu']} Anlagen (+{delta['pv_mw_neu']} MW)")
+        print(f"  Gesamt neu: +{delta['gesamt_neu']} Anlagen (+{delta['gesamt_mw_neu']} MW)")
+        print(f"  Entfernt: {delta['removed_anzahl']}")
+        print(f"  Bundesländer mit Veränderung: {len(delta['bundeslaender_delta'])}")
+        # Historie-JSON direkt schreiben (für Debug/Preview)
+        from pathlib import Path as P
+        hist_path = ROOT / "dist" / "assets" / "historie.json"
+        hist_path.parent.mkdir(parents=True, exist_ok=True)
+        historie = build_historie(db)
+        with open(hist_path, "w", encoding="utf-8") as f:
+            json.dump(historie, f, ensure_ascii=False, indent=2)
+        print(f"  Historie-JSON: {len(historie)} Snapshots → {hist_path}")
+
     db.close()
 
 

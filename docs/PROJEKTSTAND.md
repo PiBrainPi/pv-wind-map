@@ -108,10 +108,54 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
       PV/Wind-Zahlen, Badge und Staffeln konsistent.
 - [ ] **Performance:** Single-File ist auf ~25 MB gewachsen — optional hostbare Version nutzen,
       Daten-CDN, oder GeoJSON-Minify. Bei `file://`-Laden beachten (einmal war eine leere Seite transient).
-- [ ] **Domain/HTTPS-Rest:** Portal-Zertifikat (`ingenieur-tools.de`) in Ausstellung; Sun-Tracker
-      (`sonne.`) HTTPS hängt bei `authorization_created` (GitHub-Support-Ticket offen, Watchdog
-      `d9880f4fff1e`). Karte + Galton laufen bereits über HTTPS.
+- [ ] **Domain/HTTPS-Rest:** Portal + Sun-HTTPS warten auf Let's Encrypt (Rate-Limit, 7-Tage-Fenster).
+      Watchdog `b950b901245e` (alle 30 Min, alle Hosts) meldet automatisch bei Erfolg. Karte + Galton
+      haben `https_enforced=true` (01.09.).
 - [x] **GitHub-Publishing** umgesetzt: Karten-Repo öffentlich auf GitHub + GitHub Pages live.
+- [x] **V4 — Bundesländer-Tab mit Pie-Charts (2026-09-01, lokal, nicht gepusht):** Neuer Statistik-
+      Reiter „Bundesländer" mit interaktivem Donut-Chart (Canvas, keine Bibliothek). Drei Modi via
+      Toggle: **Wind** (17 Bundesländer, 31.114 Anlagen, Top: Niedersachsen 6.301), **PV** (16 BL,
+      22.363 Anlagen, Top: Bayern 5.850), **Wind + PV** (17 BL, 53.477 Anlagen, Top: Niedersachsen 7.956).
+      Measure-Toggle: Anlagen ⇄ Leistung (MW). Klick auf Pie-Segment oder Legende → Karte filtert
+      auf Bundesland (Fit-Bounds + Suchfeld-Label). Summary-Box: Tech, Bundesländer-Anzahl, Anlagen,
+      Gesamtleistung, Top-Bundesland. 16-Farben-Palette (`BL_COLORS`). Verifiziert: 0 JS-Fehler,
+      53.482 Anlagen geladen, Canvas gefunden, alle drei Modi + Measure-Toggle getestet.
+      Datei: `~/hermes_human-share/PV-Wind-Karte_V4_Bundeslaender-PieChart.html`.
+      **Push-Freigabe vom User ausstehend.**
+- [x] **V4 — Update-Historie-Tab (2026-09-01, lokal, nicht gepusht):** Neuer Statistik-Reiter
+      „Update-Historie" mit Revisions-Tracker. Vergleicht Datenstände zwischen Updates und zeigt
+      Veränderungen über die Zeit. **Erster echter Delta-Test:** 29.08.→01.09. = +19 Anlagen
+      (Wind +3/+15 MW, PV +16/+96 MW), 1 entfernt, 7 Bundesländer verändert (Top: Schleswig-Holstein +5 PV).
+      **Features:** (1) Delta-Summary-Karten (Wind/PV/Gesamt neu, MW neu, Gesamt-Δ), (2) Verlauf-Tabelle
+      mit allen Snapshots (Datum, Wind/PV/Gesamt Anzahlen+MW, Δ Neu/Δ MW), (3) Bundesländer-Veränderung
+      je Update (Wind/PV/MW pro Bundesland), (4) Mini-Zeitleiste (Balken der Gesamtanzahl pro Snapshot).
+      **Pipeline:** `snapshot.py` (neu) — SQLite-Schema (`snapshots`+`snapshot_einheiten`), `save_snapshot()`,
+      `compute_delta()`, `build_historie()`. `import_mastr.py` — sichert alten Stand vor Rebuild, neuen
+      Stand nach Import, berechnet Delta. `export_app.py` — generiert `historie.json`. `bundle_singlefile.py`
+      — bettet `window.__PVWIND_HISTORIE__` ein. **Cronjob-Plan:** 1. & 15. des Monats (`0 3 1,15 * *`).
+      Verifiziert: 53.500 Anlagen, 2 Snapshots, 0 JS-Fehler, alle UI-Elemente getestet.
+      Datei: `~/hermes_human-share/PV-Wind-Karte_V4_Update-Historie.html`.
+      **Push-Freigabe vom User ausstehend.**
+- [x] **V4b — Asset-Detail-Ansicht (2026-09-01, lokal, nicht gepusht):** Klickbare Verlauf-Zeilen
+      in der Update-Historie öffnen ein Detail-Overlay mit 4 Tabs: **Neu: Wind**, **Neu: PV**,
+      **Entfernt: Wind**, **Entfernt: PV**. Jeder Tab zeigt eine Tabelle aller hinzugefügten/entfernten
+      Assets mit vollen Daten: Name, MW, Bundesland, Gemeinde, Inbetriebnahme, **Betreiber (NorthData-Deeplink)**,
+      MaStR-Nr., **Koordinaten (Google-Maps-Deeplink)**. Auto-Tab-Wechsel zum ersten Tab mit Inhalt.
+      Escape schließt das Overlay. `snapshot.py` erweitert: `snapshot_einheiten` speichert jetzt alle
+      Asset-Felder (26 Spalten), `compute_delta()` liefert `added_assets`/`removed_assets` als volle
+      Asset-Dicts. Historie-JSON wuchs von 5,3 KB auf 18,8 KB (19 Assets × volle Daten).
+      Verifiziert: 19 added (3 Wind + 16 PV), 1 removed (Wind), 32 Deeplinks in PV-Tabelle,
+      0 JS-Fehler, Overlay öffnet/schließt korrekt.
+      Datei: `~/hermes_human-share/PV-Wind-Karte_V4b_Asset-Detail.html`.
+      **Push-Freigabe vom User ausstehend.**
+- [x] **V4c — Formatierung (2026-09-01, lokal, nicht gepusht):** (1) Bundesländer-Veränderung als
+      professionelle Tabelle mit 6 Spalten (Bundesland | Wind Δ | PV Δ | Wind MW Δ | PV MW Δ | Gesamt MW Δ),
+      farbcodiert (grün=+, rot=−, grau=—), Spaltenüberschriften in Caps, sortiert nach absoluter
+      Veränderung. (2) Hinweis-Text unter "Daten-Verlauf": „💡 Klicke auf eine Zeile mit Δ-Wert, um die
+      detaillierte Auflistung aller hinzugefügten und entfernten Wind- und PV-Anlagen zu sehen".
+      Verifiziert: 7 Bundesländer-Zeilen, 6 Spalten, Klick-Overlay funktioniert, 0 JS-Fehler.
+      Datei: `~/hermes_human-share/PV-Wind-Karte_V4c_Formatierung.html`.
+      **Push-Freigabe vom User ausstehend.**
 
 ## Verifikation: Filter + Anlagen-Anzahl-Badge (per Browser-Konsole, reproduzierbar)
 Sobald die App geladen ist (`allUnits` befüllt), im Devtools-Konsolen-`window`-Kontext:

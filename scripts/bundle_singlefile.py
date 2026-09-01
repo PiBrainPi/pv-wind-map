@@ -34,7 +34,14 @@ def main() -> None:
     except FileNotFoundError:
         stats_js = "window.__PVWIND_STATS__ = null;"
 
-    injection = f"<script>\n{data_js}\n{meta_js}\n{stats_js}\n</script>\n"
+    # V4: Historie-JSON einbetten (falls vorhanden)
+    try:
+        historie = json.loads((DIST / "assets" / "historie.json").read_text(encoding="utf-8"))
+        hist_js = "window.__PVWIND_HISTORIE__ = " + json.dumps(historie, ensure_ascii=False, separators=(",", ":")) + ";"
+    except (FileNotFoundError, json.JSONDecodeError):
+        hist_js = "window.__PVWIND_HISTORIE__ = null;"
+
+    injection = f"<script>\n{data_js}\n{meta_js}\n{stats_js}\n{hist_js}\n</script>\n"
     # Daten-Skript VOR dem Haupt-App-Script einfügen (sonst ist window.__PVWIND_DATA__
     # beim init()-Aufruf noch nicht definiert). Anker: CSS-Block der App.
     anchor = "<style>\n* { margin:0;"

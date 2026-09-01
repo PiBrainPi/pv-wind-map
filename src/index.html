@@ -1067,6 +1067,139 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .bar-tip .tip-row span:last-child { text-align:right; font-weight:600; }
 .bar-tip .tip-note { margin-top:4px; padding-top:4px; border-top:1px solid #374151; color:#9ca3af; font-size:11px; }
 
+/* Bundesländer-Tab (V4): Pie-Chart Verteilung pro Bundesland */
+#bundesland-header {
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:8px; margin-bottom:14px;
+}
+#bundesland-toggle { display:flex; gap:4px; }
+#bundesland-toggle .bl-btn, #bundesland-measure .bl-mbtn {
+  padding:5px 12px; border:1px solid #ccc; border-radius:6px;
+  background:#f5f5f5; color:#555; font-size:13px; font-weight:600; cursor:pointer;
+}
+#bundesland-toggle .bl-btn.active { background:#2563eb; color:#fff; border-color:#2563eb; }
+#bundesland-toggle .bl-btn[data-tech="pv"].active { background:#d97706; border-color:#d97706; }
+#bundesland-toggle .bl-btn[data-tech="gesamt"].active { background:#4f46e5; border-color:#4f46e5; }
+#bundesland-measure { display:flex; gap:4px; }
+#bundesland-measure .bl-mbtn.active { background:#111827; color:#fff; border-color:#111827; }
+#bundesland-summary {
+  display:flex; gap:18px; flex-wrap:wrap; font-size:12px; color:#4b5563;
+  background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px; margin-bottom:14px;
+}
+#bundesland-summary b { color:#111827; }
+#bundesland-chart-wrap { display:flex; gap:16px; align-items:flex-start; margin:10px 0 8px; }
+#bundesland-pie { border-radius:4px; }
+#bundesland-pie-side { flex:1; font-size:12px; max-height:340px; overflow-y:auto; }
+#bundesland-pie-side .bl-legend-row {
+  display:flex; align-items:center; gap:6px; padding:3px 4px; border-radius:4px; cursor:pointer;
+}
+#bundesland-pie-side .bl-legend-row .swatch { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
+#bundesland-pie-side .bl-legend-row .bl-name { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#bundesland-pie-side .bl-legend-row .bl-val { color:#6b7280; white-space:nowrap; }
+#bundesland-pie-side .bl-legend-row:hover { background:#f3f4f6; }
+#bundesland-pie-note { font-size:11px; color:#9ca3af; margin-top:8px; }
+
+/* Update-Historie-Tab (V4) */
+#historie-empty { color:#6b7280; font-size:13px; padding:20px; text-align:center; }
+.hist-section-title { font-size:14px; color:#111827; margin:18px 0 8px; }
+.hist-table-wrap { overflow-x:auto; }
+#historie-table { width:100%; border-collapse:collapse; font-size:12px; }
+#historie-table th, #historie-table td { padding:6px 8px; border-bottom:1px solid #eee; text-align:left; }
+#historie-table th { background:#f7f9fc; color:#333; position:sticky; top:0; }
+#historie-table th.num, #historie-table td.num { text-align:right; white-space:nowrap; }
+#historie-table tbody tr:hover { background:#eef3ff; }
+#historie-table .delta-pos { color:#16a34a; font-weight:600; }
+#historie-table .delta-neg { color:#dc2626; font-weight:600; }
+#historie-table .delta-zero { color:#9ca3af; }
+#historie-table .first-row { background:#f0fdf4; font-weight:600; }
+.hist-delta-card {
+  display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px;
+}
+.hist-delta-card .card {
+  flex:1; min-width:140px; border:1px solid #e5e7eb; border-radius:8px; padding:10px 14px;
+  background:#f9fafb;
+}
+.hist-delta-card .card .label { font-size:11px; color:#6b7280; margin-bottom:4px; }
+.hist-delta-card .card .value { font-size:18px; font-weight:700; color:#111827; }
+.hist-delta-card .card .sub { font-size:11px; color:#6b7280; margin-top:2px; }
+.hist-delta-card .card.wind .value { color:#2563eb; }
+.hist-delta-card .card.pv .value { color:#d97706; }
+.hist-delta-card .card.gesamt .value { color:#4f46e5; }
+.hist-delta-card .card.mw .value { color:#059669; }
+.hist-delta-card .card .arrow-up::before { content:"↑ "; }
+.hist-bl-delta-block { margin-bottom:14px; }
+.hist-bl-delta-block .bl-delta-title {
+  font-size:12px; font-weight:600; color:#374151; margin-bottom:4px; padding-bottom:4px;
+  border-bottom:1px solid #e5e7eb;
+}
+.hist-bl-table { width:100%; border-collapse:collapse; font-size:12px; }
+.hist-bl-table th, .hist-bl-table td {
+  padding:5px 10px; border-bottom:1px solid #f3f4f6; text-align:left;
+}
+.hist-bl-table th {
+  background:#f7f9fc; color:#374151; font-weight:600; font-size:11px;
+  text-transform:uppercase; letter-spacing:0.03em;
+}
+.hist-bl-table th.num, .hist-bl-table td.num { text-align:right; white-space:nowrap; }
+.hist-bl-table td.bl-name { font-weight:500; }
+.hist-bl-table .pos { color:#16a34a; font-weight:600; }
+.hist-bl-table .neg { color:#dc2626; font-weight:600; }
+.hist-bl-table .zero { color:#9ca3af; }
+.hist-bl-table tbody tr:hover { background:#f9fafb; }
+.hist-timeline {
+  display:flex; gap:2px; align-items:flex-end; height:60px; padding:8px 0; border-bottom:1px solid #eee;
+}
+.hist-timeline .tl-bar {
+  flex:1; min-width:4px; background:#2563eb; border-radius:3px 3px 0 0; position:relative; cursor:pointer;
+  transition: opacity .2s;
+}
+.hist-timeline .tl-bar:hover { opacity:0.7; }
+.hist-timeline .tl-bar .tl-label {
+  position:absolute; bottom:100%; left:50%; transform:translateX(-50%); font-size:10px; color:#374151;
+  white-space:nowrap; margin-bottom:2px; display:none;
+}
+.hist-timeline .tl-bar:hover .tl-label { display:block; }
+.hist-timeline-note { font-size:11px; color:#9ca3af; margin-top:4px; }
+
+/* V4b: Asset-Detail-Ansicht (klickbare Verlauf-Zeilen) */
+.hist-detail-overlay {
+  position:fixed; top:0; left:0; width:100%; height:100%; z-index:3100;
+  background:rgba(0,0,0,.4); display:none; align-items:center; justify-content:center;
+  padding:20px;
+}
+.hist-detail-overlay.open { display:flex; }
+.hist-detail-box {
+  background:#fff; border-radius:12px; max-width:900px; width:100%; max-height:85vh;
+  overflow:hidden; display:flex; flex-direction:column; box-shadow:0 8px 32px rgba(0,0,0,.3);
+}
+.hist-detail-header {
+  display:flex; justify-content:space-between; align-items:center; padding:14px 20px;
+  border-bottom:1px solid #e5e7eb; background:#f9fafb;
+}
+.hist-detail-header h3 { font-size:16px; color:#111827; }
+.hist-detail-header .close-btn {
+  width:28px; height:28px; border:none; background:#e5e7eb; color:#4b5563;
+  border-radius:6px; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.hist-detail-header .close-btn:hover { background:#d1d5db; color:#111827; }
+.hist-detail-tabs { display:flex; gap:4px; padding:8px 20px; border-bottom:1px solid #e5e7eb; }
+.hist-detail-tab {
+  padding:6px 14px; border:1px solid #ccc; border-radius:6px; background:#f5f5f5;
+  color:#555; font-size:13px; font-weight:600; cursor:pointer;
+}
+.hist-detail-tab.active { background:#2563eb; color:#fff; border-color:#2563eb; }
+.hist-detail-body { flex:1; overflow-y:auto; padding:12px 20px; }
+.hist-detail-section { display:none; }
+.hist-detail-section.active { display:block; }
+.hist-asset-table { width:100%; border-collapse:collapse; font-size:12px; }
+.hist-asset-table th, .hist-asset-table td { padding:5px 8px; border-bottom:1px solid #eee; text-align:left; }
+.hist-asset-table th { background:#f7f9fc; color:#333; position:sticky; top:0; z-index:1; }
+.hist-asset-table th.num, .hist-asset-table td.num { text-align:right; white-space:nowrap; }
+.hist-asset-table tbody tr:hover { background:#eef3ff; }
+.hist-asset-table .popup-link { color:#2563eb; text-decoration:none; }
+.hist-asset-table .popup-link:hover { text-decoration:underline; }
+.hist-asset-empty { color:#6b7280; font-size:13px; padding:12px; text-align:center; }
+
 /* Impressum-Modal */
 .modal {
   position:fixed; top:0; left:0; width:100%; height:100%; z-index:3200;
@@ -1196,6 +1329,8 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
       <button class="tab active" data-tab="betreiber">Betreiber</button>
       <button class="tab" data-tab="hersteller">Hersteller</button>
       <button class="tab" data-tab="groesse">Größenklassen</button>
+      <button class="tab" data-tab="bundesland">Bundesländer</button>
+      <button class="tab" data-tab="historie">Update-Historie</button>
     </div>
 
     <!-- Betreiber-Ansicht -->
@@ -1288,8 +1423,89 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
       </div>
     </section>
 
+    <!-- Bundesländer-Ansicht (V4: Verteilung der Anlagen pro Bundesland als Pie-Charts) -->
+    <section id="tab-bundesland" class="stats-tab">
+      <div id="bundesland-header">
+        <div id="bundesland-toggle">
+          <button class="bl-btn active" data-tech="wind">Wind</button>
+          <button class="bl-btn" data-tech="pv">PV</button>
+          <button class="bl-btn" data-tech="gesamt">Wind + PV</button>
+        </div>
+        <div id="bundesland-measure">
+          <button class="bl-mbtn active" data-measure="anzahl">Anlagen</button>
+          <button class="bl-mbtn" data-measure="leistung">Leistung (MW)</button>
+        </div>
+      </div>
+      <div id="bundesland-summary"></div>
+      <div id="bundesland-chart-wrap">
+        <canvas id="bundesland-pie" width="220" height="220"></canvas>
+        <div id="bundesland-pie-side"></div>
+      </div>
+      <div id="bundesland-pie-note"></div>
+    </section>
+
+    <!-- Update-Historie-Tab (V4: Revisions-Tracker) -->
+    <section id="tab-historie" class="stats-tab">
+      <div id="historie-empty">Noch keine Update-Historie vorhanden. Beim nächsten Daten-Update (1. & 15. des Monats) wird hier die Veränderung angezeigt.</div>
+      <div id="historie-content" style="display:none;">
+        <!-- Summary-Karten: letztes Delta -->
+        <div id="historie-last-delta"></div>
+        <!-- Verlauf-Tabelle: alle Snapshots -->
+        <h3 class="hist-section-title">Daten-Verlauf</h3>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:8px;">
+          💡 Klicke auf eine Zeile mit Δ-Wert, um die detaillierte Auflistung aller hinzugefügten und entfernten Wind- und PV-Anlagen zu sehen (mit NorthData- und Google-Maps-Links).
+        </div>
+        <div class="hist-table-wrap">
+          <table id="historie-table">
+            <thead>
+              <tr>
+                <th data-key="datum">Datum</th>
+                <th data-key="wind_anzahl" class="num">Wind</th>
+                <th data-key="pv_anzahl" class="num">PV</th>
+                <th data-key="gesamt_anzahl" class="num">Gesamt</th>
+                <th data-key="wind_mw" class="num">Wind MW</th>
+                <th data-key="pv_mw" class="num">PV MW</th>
+                <th data-key="gesamt_mw" class="num">Gesamt MW</th>
+                <th class="num">Δ Neu</th>
+                <th class="num">Δ MW</th>
+              </tr>
+            </thead>
+            <tbody id="historie-tbody"></tbody>
+          </table>
+        </div>
+        <!-- Detail: Bundesländer-Delta (ausklappbar je Snapshot) -->
+        <h3 class="hist-section-title">Bundesländer-Veränderung</h3>
+        <div id="historie-bundeslaender-delta"></div>
+        <!-- Mini-Zeitleiste: Anlagen-Entwicklung -->
+        <h3 class="hist-section-title">Anlagen-Entwicklung über Zeit</h3>
+        <div id="historie-timeline"></div>
+      </div>
+    </section>
+
   </div>
 </aside>
+
+<!-- V4b: Asset-Detail-Overlay (Update-Historie) -->
+<div id="hist-detail-overlay" class="hist-detail-overlay">
+  <div class="hist-detail-box">
+    <div class="hist-detail-header">
+      <h3 id="hist-detail-title">Asset-Veränderung</h3>
+      <button class="close-btn" id="hist-detail-close">✕</button>
+    </div>
+    <div class="hist-detail-tabs">
+      <button class="hist-detail-tab active" data-dtab="added-wind">Neu: Wind</button>
+      <button class="hist-detail-tab" data-dtab="added-pv">Neu: PV</button>
+      <button class="hist-detail-tab" data-dtab="removed-wind">Entfernt: Wind</button>
+      <button class="hist-detail-tab" data-dtab="removed-pv">Entfernt: PV</button>
+    </div>
+    <div class="hist-detail-body">
+      <div class="hist-detail-section active" id="hd-added-wind"></div>
+      <div class="hist-detail-section" id="hd-added-pv"></div>
+      <div class="hist-detail-section" id="hd-removed-wind"></div>
+      <div class="hist-detail-section" id="hd-removed-pv"></div>
+    </div>
+  </div>
+</div>
 
 <!-- Filter unten links -->
 <div id="toolbar">
@@ -1523,6 +1739,11 @@ async function init() {
     populateFilterArt();
     renderMarkers(einheiten);
     if (typeof initStats === 'function') initStats();
+    // V4: Historie laden (nach Datenladen, da renderHistorie im openStats gerufen wird)
+    loadHistorie().then(() => {
+      // falls Stats-Panel schon offen war (sollte nicht, aber sicherheitshalber)
+      if (document.getElementById('stats-panel').classList.contains('open')) renderHistorie();
+    });
   } catch(e) {
     const ib = document.getElementById('infobar');
     if (ib) ib.textContent = 'Fehler beim Laden: ' + (e && e.message ? e.message : e);
@@ -1549,7 +1770,9 @@ async function init() {
   document.getElementById('impressum-link').addEventListener('click', (e) => { e.preventDefault(); openModal(); });
   document.getElementById('impressum-close').addEventListener('click', closeModal);
   modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeDS(); } });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeModal(); closeDS(); closeHistDetail(); }
+  });
 
   // Datenschutz-Modal
   const dsModal = document.getElementById('datenschutz-modal');
@@ -1914,6 +2137,8 @@ let _statsState = {         // UI-Zustand
   herstellerFilter: '',
   herstellerSortKey: 'sum_mw',
   herstellerSortDir: 'desc',
+  bundeslandTech: 'wind',       // V4: 'wind' | 'pv' | 'gesamt'
+  bundeslandMeasure: 'anzahl',  // V4: 'anzahl' | 'leistung'
 };
 
 function initStats() {
@@ -1931,6 +2156,8 @@ function initStats() {
       if (btn.dataset.tab === 'betreiber') renderBetreiber();
       if (btn.dataset.tab === 'hersteller') renderHersteller();
       if (btn.dataset.tab === 'groesse') renderGroesse();
+      if (btn.dataset.tab === 'bundesland') renderBundesland();
+      if (btn.dataset.tab === 'historie') renderHistorie();
     });
   });
   // Hersteller-Controls
@@ -1986,6 +2213,21 @@ function initStats() {
       renderGroesse();
     });
   });
+  // V4: Bundesländer-Controls
+  document.querySelectorAll('#bundesland-toggle .bl-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#bundesland-toggle .bl-btn').forEach(x => x.classList.toggle('active', x === b));
+      _statsState.bundeslandTech = b.dataset.tech;
+      renderBundesland();
+    });
+  });
+  document.querySelectorAll('#bundesland-measure .bl-mbtn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#bundesland-measure .bl-mbtn').forEach(x => x.classList.toggle('active', x === b));
+      _statsState.bundeslandMeasure = b.dataset.measure;
+      renderBundesland();
+    });
+  });
   document.addEventListener('mousemove', moveBarTip);
 }
 
@@ -1994,6 +2236,8 @@ function openStats() {
   document.getElementById('stats-overlay').classList.add('open');
   renderBetreiber();
   renderGroesse();
+  renderBundesland();
+  renderHistorie(); // V4: Historie initial render
 }
 function closeStats() {
   document.getElementById('stats-panel').classList.remove('open');
@@ -2437,6 +2681,490 @@ function moveBarTip(e) {
   tip.style.top = top + 'px';
 }
 function hideBarTip() { document.getElementById('bar-tip').style.display = 'none'; }
+
+/* ===================== V4: Bundesländer-Verteilung (Pie-Chart) ===================== */
+// Farbpalette für Bundesländer (16 Einträge, reihend durchgereiht)
+const BL_COLORS = [
+  '#2563eb','#d97706','#16a34a','#dc2626','#7c3aed','#0891b2','#db2777','#65a30d',
+  '#ea580c','#4f46e5','#64748b','#0d9488','#be185d','#a16207','#1d4ed8','#9333ea',
+];
+
+function computeBundeslandData(tech, measure) {
+  // Aggregiert allUnits nach Bundesland, je Technologie-Filter
+  const byBL = new Map(); // bl -> { name, anzahl, sum_mw, wind, pv }
+  for (const u of allUnits) {
+    if (!u.b) continue;
+    if (tech === 'wind' && u.t !== 'wind') continue;
+    if (tech === 'pv' && u.t !== 'pv') continue;
+    let e = byBL.get(u.b);
+    if (!e) { e = { name: u.b, anzahl: 0, sum_mw: 0, wind: 0, pv: 0 }; byBL.set(u.b, e); }
+    e.anzahl++;
+    e.sum_mw += (u.mw || 0);
+    if (u.t === 'wind') e.wind++; else e.pv++;
+  }
+  let arr = [...byBL.values()];
+  // Sortieren nach dem aktiven Measure-Wert absteigend
+  arr.sort((a, b) => measure === 'anzahl' ? b.anzahl - a.anzahl : b.sum_mw - a.sum_mw);
+  return arr;
+}
+
+function renderBundesland() {
+  const canvas = document.getElementById('bundesland-pie');
+  const side = document.getElementById('bundesland-pie-side');
+  const note = document.getElementById('bundesland-pie-note');
+  const summary = document.getElementById('bundesland-summary');
+  const tech = _statsState.bundeslandTech;
+  const measure = _statsState.bundeslandMeasure;
+
+  const data = computeBundeslandData(tech, measure);
+  if (!data.length) {
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    side.innerHTML = '';
+    note.textContent = 'Keine Daten';
+    summary.innerHTML = '<span>Keine Daten</span>';
+    return;
+  }
+
+  const totalAnzahl = data.reduce((s, d) => s + d.anzahl, 0);
+  const totalMW = data.reduce((s, d) => s + d.sum_mw, 0);
+  const maxBL = data[0];
+  const maxVal = measure === 'anzahl' ? maxBL.anzahl : maxBL.sum_mw;
+
+  let techName, techColor;
+  if (tech === 'wind') { techName = 'Wind'; techColor = '#2563eb'; }
+  else if (tech === 'pv') { techName = 'Photovoltaik'; techColor = '#d97706'; }
+  else { techName = 'Wind + PV'; techColor = '#4f46e5'; }
+
+  // Summary
+  summary.innerHTML =
+    `<span><b>${techName}</b></span>` +
+    `<span>Bundesländer: <b>${data.length}</b></span>` +
+    `<span>Anlagen: <b>${totalAnzahl.toLocaleString('de-DE')}</b></span>` +
+    `<span>Gesamtleistung: <b>${totalMW.toLocaleString('de-DE',{maximumFractionDigits:0})} MW</b></span>` +
+    `<span>Top: <b>${esc(maxBL.name)}</b> (${measure==='anzahl' ? maxBL.anzahl.toLocaleString('de-DE')+' Anlagen' : maxBL.sum_mw.toLocaleString('de-DE',{maximumFractionDigits:0})+' MW'})</span>`;
+
+  // Donut-Chart zeichnen
+  const size = 220, cx = size/2, cy = size/2, R = size/2 - 6;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = size * dpr; canvas.height = size * dpr;
+  canvas.style.width = size + 'px'; canvas.style.height = size + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, size, size);
+
+  const rIn = R * 0.55, rOut = R;
+  const totalVal = measure === 'anzahl' ? totalAnzahl : totalMW;
+  let start = -Math.PI / 2;
+  const seg = [];
+
+  data.forEach((d, i) => {
+    const val = measure === 'anzahl' ? d.anzahl : d.sum_mw;
+    const sweep = 2 * Math.PI * val / totalVal;
+    const idx = i % BL_COLORS.length;
+    seg.push({ ...d, val, color: BL_COLORS[idx], start, sweep });
+    start += sweep;
+  });
+
+  let hoverIdx = -1;
+
+  function drawHover() {
+    ctx.clearRect(0, 0, size, size);
+    let a = -Math.PI / 2;
+    seg.forEach((s, i) => {
+      ctx.beginPath();
+      ctx.arc(cx, cy, i === hoverIdx ? rOut + 6 : rOut, a, a + s.sweep);
+      ctx.arc(cx, cy, rIn, a + s.sweep, a, true);
+      ctx.closePath();
+      ctx.fillStyle = s.color;
+      ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = i === hoverIdx ? 3 : 1.5;
+      ctx.stroke();
+      a += s.sweep;
+    });
+    // zentrale Zahl
+    ctx.fillStyle = '#111827'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = 'bold 18px system-ui, sans-serif';
+    ctx.fillText(totalAnzahl.toLocaleString('de-DE'), cx, cy - 8);
+    ctx.font = '11px system-ui, sans-serif'; ctx.fillStyle = '#6b7280';
+    ctx.fillText('Anlagen', cx, cy + 12);
+  }
+
+  function angleOf(e) {
+    const rect = canvas.getBoundingClientRect();
+    const px = e.clientX - rect.left - rect.width/2;
+    const py = e.clientY - rect.top - rect.height/2;
+    let ang = Math.atan2(py, px);
+    if (ang < -Math.PI/2) ang += 2 * Math.PI;
+    return ang;
+  }
+
+  // Canvas Event-Listener (einmalig, da renderBundesland bei Toggle neu aufgerufen wird)
+  canvas.onmousemove = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const dx = e.clientX - rect.left - rect.width/2;
+    const dy = e.clientY - rect.top - rect.height/2;
+    const dist = Math.hypot(dx, dy);
+    if (dist < rect.width/2 * rIn / rOut || dist > rect.width/2) {
+      if (hoverIdx !== -1) { hoverIdx = -1; drawHover(); sideHighlight(-1); }
+      return;
+    }
+    let ang = angleOf(e);
+    let idx = -1;
+    for (let i = 0; i < seg.length; i++) {
+      let s0 = seg[i].start, s1 = s0 + seg[i].sweep;
+      let a0 = s0; while (a0 < -Math.PI/2) a0 += 2*Math.PI;
+      let a1 = a0 + seg[i].sweep;
+      let aa = ang < a0 - 0.001 ? ang + 2*Math.PI : ang;
+      if (aa >= a0 && aa <= a1) { idx = i; break; }
+    }
+    if (idx !== hoverIdx) { hoverIdx = idx; drawHover(); sideHighlight(idx); }
+  };
+  canvas.onmouseleave = () => { if (hoverIdx !== -1) { hoverIdx = -1; drawHover(); sideHighlight(-1); } };
+  canvas.onclick = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const dx = e.clientX - rect.left - rect.width/2;
+    const dy = e.clientY - rect.top - rect.height/2;
+    const dist = Math.hypot(dx, dy);
+    if (dist < rect.width/2 * rIn / rOut) return;
+    let ang = angleOf(e);
+    for (let i = 0; i < seg.length; i++) {
+      let a0 = seg[i].start; while (a0 < -Math.PI/2) a0 += 2*Math.PI;
+      let a1 = a0 + seg[i].sweep;
+      let aa = ang < a0 - 0.001 ? ang + 2*Math.PI : ang;
+      if (aa >= a0 && aa <= a1) { selectBundesland(seg[i].name); break; }
+    }
+  };
+
+  drawHover();
+
+  // Legende rechts
+  side.innerHTML = seg.map((s, i) => {
+    const valStr = measure === 'anzahl'
+      ? s.anzahl.toLocaleString('de-DE') + ' Anlagen'
+      : s.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' MW';
+    const pct = (100 * s.val / totalVal).toLocaleString('de-DE', {maximumFractionDigits:1});
+    return `<div class="bl-legend-row" data-i="${i}">
+      <span class="swatch" style="background:${s.color}"></span>
+      <span class="bl-name" title="${esc(s.name)}">${esc(s.name)}</span>
+      <span class="bl-val">${valStr} · ${pct}%</span>
+    </div>`;
+  }).join('');
+
+  function sideHighlight(idx) {
+    side.querySelectorAll('.bl-legend-row').forEach((r, i) => r.style.background = i === idx ? '#eef2ff' : '');
+  }
+  side.querySelectorAll('.bl-legend-row').forEach(r => {
+    r.addEventListener('mouseenter', () => { hoverIdx = parseInt(r.dataset.i,10); drawHover(); sideHighlight(hoverIdx); });
+    r.addEventListener('mouseleave', () => { hoverIdx = -1; drawHover(); sideHighlight(-1); });
+    r.addEventListener('click', () => { const i = parseInt(r.dataset.i,10); if (i < seg.length) selectBundesland(seg[i].name); });
+  });
+
+  note.textContent = `Verteilung der ${measure === 'anzahl' ? 'Anlagenanzahl' : 'installierten Leistung'} auf ${data.length} Bundesländer · ${techName} · Hover oder Legenden-Klick für Details · Klick filtert die Karte auf das jeweilige Bundesland.`;
+}
+
+// Bundesland auf der Karte filtern (Klick auf Pie-Segment oder Legende)
+function selectBundesland(name) {
+  const matching = allUnits.filter(u => u.b === name);
+  if (!matching.length) return;
+  renderMarkers(matching);
+  map.fitBounds(matching.map(u => [u.lat, u.lon]), { padding: [30, 30] });
+  document.getElementById('search-input').value = `Bundesland: ${name} (${matching.length} Anlagen)`;
+  document.getElementById('search-clear').style.display = 'block';
+  closeStats();
+}
+
+/* ===================== V4: Update-Historie (Revisions-Tracker) ===================== */
+let _historie = null;
+
+function loadHistorie() {
+  // Aus eingebetteten Daten (Single-File) oder per fetch (hostbar)
+  if (window.__PVWIND_HISTORIE__ !== undefined && window.__PVWIND_HISTORIE__ !== null) {
+    _historie = window.__PVWIND_HISTORIE__;
+    return Promise.resolve();
+  }
+  return fetch('assets/historie.json').then(r => r.ok ? r.json() : null)
+    .then(d => { _historie = d || null; })
+    .catch(() => { _historie = null; });
+}
+
+function renderHistorie() {
+  const emptyEl = document.getElementById('historie-empty');
+  const contentEl = document.getElementById('historie-content');
+  if (!_historie || !_historie.length) {
+    emptyEl.style.display = 'block';
+    contentEl.style.display = 'none';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  contentEl.style.display = 'block';
+
+  // Letztes Delta als Summary-Karten
+  renderLastDelta();
+
+  // Verlauf-Tabelle
+  renderHistorieTable();
+
+  // Bundesländer-Delta (für jeden Snapshot mit Delta)
+  renderHistorieBundeslaender();
+
+  // Mini-Zeitleiste
+  renderHistorieTimeline();
+}
+
+function renderLastDelta() {
+  const container = document.getElementById('historie-last-delta');
+  // Finde den letzten Snapshot mit Delta
+  let lastWithDelta = null;
+  for (let i = _historie.length - 1; i >= 0; i--) {
+    if (_historie[i].delta) { lastWithDelta = _historie[i]; break; }
+  }
+  if (!lastWithDelta) {
+    container.innerHTML = '<p style="font-size:12px;color:#6b7280;">Noch kein Update-Delta verfügbar (nur ein Snapshot vorhanden).</p>';
+    return;
+  }
+  const d = lastWithDelta.delta;
+  const fmt = (v) => v.toLocaleString('de-DE');
+  const fmtMW = (v) => v.toLocaleString('de-DE', {maximumFractionDigits:0});
+  container.innerHTML = `
+    <div class="hist-delta-card">
+      <div class="card wind">
+        <div class="label">Wind — neu</div>
+        <div class="value arrow-up">+${fmt(d.wind_neu)}</div>
+        <div class="sub">+${fmtMW(d.wind_mw_neu)} MW</div>
+      </div>
+      <div class="card pv">
+        <div class="label">PV — neu</div>
+        <div class="value arrow-up">+${fmt(d.pv_neu)}</div>
+        <div class="sub">+${fmtMW(d.pv_mw_neu)} MW</div>
+      </div>
+      <div class="card gesamt">
+        <div class="label">Gesamt — neu</div>
+        <div class="value arrow-up">+${fmt(d.gesamt_neu)}</div>
+        <div class="sub">+${fmtMW(d.gesamt_mw_neu)} MW</div>
+      </div>
+      <div class="card mw">
+        <div class="label">Gesamt-Anzahl Δ</div>
+        <div class="value">${d.gesamt_diff_anzahl >= 0 ? '+' : ''}${fmt(d.gesamt_diff_anzahl)}</div>
+        <div class="sub">${d.gesamt_diff_mw >= 0 ? '+' : ''}${fmtMW(d.gesamt_diff_mw)} MW</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:#6b7280;margin-bottom:14px;">
+      Update: <b>${d.old_datum}</b> → <b>${d.new_datum}</b>
+      ${d.removed_anzahl > 0 ? `· ${d.removed_anzahl} Anlage(n) entfernt` : ''}
+      · ${Object.keys(d.bundeslaender_delta).length} Bundesländer mit Veränderung
+    </div>`;
+}
+
+function renderHistorieTable() {
+  const tbody = document.getElementById('historie-tbody');
+  const fmt = (v) => v != null ? v.toLocaleString('de-DE') : '—';
+  const fmtMW = (v) => v != null ? v.toLocaleString('de-DE', {maximumFractionDigits:0}) : '—';
+  const deltaCell = (val, isMW) => {
+    if (val == null || val === 0) return `<td class="num delta-zero">—</td>`;
+    const cls = val > 0 ? 'delta-pos' : 'delta-neg';
+    const sign = val > 0 ? '+' : '';
+    return `<td class="num ${cls}">${sign}${isMW ? fmtMW(val) : fmt(val)}${isMW ? ' MW' : ''}</td>`;
+  };
+  tbody.innerHTML = _historie.map((h, i) => {
+    const isFirst = i === 0;
+    const d = h.delta;
+    return `<tr ${isFirst ? 'class="first-row"' : ''}>
+      <td>${esc(h.datum)}</td>
+      <td class="num">${fmt(h.wind_anzahl)}</td>
+      <td class="num">${fmt(h.pv_anzahl)}</td>
+      <td class="num">${fmt(h.gesamt_anzahl)}</td>
+      <td class="num">${fmtMW(h.wind_mw)}</td>
+      <td class="num">${fmtMW(h.pv_mw)}</td>
+      <td class="num">${fmtMW(h.gesamt_mw)}</td>
+      ${d ? deltaCell(d.gesamt_neu, false) : '<td class="num delta-zero">—</td>'}
+      ${d ? deltaCell(d.gesamt_mw_neu, true) : '<td class="num delta-zero">—</td>'}
+    </tr>`;
+  }).join('');
+}
+
+function renderHistorieBundeslaender() {
+  const container = document.getElementById('historie-bundeslaender-delta');
+  let html = '';
+  _historie.forEach((h) => {
+    if (!h.delta || !h.delta.bundeslaender_delta) return;
+    const d = h.delta.bundeslaender_delta;
+    const entries = Object.entries(d).sort((a, b) => {
+      const sumA = Math.abs(a[1].wind) + Math.abs(a[1].pv);
+      const sumB = Math.abs(b[1].wind) + Math.abs(b[1].pv);
+      return sumB - sumA;
+    });
+    if (!entries.length) return;
+    html += `<div class="hist-bl-delta-block">
+      <div class="bl-delta-title">${esc(h.delta.old_datum)} → ${esc(h.delta.new_datum)}</div>
+      <table class="hist-bl-table">
+        <thead>
+          <tr>
+            <th>Bundesland</th>
+            <th class="num">Wind Δ</th>
+            <th class="num">PV Δ</th>
+            <th class="num">Wind MW Δ</th>
+            <th class="num">PV MW Δ</th>
+            <th class="num">Gesamt MW Δ</th>
+          </tr>
+        </thead>
+        <tbody>`;
+    entries.forEach(([bl, vals]) => {
+      const fmtDelta = (v) => {
+        if (v === 0) return `<td class="num zero">—</td>`;
+        const cls = v > 0 ? 'pos' : 'neg';
+        const sign = v > 0 ? '+' : '';
+        return `<td class="num ${cls}">${sign}${v}</td>`;
+      };
+      const fmtMW = (v) => {
+        if (v === 0) return `<td class="num zero">—</td>`;
+        const cls = v > 0 ? 'pos' : 'neg';
+        const sign = v > 0 ? '+' : '';
+        return `<td class="num ${cls}">${sign}${v.toLocaleString('de-DE',{maximumFractionDigits:1})} MW</td>`;
+      };
+      const totalMW = vals.wind_mw + vals.pv_mw;
+      const totalCls = totalMW > 0 ? 'pos' : totalMW < 0 ? 'neg' : 'zero';
+      const totalSign = totalMW > 0 ? '+' : '';
+      const totalStr = totalMW === 0 ? '—' : `${totalSign}${totalMW.toLocaleString('de-DE',{maximumFractionDigits:1})} MW`;
+      html += `<tr>
+        <td class="bl-name">${esc(bl)}</td>
+        ${fmtDelta(vals.wind)}
+        ${fmtDelta(vals.pv)}
+        ${fmtMW(vals.wind_mw)}
+        ${fmtMW(vals.pv_mw)}
+        <td class="num ${totalCls}">${totalStr}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+  });
+  container.innerHTML = html || '<p style="font-size:12px;color:#6b7280;">Keine Bundesländer-Veränderungen in der Historie.</p>';
+}
+
+function renderHistorieTimeline() {
+  const container = document.getElementById('historie-timeline');
+  if (_historie.length < 2) {
+    container.innerHTML = '<p style="font-size:12px;color:#6b7280;">Mindestens 2 Snapshots nötig für eine Zeitleiste.</p>';
+    return;
+  }
+  const maxAnzahl = Math.max(..._historie.map(h => h.gesamt_anzahl));
+  const minAnzahl = Math.min(..._historie.map(h => h.gesamt_anzahl));
+  const range = maxAnzahl - minAnzahl || 1;
+  let html = '<div class="hist-timeline">';
+  _historie.forEach((h) => {
+    const pct = Math.max(8, Math.round(100 * (h.gesamt_anzahl - minAnzahl) / range));
+    html += `<div class="tl-bar" style="height:${pct}%" title="${esc(h.datum)}: ${h.gesamt_anzahl.toLocaleString('de-DE')} Anlagen">
+      <span class="tl-label">${esc(h.datum)}: ${h.gesamt_anzahl.toLocaleString('de-DE')}</span>
+    </div>`;
+  });
+  html += '</div>';
+  html += `<div class="hist-timeline-note">Anlagen-Gesamtanzahl über ${_historie.length} Snapshot(s) · ${_historie[0].datum} bis ${_historie[_historie.length-1].datum} · Min: ${minAnzahl.toLocaleString('de-DE')} · Max: ${maxAnzahl.toLocaleString('de-DE')}</div>`;
+  container.innerHTML = html;
+}
+
+/* ---------- V4b: Asset-Detail-Ansicht (klickbare Verlauf-Zeilen) ---------- */
+function makeHistorieRowsClickable() {
+  document.querySelectorAll('#historie-tbody tr').forEach(tr => {
+    tr.addEventListener('click', () => {
+      const idx = parseInt(tr.dataset.idx, 10);
+      if (isNaN(idx) || !_historie[idx] || !_historie[idx].delta) return;
+      openHistDetail(_historie[idx]);
+    });
+  });
+}
+
+// Nach renderHistorieTable die Zeilen klickbar machen
+const _origRenderHistorieTable = renderHistorieTable;
+renderHistorieTable = function() {
+  _origRenderHistorieTable();
+  // data-idx Attribut hinzufügen + klickbar machen
+  document.querySelectorAll('#historie-tbody tr').forEach((tr, i) => {
+    tr.dataset.idx = i;
+    tr.style.cursor = 'pointer';
+  });
+  makeHistorieRowsClickable();
+};
+
+let _currentHistDetail = null;
+
+function openHistDetail(histEntry) {
+  if (!histEntry.delta) return;
+  _currentHistDetail = histEntry;
+  const overlay = document.getElementById('hist-detail-overlay');
+  const title = document.getElementById('hist-detail-title');
+  const d = histEntry.delta;
+  title.textContent = `Asset-Veränderung: ${d.old_datum} → ${d.new_datum}`;
+
+  // Asset-Listen nach Wind/PV trennen
+  const addedWind = (d.added_assets || []).filter(a => a.t === 'wind');
+  const addedPv = (d.added_assets || []).filter(a => a.t === 'pv');
+  const removedWind = (d.removed_assets || []).filter(a => a.t === 'wind');
+  const removedPv = (d.removed_assets || []).filter(a => a.t === 'pv');
+
+  renderHistAssetTable('hd-added-wind', addedWind, 'Neue Windanlagen');
+  renderHistAssetTable('hd-added-pv', addedPv, 'Neue PV-Anlagen');
+  renderHistAssetTable('hd-removed-wind', removedWind, 'Entfernte Windanlagen');
+  renderHistAssetTable('hd-removed-pv', removedPv, 'Entfernte PV-Anlagen');
+
+  // Standard-Tab: der erste mit Inhalt
+  const tabs = ['added-wind', 'added-pv', 'removed-wind', 'removed-pv'];
+  let activeTab = 'added-wind';
+  if (!addedWind.length && addedPv.length) activeTab = 'added-pv';
+  else if (!addedWind.length && !addedPv.length && removedWind.length) activeTab = 'removed-wind';
+  else if (!addedWind.length && !addedPv.length && !removedWind.length && removedPv.length) activeTab = 'removed-pv';
+  switchHistDetailTab(activeTab);
+
+  overlay.classList.add('open');
+
+  // Close-Button + Overlay-Klick
+  document.getElementById('hist-detail-close').onclick = closeHistDetail;
+  overlay.onclick = (e) => { if (e.target === overlay) closeHistDetail(); };
+  // Tab-Buttons
+  document.querySelectorAll('.hist-detail-tab').forEach(btn => {
+    btn.onclick = () => switchHistDetailTab(btn.dataset.dtab);
+  });
+}
+
+function closeHistDetail() {
+  document.getElementById('hist-detail-overlay').classList.remove('open');
+  _currentHistDetail = null;
+}
+
+function switchHistDetailTab(dtab) {
+  document.querySelectorAll('.hist-detail-tab').forEach(b =>
+    b.classList.toggle('active', b.dataset.dtab === dtab));
+  document.querySelectorAll('.hist-detail-section').forEach(s =>
+    s.classList.toggle('active', s.id === 'hd-' + dtab));
+}
+
+function renderHistAssetTable(containerId, assets, label) {
+  const el = document.getElementById(containerId);
+  if (!assets.length) {
+    el.innerHTML = `<div class="hist-asset-empty">Keine ${label.toLowerCase()} in diesem Update.</div>`;
+    return;
+  }
+  let html = `<div style="margin-bottom:8px;font-size:13px;font-weight:600;color:#111827;">${label} (${assets.length})</div>`;
+  html += '<table class="hist-asset-table"><thead><tr>';
+  html += '<th>Name</th><th class="num">MW</th><th>Bundesland</th><th>Gemeinde</th>';
+  html += '<th>Inbetriebn.</th><th>Betreiber</th><th>MaStR-Nr.</th><th>Koord.</th>';
+  html += '</tr></thead><tbody>';
+  for (const u of assets) {
+    const gmap = (u.lat != null && u.lon != null)
+      ? `<a class="popup-link" href="https://www.google.com/maps/search/?api=1&query=${u.lat},${u.lon}" target="_blank" rel="noopener">${u.lat ? u.lat.toFixed(4) : '—'}, ${u.lon ? u.lon.toFixed(4) : '—'} ↗</a>`
+      : '—';
+    const ndUrl = u.ab ? `<a class="popup-link" href="https://www.northdata.de/${northdataSlug(u.ab)}" target="_blank" rel="noopener">${esc(u.ab)} ↗</a>` : '—';
+    html += `<tr>
+      <td>${esc(u.n || '—')}</td>
+      <td class="num">${u.mw != null ? u.mw.toLocaleString('de-DE',{maximumFractionDigits:2}) : '—'} ${u.t === 'pv' ? 'MWp' : 'MW'}</td>
+      <td>${esc(u.b || '—')}</td>
+      <td>${esc(u.g || '—')}</td>
+      <td>${esc(u.inb || '—')}</td>
+      <td>${ndUrl}</td>
+      <td>${esc(u.m || '—')}</td>
+      <td>${gmap}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
 
 init();
 </script>
