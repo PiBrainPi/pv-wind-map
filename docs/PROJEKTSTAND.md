@@ -215,6 +215,30 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
       Daten aus `allUnits.reg` (registrierungsdatum), keine Backend-Änderung.
       Verifiziert: 53.500 Anlagen / 144.894 MW gesamt, 6 Charts, Heatmap-Farben, Toggle, 0 JS-Fehler.
       **Gepusht auf main + gh-pages (02.09.2026).**
+- [x] **V8b — Zubau-Tab Anpassungen (2026-09-02, LIVE):** (1) Heatmap-Farben: Rot→Gelb→Grün
+      (grün=hoch, rot=niedrig), sqrt-Skala gegen Outlier. (2) Neues Chart 6: Wachstum gegenüber
+      kumuliertem Bestand (Jahreszubau als % des bisherigen Bestands). (3) Heatmap MW-Werte ganzzahlig.
+      **Gepusht auf main + gh-pages (02.09.2026).**
+- [x] **V8c — Inbetriebnahme-Filter (2026-09-02, LIVE):** Zwei weitere Dropdowns in der Toolbar:
+      Inbetriebnahme Jahr (1983–2026, dynamisch generiert) + Monat (1–12). Analog zu Registrierungs-
+      Filtern, kombinierbar mit allen anderen. `inb`-Feld bereits im JSON (YYYY-MM-DD, 0 NULL).
+      Verifiziert: Inb 2010 → 1.826, Inb 2010+Jun → 641, Reg 2020+Inb 2010 → 878.
+- [x] **V8d — Zweite Heatmap Inbetriebnahme (2026-09-02):** Heatmap für Inbetriebnahmedatum unter
+      der Registrierungs-Heatmap. 18 BL × 41 Jahre (1983–2026), gleiche sqrt-Farbskala.
+      (In V8e durch Sub-Tabs ersetzt.)
+- [x] **V8e — Zubau-Sub-Tabs (2026-09-02, LIVE):** Zubau-Tab komplett umgebaut mit zwei Sub-Tabs:
+      "Registrierungsdatum" (2019–2026) und "Inbetriebnahmedatum" (1983–2026). Beide Sub-Tabs
+      identisch aufgebaut mit 6 Charts (Stacked Bar, PV/Wind einzeln, Heatmap, Raten, Kumuliert).
+      `renderZubau(dateField)` universell, alle Charts aus einem Feld. Doppelte Heatmap entfernt.
+      Chart-Helferfunktionen ausgelagert (drawStackedBar, drawSingleBar, drawTrendLine, drawRateChart,
+      drawCumChart, renderZubauHeatmap).
+- [x] **V8f — Senkrechte X-Achsen-Labels (2026-09-02):** Jahreszahlen in allen Bar/Rate/Cumulative-Charts
+      senkrecht (−90° rotiert). Canvas 260→280px, PAD_B 30→44px. (In V8g weiter optimiert.)
+- [x] **V8g — Werte außerhalb + volle Zahlen + X-Achse tiefer (2026-09-02, LIVE):** (1) Werte horizontal
+      oberhalb der Balken (nicht innen/senkrecht), `textBaseline:bottom`. (2) `fmtY()` zeigt volle Zahlen
+      mit de-DE Tausendertrennzeichen (kein k/M). (3) X-Achsen-Labels +14px tiefer, Canvas 290px, PAD_B 50px.
+      Klare Trennung Diagramm ↔ Achsenbeschriftung.
+      **Gepusht auf main + gh-pages (02.09.2026).**
 
 ## Verifikation: Filter + Anlagen-Anzahl-Badge (per Browser-Konsole, reproduzierbar)
 Sobald die App geladen ist (`allUnits` befüllt), im Devtools-Konsolen-`window`-Kontext:

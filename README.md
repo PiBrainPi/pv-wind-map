@@ -37,12 +37,15 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
   pro Anlagentyp (Wind: Land/See; PV: Freifläche/Gebäude/Sonstige).
 - 📅 **Registrierungs-Filter:** Dropdowns für Jahr (2019–2026) und Monat (1–12) filtern Anlagen nach
   Registrierungsdatum im MaStR. Kombinierbar mit allen anderen Filtern.
+- 📅 **Inbetriebnahme-Filter:** Dropdowns für Jahr (1983–2026, dynamisch generiert) und Monat (1–12)
+  filtern nach Inbetriebnahmedatum. Unabhängig von Registrierungs-Filter, kombinierbar mit allen anderen.
 - 📋 **Alle-Anlagen-Tabelle:** Button "Alle Anlagen anzeigen" öffnet ein Overlay mit allen gefilterten
   Anlagen in einer professionellen Tabelle (12 Spalten, sortierbar nach jedem Header, Chunk-Rendering).
-- 📈 **Zubau-Tab:** 6. Statistik-Tab mit 6 Charts zum Zubau von Wind- und PV-Anlagen über Jahre:
+- 📈 **Zubau-Tab:** 6. Statistik-Tab mit zwei Sub-Tabs ("Registrierungsdatum" 2019–2026 und
+  "Inbetriebnahmedatum" 1983–2026). Beide Sub-Tabs enthalten identisch aufgebaute 6 Charts:
   gestapeltes Balkendiagramm (Wind+PV), PV/Wind einzeln mit Trendlinie, Bundesländer-Heatmap
   (Rot→Gelb→Grün, sqrt-skaliert), Zubauraten (YoY-Wachstum %), Wachstum gegenüber kumuliertem Bestand.
-  Toggle Anlagen/Leistung (MW).
+  Toggle Anlagen/Leistung (MW). Senkrechte X-Achsen-Labels, Werte horizontal oberhalb der Balken.
 
 ---
 
