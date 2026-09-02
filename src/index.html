@@ -844,6 +844,14 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 /* V8: Zubau-Tab */
 #zubau-measure { display:flex; gap:4px; margin-bottom:8px; }
 #zubau-measure .mbtn.active { background:#111827; color:#fff; border-color:#111827; }
+#zubau-subtabs { display:flex; gap:0; margin-bottom:8px; border-bottom:2px solid #e5e7eb; }
+#zubau-subtabs .zubau-subtab {
+  padding:6px 14px; border:none; background:none; cursor:pointer; font-size:13px;
+  color:#6b7280; border-bottom:2px solid transparent; margin-bottom:-2px; font-weight:500;
+}
+#zubau-subtabs .zubau-subtab.active { color:#2563eb; border-bottom-color:#2563eb; }
+#zubau-subtabs .zubau-subtab:hover { color:#2563eb; }
+#zubau-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px; }
 #zubau-summary {
   display:flex; flex-wrap:wrap; gap:12px; padding:8px 12px; margin-bottom:10px;
   background:#f7f9fc; border-radius:6px; font-size:12px; color:#374151;
@@ -1664,6 +1672,10 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     <!-- V8: Zubau-Ansicht -->
     <section id="tab-zubau" class="stats-tab">
       <div id="zubau-header">
+        <div id="zubau-subtabs">
+          <button class="zubau-subtab active" data-datetype="reg">Registrierungsdatum</button>
+          <button class="zubau-subtab" data-datetype="inb">Inbetriebnahmedatum</button>
+        </div>
         <div id="zubau-measure">
           <button class="mbtn active" data-zmeasure="anzahl">Anlagen</button>
           <button class="mbtn" data-zmeasure="leistung">Leistung (MW)</button>
@@ -1734,6 +1746,23 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     <option value="2026">2026</option>
   </select>
   <select id="filter-monat" title="Registrierungsmonat">
+    <option value="">Alle</option>
+    <option value="1">1 (Jan)</option>
+    <option value="2">2 (Feb)</option>
+    <option value="3">3 (Mär)</option>
+    <option value="4">4 (Apr)</option>
+    <option value="5">5 (Mai)</option>
+    <option value="6">6 (Jun)</option>
+    <option value="7">7 (Jul)</option>
+    <option value="8">8 (Aug)</option>
+    <option value="9">9 (Sep)</option>
+    <option value="10">10 (Okt)</option>
+    <option value="11">11 (Nov)</option>
+    <option value="12">12 (Dez)</option>
+  </select>
+  <label>Inbetriebnahme</label>
+  <select id="filter-inb-jahr" title="Inbetriebnahmedatum (Jahr)"></select>
+  <select id="filter-inb-monat" title="Inbetriebnahmedatum (Monat)">
     <option value="">Alle</option>
     <option value="1">1 (Jan)</option>
     <option value="2">2 (Feb)</option>
@@ -1938,6 +1967,20 @@ async function init() {
     allUnits = einheiten;
     window.__STATS__ = statistiken;  // für Statistik-Panel
 
+    // V8c: Inbetriebnahme-Jahre dynamisch befüllen
+    {
+      const inbYears = new Set();
+      einheiten.forEach(u => {
+        const inb = u.inb || '';
+        if (inb.length >= 4) inbYears.add(inb.substring(0, 4));
+      });
+      const sorted = [...inbYears].sort();
+      const sel = document.getElementById('filter-inb-jahr');
+      let opts = '<option value="">Alle</option>';
+      sorted.forEach(y => { opts += '<option value="' + y + '">' + y + '</option>'; });
+      sel.innerHTML = opts;
+    }
+
     const standEl = document.getElementById('data-stand');
     if (standEl) standEl.textContent = (meta.stand || '?').slice(0, 10);
 
@@ -1975,6 +2018,8 @@ async function init() {
   document.getElementById('filter-gr').addEventListener('change', applyFilters);
   document.getElementById('filter-jahr').addEventListener('change', applyFilters);
   document.getElementById('filter-monat').addEventListener('change', applyFilters);
+  document.getElementById('filter-inb-jahr').addEventListener('change', applyFilters);
+  document.getElementById('filter-inb-monat').addEventListener('change', applyFilters);
   document.getElementById('btn-show-all').addEventListener('click', showAllUnits);
   document.getElementById('all-units-close').addEventListener('click', function() {
     document.getElementById('all-units-overlay').classList.remove('open');
@@ -2122,6 +2167,8 @@ function showAllUnits() {
   const gr     = document.getElementById('filter-gr').value;
   const jahr   = document.getElementById('filter-jahr').value;
   const monat  = document.getElementById('filter-monat').value;
+  const inbJahr  = document.getElementById('filter-inb-jahr').value;
+  const inbMonat = document.getElementById('filter-inb-monat').value;
   let filtered = allUnits;
   if (type) filtered = filtered.filter(u => u.t === type);
   if (bl)   filtered = filtered.filter(u => u.b === bl);
@@ -2135,6 +2182,11 @@ function showAllUnits() {
   if (monat) {
     const ms = monat.length === 1 ? '0' + monat : monat;
     filtered = filtered.filter(u => (u.reg || '').substring(5,7) === ms);
+  }
+  if (inbJahr) filtered = filtered.filter(u => (u.inb || '').substring(0,4) === inbJahr);
+  if (inbMonat) {
+    const ims = inbMonat.length === 1 ? '0' + inbMonat : inbMonat;
+    filtered = filtered.filter(u => (u.inb || '').substring(5,7) === ims);
   }
 
   _filteredUnits = filtered;
@@ -2205,6 +2257,8 @@ function applyFilters() {
   const gr     = document.getElementById('filter-gr').value;
   const jahr   = document.getElementById('filter-jahr').value;
   const monat  = document.getElementById('filter-monat').value;
+  const inbJahr  = document.getElementById('filter-inb-jahr') ? document.getElementById('filter-inb-jahr').value : '';
+  const inbMonat = document.getElementById('filter-inb-monat') ? document.getElementById('filter-inb-monat').value : '';
   let filtered = allUnits;
   if (type) filtered = filtered.filter(u => u.t === type);
   if (bl)   filtered = filtered.filter(u => u.b === bl);
@@ -2230,10 +2284,23 @@ function applyFilters() {
       return reg.substring(5, 7) === monatStr;
     });
   }
+  if (inbJahr) {
+    filtered = filtered.filter(u => {
+      const inb = u.inb || '';
+      return inb.substring(0, 4) === inbJahr;
+    });
+  }
+  if (inbMonat) {
+    const inbMonatStr = inbMonat.length === 1 ? '0' + inbMonat : inbMonat;
+    filtered = filtered.filter(u => {
+      const inb = u.inb || '';
+      return inb.substring(5, 7) === inbMonatStr;
+    });
+  }
   renderMarkers(filtered);
 
   // Anzahl-Badge + Button: immer wenn einer der Filter aktiv ist.
-  const hasFilter = !!(art || bl || gr || jahr || monat || type);
+  const hasFilter = !!(art || bl || gr || jahr || monat || inbJahr || inbMonat || type);
   const countEl = document.getElementById('art-count');
   const btnShowAll = document.getElementById('btn-show-all');
   if (hasFilter) {
@@ -2521,6 +2588,7 @@ let _statsState = {         // UI-Zustand
   groesseTech: 'wind',
   groesseMeasure: 'anzahl', // 'anzahl' | 'leistung'
   zubauMeasure: 'anzahl',   // V8: 'anzahl' | 'leistung'
+  zubauDateType: 'reg',     // V8e: 'reg' | 'inb'
   herstellerTop: '50',
   herstellerFilter: '',
   herstellerSortKey: 'anzahl',
@@ -2554,6 +2622,15 @@ function initStats() {
     b.addEventListener('click', function() {
       document.querySelectorAll('#zubau-measure .mbtn').forEach(x => x.classList.toggle('active', x === this));
       _statsState.zubauMeasure = this.dataset.zmeasure;
+      renderZubau();
+    });
+  });
+
+  // V8e: Zubau Sub-Tab-Switch (Registrierung / Inbetriebnahme)
+  document.querySelectorAll('#zubau-subtabs .zubau-subtab').forEach(b => {
+    b.addEventListener('click', function() {
+      document.querySelectorAll('#zubau-subtabs .zubau-subtab').forEach(x => x.classList.toggle('active', x === this));
+      _statsState.zubauDateType = this.dataset.datetype;
       renderZubau();
     });
   });
@@ -3395,6 +3472,7 @@ function loadHistorie() {
 
 /* ===================== V8: Zubau-Tab ===================== */
 function renderZubau() {
+  const dateField = _statsState.zubauDateType || 'reg'; // 'reg' | 'inb'
   const container = document.getElementById('zubau-charts');
   const summaryEl = document.getElementById('zubau-summary');
   if (!allUnits || !allUnits.length) {
@@ -3402,33 +3480,30 @@ function renderZubau() {
     return;
   }
 
-  const measure = _statsState.zubauMeasure; // 'anzahl' | 'leistung'
+  const measure = _statsState.zubauMeasure;
   const isMW = measure === 'leistung';
+  const fieldLabel = dateField === 'inb' ? 'Inbetriebnahmedatum' : 'Registrierungsdatum';
 
   // --- Daten aggregieren ---
   const years = [];
-  const yearData = {};   // {2025: {wind: n, pv: n, wind_mw: s, pv_mw: s}}
-  const blData = {};     // {Niedersachsen: {2025: {wind: n, pv: n, wind_mw, pv_mw}}}
+  const yearData = {};
+  const blData = {};
 
   allUnits.forEach(u => {
-    const reg = u.reg || '';
-    if (!reg || reg.length < 4) return;
-    const yr = reg.substring(0, 4);
+    const dv = u[dateField] || '';
+    if (!dv || dv.length < 4) return;
+    const yr = dv.substring(0, 4);
     if (!yearData[yr]) { yearData[yr] = {wind: 0, pv: 0, wind_mw: 0, pv_mw: 0}; years.push(yr); }
     const bl = u.b || 'Unbekannt';
     if (!blData[bl]) blData[bl] = {};
     if (!blData[bl][yr]) blData[bl][yr] = {wind: 0, pv: 0, wind_mw: 0, pv_mw: 0};
     const mw = u.mw || 0;
     if (u.t === 'wind') {
-      yearData[yr].wind++;
-      yearData[yr].wind_mw += mw;
-      blData[bl][yr].wind++;
-      blData[bl][yr].wind_mw += mw;
+      yearData[yr].wind++; yearData[yr].wind_mw += mw;
+      blData[bl][yr].wind++; blData[bl][yr].wind_mw += mw;
     } else if (u.t === 'pv') {
-      yearData[yr].pv++;
-      yearData[yr].pv_mw += mw;
-      blData[bl][yr].pv++;
-      blData[bl][yr].pv_mw += mw;
+      yearData[yr].pv++; yearData[yr].pv_mw += mw;
+      blData[bl][yr].pv++; blData[bl][yr].pv_mw += mw;
     }
   });
 
@@ -3444,11 +3519,12 @@ function renderZubau() {
   const avgYear = totalAll / years.length;
   const unit = isMW ? 'MW' : 'Anlagen';
   summaryEl.innerHTML =
-    '<span>Gesamtzubau: <b>' + totalAll.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' ' + unit + '</b></span>' +
+    '<span>' + fieldLabel + '</span>' +
+    '<span>Gesamt: <b>' + totalAll.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' ' + unit + '</b></span>' +
     '<span>Wind: <b style="color:#2563eb">' + totalWind.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' ' + unit + '</b></span>' +
     '<span>PV: <b style="color:#d97706">' + totalPV.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' ' + unit + '</b></span>' +
-    '<span>Ø pro Jahr: <b>' + avgYear.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' ' + unit + '</b></span>' +
-    '<span>Zeitraum: <b>' + years[0] + '\u2013' + years[years.length-1] + '</b></span>';
+    '<span>Ø/Jahr: <b>' + avgYear.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' ' + unit + '</b></span>' +
+    '<span>Zeitraum: <b>' + years[0] + '–' + years[years.length-1] + '</b></span>';
 
   // --- Helper: Canvas-Setup ---
   function setupCanvas(canvas, w, h) {
@@ -3462,184 +3538,81 @@ function renderZubau() {
 
   let html = '';
 
-  // === Chart 1: Kombiniertes gestapeltes Balkendiagramm (Wind + PV) ===
+  // === Chart 1: Stacked Bar (Wind + PV) ===
   html += '<div class="zubau-chart-block">';
-  html += '<h3>Zubau Wind + PV \u00fcber Jahre</h3>';
-  html += '<div class="zc-sub">Gestapeltes Balkendiagramm \u2014 ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + '</div>';
+  html += '<h3>Zubau Wind + PV über Jahre</h3>';
+  html += '<div class="zc-sub">Gestapeltes Balkendiagramm — ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + '</div>';
   html += '<div class="zubau-canvas-wrap"><canvas id="zubau-stacked"></canvas></div>';
   html += '</div>';
 
   // === Chart 2: PV einzeln ===
   html += '<div class="zubau-chart-block">';
   html += '<h3>Zubau Photovoltaik</h3>';
-  html += '<div class="zc-sub">Balkendiagramm mit Trendlinie \u2014 ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + '</div>';
+  html += '<div class="zc-sub">Balkendiagramm mit Trendlinie — ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + '</div>';
   html += '<div class="zubau-canvas-wrap"><canvas id="zubau-pv"></canvas></div>';
   html += '</div>';
 
   // === Chart 3: Wind einzeln ===
   html += '<div class="zubau-chart-block">';
   html += '<h3>Zubau Windenergie</h3>';
-  html += '<div class="zc-sub">Balkendiagramm mit Trendlinie \u2014 ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + '</div>';
+  html += '<div class="zc-sub">Balkendiagramm mit Trendlinie — ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + '</div>';
   html += '<div class="zubau-canvas-wrap"><canvas id="zubau-wind"></canvas></div>';
   html += '</div>';
 
-  // === Chart 4: Bundesländer Heatmap ===
+  // === Chart 4: Heatmap ===
   html += '<div class="zubau-chart-block">';
-  html += '<h3>Zubau nach Bundesland \u00fcber Jahre</h3>';
-  html += '<div class="zc-sub">Heatmap \u2014 Farbintensit\u00e4t = ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + '</div>';
+  html += '<h3>Zubau nach Bundesland über Jahre</h3>';
+  html += '<div class="zc-sub">Heatmap — Farbintensität = ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + '</div>';
   html += '<div class="zubau-canvas-wrap"><div id="zubau-heatmap-wrap"></div></div>';
   html += '</div>';
 
-  // === Chart 5: Zubauraten (YoY Wachstum) ===
+  // === Chart 5: Zubauraten (YoY) ===
   html += '<div class="zubau-chart-block">';
-  html += '<h3>Zubauraten (Wachstum gegen\u00fcber Vorjahr)</h3>';
-  html += '<div class="zc-sub">Liniendiagramm \u2014 prozentuale Ver\u00e4nderung zum Vorjahr</div>';
+  html += '<h3>Zubauraten (Wachstum gegenüber Vorjahr)</h3>';
+  html += '<div class="zc-sub">Liniendiagramm — prozentuale Veränderung zum Vorjahr · ' + fieldLabel + '</div>';
   html += '<div class="zubau-canvas-wrap"><canvas id="zubau-rates"></canvas></div>';
   html += '</div>';
 
   // === Chart 6: Wachstum gegenüber kumuliertem Bestand ===
   html += '<div class="zubau-chart-block">';
-  html += '<h3>Wachstum gegen\u00fcber kumuliertem Bestand</h3>';
-  html += '<div class="zc-sub">Liniendiagramm \u2014 Jahreszubau als % des bisherigen Bestands (vor diesem Jahr)</div>';
+  html += '<h3>Wachstum gegenüber kumuliertem Bestand</h3>';
+  html += '<div class="zc-sub">Liniendiagramm — Jahreszubau als % des bisherigen Bestands (vor diesem Jahr) · ' + fieldLabel + '</div>';
   html += '<div class="zubau-canvas-wrap"><canvas id="zubau-cumulative"></canvas></div>';
   html += '</div>';
 
   container.innerHTML = html;
 
   // --- Zeichne Charts ---
-  const W = 640, H = 260, PAD_L = 50, PAD_B = 30, PAD_T = 16, PAD_R = 16;
-
-  // Bar-Chart Helper
-  function drawBarChart(canvasId, datasets, colors, labels, stacked) {
-    const canvas = document.getElementById(canvasId);
-    const ctx = setupCanvas(canvas, W, H);
-    const plotW = W - PAD_L - PAD_R;
-    const plotH = H - PAD_T - PAD_B;
-
-    let maxVal = 0;
-    datasets.forEach(ds => {
-      for (let i = 0; i < ds.length; i++) {
-        if (stacked) maxVal = Math.max(maxVal, (datasets.reduce((s, d2) => s + (d2[i]||0), 0)));
-        else maxVal = Math.max(maxVal, ds[i] || 0);
-      }
-    });
-    maxVal = maxVal * 1.1 || 1;
-
-    // Y-Achsen
-    for (let i = 0; i <= 4; i++) {
-      const y = PAD_T + (plotH * (1 - i/4));
-      const val = maxVal * i / 4;
-      ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
-      ctx.fillStyle = '#6b7280'; ctx.font = '10px system-ui'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-      ctx.fillText(fmtY(val), PAD_L - 6, y);
-    }
-
-    // Balken
-    const n = labels.length;
-    const barGap = 0.3;
-    const barW = (plotW / n) * (1 - barGap);
-    const gapW = (plotW / n) * barGap;
-
-    datasets.forEach((ds, dsIdx) => {
-      for (let i = 0; i < n; i++) {
-        const v = ds[i] || 0;
-        if (v === 0) continue;
-        const x = PAD_L + i * (plotW / n) + gapW / 2 + (stacked ? 0 : dsIdx * barW / datasets.length);
-        let y, h;
-        if (stacked) {
-          let baseBelow = 0;
-          for (let j = 0; j < dsIdx; j++) baseBelow += (datasets[j][i] || 0);
-          const baseAbove = baseBelow + v;
-          y = PAD_T + plotH * (1 - baseAbove / maxVal);
-          h = PAD_T + plotH * (1 - baseBelow / maxVal) - y;
-        } else {
-          h = plotH * (v / maxVal);
-          y = PAD_T + plotH - h;
-        }
-        ctx.fillStyle = colors[dsIdx];
-        ctx.fillRect(x, y, barW - (stacked ? 0 : barW / datasets.length - 2), h);
-        // Wert-Label
-        if (h > 14) {
-          ctx.fillStyle = '#fff'; ctx.font = 'bold 10px system-ui';
-          ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-          ctx.fillText(fmtY(v), x + barW/2 - (stacked?0:barW/4), y + 2);
-        }
-      }
-    });
-
-    // X-Achsen Labels
-    ctx.fillStyle = '#374151'; ctx.font = '11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    labels.forEach((lbl, i) => {
-      const x = PAD_L + i * (plotW / n) + (plotW / n) / 2;
-      ctx.fillText(lbl, x, PAD_T + plotH + 6);
-    });
-
-    // Legende
-    if (datasets.length > 1) {
-      const legendY = PAD_T + 2;
-      let lx = W - PAD_R - 10;
-      for (let i = datasets.length - 1; i >= 0; i--) {
-        const lw = ctx.measureText(labels.length > 0 ? (i === 0 ? 'Wind' : 'PV') : '').width + 30;
-        lx -= lw;
-        ctx.fillStyle = colors[i];
-        ctx.fillRect(lx, legendY, 10, 10);
-        ctx.fillStyle = '#374151'; ctx.font = '10px system-ui'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText(i === 0 ? 'Wind' : 'PV', lx + 14, legendY + 5);
-      }
-    }
-  }
-
-  // Trendlinie Helper
-  function drawTrendLine(ctx, values, x0, plotW, plotH, maxVal, color) {
-    const n = values.length;
-    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.setLineDash([5, 3]);
-    ctx.beginPath();
-    for (let i = 0; i < n; i++) {
-      const x = x0 + i * (plotW / n) + (plotW / n) / 2;
-      const y = PAD_T + plotH * (1 - (values[i]||0) / maxVal);
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
-    ctx.stroke(); ctx.setLineDash([]);
-    // Punkte
-    for (let i = 0; i < n; i++) {
-      const x = x0 + i * (plotW / n) + (plotW / n) / 2;
-      const y = PAD_T + plotH * (1 - (values[i]||0) / maxVal);
-      ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 3, 0, 2*Math.PI); ctx.fill();
-    }
-  }
-
-  // Chart 1: Stacked (Wind + PV)
+  const W = 640, H = 290, PAD_L = 50, PAD_B = 50, PAD_T = 16, PAD_R = 16;
   const windVals = years.map(y => valW(yearData[y]));
   const pvVals = years.map(y => valP(yearData[y]));
-  drawBarChart('zubau-stacked', [windVals, pvVals], ['#2563eb', '#d97706'], years, true);
 
-  // Chart 2: PV einzeln mit Trend
+  // Stacked Bar
+  drawStackedBar('zubau-stacked', windVals, pvVals, years, W, H, PAD_L, PAD_B, PAD_T, PAD_R, setupCanvas);
+
+  // PV einzeln mit Trend
   {
     const canvas = document.getElementById('zubau-pv');
     const ctx = setupCanvas(canvas, W, H);
-    drawBarChartOn(ctx, [pvVals], ['#d97706'], years, false);
-    drawTrendLine(ctx, pvVals, PAD_L, W - PAD_L - PAD_R, H - PAD_T - PAD_B, _lastMax, '#92400e');
+    const maxVal = drawSingleBar(ctx, pvVals, years, '#d97706', W, H, PAD_L, PAD_B, PAD_T, PAD_R);
+    drawTrendLine(ctx, pvVals, W, H, PAD_L, PAD_B, PAD_T, PAD_R, maxVal, '#92400e');
   }
 
-  // Chart 3: Wind einzeln mit Trend
+  // Wind einzeln mit Trend
   {
     const canvas = document.getElementById('zubau-wind');
     const ctx = setupCanvas(canvas, W, H);
-    drawBarChartOn(ctx, [windVals], ['#2563eb'], years, false);
-    drawTrendLine(ctx, windVals, PAD_L, W - PAD_L - PAD_R, H - PAD_T - PAD_B, _lastMax, '#1e3a5f');
+    const maxVal = drawSingleBar(ctx, windVals, years, '#2563eb', W, H, PAD_L, PAD_B, PAD_T, PAD_R);
+    drawTrendLine(ctx, windVals, W, H, PAD_L, PAD_B, PAD_T, PAD_R, maxVal, '#1e3a5f');
   }
 
-  // Chart 5: Zubauraten (YoY Wachstum)
+  // Zubauraten (YoY)
   {
     const canvas = document.getElementById('zubau-rates');
     const ctx = setupCanvas(canvas, W, H);
     const rateLabels = years.slice(1);
-    const windRates = [];
-    const pvRates = [];
+    const windRates = [], pvRates = [];
     for (let i = 1; i < years.length; i++) {
-      const prev = val(yearData[years[i-1]]) || 0;
-      const curr = val(yearData[years[i]]) || 0;
       const prevW = valW(yearData[years[i-1]]) || 0;
       const currW = valW(yearData[years[i]]) || 0;
       const prevP = valP(yearData[years[i-1]]) || 0;
@@ -3647,78 +3620,15 @@ function renderZubau() {
       windRates.push(prevW > 0 ? Math.round(100 * (currW - prevW) / prevW) : 0);
       pvRates.push(prevP > 0 ? Math.round(100 * (currP - prevP) / prevP) : 0);
     }
-
-    // Liniendiagramm
-    const plotW = W - PAD_L - PAD_R;
-    const plotH = H - PAD_T - PAD_B;
-    let maxR = Math.max(...windRates, ...pvRates, 0);
-    let minR = Math.min(...windRates, ...pvRates, 0);
-    const range = maxR - minR || 1;
-    maxR += range * 0.1; minR -= range * 0.1;
-    const absMax = Math.max(Math.abs(maxR), Math.abs(minR));
-
-    // Null-Linie
-    const zeroY = PAD_T + plotH * (maxR / (maxR - minR));
-    ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 1; ctx.setLineDash([2,2]);
-    ctx.beginPath(); ctx.moveTo(PAD_L, zeroY); ctx.lineTo(W - PAD_R, zeroY); ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Y-Achsen
-    for (let i = 0; i <= 4; i++) {
-      const y = PAD_T + (plotH * (1 - i/4));
-      const v = minR + (maxR - minR) * i / 4;
-      ctx.strokeStyle = '#e5e7eb'; ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
-      ctx.fillStyle = '#6b7280'; ctx.font = '10px system-ui'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-      ctx.fillText(v.toFixed(0) + '%', PAD_L - 6, y);
-    }
-
-    // Linien zeichnen
-    function drawRateLine(rates, color) {
-      const n = rates.length;
-      ctx.strokeStyle = color; ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      for (let i = 0; i < n; i++) {
-        const x = PAD_L + i * (plotW / n) + (plotW / n) / 2;
-        const y = PAD_T + plotH * (1 - (rates[i] - minR) / (maxR - minR));
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-      // Punkte + Labels
-      for (let i = 0; i < n; i++) {
-        const x = PAD_L + i * (plotW / n) + (plotW / n) / 2;
-        const y = PAD_T + plotH * (1 - (rates[i] - minR) / (maxR - minR));
-        ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 4, 0, 2*Math.PI); ctx.fill();
-        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 2, 0, 2*Math.PI); ctx.fill();
-        ctx.fillStyle = color; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center';
-        ctx.textBaseline = rates[i] >= 0 ? 'bottom' : 'top';
-        ctx.fillText(rates[i] + '%', x, y + (rates[i] >= 0 ? -6 : 6));
-      }
-    }
-    drawRateLine(windRates, '#2563eb');
-    drawRateLine(pvRates, '#d97706');
-
-    // X-Achsen Labels
-    ctx.fillStyle = '#374151'; ctx.font = '11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    rateLabels.forEach((lbl, i) => {
-      const x = PAD_L + i * (plotW / rateLabels.length) + (plotW / rateLabels.length) / 2;
-      ctx.fillText(lbl, x, PAD_T + plotH + 6);
-    });
-
-    // Legende
-    ctx.fillStyle = '#2563eb'; ctx.fillRect(W - 80, PAD_T, 10, 10);
-    ctx.fillStyle = '#374151'; ctx.font = '10px system-ui'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText('Wind', W - 64, PAD_T + 5);
-    ctx.fillStyle = '#d97706'; ctx.fillRect(W - 40, PAD_T, 10, 10);
-    ctx.fillText('PV', W - 24, PAD_T + 5);
+    drawRateChart(ctx, windRates, pvRates, rateLabels, W, H, PAD_L, PAD_B, PAD_T, PAD_R);
   }
 
-  // Chart 6: Wachstum gegenüber kumuliertem Bestand
+  // Wachstum gegenüber kumuliertem Bestand
   {
     const canvas = document.getElementById('zubau-cumulative');
     const ctx = setupCanvas(canvas, W, H);
     const rateLabels = years.slice(1);
-    const windCum = [];
-    const pvCum = [];
+    const windCum = [], pvCum = [];
     let cumW = valW(yearData[years[0]]);
     let cumP = valP(yearData[years[0]]);
     for (let i = 1; i < years.length; i++) {
@@ -3726,180 +3636,279 @@ function renderZubau() {
       const currP = valP(yearData[years[i]]);
       windCum.push(cumW > 0 ? Math.round(100 * currW / cumW * 10) / 10 : 0);
       pvCum.push(cumP > 0 ? Math.round(100 * currP / cumP * 10) / 10 : 0);
-      cumW += currW;
-      cumP += currP;
+      cumW += currW; cumP += currP;
     }
-
-    const plotW = W - PAD_L - PAD_R;
-    const plotH = H - PAD_T - PAD_B;
-    let maxR = Math.max(...windCum, ...pvCum, 0);
-    maxR = maxR * 1.2 || 1;
-    const minR = 0;
-
-    // Y-Achsen
-    for (let i = 0; i <= 4; i++) {
-      const y = PAD_T + (plotH * (1 - i/4));
-      const v = minR + (maxR - minR) * i / 4;
-      ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
-      ctx.fillStyle = '#6b7280'; ctx.font = '10px system-ui'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-      ctx.fillText(v.toFixed(0) + '%', PAD_L - 6, y);
-    }
-
-    // Linien zeichnen
-    function drawCumLine(rates, color) {
-      const n = rates.length;
-      ctx.strokeStyle = color; ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      for (let i = 0; i < n; i++) {
-        const x = PAD_L + i * (plotW / n) + (plotW / n) / 2;
-        const y = PAD_T + plotH * (1 - rates[i] / maxR);
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-      for (let i = 0; i < n; i++) {
-        const x = PAD_L + i * (plotW / n) + (plotW / n) / 2;
-        const y = PAD_T + plotH * (1 - rates[i] / maxR);
-        ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 4, 0, 2*Math.PI); ctx.fill();
-        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 2, 0, 2*Math.PI); ctx.fill();
-        ctx.fillStyle = color; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-        ctx.fillText(rates[i] + '%', x, y - 6);
-      }
-    }
-    drawCumLine(windCum, '#2563eb');
-    drawCumLine(pvCum, '#d97706');
-
-    // X-Achsen Labels
-    ctx.fillStyle = '#374151'; ctx.font = '11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    rateLabels.forEach((lbl, i) => {
-      const x = PAD_L + i * (plotW / rateLabels.length) + (plotW / rateLabels.length) / 2;
-      ctx.fillText(lbl, x, PAD_T + plotH + 6);
-    });
-
-    // Legende
-    ctx.fillStyle = '#2563eb'; ctx.fillRect(W - 80, PAD_T, 10, 10);
-    ctx.fillStyle = '#374151'; ctx.font = '10px system-ui'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText('Wind', W - 64, PAD_T + 5);
-    ctx.fillStyle = '#d97706'; ctx.fillRect(W - 40, PAD_T, 10, 10);
-    ctx.fillText('PV', W - 24, PAD_T + 5);
+    drawCumChart(ctx, windCum, pvCum, rateLabels, W, H, PAD_L, PAD_B, PAD_T, PAD_R);
   }
 
-  // Chart 4: Bundesländer Heatmap (HTML-Tabelle)
-  {
-    const blNames = Object.keys(blData).sort((a, b) => {
-      const ta = years.reduce((s, y) => s + (blData[a][y] ? val(blData[a][y]) : 0), 0);
-      const tb = years.reduce((s, y) => s + (blData[b][y] ? val(blData[b][y]) : 0), 0);
-      return tb - ta;
-    });
-    // Max-Wert für Farbskala
-    let hmMax = 0;
-    blNames.forEach(bl => years.forEach(y => {
-      if (blData[bl][y]) hmMax = Math.max(hmMax, val(blData[bl][y]));
-    }));
-    hmMax = hmMax || 1;
-    const hmMin = 1; // Min-Wert >0 für log-Skala
-
-    // Grün=hoch, Rot=niedrig, sqrt-Skalierung für bessere Differenzierung
-    function heatColor(v) {
-      if (v === 0) return '#f9fafb';
-      const sv = Math.sqrt(v);
-      const smax = Math.sqrt(hmMax);
-      const t = Math.min(1, sv / smax); // 0=niedrig, 1=hoch
-      // Rot (niedrig) → Gelb (mittel) → Grün (hoch)
-      if (t < 0.5) {
-        // Rot → Gelb
-        const t2 = t * 2;
-        const r = 220;
-        const g = Math.round(38 + t2 * (180 - 38));
-        const b = 38;
-        return `rgb(${r},${g},${b})`;
-      } else {
-        // Gelb → Grün
-        const t2 = (t - 0.5) * 2;
-        const r = Math.round(220 - t2 * (220 - 22));
-        const g = Math.round(180 + t2 * (163 - 180));
-        const b = Math.round(38 + t2 * (74 - 38));
-        return `rgb(${r},${g},${b})`;
-      }
-    }
-
-    let hh = '<table class="zubau-heatmap"><thead><tr><th>Bundesland</th>';
-    years.forEach(y => { hh += '<th>' + y + '</th>'; });
-    hh += '<th>Gesamt</th></tr></thead><tbody>';
-    blNames.forEach(bl => {
-      let blTotal = 0;
-      hh += '<tr><td class="bl-name">' + esc(bl) + '</td>';
-      years.forEach(y => {
-        const d = blData[bl][y];
-        const v = d ? val(d) : 0;
-        blTotal += v;
-        const bg = heatColor(v);
-        const fg = v > hmMax * 0.35 ? '#fff' : '#374151';
-        const vStr = v > 0 ? v.toLocaleString('de-DE', {maximumFractionDigits:0}) : '\u2014';
-        hh += '<td style="background:' + bg + ';color:' + fg + '">' + vStr + '</td>';
-      });
-      hh += '<td style="font-weight:700">' + blTotal.toLocaleString('de-DE', {maximumFractionDigits:0}) + '</td>';
-      hh += '</tr>';
-    });
-    // Summen-Zeile
-    hh += '<tr style="border-top:2px solid #374151"><td style="font-weight:700">Gesamt</td>';
-    let grandTotal = 0;
-    years.forEach(y => {
-      const v = val(yearData[y]);
-      grandTotal += v;
-      hh += '<td style="font-weight:700">' + v.toLocaleString('de-DE', {maximumFractionDigits:0}) + '</td>';
-    });
-    hh += '<td style="font-weight:700">' + grandTotal.toLocaleString('de-DE', {maximumFractionDigits:0}) + '</td>';
-    hh += '</tr></tbody></table>';
-    document.getElementById('zubau-heatmap-wrap').innerHTML = hh;
-  }
+  // Heatmap (HTML-Tabelle)
+  renderZubauHeatmap(blData, yearData, years, val, isMW);
 }
 
-// Hilfsfunktion für Einzel-Bar-Chart (ohne Legende)
-let _lastMax = 0;
-function drawBarChartOn(ctx, datasets, colors, labels, stacked) {
-  const W = 640, H = 260, PAD_L = 50, PAD_B = 30, PAD_T = 16, PAD_R = 16;
+function fmtY(v) {
+  return Math.round(v).toLocaleString('de-DE');
+}
+
+function drawStackedBar(canvasId, windVals, pvVals, labels, W, H, PAD_L, PAD_B, PAD_T, PAD_R, setupCanvas) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = setupCanvas(canvas, W, H);
   const plotW = W - PAD_L - PAD_R;
   const plotH = H - PAD_T - PAD_B;
   let maxVal = 0;
-  datasets.forEach(ds => { for (let i = 0; i < ds.length; i++) maxVal = Math.max(maxVal, ds[i]||0); });
-  maxVal = maxVal * 1.15 || 1;
-  _lastMax = maxVal;
-
-  // Y-Achsen
+  for (let i = 0; i < labels.length; i++) maxVal = Math.max(maxVal, (windVals[i]||0) + (pvVals[i]||0));
+  maxVal = maxVal * 1.1 || 1;
   for (let i = 0; i <= 4; i++) {
     const y = PAD_T + (plotH * (1 - i/4));
-    const val = maxVal * i / 4;
     ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
     ctx.fillStyle = '#6b7280'; ctx.font = '10px system-ui'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-    ctx.fillText(fmtY(val), PAD_L - 6, y);
+    ctx.fillText(fmtY(maxVal * i / 4), PAD_L - 6, y);
   }
-  // Balken
+  const n = labels.length;
+  const barW = (plotW / n) * 0.7;
+  const gap = (plotW / n) * 0.3;
+  for (let i = 0; i < n; i++) {
+    const wv = windVals[i] || 0, pv = pvVals[i] || 0;
+    if (wv === 0 && pv === 0) continue;
+    const x = PAD_L + i * (plotW / n) + gap / 2;
+    // Wind (unten, blau)
+    const hW = plotH * (wv / maxVal);
+    ctx.fillStyle = '#2563eb';
+    ctx.fillRect(x, PAD_T + plotH - hW, barW, hW);
+    // PV (oben, orange)
+    const hP = plotH * (pv / maxVal);
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(x, PAD_T + plotH - hW - hP, barW, hP);
+    // Wert-Label horizontal oberhalb des Balkens
+    const total = wv + pv;
+    const topY = PAD_T + plotH - hW - hP;
+    ctx.fillStyle = '#374151'; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText(fmtY(total), x + barW/2, topY - 3);
+  }
+  // X-Achsen Labels senkrecht, mit Abstand nach unten
+  ctx.fillStyle = '#374151'; ctx.font = '11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  labels.forEach((lbl, i) => {
+    const x = PAD_L + i * (plotW / n) + (plotW / n) / 2;
+    ctx.save(); ctx.translate(x, PAD_T + plotH + 14); ctx.rotate(-Math.PI / 2);
+    ctx.fillText(lbl, 0, 0); ctx.restore();
+  });
+  // Legende
+  ctx.fillStyle = '#2563eb'; ctx.fillRect(W - 80, PAD_T, 10, 10);
+  ctx.fillStyle = '#374151'; ctx.font = '10px system-ui'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText('Wind', W - 64, PAD_T + 5);
+  ctx.fillStyle = '#d97706'; ctx.fillRect(W - 40, PAD_T, 10, 10);
+  ctx.fillText('PV', W - 24, PAD_T + 5);
+}
+
+function drawSingleBar(ctx, vals, labels, color, W, H, PAD_L, PAD_B, PAD_T, PAD_R) {
+  const plotW = W - PAD_L - PAD_R;
+  const plotH = H - PAD_T - PAD_B;
+  let maxVal = 0;
+  for (let i = 0; i < vals.length; i++) maxVal = Math.max(maxVal, vals[i] || 0);
+  maxVal = maxVal * 1.15 || 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = PAD_T + (plotH * (1 - i/4));
+    ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
+    ctx.fillStyle = '#6b7280'; ctx.font = '10px system-ui'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(fmtY(maxVal * i / 4), PAD_L - 6, y);
+  }
   const n = labels.length;
   const barW = (plotW / n) * 0.6;
   const gap = (plotW / n) * 0.4;
-  datasets.forEach((ds) => {
-    for (let i = 0; i < n; i++) {
-      const v = ds[i] || 0;
-      if (v === 0) continue;
-      const x = PAD_L + i * (plotW / n) + gap / 2;
-      const h = plotH * (v / maxVal);
-      const y = PAD_T + plotH - h;
-      ctx.fillStyle = colors[0];
-      ctx.fillRect(x, y, barW, h);
-      if (h > 14) {
-        ctx.fillStyle = '#fff'; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        ctx.fillText(fmtY(v), x + barW/2, y + 2);
-      }
-    }
-  });
-  // X-Achsen Labels
-  ctx.fillStyle = '#374151'; ctx.font = '11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let i = 0; i < n; i++) {
+    const v = vals[i] || 0;
+    if (v === 0) continue;
+    const x = PAD_L + i * (plotW / n) + gap / 2;
+    const h = plotH * (v / maxVal);
+    ctx.fillStyle = color;
+    ctx.fillRect(x, PAD_T + plotH - h, barW, h);
+    // Wert-Label horizontal oberhalb des Balkens
+    const topY = PAD_T + plotH - h;
+    ctx.fillStyle = '#374151'; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText(fmtY(v), x + barW/2, topY - 3);
+  }
+  // X-Achsen Labels senkrecht, mit Abstand nach unten
+  ctx.fillStyle = '#374151'; ctx.font = '11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   labels.forEach((lbl, i) => {
     const x = PAD_L + i * (plotW / n) + (plotW / n) / 2;
-    ctx.fillText(lbl, x, PAD_T + plotH + 6);
+    ctx.save(); ctx.translate(x, PAD_T + plotH + 14); ctx.rotate(-Math.PI / 2);
+    ctx.fillText(lbl, 0, 0); ctx.restore();
   });
+  return maxVal;
+}
+
+function drawTrendLine(ctx, vals, W, H, PAD_L, PAD_B, PAD_T, PAD_R, maxVal, color) {
+  const plotW = W - PAD_L - PAD_R;
+  const plotH = H - PAD_T - PAD_B;
+  const n = vals.length;
+  ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.setLineDash([5, 3]);
+  ctx.beginPath();
+  for (let i = 0; i < n; i++) {
+    const x = PAD_L + i * (plotW / n) + (plotW / n) / 2;
+    const y = PAD_T + plotH * (1 - (vals[i] || 0) / maxVal);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+  for (let i = 0; i < n; i++) {
+    const x = PAD_L + i * (plotW / n) + (plotW / n) / 2;
+    const y = PAD_T + plotH * (1 - (vals[i] || 0) / maxVal);
+    ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 3, 0, 2*Math.PI); ctx.fill();
+  }
+}
+
+function drawRateChart(ctx, windRates, pvRates, labels, W, H, PAD_L, PAD_B, PAD_T, PAD_R) {
+  const plotW = W - PAD_L - PAD_R;
+  const plotH = H - PAD_T - PAD_B;
+  let maxR = Math.max(...windRates, ...pvRates, 0);
+  let minR = Math.min(...windRates, ...pvRates, 0);
+  const range = maxR - minR || 1;
+  maxR += range * 0.1; minR -= range * 0.1;
+  const zeroY = PAD_T + plotH * (maxR / (maxR - minR));
+  ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 1; ctx.setLineDash([2, 2]);
+  ctx.beginPath(); ctx.moveTo(PAD_L, zeroY); ctx.lineTo(W - PAD_R, zeroY); ctx.stroke();
+  ctx.setLineDash([]);
+  for (let i = 0; i <= 4; i++) {
+    const y = PAD_T + (plotH * (1 - i/4));
+    const v = minR + (maxR - minR) * i / 4;
+    ctx.strokeStyle = '#e5e7eb'; ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
+    ctx.fillStyle = '#6b7280'; ctx.font = '10px system-ui'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(v.toFixed(0) + '%', PAD_L - 6, y);
+  }
+  function drawRL(rates, color) {
+    const n = rates.length;
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const x = PAD_L + i * (plotW / n) + (plotW / n) / 2;
+      const y = PAD_T + plotH * (1 - (rates[i] - minR) / (maxR - minR));
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    for (let i = 0; i < n; i++) {
+      const x = PAD_L + i * (plotW / n) + (plotW / n) / 2;
+      const y = PAD_T + plotH * (1 - (rates[i] - minR) / (maxR - minR));
+      ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 4, 0, 2*Math.PI); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 2, 0, 2*Math.PI); ctx.fill();
+      ctx.fillStyle = color; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center';
+      ctx.textBaseline = rates[i] >= 0 ? 'bottom' : 'top';
+      ctx.fillText(rates[i] + '%', x, y + (rates[i] >= 0 ? -6 : 6));
+    }
+  }
+  drawRL(windRates, '#2563eb');
+  drawRL(pvRates, '#d97706');
+  // X-Achsen Labels senkrecht, mit Abstand nach unten
+  ctx.fillStyle = '#374151'; ctx.font = '11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  labels.forEach((lbl, i) => {
+    const x = PAD_L + i * (plotW / labels.length) + (plotW / labels.length) / 2;
+    ctx.save(); ctx.translate(x, PAD_T + plotH + 14); ctx.rotate(-Math.PI / 2);
+    ctx.fillText(lbl, 0, 0); ctx.restore();
+  });
+  ctx.fillStyle = '#2563eb'; ctx.fillRect(W - 80, PAD_T, 10, 10);
+  ctx.fillStyle = '#374151'; ctx.font = '10px system-ui'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText('Wind', W - 64, PAD_T + 5);
+  ctx.fillStyle = '#d97706'; ctx.fillRect(W - 40, PAD_T, 10, 10);
+  ctx.fillText('PV', W - 24, PAD_T + 5);
+}
+
+function drawCumChart(ctx, windCum, pvCum, labels, W, H, PAD_L, PAD_B, PAD_T, PAD_R) {
+  const plotW = W - PAD_L - PAD_R;
+  const plotH = H - PAD_T - PAD_B;
+  let maxR = Math.max(...windCum, ...pvCum, 0);
+  maxR = maxR * 1.2 || 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = PAD_T + (plotH * (1 - i/4));
+    const v = maxR * i / 4;
+    ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
+    ctx.fillStyle = '#6b7280'; ctx.font = '10px system-ui'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(v.toFixed(0) + '%', PAD_L - 6, y);
+  }
+  function drawCL(rates, color) {
+    const n = rates.length;
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const x = PAD_L + i * (plotW / n) + (plotW / n) / 2;
+      const y = PAD_T + plotH * (1 - rates[i] / maxR);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    for (let i = 0; i < n; i++) {
+      const x = PAD_L + i * (plotW / n) + (plotW / n) / 2;
+      const y = PAD_T + plotH * (1 - rates[i] / maxR);
+      ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 4, 0, 2*Math.PI); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 2, 0, 2*Math.PI); ctx.fill();
+      ctx.fillStyle = color; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+      ctx.fillText(rates[i] + '%', x, y - 6);
+    }
+  }
+  drawCL(windCum, '#2563eb');
+  drawCL(pvCum, '#d97706');
+  // X-Achsen Labels senkrecht, mit Abstand nach unten
+  ctx.fillStyle = '#374151'; ctx.font = '11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  labels.forEach((lbl, i) => {
+    const x = PAD_L + i * (plotW / labels.length) + (plotW / labels.length) / 2;
+    ctx.save(); ctx.translate(x, PAD_T + plotH + 14); ctx.rotate(-Math.PI / 2);
+    ctx.fillText(lbl, 0, 0); ctx.restore();
+  });
+  ctx.fillStyle = '#2563eb'; ctx.fillRect(W - 80, PAD_T, 10, 10);
+  ctx.fillStyle = '#374151'; ctx.font = '10px system-ui'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText('Wind', W - 64, PAD_T + 5);
+  ctx.fillStyle = '#d97706'; ctx.fillRect(W - 40, PAD_T, 10, 10);
+  ctx.fillText('PV', W - 24, PAD_T + 5);
+}
+
+function renderZubauHeatmap(blData, yearData, years, val, isMW) {
+  const blNames = Object.keys(blData).sort((a, b) => {
+    const ta = years.reduce((s, y) => s + (blData[a][y] ? val(blData[a][y]) : 0), 0);
+    const tb = years.reduce((s, y) => s + (blData[b][y] ? val(blData[b][y]) : 0), 0);
+    return tb - ta;
+  });
+  let hmMax = 0;
+  blNames.forEach(bl => years.forEach(y => {
+    if (blData[bl][y]) hmMax = Math.max(hmMax, val(blData[bl][y]));
+  }));
+  hmMax = hmMax || 1;
+
+  function heatColor(v) {
+    if (v === 0) return '#f9fafb';
+    const t = Math.min(1, Math.sqrt(v) / Math.sqrt(hmMax));
+    if (t < 0.5) {
+      const t2 = t * 2;
+      return 'rgb(220,' + Math.round(38 + t2 * (180 - 38)) + ',38)';
+    }
+    const t2 = (t - 0.5) * 2;
+    return 'rgb(' + Math.round(220 - t2 * (220 - 22)) + ',' + Math.round(180 + t2 * (163 - 180)) + ',' + Math.round(38 + t2 * (74 - 38)) + ')';
+  }
+
+  let hh = '<table class="zubau-heatmap"><thead><tr><th>Bundesland</th>';
+  years.forEach(y => { hh += '<th>' + y + '</th>'; });
+  hh += '<th>Gesamt</th></tr></thead><tbody>';
+  blNames.forEach(bl => {
+    let blTotal = 0;
+    hh += '<tr><td class="bl-name">' + esc(bl) + '</td>';
+    years.forEach(y => {
+      const d = blData[bl][y];
+      const v = d ? val(d) : 0;
+      blTotal += v;
+      const bg = heatColor(v);
+      const fg = v > hmMax * 0.35 ? '#fff' : '#374151';
+      hh += '<td style="background:' + bg + ';color:' + fg + '">' + (v > 0 ? v.toLocaleString('de-DE', {maximumFractionDigits:0}) : '—') + '</td>';
+    });
+    hh += '<td style="font-weight:700">' + blTotal.toLocaleString('de-DE', {maximumFractionDigits:0}) + '</td>';
+    hh += '</tr>';
+  });
+  hh += '<tr style="border-top:2px solid #374151"><td style="font-weight:700">Gesamt</td>';
+  let grandTotal = 0;
+  years.forEach(y => {
+    const v = val(yearData[y]);
+    grandTotal += v;
+    hh += '<td style="font-weight:700">' + v.toLocaleString('de-DE', {maximumFractionDigits:0}) + '</td>';
+  });
+  hh += '<td style="font-weight:700">' + grandTotal.toLocaleString('de-DE', {maximumFractionDigits:0}) + '</td>';
+  hh += '</tr></tbody></table>';
+  document.getElementById('zubau-heatmap-wrap').innerHTML = hh;
 }
 
 function renderHistorie() {
