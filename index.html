@@ -782,6 +782,65 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   white-space:nowrap; pointer-events:none;
 }
 
+#btn-show-all {
+  font-size:12px; padding:5px 10px; border:1px solid #2563eb; background:#fff;
+  color:#2563eb; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;
+}
+#btn-show-all:hover { background:#2563eb; color:#fff; }
+
+/* V7b: Alle-Anlagen-Tabelle Overlay */
+#all-units-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:2000;
+  display:none; align-items:center; justify-content:center;
+}
+#all-units-overlay.open { display:flex; }
+#all-units-box {
+  background:#fff; border-radius:12px; width:95vw; max-width:1400px; height:90vh;
+  display:flex; flex-direction:column; box-shadow:0 8px 32px rgba(0,0,0,.25);
+}
+#all-units-header {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 20px; border-bottom:2px solid #e5e7eb; flex-shrink:0;
+}
+#all-units-header h2 { font-size:18px; color:#111827; margin:0; }
+#all-units-header .au-meta { font-size:12px; color:#6b7280; margin-top:2px; }
+#all-units-close {
+  width:32px; height:32px; border:none; background:#f3f4f6; color:#4b5563;
+  border-radius:8px; font-size:16px; cursor:pointer; flex-shrink:0;
+}
+#all-units-close:hover { background:#fee2e2; color:#991b1b; }
+#all-units-body { flex:1; overflow:auto; padding:0; }
+#all-units-table {
+  width:100%; border-collapse:collapse; font-size:12px; white-space:nowrap;
+}
+#all-units-table th {
+  background:#f7f9fc; color:#333; font-weight:600; text-align:left;
+  padding:8px 10px; border-bottom:2px solid #e5e7eb; position:sticky; top:0; z-index:1;
+  cursor:pointer; user-select:none; white-space:nowrap;
+}
+#all-units-table th:hover { background:#eef3ff; color:#2563eb; }
+#all-units-table th.sorted-asc::after { content:" \u25B2"; color:#2563eb; font-size:10px; }
+#all-units-table th.sorted-desc::after { content:" \u25BC"; color:#2563eb; font-size:10px; }
+#all-units-table th.num { text-align:right; }
+#all-units-table td {
+  padding:6px 10px; border-bottom:1px solid #f0f0f0; color:#374151;
+}
+#all-units-table tr:hover { background:#eef3ff; }
+#all-units-table td.num { text-align:right; }
+#all-units-table td.mw-wind { color:#2563eb; font-weight:600; }
+#all-units-table td.mw-pv { color:#d97706; font-weight:600; }
+#all-units-table .au-link { color:#2563eb; text-decoration:none; }
+#all-units-table .au-link:hover { text-decoration:underline; }
+#all-units-footer {
+  padding:10px 20px; border-top:1px solid #e5e7eb; flex-shrink:0;
+  font-size:11px; color:#9ca3af; display:flex; justify-content:space-between;
+}
+@media (max-width:767px) {
+  #all-units-box { width:100vw; max-width:100vw; height:100vh; border-radius:0; }
+  #all-units-table { font-size:11px; }
+  #btn-show-all { font-size:11px; padding:4px 8px; }
+}
+
 /* Top-Bar oben rechts (Suchbereich, ~20% der Karte einnehmend) */
 #topbar {
   position:absolute; top:10px; right:10px;
@@ -1367,6 +1426,44 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
 <!-- Statistik-Sidebar (Overlay) -->
 <div id="stats-overlay"></div>
+
+<!-- V7b: Alle-Anlagen-Tabelle Overlay -->
+<div id="all-units-overlay">
+  <div id="all-units-box">
+    <div id="all-units-header">
+      <div>
+        <h2>Anlagen-Liste</h2>
+        <div class="au-meta" id="all-units-meta"></div>
+      </div>
+      <button type="button" id="all-units-close" title="Schließen">✕</button>
+    </div>
+    <div id="all-units-body">
+      <table id="all-units-table">
+        <thead>
+          <tr>
+            <th data-sort="idx">#</th>
+            <th data-sort="name">Name</th>
+            <th data-sort="typ">Typ</th>
+            <th data-sort="art">Art</th>
+            <th data-sort="mw" class="num">MW</th>
+            <th data-sort="b">Bundesland</th>
+            <th data-sort="lk">Landkreis</th>
+            <th data-sort="g">Gemeinde</th>
+            <th data-sort="reg">Registriert</th>
+            <th data-sort="inb">Inbetriebnahme</th>
+            <th data-sort="ab">Betreiber</th>
+            <th data-sort="m">MaStR-Nr.</th>
+          </tr>
+        </thead>
+        <tbody id="all-units-tbody"></tbody>
+      </table>
+    </div>
+    <div id="all-units-footer">
+      <span id="all-units-count"></span>
+      <span>Datenquelle: Marktstammdatenregister der Bundesnetzagentur</span>
+    </div>
+  </div>
+</div>
 <aside id="stats-panel">
   <header id="stats-header">
     <h2>Statistik</h2>
@@ -1581,7 +1678,35 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     <option value="104,150">104–150</option>
     <option value="150,1e9">150+</option>
   </select>
+  <label>Registrierung</label>
+  <select id="filter-jahr" title="Registrierungsdatum im MaStR">
+    <option value="">Alle</option>
+    <option value="2019">2019</option>
+    <option value="2020">2020</option>
+    <option value="2021">2021</option>
+    <option value="2022">2022</option>
+    <option value="2023">2023</option>
+    <option value="2024">2024</option>
+    <option value="2025">2025</option>
+    <option value="2026">2026</option>
+  </select>
+  <select id="filter-monat" title="Registrierungsmonat">
+    <option value="">Alle</option>
+    <option value="1">1 (Jan)</option>
+    <option value="2">2 (Feb)</option>
+    <option value="3">3 (Mär)</option>
+    <option value="4">4 (Apr)</option>
+    <option value="5">5 (Mai)</option>
+    <option value="6">6 (Jun)</option>
+    <option value="7">7 (Jul)</option>
+    <option value="8">8 (Aug)</option>
+    <option value="9">9 (Sep)</option>
+    <option value="10">10 (Okt)</option>
+    <option value="11">11 (Nov)</option>
+    <option value="12">12 (Dez)</option>
+  </select>
   <span id="art-count" class="filter-count" hidden></span>
+  <button type="button" id="btn-show-all" title="Alle gefilterten Anlagen in Tabelle anzeigen" hidden>📋 Alle Anlagen anzeigen</button>
 </div>
 
 <div id="attribution">
@@ -1805,6 +1930,15 @@ async function init() {
   document.getElementById('filter-bl').addEventListener('change', applyFilters);
   document.getElementById('filter-art').addEventListener('change', applyFilters);
   document.getElementById('filter-gr').addEventListener('change', applyFilters);
+  document.getElementById('filter-jahr').addEventListener('change', applyFilters);
+  document.getElementById('filter-monat').addEventListener('change', applyFilters);
+  document.getElementById('btn-show-all').addEventListener('click', showAllUnits);
+  document.getElementById('all-units-close').addEventListener('click', function() {
+    document.getElementById('all-units-overlay').classList.remove('open');
+  });
+  document.getElementById('all-units-overlay').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
 
   // Suche
   document.getElementById('search-input').addEventListener('input', onSearchInput);
@@ -1865,6 +1999,147 @@ function populateFilterArt() {
   });
 }
 
+/* V7b: Alle gefilterten Anlagen in Tabelle anzeigen */
+let _filteredUnits = [];
+let _sortState = { key: null, dir: 'asc' };
+
+function _sortUnits(units, key, dir) {
+  const sorted = [...units];
+  sorted.sort((a, b) => {
+    let va, vb;
+    if (key === 'idx') { va = 0; vb = 0; return dir === 'asc' ? 0 : 0; }
+    if (key === 'typ') { va = a.t || ''; vb = b.t || ''; }
+    else if (key === 'mw') { va = a.mw || 0; vb = b.mw || 0; }
+    else if (key === 'name') { va = (a.n || '').toLowerCase(); vb = (b.n || '').toLowerCase(); }
+    else if (key === 'art') { va = (a.art || '').toLowerCase(); vb = (b.art || '').toLowerCase(); }
+    else if (key === 'b') { va = (a.b || '').toLowerCase(); vb = (b.b || '').toLowerCase(); }
+    else if (key === 'lk') { va = (a.lk || '').toLowerCase(); vb = (b.lk || '').toLowerCase(); }
+    else if (key === 'g') { va = (a.g || '').toLowerCase(); vb = (b.g || '').toLowerCase(); }
+    else if (key === 'reg') { va = a.reg || ''; vb = b.reg || ''; }
+    else if (key === 'inb') { va = a.inb || ''; vb = b.inb || ''; }
+    else if (key === 'ab') { va = (a.ab || '').toLowerCase(); vb = (b.ab || '').toLowerCase(); }
+    else if (key === 'm') { va = a.m || ''; vb = b.m || ''; }
+    else { return 0; }
+    if (typeof va === 'number' && typeof vb === 'number') {
+      return dir === 'asc' ? va - vb : vb - va;
+    }
+    return dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+  return sorted;
+}
+
+function _renderTableRows(filtered) {
+  const tbody = document.getElementById('all-units-tbody');
+  tbody.innerHTML = '';
+  const CHUNK = 500;
+  let idx = 0;
+
+  function renderChunk() {
+    const end = Math.min(idx + CHUNK, filtered.length);
+    let html = '';
+    for (let i = idx; i < end; i++) {
+      const u = filtered[i];
+      const typ = u.t === 'wind' ? 'Wind' : 'PV';
+      const mwClass = u.t === 'wind' ? 'mw-wind' : 'mw-pv';
+      const mwStr = (u.mw || 0).toLocaleString('de-DE', {maximumFractionDigits:2});
+      const regStr = u.reg || '\u2014';
+      let inbStr = u.inb || '\u2014';
+      if (inbStr.startsWith('/Date(')) {
+        const m = inbStr.match(/\d+/);
+        if (m) inbStr = new Date(parseInt(m[0])).toISOString().substring(0,10);
+      }
+      html += '<tr>' +
+        '<td class="num">' + (i + 1) + '</td>' +
+        '<td>' + esc(u.n || '\u2014') + '</td>' +
+        '<td>' + typ + '</td>' +
+        '<td>' + esc(u.art || '\u2014') + '</td>' +
+        '<td class="num ' + mwClass + '">' + mwStr + '</td>' +
+        '<td>' + esc(u.b || '\u2014') + '</td>' +
+        '<td>' + esc(u.lk || '\u2014') + '</td>' +
+        '<td>' + esc(u.g || '\u2014') + '</td>' +
+        '<td>' + regStr + '</td>' +
+        '<td>' + inbStr + '</td>' +
+        '<td>' + esc(u.ab || '\u2014') + '</td>' +
+        '<td><span class="au-link" title="' + esc(u.m || '') + '">' + esc(u.m || '\u2014') + '</span></td>' +
+      '</tr>';
+    }
+    tbody.insertAdjacentHTML('beforeend', html);
+    idx = end;
+    if (idx < filtered.length) {
+      requestAnimationFrame(renderChunk);
+    }
+  }
+  renderChunk();
+}
+
+function showAllUnits() {
+  const type   = document.getElementById('filter-type').value;
+  const bl     = document.getElementById('filter-bl').value;
+  const art    = document.getElementById('filter-art').value;
+  const gr     = document.getElementById('filter-gr').value;
+  const jahr   = document.getElementById('filter-jahr').value;
+  const monat  = document.getElementById('filter-monat').value;
+  let filtered = allUnits;
+  if (type) filtered = filtered.filter(u => u.t === type);
+  if (bl)   filtered = filtered.filter(u => u.b === bl);
+  if (art)  filtered = filtered.filter(u => (u.art || '') === art);
+  if (gr) {
+    const [von, bis] = gr.split(',').map(Number.parseFloat);
+    if (!Number.isNaN(von) && !Number.isNaN(bis))
+      filtered = filtered.filter(u => u.mw != null && u.mw >= von && u.mw < bis);
+  }
+  if (jahr) filtered = filtered.filter(u => (u.reg || '').substring(0,4) === jahr);
+  if (monat) {
+    const ms = monat.length === 1 ? '0' + monat : monat;
+    filtered = filtered.filter(u => (u.reg || '').substring(5,7) === ms);
+  }
+
+  _filteredUnits = filtered;
+  _sortState = { key: null, dir: 'asc' };
+
+  // Header-Klick-Listener (einmalig)
+  const thead = document.querySelector('#all-units-table thead');
+  if (!thead._sortBound) {
+    thead._sortBound = true;
+    thead.querySelectorAll('th[data-sort]').forEach(th => {
+      th.addEventListener('click', function() {
+        const key = this.dataset.sort;
+        if (_sortState.key === key) {
+          _sortState.dir = _sortState.dir === 'asc' ? 'desc' : 'asc';
+        } else {
+          _sortState.key = key;
+          _sortState.dir = 'asc';
+        }
+        // Header-Indikatoren aktualisieren
+        thead.querySelectorAll('th').forEach(t => t.classList.remove('sorted-asc', 'sorted-desc'));
+        this.classList.add(_sortState.dir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+        // Sortieren + neu rendern
+        const sorted = _sortUnits(_filteredUnits, _sortState.key, _sortState.dir);
+        _renderTableRows(sorted);
+      });
+    });
+  }
+
+  // Meta + Count
+  const meta  = document.getElementById('all-units-meta');
+  const count = document.getElementById('all-units-count');
+  const parts = [];
+  if (type)  parts.push(type === 'wind' ? 'Wind' : 'PV');
+  if (bl)    parts.push(bl);
+  if (art)   parts.push(art);
+  if (gr)    parts.push('Leistung ' + gr.replace(',', '\u2013').replace('1e9','+'));
+  if (jahr)  parts.push('Jahr ' + jahr);
+  if (monat) parts.push('Monat ' + monat);
+  meta.textContent = 'Filter: ' + (parts.length ? parts.join(' \u00b7 ') : 'alle') + ' \u2014 ' + filtered.length.toLocaleString('de-DE') + ' Anlagen';
+  count.textContent = filtered.length.toLocaleString('de-DE') + ' Anlagen';
+
+  // Header-Indikatoren zurücksetzen
+  thead.querySelectorAll('th').forEach(t => t.classList.remove('sorted-asc', 'sorted-desc'));
+
+  _renderTableRows(filtered);
+  document.getElementById('all-units-overlay').classList.add('open');
+}
+
 function renderMarkers(units) {
   clusterGroup.clearLayers();
   const markers = units.map(u => {
@@ -1881,10 +2156,12 @@ function renderMarkers(units) {
 }
 
 function applyFilters() {
-  const type = document.getElementById('filter-type').value;
-  const bl   = document.getElementById('filter-bl').value;
-  const art  = document.getElementById('filter-art').value;
-  const gr   = document.getElementById('filter-gr').value;
+  const type   = document.getElementById('filter-type').value;
+  const bl     = document.getElementById('filter-bl').value;
+  const art    = document.getElementById('filter-art').value;
+  const gr     = document.getElementById('filter-gr').value;
+  const jahr   = document.getElementById('filter-jahr').value;
+  const monat  = document.getElementById('filter-monat').value;
   let filtered = allUnits;
   if (type) filtered = filtered.filter(u => u.t === type);
   if (bl)   filtered = filtered.filter(u => u.b === bl);
@@ -1897,16 +2174,32 @@ function applyFilters() {
         return mw != null && mw >= von && mw < bis;
       });
   }
+  if (jahr) {
+    filtered = filtered.filter(u => {
+      const reg = u.reg || '';
+      return reg.substring(0, 4) === jahr;
+    });
+  }
+  if (monat) {
+    const monatStr = monat.length === 1 ? '0' + monat : monat;
+    filtered = filtered.filter(u => {
+      const reg = u.reg || '';
+      return reg.substring(5, 7) === monatStr;
+    });
+  }
   renderMarkers(filtered);
 
-  // Anzahl-Badge: immer wenn einer der Filter (Art, BL, Gr) aktiv ist.
-  // Zählt die tatsächlich sichtbare Menge (= inkl. Wind/PV-Filter — Variante A).
+  // Anzahl-Badge + Button: immer wenn einer der Filter aktiv ist.
+  const hasFilter = !!(art || bl || gr || jahr || monat || type);
   const countEl = document.getElementById('art-count');
-  if (art || bl || gr) {
+  const btnShowAll = document.getElementById('btn-show-all');
+  if (hasFilter) {
     countEl.textContent = 'Anzahl: ' + filtered.length.toLocaleString('de-DE');
     countEl.hidden = false;
+    btnShowAll.hidden = filtered.length === 0;
   } else {
     countEl.hidden = true;
+    btnShowAll.hidden = true;
   }
 }
 
