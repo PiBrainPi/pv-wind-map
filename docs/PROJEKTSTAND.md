@@ -179,14 +179,14 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
       geändert (vorher Summe MW), (7) Betreiber bleibt Summe MW/desc.
       Verifiziert: Alle 4 Pie-Kombinationen, 0 JS-Fehler.
       **Gepusht auf main + gh-pages (01.09.2026).**
-- [x] **V7 — Jahres-Filter nach Registrierungsdatum (2026-09-02, lokal, nicht gepusht):** Neuer Filter
+- [x] **V7 — Jahres-Filter nach Registrierungsdatum (2026-09-02):** Neuer Filter
       "Registrierung" (Dropdown) in der Toolbar unten links. Filtert nach `registrierungsdatum`
       (MaStR-Feld, Format YYYY-MM-DD, 0 NULL-Werte, Bereich 2019–2026). Neues JSON-Feld `"reg"` pro
       Anlage (`export_app.py` erweitert — `registrierungsdatum` zum SELECT + build_units hinzugefügt).
       Dropdown mit 8 Optionen (2019–2026), kombinierbar mit allen anderen Filtern.
       Verifiziert: 2019 → 16.771, 2026 → 2.454, 2019+Wind → 11.578, 0 JS-Fehler.
       Datei: `~/hermes_human-share/PV-Wind-Karte_V7_JahresFilter.html`.
-- [x] **V7b — Monats-Filter + Alle-Anlagen-Tabelle (2026-09-02, lokal, nicht gepusht):** (1) Neuer Filter
+- [x] **V7b — Monats-Filter + Alle-Anlagen-Tabelle (2026-09-02):** (1) Neuer Filter
       "Registrierungsmonat" (Dropdown 1–12, Jan–Dez), kombinierbar mit Jahres-Filter und allen anderen.
       Filtert nach `registrierungsdatum.substring(5,7)` (Monatsteil). (2) "📋 Alle Anlagen anzeigen" Button
       in der Toolbar — erscheint automatisch bei aktivem Filter. Klick öffnet ein Vollbild-Overlay mit
@@ -197,7 +197,7 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
       schließen. Responsive (Mobile: Vollbild).
       Verifiziert: 2020+März → 1.236, nur Januar → 5.816, 998 Zeilen gerendert, 0 JS-Fehler.
       Datei: `~/hermes_human-share/PV-Wind-Karte_V7b_MonatFilter_AlleAnlagen.html`.
-- [x] **V7c — Sortierbare Tabellen-Header (2026-09-02, lokal, nicht gepusht):** Klick auf jeden Spalten-Header
+- [x] **V7c — Sortierbare Tabellen-Header (2026-09-02):** Klick auf jeden Spalten-Header
       in der Alle-Anlagen-Tabelle sortiert die Tabelle. Erster Klick = aufsteigend (▲), zweiter = absteigend (▼),
       Klick auf andere Spalte wechselt Sortierspalte. Sortierbar: alle 12 Spalten. Zahlen (MW) numerisch,
       Text alphabetisch (`localeCompare('de-DE')`), Datum als String (YYYY-MM-DD = chronologisch korrekt).
@@ -205,6 +205,16 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
       Verifiziert: MW asc 0,3→6,8, MW desc 15→5,56, Name asc alphabetisch, Reg asc 2026-01-02→2026-06-23,
       ▲/▼ korrekt, 0 JS-Fehler.
       Datei: `~/hermes_human-share/PV-Wind-Karte_V7c_SortierbareTabelle.html`.
+      **Gepusht auf main + gh-pages (02.09.2026).**
+- [x] **V8 — Zubau-Tab mit 6 Charts (2026-09-02, LIVE):** Neuer 6. Statistik-Tab "Zubau" unter
+      "Update-Historie". Toggle Anlagen/Leistung (MW). Summary-Box: Gesamt/Wind/PV/ØJahr/Zeitraum.
+      6 Charts: (1) Gestapeltes Balkendiagramm Wind+PV, (2) PV einzeln mit Trendlinie,
+      (3) Wind einzeln mit Trendlinie, (4) Bundesländer-Heatmap (18 BL × 8 Jahre, sqrt-skaliert,
+      Rot→Gelb→Grün), (5) Zubauraten YoY-Wachstum (Liniendiagramm), (6) Wachstum gegenüber
+      kumuliertem Bestand (Liniendiagramm, Jahreszubau als % des bisherigen Bestands).
+      Daten aus `allUnits.reg` (registrierungsdatum), keine Backend-Änderung.
+      Verifiziert: 53.500 Anlagen / 144.894 MW gesamt, 6 Charts, Heatmap-Farben, Toggle, 0 JS-Fehler.
+      **Gepusht auf main + gh-pages (02.09.2026).**
 
 ## Verifikation: Filter + Anlagen-Anzahl-Badge (per Browser-Konsole, reproduzierbar)
 Sobald die App geladen ist (`allUnits` befüllt), im Devtools-Konsolen-`window`-Kontext:

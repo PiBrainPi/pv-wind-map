@@ -24,7 +24,7 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
 - 🔍 **Filter (4):** Typ (Wind/PV), Bundesland (inkl. Offshore), **Art des Assets** (Freiflächen-/Gebäude-/Sonstige Solaranlage, Windkraft an Land/auf See) und **Leistung (MW)** in festen Größenklassen `[von, bis)`:
   `0.1–0.5 · 0.5–1 · 1–2 · 2–5 · 5–10 · 10–30 · 30–60 · 60–100 · 100–104 · 104–150 · 150+`
   (Wind ≈ Nennleistung/MW, PV = MWp — das MaStR unterscheidet nicht zwischen AC/DC; **Kritis-Schwelle: erst ab 104 MW** nach BSI-KritisV → nur `104–150` und `150+` sind Kritis). Sobald ein Art-/Bundesland-/Leistungs-Filter gesetzt ist, zeigt ein Badge neben dem Leistungs-Dropdown die **Anzahl der aktuell sichtbaren Anlagen** (`Anzahl: n` — zählt **alle** gesetzten Filter inkl. Wind/PV, konsistent mit den Marker-Clustern).
-- 📊 **Statistik-Panel** (5 Tabs): Betreiber-Tabelle (Filter, Top-N, Sortierung, Klick → Karte),
+- 📊 **Statistik-Panel** (6 Tabs): Betreiber-Tabelle (Filter, Top-N, Sortierung, Klick → Karte),
   Hersteller-Tab (nur Wind, + %-Anteil + interaktiver Donut), **Größenklassen-Diagramme** (Toggle
   Wind / PV / Wind + PV) mit fester Leistungsskala und Kritis-Markierung (ab 104 MW, BSI-KritisV),
   **Bundesländer-Tab** (interaktives Donut-Chart mit Wind/PV/Gesamt-Modus, Anlagen/Leistung-Umschalter,
@@ -39,6 +39,10 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
   Registrierungsdatum im MaStR. Kombinierbar mit allen anderen Filtern.
 - 📋 **Alle-Anlagen-Tabelle:** Button "Alle Anlagen anzeigen" öffnet ein Overlay mit allen gefilterten
   Anlagen in einer professionellen Tabelle (12 Spalten, sortierbar nach jedem Header, Chunk-Rendering).
+- 📈 **Zubau-Tab:** 6. Statistik-Tab mit 6 Charts zum Zubau von Wind- und PV-Anlagen über Jahre:
+  gestapeltes Balkendiagramm (Wind+PV), PV/Wind einzeln mit Trendlinie, Bundesländer-Heatmap
+  (Rot→Gelb→Grün, sqrt-skaliert), Zubauraten (YoY-Wachstum %), Wachstum gegenüber kumuliertem Bestand.
+  Toggle Anlagen/Leistung (MW).
 
 ---
 

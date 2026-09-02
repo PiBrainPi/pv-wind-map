@@ -27,4 +27,5 @@ einzelbare HTML-App (Single-File mit eingebetteten Daten, ~25 MB).
 | V6 | 2026-09-01 | Art-Verteilungs-Pie + Sortierungs-Fixes |
 | V7 | 2026-09-02 | Jahres-Filter nach Registrierungsdatum |
 | V7b | 2026-09-02 | Monats-Filter + Alle-Anlagen-Tabelle |
-| V7c | 2026-09-02 | Sortierbare Tabellen-Header (aktuelle Version, nicht gepusht) |
+| V7c | 2026-09-02 | Sortierbare Tabellen-Header |
+| V8 | 2026-09-02 | Zubau-Tab mit 6 Charts (aktuelle Live-Version) |
