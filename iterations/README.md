@@ -24,4 +24,7 @@ einzelbare HTML-App (Single-File mit eingebetteten Daten, ~25 MB).
 | V5 | 2026-09-01 | Responsive Design (3 Breakpoints) |
 | V5b | 2026-09-01 | Tabellen-Format + Pie-Chart-Fix (intern, nicht freigegeben) |
 | V5c | 2026-09-01 | Three Fixes (Tabelle, Pie, Topbar) |
-| V6 | 2026-09-01 | Art-Verteilungs-Pie + Sortierungs-Fixes (aktuelle Live-Version) |
+| V6 | 2026-09-01 | Art-Verteilungs-Pie + Sortierungs-Fixes |
+| V7 | 2026-09-02 | Jahres-Filter nach Registrierungsdatum |
+| V7b | 2026-09-02 | Monats-Filter + Alle-Anlagen-Tabelle |
+| V7c | 2026-09-02 | Sortierbare Tabellen-Header (aktuelle Version, nicht gepusht) |

@@ -30,7 +30,8 @@ SELECT
     netzbetreiber, anlagenbetreiber,
     anzahl_solar_module, hauptausrichtung, solarpark_name,
     nabenhoehe_m, rotordurchmesser_m, lichte_hoehe_m, typenbezeichnung,
-    hersteller, windpark_name, land_oder_see
+    hersteller, windpark_name, land_oder_see,
+    registrierungsdatum
 FROM einheiten
 WHERE geolokation = 1
 """
@@ -43,7 +44,7 @@ def build_units(rows) -> list[dict]:
     # 14 lat, 15 lon, 16 netz, 17 ab,
     # 18 anzahl_module, 19 ausr, 20 solarpark,
     # 21 nabenhoehe, 22 rotordurchmesser, 23 lichte, 24 typ, 25 hersteller,
-    # 26 windpark, 27 land_oder_see
+    # 26 windpark, 27 land_oder_see, 28 registrierungsdatum
     units = []
     for r in rows:
         is_pv = (r[2] == 2495)
@@ -63,6 +64,7 @@ def build_units(rows) -> list[dict]:
             "st": r[7],            # system_status
             "lat": r[14],
             "lon": r[15],
+            "reg": r[28],           # registrierungsdatum (YYYY-MM-DD)
         }
         if is_pv:
             u["mod"]   = r[18]     # anzahl_solar_module

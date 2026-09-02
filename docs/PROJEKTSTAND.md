@@ -179,6 +179,32 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
       geändert (vorher Summe MW), (7) Betreiber bleibt Summe MW/desc.
       Verifiziert: Alle 4 Pie-Kombinationen, 0 JS-Fehler.
       **Gepusht auf main + gh-pages (01.09.2026).**
+- [x] **V7 — Jahres-Filter nach Registrierungsdatum (2026-09-02, lokal, nicht gepusht):** Neuer Filter
+      "Registrierung" (Dropdown) in der Toolbar unten links. Filtert nach `registrierungsdatum`
+      (MaStR-Feld, Format YYYY-MM-DD, 0 NULL-Werte, Bereich 2019–2026). Neues JSON-Feld `"reg"` pro
+      Anlage (`export_app.py` erweitert — `registrierungsdatum` zum SELECT + build_units hinzugefügt).
+      Dropdown mit 8 Optionen (2019–2026), kombinierbar mit allen anderen Filtern.
+      Verifiziert: 2019 → 16.771, 2026 → 2.454, 2019+Wind → 11.578, 0 JS-Fehler.
+      Datei: `~/hermes_human-share/PV-Wind-Karte_V7_JahresFilter.html`.
+- [x] **V7b — Monats-Filter + Alle-Anlagen-Tabelle (2026-09-02, lokal, nicht gepusht):** (1) Neuer Filter
+      "Registrierungsmonat" (Dropdown 1–12, Jan–Dez), kombinierbar mit Jahres-Filter und allen anderen.
+      Filtert nach `registrierungsdatum.substring(5,7)` (Monatsteil). (2) "📋 Alle Anlagen anzeigen" Button
+      in der Toolbar — erscheint automatisch bei aktivem Filter. Klick öffnet ein Vollbild-Overlay mit
+      professioneller Tabelle aller gefilterten Anlagen (12 Spalten: #, Name, Typ, Art, MW, Bundesland,
+      Landkreis, Gemeinde, Registriert, Inbetriebnahme, Betreiber, MaStR-Nr.). Chunk-Rendering (500
+      Zeilen/Frame via `requestAnimationFrame`) verhindert Blockierung bei großen Mengen — getestet mit
+      998 Anlagen. MW farbcodiert (Wind blau, PV orange). Sticky Header, Hover-Highlight, Escape/✕/Klick
+      schließen. Responsive (Mobile: Vollbild).
+      Verifiziert: 2020+März → 1.236, nur Januar → 5.816, 998 Zeilen gerendert, 0 JS-Fehler.
+      Datei: `~/hermes_human-share/PV-Wind-Karte_V7b_MonatFilter_AlleAnlagen.html`.
+- [x] **V7c — Sortierbare Tabellen-Header (2026-09-02, lokal, nicht gepusht):** Klick auf jeden Spalten-Header
+      in der Alle-Anlagen-Tabelle sortiert die Tabelle. Erster Klick = aufsteigend (▲), zweiter = absteigend (▼),
+      Klick auf andere Spalte wechselt Sortierspalte. Sortierbar: alle 12 Spalten. Zahlen (MW) numerisch,
+      Text alphabetisch (`localeCompare('de-DE')`), Datum als String (YYYY-MM-DD = chronologisch korrekt).
+      Nach Sortierung: Chunk-Rendering für flüssiges Neu-Aufbauen. Header-Hover-Effekt (blau).
+      Verifiziert: MW asc 0,3→6,8, MW desc 15→5,56, Name asc alphabetisch, Reg asc 2026-01-02→2026-06-23,
+      ▲/▼ korrekt, 0 JS-Fehler.
+      Datei: `~/hermes_human-share/PV-Wind-Karte_V7c_SortierbareTabelle.html`.
 
 ## Verifikation: Filter + Anlagen-Anzahl-Badge (per Browser-Konsole, reproduzierbar)
 Sobald die App geladen ist (`allUnits` befüllt), im Devtools-Konsolen-`window`-Kontext:

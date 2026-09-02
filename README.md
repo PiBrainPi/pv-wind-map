@@ -35,6 +35,10 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
   Mobile <768px: Vollbild + Topbar/Toolbar-Anpassungen). Kein horizontaler Scroll auf PC bei Statistik-Tabellen.
 - 🥧 **Art-Verteilungs-Pie:** Donut-Charts unter den Größenklassen-Balken zeigen Anlagen-/Leistungsverteilung
   pro Anlagentyp (Wind: Land/See; PV: Freifläche/Gebäude/Sonstige).
+- 📅 **Registrierungs-Filter:** Dropdowns für Jahr (2019–2026) und Monat (1–12) filtern Anlagen nach
+  Registrierungsdatum im MaStR. Kombinierbar mit allen anderen Filtern.
+- 📋 **Alle-Anlagen-Tabelle:** Button "Alle Anlagen anzeigen" öffnet ein Overlay mit allen gefilterten
+  Anlagen in einer professionellen Tabelle (12 Spalten, sortierbar nach jedem Header, Chunk-Rendering).
 
 ---
 
