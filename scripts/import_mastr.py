@@ -131,23 +131,32 @@ def to_mw(r, et_id: int) -> float | None:
               (=6300), E-126 (=7580) werden in kW geliefert; kleine Anlagen
               (500..1000 kW) ebenfalls kW. Nur sehr wenige Einträge liegen
               bereits in MW vor (z. B. 3.0, 4.5, 2.3).
-      Heuristik: Wert > 80 -> kW (durch 1000); Wert <= 80 -> MW (bereits).
-      Begründung Schwellwert 80: reale Einzel-WEA (>= 100 kW) haben kW-Werte
-      zwischen ~80 und 15000 (also >80) ODER als MW-Werte zwischen 1 und ~16
-      (also <= 80 trennt nicht eindeutig, da 1..16 <= 80). Werte 81-99 sind
-      kW-Kleinstanlagen (= 0.08..0.099 MW). Mikro-Windanlagen unter 80 (z. B.
-      0.5 = 0.5 kW, 0.6 = 0.6 kW) werden als MW missverstanden, sind aber per
-      Schwellwert-Anforderung >= 100 kW ohnehin auszuschliessen.
+
+    Heuristik (mehrstufig, V8h):
+      1. Wert > 80 -> kW (durch 1000). Moderne WEA: 80–15000 kW.
+      2. Wert <= 80 -> normalerweise MW, ABER:
+         - Ausnahme: 15–80 mit Typ 'V236-15MW' / '15.0 MW' -> echte MW, nicht korrigieren.
+         - Alle anderen 15–80 sind kW (Kleinwindanlagen 15–80 kW), die fälschlich als MW
+           gemeldet wurden. Korrektur: / 1000. Danach < 100 kW -> werden vom Wind-Filter entfernt.
+      3. Wert < 15 -> MW (bereits). Reale MW-Werte: 0.1–14.0.
     """
     v = as_float(r, "Bruttoleistung")
     if v is None:
         return None
     if et_id == 2495:             # PV: kWp -> MW
         return round(v / 1000.0, 4)
-    # Wind: Mischung kW/MW. Wert > 80 -> kW, sonst MW (siehe Docstring).
+    # Wind: mehrstufige Prüfung
     if v > 80:
         return round(v / 1000.0, 4)   # kW -> MW
-    return round(v, 4)               # bereits MW
+    # Wert 15–80: prüfe ob echte MW (V236-15MW etc.) oder falsche kW
+    if 15 <= v <= 80:
+        typ = (r.get("Typenbezeichnung") or "").lower()
+        # Echte 15 MW: Vestas V236-15MW, explizit '15mw' oder '15.0 mw' im Typ
+        if v == 15.0 and ("v236" in typ or "15mw" in typ or "15.0 mw" in typ):
+            return round(v, 4)       # bereits MW (echte 15 MW WEA)
+        # Alle anderen 15–80: sind kW (Kleinwindanlagen)
+        return round(v / 1000.0, 4)  # kW -> MW
+    return round(v, 4)               # < 15: bereits MW
 
 
 def make_row(r: dict, et_id: int, et_name: str):

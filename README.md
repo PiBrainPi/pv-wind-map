@@ -87,9 +87,9 @@ bash scripts/build.sh   # fetch + import + export + bundle in einem Schritt
 
 | Kategorie | Umfang | In DB | Mit Geolokation |
 |-----------|--------|-------|-----------------|
-| **Wind** | ≥ 100 kW (nach Einheiten-Normalisierung MW), Status „In Betrieb“ | 32.155 | 31.116 |
+| **Wind** | ≥ 100 kW (nach Einheiten-Normalisierung MW), Status „In Betrieb“ | 32.155 | 30.996 |
 | **Photovoltaik** | ≥ 0,5 MWp (Bruttoleistung ≥ 500 kWp), Status „In Betrieb“ | 22.389 | 22.384 |
-| **Gesamt** | | **54.544** | **53.500** |
+| **Gesamt** | | **54.544** | **53.380** |
 
 - **Geolokation**: nur Anlagen MIT vorhandenen Koordinaten im MaStR (kein Geocoding)
 - **Einheiten-Hinweis**: MaStR liefert PV in kWp und Wind gemischt (kW/MW) — der Import normalisiert auf MW (Details: docs/datenmodell.md)

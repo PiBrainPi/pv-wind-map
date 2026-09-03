@@ -34,4 +34,6 @@ einzelbare HTML-App (Single-File mit eingebetteten Daten, ~25 MB).
 | V8d | 2026-09-02 | Zweite Heatmap Inbetriebnahme (in V8e ersetzt) |
 | V8e | 2026-09-02 | Zubau-Sub-Tabs (Registrierung/Inbetriebnahme) |
 | V8f | 2026-09-02 | Senkrechte X-Achsen-Labels |
-| V8g | 2026-09-02 | Werte außerhalb + volle MW-Zahlen + X-Achse tiefer (aktuelle Live-Version) |
+| V8g | 2026-09-02 | Werte außerhalb + volle MW-Zahlen + X-Achse tiefer |
+| V8h | 2026-09-02 | Wind-Bruttoleistung-Korrektur (to_mw mehrstufig, 220 Kleinwindanlagen entfernt) |
+| V8i | 2026-09-02 | Disclaimer-Panel (Hover/Tap) + Mobile-Fix (aktuelle Version) |

@@ -239,6 +239,18 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
       mit de-DE Tausendertrennzeichen (kein k/M). (3) X-Achsen-Labels +14px tiefer, Canvas 290px, PAD_B 50px.
       Klare Trennung Diagramm ↔ Achsenbeschriftung.
       **Gepusht auf main + gh-pages (02.09.2026).**
+- [x] **V8h — Wind-Bruttoleistung-Korrektur (2026-09-02):** Die MaStR-API liefert Wind-Bruttoleistungen
+      inkonsistent (teils kW, teils MW). Die alte Heuristik (`>80→kW`) hatte eine Lücke: Werte 15–80 wurden
+      als MW interpretiert, obwohl es bei Kleinwindanlagen (15–80 kW) kW-Werte sind.
+      Korrektur: `to_mw()` in `import_mastr.py` mehrstufig überarbeitet — Werte 15–80 als kW erkannt
+      (außer V236-15MW mit Typbezeichnung). 220 Anlagen korrigiert, fielen danach unter 100-kW-Schwelle
+      und wurden gefiltert. Wind: 31.147→30.996, max MW 80→15. Älteste Wind-Anlage jetzt HSW 250 (1988, 0,25 MW).
+- [x] **V8i — Disclaimer-Panel + Mobile-Fix (2026-09-02):** Hover/Tap-Disclaimer oben links (ℹ-Symbol).
+      6 Absätze: Datenquelle & Qualität (BNetzA bestätigt ~50% geprüft), eigene Bereinigung, Leistungsschwellen
+      (Wind ≥100 kW, PV ≥0,5 MWp), Auslandsanlagen, Statistik-Verzerrung, Hobbyprojekt ohne Gewähr.
+      `position:fixed`, z-index 1200/1201. Mobile: Trigger unterhalb Suchfeld (top:78px), Panel kompakter
+      (max 400px, 12px font). Bug-Fix: fehlendes `</style>` hatte CSS-Block verschmolzen → Consent-Dialog
+      erschien beim Scrollen neu.
 
 ## Verifikation: Filter + Anlagen-Anzahl-Badge (per Browser-Konsole, reproduzierbar)
 Sobald die App geladen ist (`allUnits` befüllt), im Devtools-Konsolen-`window`-Kontext:
