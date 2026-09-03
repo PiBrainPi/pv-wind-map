@@ -251,6 +251,17 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
       `position:fixed`, z-index 1200/1201. Mobile: Trigger unterhalb Suchfeld (top:78px), Panel kompakter
       (max 400px, 12px font). Bug-Fix: fehlendes `</style>` hatte CSS-Block verschmolzen → Consent-Dialog
       erschien beim Scrollen neu.
+- [x] **V8j — QA-20-Punkte-Test + 3 Fixes (2026-09-03, lokal ungepushed):** Systematischer Testablauf
+      (Build/Struktur, Consent, Disclaimer, Filter, Suche, Statistik, Daten, Performance, A11y, DSGVO,
+      Deploy-Parität). Gefunden & gefixt in `src/index.html`:
+      (1) überzähliges `</script>` nach markercluster-Block (Zeile ~756, inert aber wartungsfeindlich) entfernt;
+      (2) Disclaimer-Trigger überlappte Leaflet-Zoom-Control (beide top:10px) → Trigger top:86px,
+      Panel top:122px (Desktop) / Trigger top:96px, Panel top:130px (Mobile);
+      (3) Regressionstest des V8i-Style-Bugs: alle 5 `<style>`/2×`<script>` balanciert, keine doppelten IDs.
+      Verifiziert: Filter zählen korrekt (10–30 MW = 978: 819 PV + 159 Wind), V8h max Wind 15 MW,
+      Suche + Vorschläge ok, alle 6 Statistik-Tabs rendern (handgeschriebenes Canvas, keine Chart.js),
+      Impressum/Datenschutz-Modal open/close/ESC, nur OSM-Kacheln als externe Requests, LIVE=LOKAL
+      byte-identisch (53.380).
 
 ## Verifikation: Filter + Anlagen-Anzahl-Badge (per Browser-Konsole, reproduzierbar)
 Sobald die App geladen ist (`allUnits` befüllt), im Devtools-Konsolen-`window`-Kontext:
