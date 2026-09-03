@@ -1,1 +1,1 @@
-{"stand": "2026-09-01T10:19:39", "quelle": "Marktstammdatenregister (BNetzA)", "abgrenzung": "Wind >= 100 kW und PV >= 0.5 MWp, Status 'In Betrieb', nur Anlagen mit vorhandener Geolokation", "counts": {"Solare Strahlungsenergie": 22384, "Wind": 31116}, "total_geolokation": 53500}
+{"stand": "2026-09-01T10:19:39", "quelle": "Marktstammdatenregister (BNetzA)", "abgrenzung": "Wind >= 100 kW und PV >= 0.5 MWp, Status 'In Betrieb', nur Anlagen mit vorhandener Geolokation", "counts": {"Solare Strahlungsenergie": 22384, "Wind": 30996}, "total_geolokation": 53380}
