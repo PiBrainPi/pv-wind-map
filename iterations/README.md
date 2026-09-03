@@ -36,4 +36,5 @@ einzelbare HTML-App (Single-File mit eingebetteten Daten, ~25 MB).
 | V8f | 2026-09-02 | Senkrechte X-Achsen-Labels |
 | V8g | 2026-09-02 | Werte außerhalb + volle MW-Zahlen + X-Achse tiefer |
 | V8h | 2026-09-02 | Wind-Bruttoleistung-Korrektur (to_mw mehrstufig, 220 Kleinwindanlagen entfernt) |
-| V8i | 2026-09-02 | Disclaimer-Panel (Hover/Tap) + Mobile-Fix (aktuelle Version) |
+| V8i | 2026-09-02 | Disclaimer-Panel (Hover/Tap) + Mobile-Fix |
+| V8j | 2026-09-03 | QA-20-Punkte-Test: stray `</script>` entfernt, Disclaimer-Trigger unter Zoom-Control (Desktop 86px/Mobile 96px) (aktuelle Version) |

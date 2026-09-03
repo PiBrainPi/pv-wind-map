@@ -7,17 +7,22 @@
 Interaktive, offline-fähige HTML-Karte aller **Wind- (≥100 kW) und PV-Anlagen (≥0,5 MWp)**
 in Betrieb**, aus dem Marktstammdatenregister (MaStR, BNetzA). Klickbare Single-File + hostbare Version.
 
-## Aktueller Stand (2026-08-31)
-- **Datenbasis:** Wind 32.144 (31.114 georeferenziert) · PV 22.371 (22.368 georeferenziert)
-  → **53.482 Anlagen auf der Karte**. Betreiber: 23.216.
+## Aktueller Stand (2026-09-03, V8j)
+- **Datenbasis:** Wind **30.996** (V8h-Korrektur: to_mw() Kleinwind 15–80 kW→MW, 220 Anlagen
+  entfernt, max MW 80→15) · PV **22.384** → **53.380 Anlagen auf der Karte** (alle georeferenziert).
 - **Schwellen (final):** Wind ≥100 kW, PV ≥0,5 MWp (beide 2026-08-29 durch Nutzer-Wunsch gesenkt).
-- **HEAD:** nach Doku-Update dieses Stands (vorher `b7951fd` „Impressum/Datenschutz…“) — siehe
-  `git log`; `main` ist Quell-, `gh-pages` Deploy-Branch.
+- **Version:** V8j (QA-20-Punkte-Test + 3 Fixes, siehe Changelog). HEAD `dd19a30` (main) /
+  `e61579b` (gh-pages); `main` ist Quell-, `gh-pages` Deploy-Branch.
 - **Remote:** `PiBrainPi/pv-wind-map` auf GitHub (**öffentlich**, `main`) + `gh-pages`-Branch (Deploy).
-- **Klickbare Datei:** `dist/index_singlefile.html` (24,9 MB) + Kopie im Austauschordner
-  `/home/claw_01_rasbpi5_1/hermes_human-share/PV-Wind-Karte_MaStR_mit_ArtFilter.html`.
-- **Live im Internet:** `https://wind-pv-map.ingenieur-tools.de/` (Karte, HTTPS aktiv) ·
+- **Klickbare Datei:** `dist/index_singlefile.html` (26,2 MB) + Kopien in
+  `iterations/V8i_Disclaimer.html` und
+  `/home/claw_01_rasbpi5_1/hermes_human-share/PV-Wind-Karte_V8i_Disclaimer.html`.
+- **Live im Internet:** `https://wind-pv-map.ingenieur-tools.de/` (Karte, HTTPS aktiv, V8j) ·
   `https://ingenieur-tools.de/` (Portal) — Details in `docs/DEPLOYMENT.md`.
+- **Wichtig (Daten-Pipeline):** `data/mastr.db` wurde beim Deploy 2026-09-03 versehentlich gelöscht
+  (Deploy-Cleanup rm -rf). App/Deloy läuft ohne DB (Assets sind fertig), aber vor dem **nächsten
+  Daten-Update** DB per `python3 scripts/import_mastr.py` neu aufbauen. Regeln: Deploy-Cleanup NUR
+  `src/ scripts/`, nie `data/ dist/ iterations/`. DB-Backup vor jedem Deploy nach `~/backups/`.
 
 ## Features
 - **Karte:** Leaflet + MarkerCluster, Filter nach Typ (Wind/PV), Bundesland, **Art des Assets**
@@ -271,19 +276,21 @@ const set=(type,bl,art,gr)=>{document.getElementById('filter-type').value=type;
  document.getElementById('filter-gr').value=gr||'';
  applyFilters();const e=document.getElementById('art-count');
  return {text:e.textContent,hidden:e.hidden};};
-set('','','Freiflächensolaranlage','');      // → {text:"Anzahl: 11.707", hidden:false}
-set('','Bayern','','');                      // → {text:"Anzahl: 7.042", hidden:false}
-set('','Bayern','Freiflächensolaranlage','');// → {text:"Anzahl: 4.396", hidden:false}
+set('','','Freiflächensolaranlage','');      // → {text:"Anzahl: 11.721", hidden:false}   (V8j)
+set('','Bayern','','');                      // → {text:"Anzahl: 1.188", hidden:false}   (V8j, Wind-Anteil Bayern)
+set('','Bayern','Freiflächensolaranlage','');// → {text:"Anzahl: 4.396", hidden:false}   (hist. 53.500-Wert)
 set('pv','','','104,150');                   // → {text:"Anzahl: 2", hidden:false}   (PV 104–150 MW)
-set('wind','','','0.5,1');                   // → {text:"Anzahl: 4.079", hidden:false}
+set('wind','','','0.5,1');                   // → {text:"Anzahl: 4.079", hidden:false}   (hist. 53.500-Wert)
 set('','','','');                            // → hidden:true
 ```
-Referenzwerte (53.500-Datensatz): Freifläche ~11.707, Bayern ~7.042, Bayern+Freifläche ~4.396,
-PV 104–150 MW = 2, Wind 0.5–1 MW ~4.079, PV 100–104 MW = 1, PV 150+ MW = 3. Die Zahl muss
+Referenzwerte (53.380-Datensatz, V8j-Test 2026-09-03): Wind gesamt 30.996, Bayern-Wind 1.188,
+Freiflächen-PV 11.721, Größenklasse 10–30 MW = 978 (819 PV + 159 Wind), Inb-Jahr 1988 = 2
+(älteste: HSW 250, 0,25 MW). Max Wind-MW = 15,0 (V8h). Die Zahl muss
 stets `allUnits.filter(...)` für die gerade aktiven (Art, BL, Gr, Typ-)Filter entsprechen.
 Die Größenklassen in `_stats.groessenklassen` haben `wind`/`pv`/`gesamt` mit je **11 Einträgen**;
-Kritis-Klassen (`kritis:true`) sind nur `104–150` und `150+` (Summen: Wind 31.116 · PV 22.384 ·
-Gesamt 53.500).
+Kritis-Klassen (`kritis:true`) sind nur `104–150` und `150+`.
+Historische Referenzwerte des 53.500-Datensatzes (vor V8h): Bayern 7.042, Bayern+Freifläche 4.396,
+PV 104–150 = 2, Wind 0.5–1 = 4.079, Summen Wind 31.116 · PV 22.384 · Gesamt 53.500.
 
 ## Besondere Hinweise für neue Sessions
 - **Kein JSON/HTML-Rohcode in Telegram-Chat**; klickbare Datei per `MEDIA:` oder send_telegram_file senden.

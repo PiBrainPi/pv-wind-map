@@ -24,11 +24,19 @@ Beide Repos nutzen den **`gh-pages`-Branch** als Pages-Quelle (statisch, keine G
 
 ### Karte (`pv-wind-map`)
 - `main` = Quellcode (src/, scripts/, docs/). `dist/` ist **gitignored** (nicht im Repo).
-- `gh-pages`-Branch = fertige, deploybare Site: `index.html` (hostbar), `index_singlefile.html` (24,9 MB), `assets/*.json`.
-- **Update-Ablauf** (Daten-Refresh):
-  1. Lokal `dist/` regenerieren: `cp src/index.html dist/index.html` + `python3 scripts/bundle_singlefile.py` (oder voll `bash scripts/build.sh`)
-  2. `gh-pages`-Branch neu aufbauen aus `dist/` und pushen
-  3. Pages deployed automatisch
+- `gh-pages`-Branch = fertige, deploybare Site: `index.html` (hostbar), `index_singlefile.html`, `assets/*.json`.
+- **Update-Ablauf (Daten-Refresh):**
+  1. **Backup zuerst:** `cp data/mastr.db ~/backups/mastr-$(date +%F).db` (Regel seit 2026-09-03!)
+  2. Lokal `dist/` regenerieren: `cp src/index.html dist/index.html` + `python3 scripts/bundle_singlefile.py` (oder voll `bash scripts/build.sh`)
+  3. `main` committen + pushen (vorher `git fetch origin && git rebase origin/main`)
+  4. `gh-pages`-Branch: Quell-Dateien temporär aus main holen, `index.html` + `assets/*.json` committen, pushen
+  5. Pages deployed automatisch (~30 s Cache-Delay)
+- ⚠️ **Deploy-Cleanup-Regel (Lehre aus 2026-09-03):** Auf gh-pages niemals `rm -rf data/ dist/ iterations/`
+  ausführen — diese Ordner sind Branch-übergreifend dieselben lokalen Verzeichnisse (gitignored)!
+  Nur `src/` und `scripts/` vom gh-pages-Checkin entfernen (die werden temporär aus main ausgecheckt).
+  Ein Fehlversuch am 2026-09-03 löschte `data/mastr.db` (DB muss dann via `import_mastr.py` neu
+  aufgebaut werden — Snapshots/Historie gehen dabei verloren) und wurde nur durch Backups in
+  `~/hermes_human-share/` begrenzbar.
 
 ### Portal (`ingenieur-tools-portal`)
 - `main` = `index.html` (Startseite). `gh-pages` = identischer Inhalt (Pages-Quelle).
@@ -56,13 +64,14 @@ Beide Repos nutzen den **`gh-pages`-Branch** als Pages-Quelle (statisch, keine G
 
 > Portal nutzt `www` als kanonische Domain — GitHub leitet `www` → Apex automatisch um. Zertifikat braucht nach CNAME-Setup Zeit (~30–60 Min.).
 
-### Verifikation (durchgeführt 2026-08-30)
+### Verifikation (durchgeführt 2026-08-30, aktualisiert 2026-09-03)
 
-- ✅ Karte `index.html` → HTTP 200, Leaflet lädt, `assets/einheiten.json` (24 MB) → 53.500 Einheiten
+- ✅ Karte `index.html` → HTTP 200, Leaflet lädt, `assets/einheiten.json` (24 MB) → **53.380 Einheiten (V8h/V8i/V8j, Stand 2026-09-03)**
+- ✅ V8j-Fixes live (`top: 86px` im HTML nachweisbar), Disclaimer-Trigger unter Zoom-Control
 - ✅ Portal `index.html` → HTTP 200, enthält Link zur Karten-Subdomain
 - ✅ Single-File rekonstruiert, SHA-identisch mit Backup (kein Datenverlust)
 - ✅ `www.ingenieur-tools.de` + `galton-board.ingenieur-tools.de` DNS propagiert (Cloudflare DoH)
-- ✅ Karte HTTPS fertig; Portal HTTPS-Zertifikat in Ausstellung
+- ✅ Karte HTTPS fertig; Portal HTTPS-Zertifikat wartet auf LE-Rate-Limit-Fenster (~06./07.09.2026)
 
 ## Wichtige Hinweise
 
