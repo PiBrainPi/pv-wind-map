@@ -861,6 +861,9 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #all-units-table td.mw-pv { color:#d97706; font-weight:600; }
 #all-units-table .au-link { color:#2563eb; text-decoration:none; }
 #all-units-table .au-link:hover { text-decoration:underline; }
+/* F5b: Deep-Link-Spans (Betreiber, Koordinaten) */
+#all-units-table .tbl-link { color:#2563eb; cursor:pointer; }
+#all-units-table .tbl-link:hover { text-decoration:underline; }
 #all-units-footer {
   padding:10px 20px; border-top:1px solid #e5e7eb; flex-shrink:0;
   font-size:11px; color:#9ca3af; display:flex; justify-content:space-between;
@@ -963,6 +966,20 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #search-suggest .sug-betreiber-txt b { color:#1e40af; }
 #search-suggest .sug-betreiber-txt small { color:#64748b; }
 #search-suggest .sug-betreiber .sug-meta { color:#2563eb; font-size:15px; }
+/* F1: NAP-Suchtreffer (gleiche Optik wie Betreiber-Block, anderes Icon) */
+#search-suggest .sug-nap {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px; cursor:pointer;
+  border-bottom:1px solid #e5e7eb;
+  background:linear-gradient(180deg,#ecfdf5,#f8fafc);
+  font-size:13px;
+}
+#search-suggest .sug-nap:hover { background:#d1fae5; }
+#search-suggest .sug-nap .sug-betreiber-icon { font-size:16px; color:#059669; flex-shrink:0; }
+#search-suggest .sug-nap .sug-betreiber-txt { flex:1; line-height:1.3; }
+#search-suggest .sug-nap .sug-betreiber-txt b { color:#065f46; }
+#search-suggest .sug-nap .sug-betreiber-txt small { color:#64748b; }
+#search-suggest .sug-nap .sug-meta { color:#059669; font-size:14px; white-space:nowrap; }
 #topbar-hits {
   font-size:11px; color:#888; margin-top:4px; padding:0 2px;
 }
@@ -986,6 +1003,53 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   color:#fff; border-radius:8px; cursor:pointer; font-weight:600; flex-shrink:0;
 }
 #btn-stats:hover { background:#1d4ed8; }
+
+/* F3 (Punkte 4, 7): NAP-Gruppen-Toggle + Panel */
+#btn-nap-groups {
+  font-size:13px; padding:6px 14px; border:1px solid #6b7280; background:#fff;
+  color:#374151; border-radius:8px; cursor:pointer; font-weight:600; flex-shrink:0;
+}
+#btn-nap-groups:hover { border-color:#2563eb; color:#2563eb; }
+#btn-nap-groups.active {
+  background:#065f46; border-color:#065f46; color:#fff;
+}
+#nap-panel {
+  position:fixed; top:0; right:-420px; width:400px; max-width:92vw; height:100vh;
+  background:#fff; box-shadow:-4px 0 24px rgba(0,0,0,.18); z-index:1800;
+  transition:right .25s ease; display:flex; flex-direction:column;
+}
+#nap-panel.open { right:0; }
+#nap-panel-head {
+  padding:14px 16px; background:#065f46; color:#fff; flex-shrink:0;
+}
+#nap-panel-head h3 { margin:0 0 6px; font-size:15px; }
+#nap-panel-head .np-sub { font-size:12px; opacity:.92; line-height:1.5; }
+#nap-panel-close {
+  position:absolute; top:10px; right:10px; background:rgba(255,255,255,.15);
+  border:none; color:#fff; font-size:16px; width:28px; height:28px; border-radius:6px;
+  cursor:pointer; line-height:1;
+}
+#nap-panel-close:hover { background:rgba(255,255,255,.3); }
+#nap-panel-body { flex:1; overflow-y:auto; padding:10px 0; }
+#nap-panel-body .np-zoom {
+  display:block; margin:4px 16px 10px; padding:7px; text-align:center;
+  border:1px solid #065f46; color:#065f46; border-radius:6px; cursor:pointer;
+  font-weight:600; font-size:13px; background:#fff;
+}
+#nap-panel-body .np-zoom:hover { background:#065f46; color:#fff; }
+.np-row {
+  display:flex; justify-content:space-between; align-items:baseline; gap:8px;
+  padding:8px 16px; cursor:pointer; border-bottom:1px solid #f3f4f6;
+}
+.np-row:hover { background:#f0fdf4; }
+.np-row .np-name { font-size:13px; font-weight:600; color:#111827; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.np-row .np-meta { font-size:11.5px; color:#6b7280; white-space:nowrap; }
+.np-empty { padding:20px 16px; font-size:13px; color:#6b7280; text-align:center; }
+.np-napinfo {
+  margin:0 16px 10px; padding:10px 12px; background:#f0fdf4; border:1px solid #bbf7d0;
+  border-radius:8px; font-size:12.5px; color:#064e3b; line-height:1.6;
+}
+
 
 /* Overlay */
 #stats-overlay {
@@ -1424,6 +1488,14 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 }
 #toolbar label { color:#555; font-size:11px; }
 #toolbar select { font-size:12px; padding:2px 5px; border:1px solid #ccc; border-radius:4px; }
+/* F5: Status-Mehrfachauswahl (Checkbox-Block) */
+#toolbar .status-filter {
+  display:inline-flex; align-items:center; gap:8px;
+  background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px;
+  padding:2px 8px; font-size:12px;
+}
+#toolbar .status-chk { display:inline-flex; align-items:center; gap:3px; cursor:pointer; white-space:nowrap; }
+#toolbar .status-chk input { accent-color:#2563eb; cursor:pointer; }
 /* Anzeige der gefilterten Anlagen-Anzahl direkt neben dem Art-Dropdown */
 #toolbar .filter-count {
   font-size:12px; font-weight:600; color:#2563eb;
@@ -1502,12 +1574,24 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         <span class="m-line"><span class="m-dot m-dot-wind"></span>Wind (≥100 kW) · <span class="m-dot m-dot-pv"></span>PV (≥0,5 MWp)</span>
         <span class="m-line">Stand: <span id="data-stand">–</span></span>
       </div>
+      <!-- F3 (Punkt 4): NAP-Gruppenansicht opt-in Toggle -->
+      <button type="button" id="btn-nap-groups" title="NAP-Gruppenansicht: zeigt pro Anschlusspunkt alle zugehörigen Anlagen im Panel" aria-pressed="false">⚡ NAP-Gruppen</button>
       <button type="button" id="btn-stats" title="Statistik öffnen">📊 Statistik</button>
     </div>
   </div>
 </div>
 
 <!-- Statistik-Sidebar (Overlay) -->
+<!-- F3 (Punkt 7): NAP-Gruppen-Panel (opt-in, rechts) -->
+<div id="nap-panel" role="dialog" aria-label="NAP-Gruppenansicht">
+  <div id="nap-panel-head">
+    <button type="button" id="nap-panel-close" title="Panel schließen">✕</button>
+    <h3 id="nap-panel-title">NAP-Gruppe</h3>
+    <div class="np-sub" id="nap-panel-sub"></div>
+  </div>
+  <div id="nap-panel-body"></div>
+</div>
+
 <div id="stats-overlay"></div>
 
 <!-- V7b: Alle-Anlagen-Tabelle Overlay -->
@@ -1532,10 +1616,11 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
             <th data-sort="b">Bundesland</th>
             <th data-sort="lk">Landkreis</th>
             <th data-sort="g">Gemeinde</th>
+            <th title="Spannungsebene der Netzanschlusspunkte">Ebene</th>
             <th data-sort="reg">Registriert</th>
             <th data-sort="inb">Inbetriebnahme</th>
-            <th data-sort="ab">Betreiber</th>
-            <th data-sort="m">MaStR-Nr.</th>
+            <th data-sort="ab">Betreiber ↗</th>
+            <th>Koordinaten</th>
           </tr>
         </thead>
         <tbody id="all-units-tbody"></tbody>
@@ -1560,8 +1645,10 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
       <button class="tab" data-tab="hersteller">Hersteller</button>
       <button class="tab" data-tab="groesse">Größenklassen</button>
       <button class="tab" data-tab="bundesland">Bundesländer</button>
+      <button class="tab" data-tab="spannung">Spannungsebenen</button>
       <button class="tab" data-tab="historie">Update-Historie</button>
       <button class="tab" data-tab="zubau">Zubau</button>
+      <button class="tab" data-tab="betroffen">⚠ Betroffenheit</button>
     </div>
 
     <!-- Betreiber-Ansicht -->
@@ -1676,6 +1763,14 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
       <div id="bundesland-pie-note"></div>
     </section>
 
+    <!-- Spannungsebenen-Tab (F2: Verteilung der Netzanschluss-Ebenen, folgt aktivem Filter) -->
+    <section id="tab-spannung" class="stats-tab">
+      <div id="spannung-note" style="font-size:12px;color:#6b7280;margin-bottom:10px;">
+        Netzanschluss-Ebene laut Netzanschlusspunkten (MaStR) · Mehrfach-Zuordnungen zählen je Ebene · folgt dem aktiven Karten-Filter
+      </div>
+      <div id="spannung-bars"></div>
+    </section>
+
     <!-- Update-Historie-Tab (V4: Revisions-Tracker) -->
     <section id="tab-historie" class="stats-tab">
       <div id="historie-empty">Noch keine Update-Historie vorhanden. Beim nächsten Daten-Update (1. & 15. des Monats) wird hier die Veränderung angezeigt.</div>
@@ -1728,6 +1823,79 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
       </div>
       <div id="zubau-summary"></div>
       <div id="zubau-charts"></div>
+    </section>
+
+    <!-- F4+F6 (Punkte 2–12): Betroffenheitsanalyse -->
+    <section id="tab-betroffen" class="stats-tab">
+      <div style="font-size:12px;color:#6b7280;margin-bottom:10px;line-height:1.5;">
+        ⚠ <b>Indikation, keine rechtsverbindliche Auskunft:</b> Eine Neuanlage am selben
+        Anschlussknoten heißt nicht automatisch „geteiltes Netz" — ein NAP ist ein Netzknoten,
+        hinter dem größere Netze hängen. Ergebnis = Hinweis auf räumliche/anschlussseitige Nähe.
+      </div>
+      <details style="font-size:12px;color:#6b7280;margin-bottom:10px;line-height:1.5;">
+        <summary style="cursor:pointer;font-weight:600;color:#374151;">ℹ️ Wie funktioniert die Betroffenheitsprüfung?</summary>
+        <div style="margin-top:6px;">
+          <p style="margin:0 0 6px;"><b>Prüfverfahren:</b> Jede im Update neu hinzugekommene oder entfernte Anlage wird gegen Ihre gewählte Referenz geprüft. Der Match erfolgt, wenn <b>eines von zwei Kriterien</b> erfüllt ist:</p>
+          <p style="margin:0 0 6px;">1. <b>NAP-Gleichheit</b> — die Anlagen hängen am selben Netzanschlusspunkt (stärkstes Signal, Distanz 0 km).<br>
+          2. <b>Umkreis</b> — die Luftlinie (Haversine-Formel) zwischen Neuanlage und Bestandsanlage liegt innerhalb des gewählten Radius (2–50 km). Der orangefarbene Ring auf der Karte zeigt genau dieses Suchfeld um jede betroffene Bestandsanlage; die auslösende Neuanlage liegt dann innerhalb der Fläche.</p>
+          <p style="margin:0 0 6px;"><b>Wichtig zu geplanten Anlagen:</b> Im Update hinzugefügte Anlagen befinden sich häufig noch <b>in Planung und haben noch keinen Netzanschlusspunkt</b> — registriert wird erst bei Netzbetreiber-Meldung. Für diese ist die Prüfung der <b>Geolokation</b> (Abstand zum Bestands-Asset) der verlässliche Weg; der NAP-Match greift für sie später nach erfolgtem Anschluss.</p>
+          <p style="margin:0 0 6px;"><b>Grenzen der Prüfung:</b> Der Radius ist eine <b>Luftlinie</b>, keine Netztopologie — ohne Leiterweg, Transformatorstationen oder Auslastung des Knotens. Ein Match ist damit eine räumliche Indikation für mögliche Betroffenheit (z. B. bei Netzausbau, Pacht oder Nachbarschaftsrechten), kein Nachweis einer technischen Beeinträchtigung. Falsch-Positive (Anlagen in der Fläche ohne Bezug) sind bei großen Radien möglich — prüfen Sie die Treffer deshalb in der Ergebnistabelle und auf der Karte.</p>
+        </div>
+      </details>
+      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">1 · Referenz (Anlage, Betreiber oder NAP aus der Suche)</label>
+      <div style="display:flex;gap:6px;margin-bottom:8px;">
+        <input type="text" id="bff-ref-input" placeholder="Betreiber, Anlage oder SAN-Nummer…" style="flex:1;font-size:12.5px;padding:6px 8px;border:1px solid #d1d5db;border-radius:6px;">
+        <button type="button" id="bff-ref-clear" title="Suchfeld leeren" style="font-size:13px;padding:6px 10px;border:1px solid #d1d5db;background:#f9fafb;color:#6b7280;border-radius:6px;cursor:pointer;font-weight:700;">✕</button>
+        <button type="button" id="bff-ref-search" style="font-size:12px;padding:6px 10px;border:1px solid #2563eb;background:#2563eb;color:#fff;border-radius:6px;cursor:pointer;font-weight:600;">Suchen</button>
+      </div>
+      <div id="bff-ref-results" style="max-height:150px;overflow-y:auto;margin-bottom:10px;"></div>
+      <div id="bff-ref-selected" style="display:none;margin-bottom:10px;padding:8px 10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;font-size:12.5px;"></div>
+
+      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">2 · Optionen</label>
+      <div style="font-size:12.5px;display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
+        <div>
+          <label>Zeitfenster:
+            <select id="bff-fenster" style="font-size:12px;padding:3px 6px;margin-left:4px;">
+              <option value="last">letztes Update</option>
+              <option value="all">alle Updates</option>
+            </select>
+          </label>
+          <label style="margin-left:12px;">Modus:
+            <select id="bff-modus" style="font-size:12px;padding:3px 6px;margin-left:4px;">
+              <option value="both">neu registriert + neu in Betrieb</option>
+              <option value="reg">nur neu registriert</option>
+              <option value="inb">nur neu in Betrieb</option>
+            </select>
+          </label>
+        </div>
+        <label>Umkreis-Match: <input type="checkbox" id="bff-radius-on" checked> Radius
+          <input type="range" id="bff-radius" min="2" max="50" value="20" step="1" style="vertical-align:middle;">
+          <span id="bff-radius-label">20 km</span>
+        </label>
+        <div style="color:#9ca3af;font-size:11px;">NAP-Gleichheit wird immer geprüft (Knoten-Match).</div>
+        <details style="color:#9ca3af;font-size:11px;">
+          <summary style="cursor:pointer;">Wie funktioniert die Betroffenheitsprüfung?</summary>
+          <div style="margin-top:4px;line-height:1.5;">
+            Die Analyse vergleicht jede im Update neu registrierte bzw. neu in Betrieb genommene
+            Anlage (und jede entfernte) mit Ihrer Referenz nach <b>zwei Kriterien</b>:<br>
+            <b>1 · NAP-Gleichheit:</b> Exakt derselbe Netzanschlusspunkt (Vergleich der
+            MaStR-Lokations-ID des Anschlusspunkts). Stärkstes Signal — beide Anlagen hängen
+            physisch am selben Netzknoten.<br>
+            <b>2 · Umkreis:</b> Luftlinie (Haversine-Formel) zwischen den Koordinaten der
+            Neuanlage und denen Ihrer Referenz-Anlagen. Wenn der Umkreis-Match aktiv ist,
+            wird jede Referenz-Anlage als Kreis mit dem gewählten Radius (2–50 km) auf der
+            Karte dargestellt — die Neuanlage muss sich dann innerhalb mindestens eines
+            Kreises befinden.<br>
+            Die Kriterien sind ODER-verknüpft; NAP-Matches werden vor Umkreis-Matches
+            sortiert. Gleicher Knoten ≠ geteiltes Netz (s. Hinweis oben).
+          </div>
+        </details>
+      </div>
+      <button type="button" id="bff-run" disabled style="font-size:13px;padding:8px 16px;border:1px solid #92400e;background:#f59e0b;color:#fff;border-radius:8px;cursor:pointer;font-weight:700;">🔍 Analyse starten</button>
+      <button type="button" id="bff-show" disabled style="font-size:13px;padding:8px 16px;border:1px solid #1e40af;background:#3b82f6;color:#fff;border-radius:8px;cursor:pointer;font-weight:700;margin-left:6px;">🗺️ Anzeigen</button>
+      <div id="bff-status" style="font-size:12px;color:#6b7280;margin-top:8px;"></div>
+      <div id="bff-summary" style="margin-top:10px;"></div>
+      <div id="bff-results" style="margin-top:10px;"></div>
     </section>
 
   </div>
@@ -1821,6 +1989,25 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     <option value="10">10 (Okt)</option>
     <option value="11">11 (Nov)</option>
     <option value="12">12 (Dez)</option>
+  </select>
+  <label>Status</label>
+  <span id="filter-status" class="status-filter" title="Betriebs-Status (Mehrfachauswahl möglich)">
+    <label class="status-chk"><input type="checkbox" value="31" id="st-31"> In Planung</label>
+    <label class="status-chk"><input type="checkbox" value="35" id="st-35" checked> In Betrieb</label>
+    <label class="status-chk"><input type="checkbox" value="37" id="st-37"> Vorüb. stillgelegt</label>
+    <label class="status-chk"><input type="checkbox" value="38" id="st-38"> Endg. stillgelegt</label>
+  </span>
+  <label title="Netzanschluss-Ebene der Anlage (Quelle: Netzanschlusspunkte, 99 % Abdeckung)">Spannungsebene</label>
+  <select id="filter-se" title="Spannungsebene der Netzanschlusspunkte (Mehrfach-Zuordnungen matchen bei jeder enthaltenen Ebene)">
+    <option value="">Alle</option>
+    <option value="Mittelspannung">Mittelspannung</option>
+    <option value="Hochspannung">Hochspannung</option>
+    <option value="Höchstspannung">Höchstspannung</option>
+    <option value="Niederspannung">Niederspannung (Hausanschluss)</option>
+    <option value="Umspannebene Hochspannung/Mittelspannung">Umspann HS/MS</option>
+    <option value="Umspannebene Mittelspannung/Niederspannung">Umspann MS/NS</option>
+    <option value="Umspannebene Höchstspannung/Hochspannung">Umspann HöS/HS</option>
+    <option value="__ohne__">ohne Angabe</option>
   </select>
   <span id="art-count" class="filter-count" hidden></span>
   <button type="button" id="btn-show-all" title="Alle gefilterten Anlagen in Tabelle anzeigen" hidden>📋 Alle Anlagen anzeigen</button>
@@ -1998,10 +2185,13 @@ async function init() {
       einheiten = window.__PVWIND_DATA__;
       meta = window.__PVWIND_META__;
       statistiken = window.__PVWIND_STATS__ || null;
+      // F1 (Punkt 4): NAP-Index ist im Single-File bereits eingebettet
     } else {
       einheiten   = await fetchJson('assets/einheiten.json', false);   // Pflicht (Kern-Daten)
       meta        = await fetchJson('assets/meta.json', false);        // Pflicht (Zähler/Stand)
       statistiken = await fetchJson('assets/statistiken.json', true);  // optional (Statistik-Panel)
+      // F1 (Punkt 4): NAP-Index lazy nachladen (optional — Suche funktioniert ohne weiter)
+      fetchJson('assets/nap_index.json', true).then(d => { window.__PVWIND_NAP__ = d; }).catch(() => {});
     }
 
     if (!einheiten || !einheiten.length) {
@@ -2016,7 +2206,12 @@ async function init() {
     {
       const inbYears = new Set();
       einheiten.forEach(u => {
-        const inb = u.inb || '';
+        let inb = u.inb || '';
+        // F5-Fix: /Date(...)-Epochen-Strings vor dem Parsen normalisieren (sonst landet "/Dat" als Jahr-Option)
+        if (inb.startsWith('/Date(')) {
+          const m = inb.match(/\d+/);
+          if (m) inb = new Date(parseInt(m[0])).toISOString().substring(0, 10);
+        }
         if (inb.length >= 4) inbYears.add(inb.substring(0, 4));
       });
       const sorted = [...inbYears].sort();
@@ -2065,6 +2260,14 @@ async function init() {
   document.getElementById('filter-monat').addEventListener('change', applyFilters);
   document.getElementById('filter-inb-jahr').addEventListener('change', applyFilters);
   document.getElementById('filter-inb-monat').addEventListener('change', applyFilters);
+  // F2: Spannungsebene
+  document.getElementById('filter-se').addEventListener('change', applyFilters);
+  // F3 (Punkt 4): NAP-Gruppen-Toggle + Panel-Close
+  document.getElementById('btn-nap-groups').addEventListener('click', toggleNapGroups);
+  document.getElementById('nap-panel-close').addEventListener('click', closeNapPanel);
+  // F5: Status-Checkboxen → applyFilters bei jeder Änderung
+  document.querySelectorAll('#filter-status input[type=checkbox]').forEach(cb =>
+    cb.addEventListener('change', applyFilters));
   document.getElementById('btn-show-all').addEventListener('click', showAllUnits);
   document.getElementById('all-units-close').addEventListener('click', function() {
     document.getElementById('all-units-overlay').classList.remove('open');
@@ -2148,8 +2351,8 @@ function _sortUnits(units, key, dir) {
     else if (key === 'b') { va = (a.b || '').toLowerCase(); vb = (b.b || '').toLowerCase(); }
     else if (key === 'lk') { va = (a.lk || '').toLowerCase(); vb = (b.lk || '').toLowerCase(); }
     else if (key === 'g') { va = (a.g || '').toLowerCase(); vb = (b.g || '').toLowerCase(); }
-    else if (key === 'reg') { va = a.reg || ''; vb = b.reg || ''; }
-    else if (key === 'inb') { va = a.inb || ''; vb = b.inb || ''; }
+    else if (key === 'reg') { va = dateYear(a.reg) + dateMonth(a.reg); vb = dateYear(b.reg) + dateMonth(b.reg); }
+    else if (key === 'inb') { va = dateYear(a.inb) + dateMonth(a.inb); vb = dateYear(b.inb) + dateMonth(b.inb); }
     else if (key === 'ab') { va = (a.ab || '').toLowerCase(); vb = (b.ab || '').toLowerCase(); }
     else if (key === 'm') { va = a.m || ''; vb = b.m || ''; }
     else { return 0; }
@@ -2175,12 +2378,29 @@ function _renderTableRows(filtered) {
       const typ = u.t === 'wind' ? 'Wind' : 'PV';
       const mwClass = u.t === 'wind' ? 'mw-wind' : 'mw-pv';
       const mwStr = (u.mw || 0).toLocaleString('de-DE', {maximumFractionDigits:2});
-      const regStr = u.reg || '\u2014';
+      let regStr = u.reg || '\u2014';
+      if (regStr.startsWith('/Date(')) {
+        const m = regStr.match(/\d+/);
+        if (m) regStr = new Date(parseInt(m[0])).toISOString().substring(0,10);
+      }
       let inbStr = u.inb || '\u2014';
       if (inbStr.startsWith('/Date(')) {
         const m = inbStr.match(/\d+/);
         if (m) inbStr = new Date(parseInt(m[0])).toISOString().substring(0,10);
       }
+      // F5b: Betreiber + Geo als Deep-Links
+      // Betreiber: extern -> NorthData-Firmenprofil (neuer Tab), wie im Popup (F5c)
+      const abCell = u.ab
+        ? '<td><a class="tbl-link" href="https://www.northdata.de/' + northdataSlug(u.ab) + '" target="_blank" rel="noopener" title="Firmenprofil auf NorthData öffnen">' + esc(u.ab) + ' ↗</a></td>'
+        : '<td>\u2014</td>';
+      // Geo: intern -> Karte zoomt hin + Popup (F5c: beibehalten wie zuvor)
+      const geoCell = (u.lat != null && u.lon != null)
+        ? '<td><span class="tbl-link tbl-geo" data-m="' + esc(u.m || '') + '" title="Auf Karte zeigen">📍 ' + (u.lat.toFixed(4)) + ', ' + (u.lon.toFixed(4)) + '</span></td>'
+        : '<td>\u2014</td>';
+      // F2 (Punkt 10): Spannungsebene kompakt (Kürzel) — zwischen Gemeinde und Registriert
+      const seShort = u.se
+        ? '<td title="' + esc(u.se) + '">' + esc(u.se.split('|').map(e => SE_SHORT[e] || e).join(', ')) + '</td>'
+        : '<td style="color:#9ca3af">\u2014</td>';
       html += '<tr>' +
         '<td class="num">' + (i + 1) + '</td>' +
         '<td>' + esc(u.n || '\u2014') + '</td>' +
@@ -2190,10 +2410,11 @@ function _renderTableRows(filtered) {
         '<td>' + esc(u.b || '\u2014') + '</td>' +
         '<td>' + esc(u.lk || '\u2014') + '</td>' +
         '<td>' + esc(u.g || '\u2014') + '</td>' +
+        seShort +
         '<td>' + regStr + '</td>' +
         '<td>' + inbStr + '</td>' +
-        '<td>' + esc(u.ab || '\u2014') + '</td>' +
-        '<td><span class="au-link" title="' + esc(u.m || '') + '">' + esc(u.m || '\u2014') + '</span></td>' +
+        abCell +
+        geoCell +
       '</tr>';
     }
     tbody.insertAdjacentHTML('beforeend', html);
@@ -2203,9 +2424,34 @@ function _renderTableRows(filtered) {
     }
   }
   renderChunk();
+
+  // F5b: Deep-Link-Handler (Delegation — funktioniert auch über Chunks hinweg)
+  // F5c: Nur noch Geo-Deep-Link (Karte). Betreiber ist jetzt externer NorthData-Link (<a>).
+  tbody.onclick = function(e) {
+    const geoEl = e.target.closest('.tbl-geo');
+    if (geoEl) {
+      const mn = geoEl.dataset.m;
+      const unit = allUnits.find(x => x.m === mn);
+      if (unit && unit.lat != null) {
+        document.getElementById('all-units-overlay').classList.remove('open');
+        // MarkerCluster-API: zoomt solange bis der Marker einzeln sichtbar ist, dann Callback
+        const marker = _unitMarkers[mn];
+        if (marker) {
+          // PERFORMANCE-FIX: Lazy-Popup — zoomToShowLayer, dann Popup on-demand bauen
+          clusterGroup.zoomToShowLayer(marker, () => marker._lazyPopup());
+        } else {
+          // Marker nicht im aktuellen Filter → mindestens hinfliegen
+          map.setView([unit.lat, unit.lon], 13);
+        }
+      }
+    }
+  };
 }
 
 function showAllUnits() {
+  // V15: „Anzeigen"-Modus der Betroffenheitsanalyse verlassen
+  const warAnzeigenModus = _bffShowActive;
+  _bffShowActive = false; _bffShowSet = null;
   const type   = document.getElementById('filter-type').value;
   const bl     = document.getElementById('filter-bl').value;
   const art    = document.getElementById('filter-art').value;
@@ -2214,7 +2460,13 @@ function showAllUnits() {
   const monat  = document.getElementById('filter-monat').value;
   const inbJahr  = document.getElementById('filter-inb-jahr').value;
   const inbMonat = document.getElementById('filter-inb-monat').value;
+  // F5-Fix: Status-Filter auch in der Tabellen-Ansicht anwenden (war zuvor nur in applyFilters)
+  const statusSel = [...document.querySelectorAll('#filter-status input[type=checkbox]:checked')]
+    .map(cb => Number(cb.value));
   let filtered = allUnits;
+  if (statusSel.length < 4) {
+    filtered = filtered.filter(u => statusSel.includes(u.bs || 35));
+  }
   if (type) filtered = filtered.filter(u => u.t === type);
   if (bl)   filtered = filtered.filter(u => u.b === bl);
   if (art)  filtered = filtered.filter(u => (u.art || '') === art);
@@ -2223,15 +2475,15 @@ function showAllUnits() {
     if (!Number.isNaN(von) && !Number.isNaN(bis))
       filtered = filtered.filter(u => u.mw != null && u.mw >= von && u.mw < bis);
   }
-  if (jahr) filtered = filtered.filter(u => (u.reg || '').substring(0,4) === jahr);
+  if (jahr) filtered = filtered.filter(u => dateYear(u.reg) === jahr);
   if (monat) {
     const ms = monat.length === 1 ? '0' + monat : monat;
-    filtered = filtered.filter(u => (u.reg || '').substring(5,7) === ms);
+    filtered = filtered.filter(u => dateMonth(u.reg) === ms);
   }
-  if (inbJahr) filtered = filtered.filter(u => (u.inb || '').substring(0,4) === inbJahr);
+  if (inbJahr) filtered = filtered.filter(u => dateYear(u.inb) === inbJahr);
   if (inbMonat) {
     const ims = inbMonat.length === 1 ? '0' + inbMonat : inbMonat;
-    filtered = filtered.filter(u => (u.inb || '').substring(5,7) === ims);
+    filtered = filtered.filter(u => dateMonth(u.inb) === ims);
   }
 
   _filteredUnits = filtered;
@@ -2278,22 +2530,90 @@ function showAllUnits() {
 
   _renderTableRows(filtered);
   document.getElementById('all-units-overlay').classList.add('open');
+  // V19-Fix: Verließ der „Anzeigen"-Modus der Betroffenheitsanalyse, muss applyFilters()
+  // nachlaufen — sonst blieb die Karte im gefilterten Anzeigen-Stand (21 Marker statt alle).
+  if (warAnzeigenModus) applyFilters();
 }
 
 function renderMarkers(units) {
   clusterGroup.clearLayers();
+  _unitMarkers = {};  // F5b: MaStR-Nr -> Marker (für Tabellen-Deep-Link)
   const markers = units.map(u => {
+    // F5: Marker-Stil je Betriebs-Status
+    // 35 In Betrieb: gefüllt (Wind blau / PV orange) — wie bisher
+    // 31 In Planung: gestrichelter Umriss in Technologiefarbe
+    // 37 Vorüb. stillgelegt: orange gefüllt + weißes Kreuz via Punkt
+    // 38 Endg. stillgelegt: grau gefüllt
+    const base = u.t === 'wind' ? '#2563eb' : '#d97706';
+    const bs = u.bs || 35;
+    let html;
+    if (bs === 31) {
+      html = `<div style="width:10px;height:10px;border-radius:50%;background:transparent;border:2px dashed ${base};box-sizing:border-box;"></div>`;
+    } else if (bs === 37) {
+      html = `<div style="width:10px;height:10px;border-radius:50%;background:${base};border:1px solid #fff;background-image:linear-gradient(45deg,transparent 44%,#fff 44%,#fff 56%,transparent 56%),linear-gradient(-45deg,transparent 44%,#fff 44%,#fff 56%,transparent 56%);"></div>`;
+    } else if (bs === 38) {
+      html = `<div style="width:10px;height:10px;border-radius:50%;background:#9ca3af;border:1px solid #fff;"></div>`;
+    } else {
+      html = `<div style="width:10px;height:10px;border-radius:50%;background:${base};border:1px solid #fff;"></div>`;
+    }
     const icon = L.divIcon({
-      html: `<div style="width:10px;height:10px;border-radius:50%;background:${u.t==='wind'?'#2563eb':'#d97706'};border:1px solid #fff;"></div>`,
+      html,
       iconSize: [12,12],
       className: '',
     });
     const m = L.marker([u.lat, u.lon], { icon });
-    m.bindPopup(buildPopup(u));
+    m._u = u;  // F5b: Unit-Referenz für Tabellen-Deep-Link (Popup-Auslösung)
+    _unitMarkers[u.m] = m;
+    // PERFORMANCE-FIX (User-Feedback 03.09.): buildPopup NICHT für alle 53k Marker
+    // vorgenerieren (17,7 s pro applyFilters!) — lazy beim ersten Öffnen erzeugen.
+    m._popupBuilt = false;
+    m._lazyPopup = () => {
+      if (!m._popupBuilt) {
+        m.bindPopup(buildPopup(u));
+        m._popupBuilt = true;
+        // Cluster-Quirk: marker.openPopup() zeigt bei cluster-verwalteten Markern ein
+        // LEERES Popup (Pfad läuft über map._popup ohne Content-Update) — deshalb
+        // bewusst map.openPopup() mit dem Marker-Popup. WICHTIG: setLatLng zuerst,
+        // sonst hat das frische Popup keine Position (Leaflet-Exception).
+        m.getPopup().setLatLng(m.getLatLng());
+        map.openPopup(m.getPopup());
+        return;
+      }
+      map.openPopup(m.getPopup());
+    };
+    m.on('click', m._lazyPopup);
     return m;
   });
   clusterGroup.addLayers(markers);
 }
+let _unitMarkers = {};
+let _lastFiltered = null;  // F2: letztes applyFilters-Ergebnis (Statistik-Tab Spannungsebenen)
+
+// BUG-FIX (User-Feedback 03.09.): reg/inb sind MaStR-Epochen-Strings '/Date(1548892800000)/'
+// — substring(0,4) lieferte '/Dat', daher fanden Jahr/Monats-Filter 0 Treffer.
+// Zentrale Normalisierung (mit Cache — 65k Einheiten sonst 65k Regex pro Filterwechsel):
+const _dateCache = new Map();  // rohstring -> {y, m}
+function _parseMaStrDate(v) {
+  if (!v) return null;
+  let e = _dateCache.get(v);
+  if (e === undefined) {
+    e = null;
+    if (typeof v === 'string' && v.startsWith('/Date(')) {
+      const m = v.match(/\d+/);
+      if (m) {
+        const d = new Date(parseInt(m[0], 10));
+        e = { y: String(d.getUTCFullYear()), m: String(d.getUTCMonth() + 1).padStart(2, '0') };
+      }
+    } else if (typeof v === 'string' && v.length >= 7) {
+      // ISO 'YYYY-MM-DD…' (F5-Fix-Pfad: schon normalisierte Werte)
+      e = { y: v.substring(0, 4), m: v.substring(5, 7) };
+    }
+    _dateCache.set(v, e);
+  }
+  return e;
+}
+function dateYear(v)  { const d = _parseMaStrDate(v); return d ? d.y : ''; }
+function dateMonth(v) { const d = _parseMaStrDate(v); return d ? d.m : ''; }
 
 function applyFilters() {
   const type   = document.getElementById('filter-type').value;
@@ -2304,7 +2624,21 @@ function applyFilters() {
   const monat  = document.getElementById('filter-monat').value;
   const inbJahr  = document.getElementById('filter-inb-jahr') ? document.getElementById('filter-inb-jahr').value : '';
   const inbMonat = document.getElementById('filter-inb-monat') ? document.getElementById('filter-inb-monat').value : '';
+  // F5: Status-Mehrfachauswahl (Checkboxen)
+  const statusSel = [...document.querySelectorAll('#filter-status input[type=checkbox]:checked')]
+    .map(cb => Number(cb.value));
+  // F2 (Punkt 7): Spannungsebenen-Filter (enthält-Check bei Pipe-Multi-Zuordnungen)
+  const se = document.getElementById('filter-se') ? document.getElementById('filter-se').value : '';
   let filtered = allUnits;
+  if (statusSel.length < 4) {
+    // <4 gewählt = aktiver Status-Filter (inkl. 0 gewählt = keine Anlagen anzeigen)
+    filtered = filtered.filter(u => statusSel.includes(u.bs || 35));
+  }
+  if (se === '__ohne__') {
+    filtered = filtered.filter(u => !u.se);
+  } else if (se) {
+    filtered = filtered.filter(u => (u.se || '').split('|').includes(se));
+  }
   if (type) filtered = filtered.filter(u => u.t === type);
   if (bl)   filtered = filtered.filter(u => u.b === bl);
   if (art)  filtered = filtered.filter(u => (u.art || '') === art);
@@ -2317,35 +2651,41 @@ function applyFilters() {
       });
   }
   if (jahr) {
-    filtered = filtered.filter(u => {
-      const reg = u.reg || '';
-      return reg.substring(0, 4) === jahr;
-    });
+    filtered = filtered.filter(u => dateYear(u.reg) === jahr);
   }
   if (monat) {
     const monatStr = monat.length === 1 ? '0' + monat : monat;
-    filtered = filtered.filter(u => {
-      const reg = u.reg || '';
-      return reg.substring(5, 7) === monatStr;
-    });
+    filtered = filtered.filter(u => dateMonth(u.reg) === monatStr);
   }
   if (inbJahr) {
-    filtered = filtered.filter(u => {
-      const inb = u.inb || '';
-      return inb.substring(0, 4) === inbJahr;
-    });
+    filtered = filtered.filter(u => dateYear(u.inb) === inbJahr);
   }
   if (inbMonat) {
     const inbMonatStr = inbMonat.length === 1 ? '0' + inbMonat : inbMonat;
-    filtered = filtered.filter(u => {
-      const inb = u.inb || '';
-      return inb.substring(5, 7) === inbMonatStr;
-    });
+    filtered = filtered.filter(u => dateMonth(u.inb) === inbMonatStr);
+  }
+  // V15/V19: „Anzeigen"-Modus der Betroffenheitsanalyse — nur Analyse-Treffer zeigen.
+  // V19-Fix: Der Modus ERSETZT jetzt alle Filter (vorher: Schnittmenge Filter ∩ Treffer —
+  // bei aktivem Typ-/Status-Filter verschwanden betroffene Assets aus dem mSet!).
+  // Zusätzlich Clustering aus (V19): sonst verstecken Cluster-Bubbles die Einzel-Marker
+  // und Ringe stehen „leer" da (User-Bug: betroffene Anlage nicht sichtbar).
+  if (_bffShowActive && _bffShowSet) {
+    filtered = allUnits.filter(u => _bffShowSet.has(u.m) || (u.lid != null && _bffShowSet.has('lid:' + u.lid)));
   }
   renderMarkers(filtered);
+  // V19: Clustering im Anzeigen-Modus aus, sonst an (damit Marker einzeln sichtbar sind)
+  if (typeof clusterGroup !== 'undefined' && clusterGroup) {
+    if (_bffShowActive && _bffShowSet && clusterGroup.disableClustering) clusterGroup.disableClustering();
+    else if (clusterGroup.enableClustering) clusterGroup.enableClustering();
+  }
+  _lastFiltered = filtered;  // F2: für Statistik-Tab „Spannungsebenen"
 
   // Anzahl-Badge + Button: immer wenn einer der Filter aktiv ist.
-  const hasFilter = !!(art || bl || gr || jahr || monat || inbJahr || inbMonat || type);
+  // F5: Status gilt als aktiver Filter, wenn NICHT alle 4 gewählt sind
+  const statusActive = !(statusSel.length === 4);
+  // F2: Spannungsebene als aktiver Filter
+  const seActive = !!se;
+  const hasFilter = !!(art || bl || gr || jahr || monat || inbJahr || inbMonat || type || statusActive || seActive);
   const countEl = document.getElementById('art-count');
   const btnShowAll = document.getElementById('btn-show-all');
   if (hasFilter) {
@@ -2418,6 +2758,185 @@ function searchBetreiber(nq) {
   return found.sort((a, b) => b.count - a.count);
 }
 
+/* ---------- F1 (Punkte 5–7): NAP-Suche ---------- */
+// NAP-Index: window.__PVWIND_NAP__ (Single-File) bzw. fetch assets/nap_index.json (hostbar).
+// Ranking: NAP-Nr. exakt (0) > Präfix (1) > enthält (2) > Netzbetreiber enthält (3). Max 5.
+// BUG-FIX (User-Feedback 03.09.): Netzbetreiber-Substring-Match traf ab 2 Zeichen auf
+// praktisch jeden Text („av" in „Bav…", „müll" in „Müll…" — zufällige NAP-Blöcke).
+// → SAN-Nummern-Match ab 2 Zeichen, Netzbetreiber-Match erst ab 5 Zeichen.
+function searchNAP(nq) {
+  const idx = window.__PVWIND_NAP__;
+  if (!idx || !nq || nq.length < 2) return [];
+  const nqUp = nq.toUpperCase().replace(/\s+/g, '');
+  const nbMin = nq.length >= 5;   // Netzbetreiber-Fuzzy nur bei ausreichend spezifischem Text
+  const buckets = [[], [], [], []];
+  for (const e of idx) {
+    const napC = e.nap.toUpperCase();
+    let rank = -1;
+    if (napC === nqUp) rank = 0;
+    else if (napC.startsWith(nqUp)) rank = 1;
+    else if (napC.includes(nqUp)) rank = 2;
+    else if (nbMin && norm(e.nb).includes(nq)) rank = 3;
+    if (rank >= 0) buckets[rank].push(e);
+  }
+  return buckets[0].concat(buckets[1]).concat(buckets[2]).concat(buckets[3]).slice(0, 5);
+}
+
+/* ---------- F3: NAP-Gruppenansicht (opt-in) ---------- */
+// Gruppen-Index: lid -> {units[], nap-Infos}. LAZY beim ersten Aktivieren gebaut (Punkt 15),
+// nicht beim Laden. Nur georef Anlagen mit lid landen in Gruppen (Punkt 13: Rest ohne).
+let _napGroups = null;
+let _napGroupsActive = false;
+
+function _buildNapGroups() {
+  if (_napGroups) return _napGroups;
+  const napsByLid = new Map();
+  (window.__PVWIND_NAP__ || []).forEach(e => {
+    let arr = napsByLid.get(e.lid);
+    if (!arr) { arr = []; napsByLid.set(e.lid, arr); }
+    arr.push(e);
+  });
+  const g = new Map();
+  allUnits.forEach(u => {
+    if (u.lid == null || u.lat == null) return;
+    let grp = g.get(u.lid);
+    if (!grp) { grp = { lid: u.lid, units: [], naps: napsByLid.get(u.lid) || null }; g.set(u.lid, grp); }
+    grp.units.push(u);
+  });
+  _napGroups = g;
+  return g;
+}
+
+// Panel öffnen für eine Gruppe (Punkte 7–12, 14)
+function openNapPanel(lid) {
+  const grp = _buildNapGroups().get(lid);
+  if (!grp) return;
+  const units = grp.units;
+  const sumMW = units.reduce((s, u) => s + (u.mw || 0), 0);
+  const naps = grp.naps || [];
+  const nap0 = naps[0] || null;
+  document.getElementById('nap-panel-title').textContent =
+    '⚡ ' + (naps.length === 1 ? nap0.nap : (naps.length > 1 ? naps.length + ' Anschlusspunkte' : 'Lokation ' + lid));
+  document.getElementById('nap-panel-sub').textContent =
+    `${units.length} Anlagen · ${sumMW.toLocaleString('de-DE', {maximumFractionDigits: 1})} MW`;
+  // Betreiber-Vielfalt im Panel-Kopf (Punkt 12)
+  const betreiber = [...new Set(units.map(u => u.ab).filter(Boolean))];
+  // F3 (Punkt 14): Multi-NAP-Lokationen — ALLE NAPs auflisten (470 Gruppen mit 2+ NAPs)
+  const napInfos = naps.length
+    ? naps.map(n =>
+        `<b>SAN:</b> ${esc(n.nap)} · <b>Ebene:</b> ${esc(n.se || 'ohne Angabe')} · <b>RZ:</b> ${esc(n.rz || '—')} · <b>NB:</b> ${esc(n.nb || '—')}`
+      ).join('<br>')
+    : '<i>Keine NAP-Details zu dieser Lokation im Index.</i>';
+  document.getElementById('nap-panel-body').innerHTML =
+    `<div class="np-napinfo">${napInfos}<br>` +
+    (betreiber.length > 1
+      ? `<b style="color:#b45309">⚠ ${betreiber.length} verschiedene Betreiber an diesem Anschlusspunkt</b>`
+      : `<b>Betreiber:</b> ${esc(betreiber[0] || '—')}`) +
+    `</div>` +
+    `<button type="button" class="np-zoom" id="np-zoom-btn">🔍 Zoom auf Gruppe (${units.length} Anlagen)</button>` +
+    (units.length > 100
+      ? `<div class="np-empty">Große Gruppe — Liste wird in Blöcken gerendert …</div>`
+      : '') +
+    `<div id="np-list"></div>`;
+  // Chunk-Rendering für Großgruppen (Punkt 9 — Muster V7b)
+  const listEl = document.getElementById('np-list');
+  const sorted = [...units].sort((a, b) => (b.mw || 0) - (a.mw || 0));
+  let idx = 0;
+  const renderChunk = () => {
+    const end = Math.min(idx + 40, sorted.length);
+    let html = '';
+    for (let i = idx; i < end; i++) {
+      const u = sorted[i];
+      html += `<div class="np-row" data-m="${esc(u.m || '')}">` +
+        `<span class="np-name">${esc(u.name || u.m || '—')}</span>` +
+        `<span class="np-meta">${u.t === 'wind' ? '🌀' : '☀️'} ${(u.mw || 0).toLocaleString('de-DE', {maximumFractionDigits: 2})} MW</span></div>`;
+    }
+    listEl.insertAdjacentHTML('beforeend', html);
+    idx = end;
+    if (idx < sorted.length) setTimeout(renderChunk, 0);
+  };
+  renderChunk();
+  // Zeilen klickbar → hinfliegen + Popup (Punkt 8, nutzt V11b-Lazy-Popup)
+  listEl.addEventListener('click', ev => {
+    const row = ev.target.closest('.np-row');
+    if (!row) return;
+    const marker = _unitMarkers[row.dataset.m];
+    if (!marker) return;
+    map.setView(marker.getLatLng(), Math.max(map.getZoom(), 15));
+    if (marker._lazyPopup) marker._lazyPopup();
+    else marker.openPopup();
+  });
+  document.getElementById('np-zoom-btn').onclick = () => {
+    map.fitBounds(units.filter(u => u.lat != null).map(u => [u.lat, u.lon]), { padding: [30, 30] });
+  };
+  document.getElementById('nap-panel').classList.add('open');
+}
+
+function closeNapPanel() {
+  document.getElementById('nap-panel').classList.remove('open');
+}
+
+// Toggle (Punkte 4, 5): Zustand in localStorage, Default AUS
+function toggleNapGroups() {
+  _napGroupsActive = !_napGroupsActive;
+  const btn = document.getElementById('btn-nap-groups');
+  btn.classList.toggle('active', _napGroupsActive);
+  btn.setAttribute('aria-pressed', String(_napGroupsActive));
+  try { localStorage.setItem('pvw_nap_groups', _napGroupsActive ? '1' : '0'); } catch (e) {}
+  if (_napGroupsActive) {
+    _buildNapGroups();  // einmalig bauen (Punkt 15)
+    showNapGroupHints(); // Gruppierung auf Karte sichtbar machen (Punkt 6)
+  } else {
+    hideNapGroupHints();
+    closeNapPanel();
+  }
+}
+
+// Punkt 6: Gruppensichtbarkeit — Gruppen mit ≥2 Anlagen bekommen einen grünen
+// Gruppen-Badge am ersten Marker der Gruppe; Klick darauf öffnet das Panel.
+// Umsetzung ohne Marker-Umbau: unsichtbare Gruppe-Marker (divIcon, kein Cluster-Einfluss)
+let _groupBadges = L.layerGroup();
+function showNapGroupHints() {
+  hideNapGroupHints();
+  const g = _buildNapGroups();
+  g.forEach(grp => {
+    if (grp.units.length < 2) return;
+    const u0 = grp.units[0];
+    const icon = L.divIcon({
+      html: `<div title="⚡ NAP-Gruppe: ${grp.units.length} Anlagen" ` +
+            `style="width:26px;height:26px;border-radius:50%;background:rgba(6,95,70,.85);` +
+            `border:2px solid #fff;color:#fff;font-size:11px;font-weight:700;` +
+            `display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.4);">${grp.units.length}</div>`,
+      iconSize: [26, 26], iconAnchor: [13, 13], className: ''
+    });
+    const m = L.marker([u0.lat, u0.lon], { icon, interactive: true });
+    m.on('click', () => openNapPanel(grp.lid));
+    _groupBadges.addLayer(m);
+  });
+  _groupBadges.addTo(map);
+}
+function hideNapGroupHints() {
+  _groupBadges.remove();
+  _groupBadges = L.layerGroup();
+}
+
+// Klick auf NAP-Treffer: alle Anlagen der Lokation auf der Karte + Zoom + Suchfeld-Label
+function selectNAP(e) {
+  const matching = allUnits.filter(u => u.lid === e.lid);
+  if (!matching.length) return;
+  renderMarkers(matching);
+  map.fitBounds(matching.map(u => [u.lat, u.lon]), { padding: [30, 30] });
+  const seTxt = e.se ? e.se.split('|').join(', ') : 'ohne Angabe';
+  document.getElementById('search-input').value =
+    `⚡ NAP ${e.nap} · ${e.nb} · ${seTxt} (${matching.length} Anlagen)`;
+  document.getElementById('search-clear').style.display = 'block';
+  closeSuggest();
+  closeStats();
+  // F3 (Punkt 11): NAP-Gruppenansicht aktiv → Panel mit allen Anlagen öffnen
+  if (_napGroupsActive) openNapPanel(e.lid);
+}
+
+
 // Alle Anlagen der Betreiber, deren Name den Suchtext enthält, auf der Karte ausgeben
 function selectBetreiberSearch(q) {
   const nq = norm(q);
@@ -2460,7 +2979,17 @@ function showSuggest(hits) {
 
   // Dedizierter Betreiber-Treffer: alle Anlagen, deren Betreibername den Suchtext enthält
   const abHits = nq.length >= 2 ? searchBetreiber(nq) : [];
+  // F1 (Punkt 6): NAP-Treffer — Block ÜBER dem Betreiber-Block (spezifischste Nr.)
+  const napHits = nq.length >= 2 ? searchNAP(nq) : [];
   let html = '';
+  for (const e of napHits) {
+    const seTxt = e.se ? e.se.split('|').join(', ') : 'ohne Angabe';
+    html += `<div class="sug-nap" data-lid="${e.lid}" title="Alle Anlagen an diesem Netzanschlusspunkt anzeigen">
+      <span class="sug-betreiber-icon">⚡</span>
+      <span class="sug-betreiber-txt"><b>⚡ NAP ${esc(e.nap)}</b><br>
+        <small>${esc(e.nb)} · ${esc(seTxt)} · Regelzone ${esc(e.rz || '—')}</small></span>
+      <span class="sug-meta">${e.n} →</span></div>`;
+  }
   if (abHits.length) {
     const totalUnits = abHits.reduce((s, b) => s + b.count, 0);
     html += `<div class="sug-betreiber" data-absearch="${esc(q)}" title="Alle Anlagen dieser Betreiber auf der Karte anzeigen">
@@ -2469,7 +2998,7 @@ function showSuggest(hits) {
       <span class="sug-meta">→</span></div>`;
   }
 
-  if (!hits.length && !abHits.length) {
+  if (!hits.length && !abHits.length && !napHits.length) {
     box.classList.remove('open'); box.innerHTML='';
     hitsEl.style.display='none'; return;
   }
@@ -2484,6 +3013,14 @@ function showSuggest(hits) {
 
   box.innerHTML = html + anlagen;
   box.classList.add('open');
+  // F1 (Punkt 7): Klick auf NAP-Treffer -> alle Anlagen der Lokation auf der Karte
+  box.querySelectorAll('.sug-nap').forEach(el => {
+    const lid = parseInt(el.dataset.lid);
+    el.onclick = () => {
+      const e = napHits.find(x => x.lid === lid);
+      if (e) selectNAP(e);
+    };
+  });
   // Klick auf Betreiber-Treffer -> alle Anlagen der gematchten Betreiber auf der Karte
   const abBtn = box.querySelector('[data-absearch]');
   if (abBtn) abBtn.onclick = () => selectBetreiberSearch(q);
@@ -2492,7 +3029,7 @@ function showSuggest(hits) {
     el.onclick = () => selectSuggestion(parseInt(el.dataset.i));
   });
   // Trefferzahl anzeigen
-  const totalHits = hits.length + (abHits.length ? 1 : 0);
+  const totalHits = hits.length + (abHits.length ? 1 : 0) + napHits.length;
   hitsEl.style.display='block';
   resultEl.textContent = totalHits > 8 ? totalHits + ' Treffer (zeige 8)' : totalHits + ' Treffer';
 }
@@ -2557,7 +3094,8 @@ function flyToUnit(u, label) {
   setTimeout(() => {
     // Marker in Cluster-Gruppe suchen
     const m = clusterGroup.getLayers().find(l => l._latlng && l._latlng.lat === u.lat && l._latlng.lng === u.lon);
-    if (m) m.openPopup();
+    if (m && m._lazyPopup) m._lazyPopup();
+    else if (m) m.openPopup();
   }, 300);
 }
 
@@ -2577,6 +3115,19 @@ function buildPopup(u) {
   add('Inbetriebnahme', u.inb);
   add('Status', u.st);
   add('Netzbetreiber', u.nb);
+  // F2 (Punkt 11): Spannungsebene(n) der Netzanschlusspunkte
+  if (u.se) add('Spannungsebene', u.se.split('|').join(', '));
+  // F1 (Punkt 9–10): NAP-Daten im Popup — Nr. + Netzbetreiber des Anschlusses (Multi-NAPs kommagetrennt)
+  if (window.__PVWIND_NAP__ && u.lid) {
+    const naps = window.__PVWIND_NAP__.filter(e => e.lid === u.lid);
+    if (naps.length) {
+      add('NAP', naps.map(e => e.nap).join(', '));
+      const nbList = [...new Set(naps.map(e => e.nb))];
+      if (nbList.length === 1) add('NAP-Netzbetreiber', nbList[0]);
+    } else {
+      add('NAP', 'kein NAP zugeordnet');
+    }
+  }
   // Betreiber mit NorthData-Deeplink (Firmenprofil direkt öffnen)
   if (u.ab) {
     const ndUrl = 'https://www.northdata.de/' + northdataSlug(u.ab);
@@ -2658,8 +3209,10 @@ function initStats() {
       if (btn.dataset.tab === 'hersteller') renderHersteller();
       if (btn.dataset.tab === 'groesse') renderGroesse();
       if (btn.dataset.tab === 'bundesland') renderBundesland();
+      if (btn.dataset.tab === 'spannung') renderSpannung();
       if (btn.dataset.tab === 'historie') renderHistorie();
       if (btn.dataset.tab === 'zubau') renderZubau();
+      if (btn.dataset.tab === 'betroffen') initBetroffen();
     });
   });
   // V8: Zubau Measure-Toggle
@@ -3336,6 +3889,52 @@ function computeBundeslandData(tech, measure) {
   return arr;
 }
 
+/* ===================== F2: Spannungsebenen-Verteilung (Balken, folgt aktivem Filter) ===================== */
+const SE_SHORT = {
+  'Mittelspannung': 'MS',
+  'Niederspannung (= Hausanschluss/Haushaltsstrom)': 'NS (Hausanschluss)',
+  'Hochspannung': 'HS',
+  'Umspannebene Hochspannung/Mittelspannung': 'Umspann HS/MS',
+  'Umspannebene Mittelspannung/Niederspannung': 'Umspann MS/NS',
+  'Höchstspannung': 'HöS',
+  'Umspannebene Höchstspannung/Hochspannung': 'Umspann HöS/HS',
+};
+function computeSpannungData() {
+  // Aggregiert die AKTUELL gefilterten Anlagen — aber applyFilters kennt sein Ergebnis nicht global.
+  // Trick: Der Tab rendert beim Öffnen/Filtern aus allUnits mit derselben Filterlogik → wir
+  // speichern das letzte Filterergebnis in _lastFiltered (von applyFilters gesetzt).
+  const counts = new Map();
+  for (const u of (_lastFiltered || allUnits)) {
+    for (const ebene of (u.se || 'ohne Angabe').split('|')) {
+      let e = counts.get(ebene);
+      if (!e) { e = { name: ebene, anzahl: 0, sum_mw: 0 }; counts.set(ebene, e); }
+      e.anzahl++;
+      e.sum_mw += (u.mw || 0);
+    }
+  }
+  return [...counts.values()].sort((a, b) => b.anzahl - a.anzahl);
+}
+function renderSpannung() {
+  const wrap = document.getElementById('spannung-bars');
+  const data = computeSpannungData();
+  const total = data.reduce((s, d) => s + d.anzahl, 0);
+  const max = Math.max(...data.map(d => d.anzahl), 1);
+  wrap.innerHTML = data.map(d => {
+    const label = SE_SHORT[d.name] || d.name;
+    const pct = total ? (100 * d.anzahl / total).toFixed(1) : '0';
+    const w = (100 * d.anzahl / max).toFixed(1);
+    return `<div style="margin-bottom:7px;">
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:2px;">
+        <span><strong>${esc(label)}</strong> <span style="color:#6b7280">· ${d.anzahl.toLocaleString('de-DE')} · ${pct} %</span></span>
+        <span style="color:#6b7280">${Math.round(d.sum_mw).toLocaleString('de-DE')} MW</span>
+      </div>
+      <div style="background:#e5e7eb;border-radius:4px;height:14px;overflow:hidden;">
+        <div style="background:#2563eb;height:100%;width:${w}%;border-radius:4px;"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderBundesland() {
   const canvas = document.getElementById('bundesland-pie');
   const side = document.getElementById('bundesland-pie-side');
@@ -3535,9 +4134,10 @@ function renderZubau() {
   const blData = {};
 
   allUnits.forEach(u => {
-    const dv = u[dateField] || '';
-    if (!dv || dv.length < 4) return;
-    const yr = dv.substring(0, 4);
+    // BUG-FIX (03.09.): reg/inb sind '/Date(...)'-Epochen-Strings — dateYear() normalisiert
+    // (vorher landete '/Dat' als Jahr im Zubau-Chart)
+    const yr = dateYear(u[dateField]);
+    if (!yr) return;
     if (!yearData[yr]) { yearData[yr] = {wind: 0, pv: 0, wind_mw: 0, pv_mw: 0}; years.push(yr); }
     const bl = u.b || 'Unbekannt';
     if (!blData[bl]) blData[bl] = {};
@@ -4236,6 +4836,447 @@ function renderHistAssetTable(containerId, assets, label) {
 }
 
 init();
+
+/* ================= F4+F6: Betroffenheitsanalyse (Punkte 3–12) ================= */
+// Referenz: {kind: 'anlage'|'betreiber'|'nap', label, lids:Set, points:[{lat,lon}], centerHint}
+let _bffRef = null;
+let _bffInitDone = false;
+
+function _haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371.0, p1 = Math.PI * lat1 / 180, p2 = Math.PI * lat2 / 180;
+  const dp = Math.PI * (lat2 - lat1) / 180, dl = Math.PI * (lon2 - lon1) / 180;
+  const a = Math.sin(dp / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function initBetroffen() {
+  // Robust: Buttons werden bei JEDEM Tab-Öffnen neu gebunden (onclick statt addEventListener
+  // — idempotent, keine Doppel-Handler bei Bundle-Re-Init).
+  const inp = document.getElementById('bff-ref-input');
+  const runBtn = document.getElementById('bff-run');
+  const radEl = document.getElementById('bff-radius');
+  radEl.oninput = () => {
+    document.getElementById('bff-radius-label').textContent = radEl.value + ' km';
+  };
+  document.getElementById('bff-ref-search').onclick = () => bffSearchRef(inp.value.trim());
+  // V16: ✕ leert Suchfeld + Trefferliste (nicht die Analyse-Ergebnisse)
+  document.getElementById('bff-ref-clear').onclick = () => {
+    inp.value = '';
+    document.getElementById('bff-ref-results').innerHTML = '';
+    inp.focus();
+  };
+  // V15: „Anzeigen"-Button
+  document.getElementById('bff-show').onclick = bffShowOnMap;
+  // Live-Suggest wie Hauptsuche (User-Feedback 03.09.): ab 2 Zeichen bei jeder Eingabe suchen
+  let _bffDeb = null;
+  inp.oninput = () => {
+    clearTimeout(_bffDeb);
+    _bffDeb = setTimeout(() => bffSearchRef(inp.value.trim()), 250);
+  };
+  inp.onkeydown = e => { if (e.key === 'Enter') bffSearchRef(inp.value.trim()); };
+  runBtn.onclick = runBetroffenheitsanalyse;
+}
+
+// V16: Analyse-State sauber zurücksetzen (fixt Vermischung bei Folge-Suchen)
+function _bffResetAnalysis() {
+  _bffLastEvents = null; _bffLastRef = null; _bffLastRadius = 0; _bffLastRefPoints = [];
+  if (_bffRadiusLayer) { map.removeLayer(_bffRadiusLayer); _bffRadiusLayer = null; }
+  _bffShowActive = false; _bffShowSet = null;
+  const showBtn = document.getElementById('bff-show');
+  if (showBtn) showBtn.disabled = true;
+}
+// V15: Radius-Ringe um betroffene Referenz-Anlagen + „Anzeigen"-Filter auf Analyse-Treffer
+let _bffLastEvents = null, _bffLastRef = null, _bffLastRadius = 0, _bffLastRefPoints = [];
+let _bffLastMatchedKeys = null; // V16: Keys der REFERENZ-Punkte, die tatsächlich getroffen wurden
+let _bffRadiusLayer = null;
+function _bffDrawRings() {
+  if (_bffRadiusLayer) { map.removeLayer(_bffRadiusLayer); _bffRadiusLayer = null; }
+  // V16: Ringe NUR um tatsächlich betroffene Referenz-Anlagen (nicht alle)
+  if (!_bffLastRadius || !_bffLastMatchedKeys || !_bffLastMatchedKeys.size) return;
+  const seen = new Set();
+  const pts = [];
+  for (const p of _bffLastRefPoints) {
+    const key = p[0].toFixed(4) + ',' + p[1].toFixed(4);
+    if (_bffLastMatchedKeys.has(key) && !seen.has(key)) { seen.add(key); pts.push(p); }
+    if (pts.length >= 50) break;
+  }
+  if (!pts.length) return;
+  _bffRadiusLayer = L.layerGroup();
+  pts.forEach(([lat, lon]) => {
+    L.circle([lat, lon], {
+      radius: _bffLastRadius * 1000, color: '#f59e0b', weight: 2, dashArray: '6 4',
+      fillColor: '#f59e0b', fillOpacity: 0.08,
+      interactive: false  // V18: Ring fängt keine Klicks/Hover mehr ab (Bug: „Suchradius"-Popup statt Asset-Popup)
+    }).addTo(_bffRadiusLayer);
+  });
+  _bffRadiusLayer.addTo(map);
+}
+function bffShowOnMap() {
+  if (!_bffLastEvents || !_bffLastEvents.length) return;
+  closeStats();
+  // V16: Karte auf Treffer-Assets UND betroffene Bestandsanlagen filtern
+  const mSet = new Set();
+  _bffLastEvents.forEach(e => {
+    if (e.asset.m) mSet.add(e.asset.m);
+    else if (e.asset.lid != null) mSet.add('lid:' + e.asset.lid);
+  });
+  (_bffLastBestand || []).forEach(u => mSet.add(u.m));
+  _bffShowActive = true;
+  _bffShowSet = mSet;
+  applyFilters();
+  // Auf Referenz/Treffer zoomen
+  const pts = [];
+  _bffLastEvents.forEach(e => { if (e.asset.lat != null) pts.push([e.asset.lat, e.asset.lon]); });
+  _bffLastRefPoints.forEach(p => pts.push(p));
+  if (pts.length === 1) map.setView(pts[0], Math.max(map.getZoom(), 12));
+  else if (pts.length > 1) map.fitBounds(L.latLngBounds(pts).pad(0.25));
+  _bffDrawRings();
+}
+let _bffShowActive = false, _bffShowSet = null;
+let _bffLastMatchedLids = null;
+let _bffLastBestand = [];
+
+// Referenz-Suche (Punkt 3): Anlage (Name/MaStR-Nr) > Betreiber > NAP — nutzt bestehende Daten
+
+// V14: Portfolio-Gruppenbildung. Normalisiert Betreibernamen zu einem Namenskern
+// (Rechtsformen, Nummern, röm. Ziffern, Ampel-Wörter raus) und gruppiert alle Gesellschaften
+// mit identischem Kern. Gecacht pro Suchbegriff.
+function _bffNormKern(ab) {
+  let k = ' ' + norm(ab) + ' ';
+  k = k.replace(/\b(gmbh|amp|co|kg|ug|haftungsbeschraenkt|gb|gbr|eg|se|ag|mbh|stiftung|ohg|partg|vve|gesc|gesellschaft|mit|beschraenkter|und|der|the)\b/g, ' ');
+  k = k.replace(/\b(pv|wind|solar|windpark|solarpark|energie|energien|energy|erneuerbare|regenerativ|projekt|projektgesellschaft|betriebs|betriebsgesellschaft|holding|verwaltungs|invest|investitions|anlagen|anlage|wp|pva|wka)\b/g, ' ');
+  k = k.replace(/\b[ivxlcdm]+\b/g, ' ');        // römische Ziffern (Teil I, BA II …)
+  k = k.replace(/\b\d+\b/g, ' ');                // arabische Nummern (Solar 1, 2.3 …)
+  return k.replace(/\s+/g, ' ').trim();
+}
+let _bffGrpCache = null;
+// V15: Brand = erstes Wort des Kerns, wenn valide (nicht generisch, keine natürlichen Personen)
+const _BFF_GENERIC_BRANDS = new Set(['windpark','solarpark','windkraft','windenergie','energiepark','stadtwerke','pva','solar','solarkraftwerk','wea','buergerwind','buergersolar','eeg','beteiligungs','wind','solaranlagen','sonnenenergie','solaranlage','firma','feh','gesellschaft']);
+function _bffBrandOf(kern) {
+  // V15-Fix: split() ist im Bundle-Kontext unzuverlässig (gab 1 Element statt N) → Regex
+  const m = kern.match(/^[a-z0-9]+/);
+  if (!m) return null;
+  const b = m[0];
+  if (b.length < 3) return null;
+  if (_BFF_GENERIC_BRANDS.has(b)) return null;
+  return b;
+}
+function bffPortfolioGroups(nq) {
+  if (!_bffGrpCache) {
+    const byKern = new Map();
+    allUnits.forEach(u => {
+      if (!u.ab) return;
+      const kern = _bffNormKern(u.ab);
+      if (kern.length < 4) return;                 // Kern zu generisch → keine Gruppe
+      let g = byKern.get(kern);
+      if (!g) { g = { kern, ges: new Set(), anlagen: 0 }; byKern.set(kern, g); }
+      g.ges.add(u.ab); g.anlagen++;
+    });
+    const kernGroups = [...byKern.values()].filter(g => g.ges.size >= 2);
+    // V15 Ebene 2: Brand-Gruppen = Vereinigung ALLER Betreiber mit gleichem Brand-Token
+    // (nicht nur Kern-Gruppen >= 2 — Einzel-Gesellschaften gehören auch zum Brand!)
+    const byBrand = new Map();
+    const byAbKern = new Map(); // ab → kern für Anlagen-Zählung
+    allUnits.forEach(u => {
+      if (!u.ab) return;
+      const kern = _bffNormKern(u.ab);
+      if (kern.length < 3) return;
+      const b = _bffBrandOf(kern);
+      if (!b) return;
+      let bg = byBrand.get(b);
+      if (!bg) { bg = { kern: b, ges: new Set(), anlagen: 0, grouping: 'brand' }; byBrand.set(b, bg); }
+      bg.ges.add(u.ab); bg.anlagen++;
+    });
+    const brandGroups = [...byBrand.values()].filter(g => g.ges.size >= 3);
+    _bffGrpCache = { kernGroups, brandGroups: [...brandGroups] };
+  }
+  // Treffer: Brand zuerst (größere Abdeckung), dann Kern-Gruppen
+  const brands = _bffGrpCache.brandGroups
+    .filter(g => norm(g.kern).includes(nq) || [...g.ges].some(ab => norm(ab).includes(nq)))
+    .sort((a, b) => b.ges.size - a.ges.size).slice(0, 2)
+    .map(g => ({ kern: g.kern, gesellschaften: [...g.ges], anlagen: g.anlagen, grouping: 'brand' }));
+  const kerns = _bffGrpCache.kernGroups
+    .filter(g => norm(g.kern).includes(nq) || [...g.ges].some(ab => norm(ab).includes(nq)))
+    .sort((a, b) => b.ges.size - a.ges.size).slice(0, 2)
+    .map(g => ({ kern: g.kern, gesellschaften: [...g.ges], anlagen: g.anlagen, grouping: 'kern' }));
+  return [...brands, ...kerns];
+}
+
+function bffSearchRef(q) {
+  const box = document.getElementById('bff-ref-results');
+  if (q.length < 2) { box.innerHTML = '<div class="np-empty">Mind. 2 Zeichen eingeben.</div>'; return; }
+  const nq = norm(q);
+  const res = [];
+  // V16 Reihenfolge: Betreibergruppe → Portfolio (Kern) → einzelne Betreiber → NAP → Anlagen
+  // 1) PORTFOLIO (Brand zuerst, dann Kern-Gruppen)
+  bffPortfolioGroups(nq).forEach(g => {
+    const typ = g.grouping === 'brand' ? 'Betreibergruppe' : 'Portfolio';
+    res.push({ kind: 'portfolio', grouping: g.grouping, label: `👥 ${typ} „${g.kern}“ — ${g.gesellschaften.length} Betreiber-Gesellschaften, ${g.anlagen} Anlagen`, abs: g.gesellschaften });
+  });
+  // 2) einzelne Betreiber (enthält, dedupliziert) — max 8
+  const abSeen = new Set();
+  allUnits.forEach(u => {
+    if (!u.ab || abSeen.has(u.ab)) return;
+    if (norm(u.ab).includes(nq)) { abSeen.add(u.ab); }
+  });
+  [...abSeen].slice(0, 8).forEach(ab => res.push({ kind: 'betreiber', label: `Betreiber: ${ab}`, ab }));
+  // 3) NAP-Treffer (exakt/Präfix)
+  (window.__PVWIND_NAP__ || []).forEach(e => {
+    if (e.nap.toUpperCase().startsWith(nq.toUpperCase())) {
+      res.push({ kind: 'nap', label: `⚡ NAP ${e.nap} · ${e.nb || ''}`, lids: new Set([e.lid]), points: null });
+    }
+  });
+  // 4) Anlagen (Name ODER MaStR-Nr) — Feld heißt 'n' (V13c-Fix: 'name' existiert nicht)
+  let anlagen = 0;
+  for (const u of allUnits) {
+    if (anlagen >= 12) break;
+    if ((u.n && norm(u.n).includes(nq)) || (u.m && norm(u.m).includes(nq))) {
+      res.push({ kind: 'anlage', label: `Anlage: ${u.n || u.m} (${u.ab || '—'}, ${(u.mw || 0).toLocaleString('de-DE')} MW)`, m: u.m, lat: u.lat, lon: u.lon, lid: u.lid });
+      anlagen++;
+    }
+  }
+  if (!res.length) { box.innerHTML = '<div class="np-empty">Keine Treffer.</div>'; return; }
+  box.innerHTML = res.slice(0, 25).map((r, i) =>
+    `<div class="np-row" data-bff-i="${i}"><span class="np-name">${esc(r.label)}</span><span class="np-meta">${r.kind === 'nap' ? 'NAP' : r.kind === 'betreiber' ? 'Betreiber' : r.kind === 'portfolio' ? 'Portfolio' : 'Anlage'}</span></div>`
+  ).join('') + (res.length > 25 ? `<div class="np-empty">… ${res.length - 25} weitere</div>` : '');
+  window.__bffCandidates = res.slice(0, 25);
+  box.querySelectorAll('.np-row').forEach(el => {
+    el.onclick = () => bffSelectRef(window.__bffCandidates[parseInt(el.dataset.bffI)]);
+  });
+}
+
+function bffSelectRef(r) {
+  _bffRef = r;
+  document.getElementById('bff-ref-results').innerHTML = '';
+  const sel = document.getElementById('bff-ref-selected');
+  sel.style.display = 'block';
+  sel.innerHTML = `✅ <b>Referenz:</b> ${esc(r.label)}`;
+  document.getElementById('bff-run').disabled = false;
+}
+
+// Analyse-Kern (Punkte 6–9)
+function runBetroffenheitsanalyse() {
+  if (!_bffRef) return;
+  const status = document.getElementById('bff-status');
+  const sumEl = document.getElementById('bff-summary');
+  const resEl = document.getElementById('bff-results');
+  const radiusKm = document.getElementById('bff-radius-on').checked
+    ? parseInt(document.getElementById('bff-radius').value) : 0;
+  const fenster = document.getElementById('bff-fenster').value;
+  const modus = document.getElementById('bff-modus').value;
+
+  // Referenz-Punkte & lids auflösen
+  let refLids = new Set();
+  let refPoints = [];
+  if (_bffRef.kind === 'nap') {
+    refLids = _bffRef.lids;
+  } else if (_bffRef.kind === 'anlage') {
+    const u = allUnits.find(x => x.m === _bffRef.m);
+    if (u) { if (u.lid != null) refLids.add(u.lid); if (u.lat != null) refPoints.push([u.lat, u.lon]); }
+  } else if (_bffRef.kind === 'betreiber' || _bffRef.kind === 'portfolio') {
+    // V14: 'portfolio' = Set von Betreibern (Invest-Gesellschaften eines Kerns)
+    const abs = _bffRef.kind === 'portfolio' ? new Set(_bffRef.abs) : new Set([_bffRef.ab]);
+    allUnits.forEach(u => {
+      if (u.ab && abs.has(u.ab)) {
+        if (u.lid != null) refLids.add(u.lid);
+        if (u.lat != null) refPoints.push([u.lat, u.lon]);
+      }
+    });
+  }
+  if (_bffRef.lat != null) refPoints.push([_bffRef.lat, _bffRef.lon]);
+  if (!refLids.size && !refPoints.length) {
+    status.textContent = '⚠ Referenz ohne Koordinaten/NAP — bitte andere Referenz wählen.';
+    _bffResetAnalysis();
+    return;
+  }
+
+  // Deltas sammeln
+  const deltas = (_historie || []).filter(h => h.delta).map(h => ({ datum: h.datum, d: h.delta }));
+  const relevant = fenster === 'last' ? deltas.slice(-1) : deltas;
+  if (!relevant.length) { status.textContent = 'Noch keine Update-Deltas vorhanden.'; return; }
+
+  // lid → NAP-Index (für Kontext) + m → lid Lookup
+  const lidByM = new Map();
+  allUnits.forEach(u => { if (u.lid != null) lidByM.set(u.m, u.lid); });
+  const napByLid = new Map();
+  (window.__PVWIND_NAP__ || []).forEach(e => napByLid.set(e.lid, e));
+
+  // BBox-Vorfilter (Punkt 6): Kandidaten nur aus ~radius+10 %-Fenster
+  const events = [];
+  const matchedKeys = new Set();  // V16: betroffene Referenz-Punkte (Radius-Match)
+  const matchedLids = new Set();  // V16: betroffene Referenz-NAPs (NAP-Match)
+  let scanned = 0, lastDatum = null;
+  const t0 = performance.now();
+  for (const { datum, d } of relevant) {
+    lastDatum = datum;
+    const assets = [
+      ...((d.added_assets || []).map(a => ({ typ: 'NEU', a }))),
+      ...((d.removed_assets || []).map(a => ({ typ: 'ENTFERNT', a }))),
+    ];
+    for (const { typ, a } of assets) {
+      if (modus === 'reg' && typ === 'NEU' && !(a.inb)) { /* reg = alles ohne inb-Restriktion, fällt durch */ }
+      if (modus === 'inb' && typ === 'NEU' && !a.inb) continue;
+      scanned++;
+      const uLid = lidByM.get(a.m);
+      // a) NAP-Match
+      if (uLid && refLids.has(uLid)) {
+        events.push({ typ, asset: a, matchTyp: 'NAP', distKm: 0, datum, refLid: uLid });
+        matchedLids.add(uLid);
+        continue;
+      }
+      // b) Radius-Match (BBox-Vorfilter)
+      if (radiusKm > 0 && a.lat != null && refPoints.length) {
+        const dLat = radiusKm / 111.32, dLon = radiusKm / (111.32 * Math.cos(Math.PI * a.lat / 180) || 1);
+        for (let ri = 0; ri < refPoints.length; ri++) {
+          const [rlat, rlon] = refPoints[ri];
+          if (Math.abs(rlat - a.lat) > dLat + 0.5 || Math.abs(rlon - a.lon) > dLon + 0.5) continue;
+          const dist = _haversine(rlat, rlon, a.lat, a.lon);
+          if (dist <= radiusKm) {
+            const rKey = rlat.toFixed(4) + ',' + rlon.toFixed(4);
+            events.push({ typ, asset: a, matchTyp: 'RADIUS', distKm: Math.round(dist * 10) / 10, datum, refKey: rKey });
+            matchedKeys.add(rKey);
+            break;
+          }
+        }
+      }
+    }
+  }
+  const dt = Math.round(performance.now() - t0);
+
+  // Render
+  if (!events.length) {
+    status.textContent = `Keine Treffer (${relevant.length} Update(s), ${scanned} Assets geprüft, ${dt} ms). Tipp: Radius erhöhen (aktuell ${radiusKm || 'aus'} km).`;
+    sumEl.innerHTML = ''; resEl.innerHTML = '';
+    _bffResetAnalysis();  // V16: alte Ringe/Filter der Vor-Suche weg (fixt Vermischung)
+    return;
+  }
+  // Sortierung: NAP-Match zuerst, dann Distanz
+  events.sort((x, y) => (x.matchTyp === 'NAP' ? -1 : 1) - (y.matchTyp === 'NAP' ? -1 : 1) || x.distKm - y.distKm);
+  const neu = events.filter(e => e.typ === 'NEU');
+  const entf = events.filter(e => e.typ === 'ENTFERNT');
+  const mwNeu = neu.reduce((s, e) => s + (e.asset.mw || 0), 0);
+  const mwEntf = entf.reduce((s, e) => s + (e.asset.mw || 0), 0);
+  // Leistungs-Betroffenheit (Punkt 9): Bestands-MW am gleichen Ort (NAP-Kontext)
+  const napCtx = napByLid.get([...refLids][0]);
+  let bestandMw = null;
+  if (refLids.size) {
+    bestandMw = 0;
+    allUnits.forEach(u => { if (refLids.has(u.lid)) bestandMw += (u.mw || 0); });
+  }
+  // V14/V16/V17: Bei Portfolio-Referenz — betroffene Gesellschaften + Liste.
+  // V17-Fix: Eine Gesellschaft ist betroffen, wenn eine IHRER Bestandsanlagen in den
+  // Suchbereich fällt (Radius/NAP) ODER eine ihrer Anlagen im Update neu hinzugekommen ist.
+  // Vorher zählte der Code nur die Betreiber der NEU-Assets — bei Radius-Matches mit
+  // Fremdbetreibern (Neuanlage eines Dritten nahe der Portfolio-Anlage) stand daher
+  // fälschlich „0 von N", obwohl Portfolio-Bestandsanlagen betroffen sind.
+  // HINWEIS: _bffLastBestand wird erst WEITER UNTEN (nach matchedKeys) befüllt —
+  // die Box wird deshalb nach der Bestands-Berechnung gerendert (gesellschaftenHtml).
+  const gesAbsSet = _bffRef.kind === 'portfolio' ? new Set(_bffRef.abs) : null;
+  status.textContent = `${events.length} Treffer · ${scanned} Assets geprüft · ${dt} ms`;
+  // V15/V16: letzte Analyse für „Anzeigen"-Button merken + Ringe um Betroffene zeichnen
+  _bffLastEvents = events;
+  _bffLastRef = _bffRef;
+  _bffLastRadius = radiusKm;
+  _bffLastRefPoints = refPoints.slice();
+  _bffLastMatchedKeys = matchedKeys;
+  _bffLastMatchedLids = matchedLids;
+  // V16/V19: betroffene BESTANDSANLAGEN (Referenz-Anlagen, die tatsächlich getroffen wurden).
+  // V19-Fix: Koordinaten-Abgleich mit Toleranz (vorher exakter 4-Dez-Sting-Vergleich —
+  // Historie-Koordinaten sind auf 4 Dezimalen gerundet, Bestand teils auf mehr Stellen,
+  // deshalb fielen reale Bestandsanlagen aus _bffLastBestand → kein Ring, kein Marker).
+  _bffLastBestand = [];
+  if (matchedKeys.size || matchedLids.size) {
+    const bestandSeen = new Set();
+    const mKeys = matchedKeys; const mKeysArr = [...matchedKeys].map(k => k.split(',').map(Number));
+    allUnits.forEach(u => {
+      if (u.lat == null || bestandSeen.has(u.m)) return;
+      let hit = u.lid != null && matchedLids.has(u.lid);
+      if (!hit && mKeysArr.length) {
+        for (const [kLat, kLon] of mKeysArr) {
+          // ~11 m Toleranz (0.0001°) — gleiche Anlage, gerundete vs. volle Koordinaten
+          if (Math.abs(u.lat - kLat) <= 0.00012 && Math.abs(u.lon - kLon) <= 0.00012) { hit = true; break; }
+        }
+      }
+      if (hit) { bestandSeen.add(u.m); _bffLastBestand.push(u); }
+    });
+  }
+  document.getElementById('bff-show').disabled = events.length === 0;
+  _bffDrawRings();
+  // V17: Gesellschaften-Box JETZT berechnen (nach _bffLastBestand-Befüllung)
+  let gesBetroffen = null, gesListe = null;
+  if (gesAbsSet) {
+    const s = new Set();
+    (_bffLastBestand || []).forEach(u => { if (u.ab && gesAbsSet.has(u.ab)) s.add(u.ab); });
+    events.forEach(e => { if (e.asset.ab && gesAbsSet.has(e.asset.ab)) s.add(e.asset.ab); });
+    gesBetroffen = s.size;
+    gesListe = [...s].sort();
+  }
+  const gesBoxHtml = (gesBetroffen != null ? `<div style="flex:1;min-width:130px;padding:8px;background:#fefce8;border:1px solid #fde68a;border-radius:8px;"><b style="color:#854d0e">Betroffene Gesellschaften</b><br><span style="font-size:12px">${gesBetroffen} von ${_bffRef.abs.length}</span></div>` : '');
+  const gesListeHtml = (gesListe && gesListe.length ? `<details style="margin-top:6px;font-size:11.5px;color:#6b7280;"><summary style="cursor:pointer;">Betroffene Gesellschaften anzeigen (${gesListe.length})</summary><ul style="margin:4px 0 0 16px;padding:0;">${gesListe.map(g=>`<li>${esc(g)}</li>`).join('')}</ul></details>` : '');
+  sumEl.innerHTML =
+    `<div style="display:flex;gap:8px;flex-wrap:wrap;">` +
+    `<div style="flex:1;min-width:130px;padding:8px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;"><b style="color:#065f46">+ ${neu.length} neu</b><br><span style="font-size:12px">${mwNeu.toLocaleString('de-DE', {maximumFractionDigits: 1})} MW</span></div>` +
+    `<div style="flex:1;min-width:130px;padding:8px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;"><b style="color:#991b1b">− ${entf.length} entfernt</b><br><span style="font-size:12px">${mwEntf.toLocaleString('de-DE', {maximumFractionDigits: 1})} MW</span></div>` +
+    (bestandMw != null ? `<div style="flex:1;min-width:130px;padding:8px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;"><b style="color:#1e40af">Bestand am Knoten</b><br><span style="font-size:12px">${bestandMw.toLocaleString('de-DE', {maximumFractionDigits: 1})} MW</span></div>` : '') +
+    gesBoxHtml +
+    `</div>` +
+    gesListeHtml +
+    (napCtx ? `<div style="font-size:11.5px;color:#6b7280;margin-top:6px;">NAP-Kontext: ${esc(napCtx.nap)} · ${esc(napCtx.nb || '')} · ${esc(napCtx.se || '')} · Regelzone ${esc(napCtx.rz || '')}</div>` : '');
+  // V16/V19: Tabellarische Gegenüberstellung Bestand ↔ Neu (Betreiber + Asset, mit Deeplinks).
+  // V19-Fix: bestandNachOrt ebenfalls mit Koordinaten-Toleranz (wie _bffLastBestand).
+  const paarRows = [];
+  const bestandNachOrt = new Map(); // refKey/refLid → Bestands-Units
+  const _mKeysArr2 = [...matchedKeys].map(k => k.split(',').map(Number));
+  (_bffLastBestand || []).forEach(u => {
+    let key = (u.lid != null && matchedLids.has(u.lid)) ? 'lid:' + u.lid : null;
+    if (!key && u.lat != null) {
+      for (const [kLat, kLon] of _mKeysArr2) {
+        if (Math.abs(u.lat - kLat) <= 0.00012 && Math.abs(u.lon - kLon) <= 0.00012) { key = kLat.toFixed(4) + ',' + kLon.toFixed(4); break; }
+      }
+    }
+    if (key) {
+      if (!bestandNachOrt.has(key)) bestandNachOrt.set(key, []);
+      bestandNachOrt.get(key).push(u);
+    }
+  });
+  const neuEvents = events.filter(e => e.typ === 'NEU');
+  neuEvents.forEach(e => {
+    const key = e.matchTyp === 'NAP' ? 'lid:' + e.refLid : e.refKey;
+    const best = bestandNachOrt.get(key) || [];
+    const bU = best[0] || null; // erste Bestandsanlage am Ort
+    paarRows.push({ neu: e.asset, bestand: bU, distKm: e.distKm, matchTyp: e.matchTyp, datum: e.datum });
+  });
+  if (paarRows.length) {
+    sumEl.innerHTML += `<div style="margin-top:10px;overflow-x:auto;"><table style="border-collapse:collapse;width:100%;font-size:11px;">` +
+      `<tr style="background:#f3f4f6;"><th style="text-align:left;padding:4px 6px;border:1px solid #e5e7eb;">Bestand · Betreiber</th><th style="text-align:left;padding:4px 6px;border:1px solid #e5e7eb;">Bestand · Anlage</th><th style="text-align:left;padding:4px 6px;border:1px solid #e5e7eb;">Neu · Betreiber</th><th style="text-align:left;padding:4px 6px;border:1px solid #e5e7eb;">Neu · Anlage (Update)</th><th style="text-align:right;padding:4px 6px;border:1px solid #e5e7eb;">MW</th><th style="padding:4px 6px;border:1px solid #e5e7eb;">Match</th></tr>` +
+      paarRows.map((p, pi) => {
+        const dLink = (m, name) => m ? `<a href="#" data-bff-dl="${esc(m)}" style="color:#2563eb;text-decoration:underline;">${esc(name)}</a>` : '—';
+        return `<tr>` +
+          `<td style="padding:4px 6px;border:1px solid #e5e7eb;">${esc(p.bestand ? (p.bestand.ab || '—') : '—')}</td>` +
+          `<td style="padding:4px 6px;border:1px solid #e5e7eb;">${p.bestand ? dLink(p.bestand.m, p.bestand.n || p.bestand.m) : '—'}</td>` +
+          `<td style="padding:4px 6px;border:1px solid #e5e7eb;">${esc(p.neu.ab || '—')}</td>` +
+          `<td style="padding:4px 6px;border:1px solid #e5e7eb;">${dLink(p.neu.m, p.neu.n || p.neu.m)}<br><span style="color:#9ca3af;font-size:10px;">${esc(p.datum)}</span></td>` +
+          `<td style="padding:4px 6px;border:1px solid #e5e7eb;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;">${(p.neu.mw != null ? p.neu.mw.toLocaleString('de-DE', {maximumFractionDigits: 2}) : '—')}${p.neu.t === 'pv' ? ' MWp' : ' MW'}</td>` +
+          `<td style="padding:4px 6px;border:1px solid #e5e7eb;text-align:center;white-space:nowrap;">${p.matchTyp === 'NAP' ? '<b style="color:#065f46">NAP</b>' : p.distKm + ' km'}</td>` +
+          `</tr>`;
+      }).join('') + `</table></div>`;
+    // Deeplinks: Klick → Karte + Popup
+    sumEl.querySelectorAll('[data-bff-dl]').forEach(a => {
+      a.onclick = (ev) => {
+        ev.preventDefault();
+        const m = a.getAttribute('data-bff-dl');
+        const u = allUnits.find(x => x.m === m);
+        if (u && u.lat != null) {
+          closeStats();
+          map.setView([u.lat, u.lon], Math.max(map.getZoom(), 14));
+          const marker = _unitMarkers[m];
+          if (marker) { if (marker._lazyPopup) marker._lazyPopup(); else marker.openPopup(); }
+        }
+      };
+    });
+  }
+  resEl.innerHTML = '';  // V18: Liste unter der Tabelle entfernt (User-Wunsch) — Tabelle in Summary enthält alles
+}
 </script>
 </body>
 </html>
