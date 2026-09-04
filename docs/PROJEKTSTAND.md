@@ -106,6 +106,11 @@
   Linien-Charts, beide Modi), PAD_T erhöht. (6) Gestrichelte Trendlinie entfernt.
   (7) Wind/PV-Label-Überlappung in Linien-Charts getrennt (L/R-Positionierung).
   Revision: iterations/V20_BetroffenheitRevision6.html.
+  **V20 Status: von User freigegeben (04.09.) → auf main (2c35f84) + gh-pages (0fe70b2)
+  deployed, LIVE. Live-SHA-Abgleich identisch (30c1fcd2…), V20-Marker in Live-Datei.**
+  Deploy-Skript-Vorlage: /tmp/deploy_ghpages_v20.sh (Worktree-Methode, CNAME bleibt;
+  **jetzt fest im Repo: scripts/deploy_ghpages.sh** — pfadunabhängige Commit-Message,
+  permanente Methode für alle künftigen Releases).
 - **ROADMAP (`docs/ROADMAP.md`, 03.09.):** User-Feature-Wünsche F1–F6 dokumentiert mit
   verifizierter Umsetzbarkeit: F1 NAP-Suche, F2 Spannungsebenen-Filter, F3 NAP-Gruppenansicht
   (opt-in), F4+F6 Betroffenheits-Match (neue + entfernte Anlagen vs. Betreiber/NAP),

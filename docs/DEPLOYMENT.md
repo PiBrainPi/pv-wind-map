@@ -67,7 +67,13 @@ Beide Repos nutzen den **`gh-pages`-Branch** als Pages-Quelle (statisch, keine G
 ### Verifikation (durchgeführt 2026-08-30, aktualisiert 2026-09-03)
 
 - ✅ Karte `index.html` → HTTP 200, Leaflet lädt, `assets/einheiten.json` (24 MB) → **65.659 Einheiten (V19, Stand 2026-09-04)**
-- ✅ V19 live (04.09., User-Freigabe): Betroffenheits-Tab final — Deploy-Verifizierung
+- ✅ V19 live (04.09., User-Freigabe): Betroffenheits-Tab final — Deploy per Worktree-Skript
+  (CNAME unangetastet), Pages `built`, SHA-Abgleich live↔lokal identisch, 65.659 Einheiten
+- ✅ **V20 live (04.09., User-Freigabe):** Laptop-Review-Paket (7 Punkte: Popup-Datum,
+  Legende im Hinweise-Panel, Panel 820 px, Typ-Spalte 🆕/🗑️, senkrechte Chart-Labels,
+  Trendlinie raus, Label-Trennung) — main `2c35f84`, gh-pages `0fe70b2`, Pages `built`,
+  Live-SHA = lokal (`30c1fcd2…`), V20-Marker in Live-Datei, meta.json Stand 2026-09-01
+  **Nächster Startpunkt: immer docs/PROJEKTSTAND.md (oben) lesen.**
   served-SHA (index_singlefile.html) = local-SHA (d678a6c6…), Daten-JSON live OK
   (65.659 Anlagen), Pages `status: built`, Deployment-SHA = gh-pages-HEAD e66c774.
   gh-pages-Update künftig mit `/tmp/deploy_ghpages_v19.sh`-Muster (Worktree, CNAME unangetastet,

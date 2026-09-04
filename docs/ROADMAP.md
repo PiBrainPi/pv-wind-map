@@ -545,6 +545,18 @@ allen Modi. Syntax-Check beide Script-Blöcke OK (2 Builds).
 **Revision:** iterations/V20_BetroffenheitRevision6.html. Nicht gepusht (Regel 4 —
 Freigabe für V20 steht aus).
 
+### Live-Gang V20 (04.09., User-Freigabe erteilt)
+
+- main: `2c35f84` (V20 + Doku), gh-pages: `0fe70b2` (Worktree-Deploy, CNAME unangetastet)
+- Verifikation: Pages `built` · Live-SHA = lokal (`30c1fcd2cca1b7b8…`) · 22 V20-Marker
+  in der Live-Datei · meta.json live (Stand 2026-09-01) · Deployment-SHA = gh-pages-HEAD
+- DEPLOYMENT.md V20-Abschnitt ergänzt; PROJEKTSTAND V20-Status auf „LIVE" gesetzt
+
+Damit sind V11–V20 vollständig live. Offen für künftige Sessions:
+**Punkt 9** (HTML-Kernfeld-Auswahl, NAP-Korrelation — gemeinsam mit User entscheiden);
+Deploy-Skript liegt als Vorlage in /tmp (flüchtig!) — bei nächster Gelegenheit als
+`scripts/deploy_ghpages.sh` ins Repo aufnehmen, damit die Methode nicht verloren geht.
+
 ---
 
 ## F1 — NAP in die Suche integrieren
