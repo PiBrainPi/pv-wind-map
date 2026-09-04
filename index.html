@@ -1151,6 +1151,8 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #stats-table tbody tr { cursor:pointer; }
 #stats-table tbody tr:hover { background:#eef3ff; }
 #stats-table td.name { max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+/* V21.3: Name-Klick = Anlagen auf der Karte (kein externer Link mehr) — Rest-CSS vom
+   V21.1-North-Data-Link entfernt */
 #stats-count { margin-top:8px; font-size:12px; color:#888; }
 
 /* Hersteller-Tab: Hinweis-Feld */
@@ -1668,9 +1670,11 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
           <option value="100">Top 100</option>
           <option value="all">Alle</option>
         </select>
-        <div class="filter-wrap">
-          <input type="text" id="stats-filter" placeholder="Betreiber filtern…">
+        <div class="filter-wrap" style="position:relative;">
+          <input type="text" id="stats-filter" placeholder="Betreiber, Gruppe oder Portfolio filtern…" autocomplete="off">
           <button type="button" id="stats-filter-clear" class="filter-x-clear" title="Filter löschen" aria-label="Filter löschen" style="display:none">✕</button>
+          <!-- V21: Live-Suggest (wie Betroffenheits-Tab) — Gruppen zuerst, ab 2 Zeichen -->
+          <div id="betreiber-suggest" style="display:none; position:absolute; top:100%; left:0; right:0; z-index:50; background:#fff; border:1px solid #d1d5db; border-radius:0 0 8px 8px; box-shadow:0 8px 24px rgba(0,0,0,.15); max-height:320px; overflow-y:auto;"></div>
         </div>
       </div>
       <table id="stats-table">
@@ -2355,7 +2359,18 @@ function _sortUnits(units, key, dir) {
     else if (key === 'lk') { va = (a.lk || '').toLowerCase(); vb = (b.lk || '').toLowerCase(); }
     else if (key === 'g') { va = (a.g || '').toLowerCase(); vb = (b.g || '').toLowerCase(); }
     else if (key === 'reg') { va = dateYear(a.reg) + dateMonth(a.reg); vb = dateYear(b.reg) + dateMonth(b.reg); }
-    else if (key === 'inb') { va = dateYear(a.inb) + dateMonth(a.inb); vb = dateYear(b.inb) + dateMonth(b.inb); }
+    // V21.4 Sortier-Fix (User-Befund): alter Schlüssel war dateYear+dateMonth als STRING —
+    // '201910' vs '20192' sortierte lexikalisch falsch (10 vor 2). Jetzt numerisch
+    // y*100+m, leere/ungültige Daten ans Ende.
+    else if (key === 'inb') {
+      const pa = _parseMaStrDate(a.inb), pb = _parseMaStrDate(b.inb);
+      va = pa && pa.y ? (parseInt(pa.y, 10) * 100 + parseInt(pa.m || '0', 10)) : Infinity;
+      vb = pb && pb.y ? (parseInt(pb.y, 10) * 100 + parseInt(pb.m || '0', 10)) : Infinity;
+      if (va === vb && va === Infinity) return 0;
+      if (va === Infinity) return 1;   // ohne Datum immer ans Ende (egal ob asc/desc)
+      if (vb === Infinity) return -1;
+      return dir === 'asc' ? va - vb : vb - va;
+    }
     else if (key === 'ab') { va = (a.ab || '').toLowerCase(); vb = (b.ab || '').toLowerCase(); }
     else if (key === 'm') { va = a.m || ''; vb = b.m || ''; }
     else { return 0; }
@@ -2400,13 +2415,18 @@ function _renderTableRows(filtered) {
       const geoCell = (u.lat != null && u.lon != null)
         ? '<td><span class="tbl-link tbl-geo" data-m="' + esc(u.m || '') + '" title="Auf Karte zeigen">📍 ' + (u.lat.toFixed(4)) + ', ' + (u.lon.toFixed(4)) + '</span></td>'
         : '<td>\u2014</td>';
+      // V21.5 (User-Wunsch 04.09.): Asset-NAME klickbar -> Karte zoomt hin + Popup öffnet,
+      // alle gefilterten Marker bleiben sichtbar (identischer Pfad wie 📍, aber auf dem Namen)
+      const nameCell = (u.lat != null && u.lon != null)
+        ? '<td><span class="tbl-link tbl-name" data-m="' + esc(u.m || '') + '" title="Asset auf der Karte anzeigen (Popup öffnen)">' + esc(u.n || '\u2014') + '</span></td>'
+        : '<td>' + esc(u.n || '\u2014') + '</td>';
       // F2 (Punkt 10): Spannungsebene kompakt (Kürzel) — zwischen Gemeinde und Registriert
       const seShort = u.se
         ? '<td title="' + esc(u.se) + '">' + esc(u.se.split('|').map(e => SE_SHORT[e] || e).join(', ')) + '</td>'
         : '<td style="color:#9ca3af">\u2014</td>';
       html += '<tr>' +
         '<td class="num">' + (i + 1) + '</td>' +
-        '<td>' + esc(u.n || '\u2014') + '</td>' +
+        nameCell +
         '<td>' + typ + '</td>' +
         '<td>' + esc(u.art || '\u2014') + '</td>' +
         '<td class="num ' + mwClass + '">' + mwStr + '</td>' +
@@ -2431,6 +2451,23 @@ function _renderTableRows(filtered) {
   // F5b: Deep-Link-Handler (Delegation — funktioniert auch über Chunks hinweg)
   // F5c: Nur noch Geo-Deep-Link (Karte). Betreiber ist jetzt externer NorthData-Link (<a>).
   tbody.onclick = function(e) {
+    // V21.5: Name-Klick — gleicher Pfad wie Geo-Klick (Karte + Popup, Filter-Marker bleiben)
+    const nameEl = e.target.closest('.tbl-name');
+    if (nameEl) {
+      const mn = nameEl.dataset.m;
+      const unit = allUnits.find(x => x.m === mn);
+      if (unit && unit.lat != null) {
+        document.getElementById('all-units-overlay').classList.remove('open');
+        const marker = _unitMarkers[mn];
+        if (marker) {
+          // MarkerCluster-API: zoomt bis der Marker einzeln sichtbar ist, dann Popup (lazy)
+          clusterGroup.zoomToShowLayer(marker, () => marker._lazyPopup());
+        } else {
+          map.setView([unit.lat, unit.lon], 13);
+        }
+      }
+      return;
+    }
     const geoEl = e.target.closest('.tbl-geo');
     if (geoEl) {
       const mn = geoEl.dataset.m;
@@ -2574,6 +2611,18 @@ function renderMarkers(units) {
       if (!m._popupBuilt) {
         m.bindPopup(buildPopup(u));
         m._popupBuilt = true;
+        // V21.4: NAP-Link im Popup — delegierter Handler (Popup-DOM ist flüchtig).
+        // Klick → alle Anlagen am selben NAP (via selectNAP, gleiches Verhalten wie NAP-Suche).
+        m.getPopup().on('contentupdate', function() {
+          const node = this.getElement()?.querySelector('[data-nap-lid]');
+          if (node) node.onclick = (ev) => {
+            ev.preventDefault();
+            // V21.4-Fix (Browser-Test): e.lid ist NUMBER, dataset ist STRING → strikter
+            // Vergleich schlug fehl, selectNAP lief nie. Beide Seiten auf String normieren.
+            const napEntry = (window.__PVWIND_NAP__ || []).find(e => String(e.lid) === String(node.dataset.napLid));
+            if (napEntry) selectNAP(napEntry);
+          };
+        });
         // Cluster-Quirk: marker.openPopup() zeigt bei cluster-verwalteten Markern ein
         // LEERES Popup (Pfad läuft über map._popup ohne Content-Update) — deshalb
         // bewusst map.openPopup() mit dem Marker-Popup. WICHTIG: setLatLng zuerst,
@@ -2605,11 +2654,12 @@ function _parseMaStrDate(v) {
       const m = v.match(/\d+/);
       if (m) {
         const d = new Date(parseInt(m[0], 10));
-        e = { y: String(d.getUTCFullYear()), m: String(d.getUTCMonth() + 1).padStart(2, '0') };
+        e = { y: String(d.getUTCFullYear()), m: String(d.getUTCMonth() + 1).padStart(2, '0'),
+              d: String(d.getUTCDate()).padStart(2, '0') };  // V21.4: Tag mitgeparst
       }
     } else if (typeof v === 'string' && v.length >= 7) {
       // ISO 'YYYY-MM-DD…' (F5-Fix-Pfad: schon normalisierte Werte)
-      e = { y: v.substring(0, 4), m: v.substring(5, 7) };
+      e = { y: v.substring(0, 4), m: v.substring(5, 7), d: v.length >= 10 ? v.substring(8, 10) : '' };
     }
     _dateCache.set(v, e);
   }
@@ -2617,13 +2667,13 @@ function _parseMaStrDate(v) {
 }
 function dateYear(v)  { const d = _parseMaStrDate(v); return d ? d.y : ''; }
 function dateMonth(v) { const d = _parseMaStrDate(v); return d ? d.m : ''; }
-// V20-Fix (User-Feedback 04.09.): Popup zeigte rohen MaStR-Epochen-String '/Date(…)/'
-// beim Inbetriebnahme-Datum. Zentrales Anzeige-Format MM.JJJJ (Tag liegt im MaStR-
-// Epochen-String vor, _parseMaStrDate parst nur y/m — Anzeige daher Monat.Jahr).
+// V21.4 (User-Wunsch 04.09.): Popup-Datum im Format TT.MM.JJJJ. Der Tag LIEGT im
+// MaStR-Epochen-String (UTC-Mitternacht) vor und wird jetzt in _parseMaStrDate mitgeparst
+// — Anzeige daher Tag.Monat.Jahr (V20 zeigte nur MM.JJJJ).
 function dateFullFmt(v) {
   const d = _parseMaStrDate(v);
   if (!d || !d.y) return '';
-  return `${d.m}.${d.y}`;
+  return d.d ? `${d.d}.${d.m}.${d.y}` : `${d.m}.${d.y}`;
 }
 
 function applyFilters() {
@@ -3129,10 +3179,13 @@ function buildPopup(u) {
   // F2 (Punkt 11): Spannungsebene(n) der Netzanschlusspunkte
   if (u.se) add('Spannungsebene', u.se.split('|').join(', '));
   // F1 (Punkt 9–10): NAP-Daten im Popup — Nr. + Netzbetreiber des Anschlusses (Multi-NAPs kommagetrennt)
+  // V21.4 (User-Wunsch): NAP-Nummer ist klickbar → alle Anlagen am selben NAP auf der Karte
+  // (nutzt selectNAP — derselbe Pfad wie NAP-Suche: renderMarkers + fitBounds + Label).
   if (window.__PVWIND_NAP__ && u.lid) {
     const naps = window.__PVWIND_NAP__.filter(e => e.lid === u.lid);
     if (naps.length) {
-      add('NAP', naps.map(e => e.nap).join(', '));
+      const napLink = `<a href="#" class="popup-link" data-nap-lid="${esc(u.lid)}" data-nap-nr="${esc(naps[0].nap)}" title="Alle Anlagen an diesem Netzanschlusspunkt auf der Karte anzeigen">${naps.map(e => e.nap).join(', ')} 🔍</a>`;
+      addHtml('NAP', napLink);
       const nbList = [...new Set(naps.map(e => e.nb))];
       if (nbList.length === 1) add('NAP-Netzbetreiber', nbList[0]);
     } else {
@@ -3265,7 +3318,80 @@ function initStats() {
   // Betreiber-Controls
   document.getElementById('stats-tech').addEventListener('change', e => { _statsState.tech = e.target.value; renderBetreiber(); });
   document.getElementById('stats-top').addEventListener('change', e => { _statsState.top = e.target.value; renderBetreiber(); });
-  document.getElementById('stats-filter').addEventListener('input', function(e) { _statsState.filter = e.target.value; this.nextElementSibling.style.display = this.value ? 'block' : 'none'; renderBetreiber(); });
+  document.getElementById('stats-filter').addEventListener('input', function(e) { _statsState.filter = e.target.value; this.nextElementSibling.style.display = this.value ? 'block' : 'none'; renderBetreiber(); _statsSuggest(e.target.value); });
+  // V21: Live-Suggest für den Betreiber-Filter (User-Wunsch 3) — wie Betroffenheits-Tab:
+  // ab 2 Zeichen, 250 ms Debounce, Gruppen (Brand/Kern) zuerst, dann Einzel-Betreiber.
+  // Klick auf Vorschlag = Filter setzen + Tabelle springt (Gruppe ganz oben).
+  let _statsDeb = null;
+  const _sfSuggestBox = document.getElementById('betreiber-suggest');
+  function _statsSuggest(q) {
+    clearTimeout(_statsDeb);
+    _statsDeb = setTimeout(() => {
+      const nq = norm(q.trim());
+      if (nq.length < 2) { _sfSuggestBox.style.display = 'none'; _sfSuggestBox.innerHTML = ''; return; }
+      const items = [];
+      // V21-Fix (Vision-Test-Befund): bffPortfolioGroups matcht auch über Gesellschaftsnamen
+      // (substring) → 'rwe' fand „Bürgerwind Südergeest Er**rwei**terung" → falsche Gruppe oben.
+      // Für den Betreiber-Filter: Gruppentreffer NUR über Brand/Kern-Name + Präfix-Priorität.
+      const grpSeen = new Set();
+      if (!_bffGrpCache) bffPortfolioGroups(nq); // V21-Fix 2: Cache beim frischen Load aufbauen
+      if (_bffGrpCache) {
+        const scored = [];
+        _bffGrpCache.brandGroups.forEach(g => {
+          const kn = norm(g.kern);
+          let score = -1;
+          if (kn.startsWith(nq)) score = 0;           // Präfix exakt (rwe → rwe)
+          else if (kn.includes(nq)) score = 1;         // enthält
+          if (score >= 0) scored.push({g, score, grouping: 'brand', label: '👥 Betreibergruppe'});
+        });
+        _bffGrpCache.kernGroups.forEach(g => {
+          const kn = norm(g.kern);
+          let score = -1;
+          if (kn.startsWith(nq)) score = 0;
+          else if (kn.includes(nq)) score = 1;
+          if (score >= 0) scored.push({g, score, grouping: 'kern', label: '📁 Portfolio'});
+        });
+        scored.sort((a, b) => a.score - b.score || b.g.ges.size - a.g.ges.size).slice(0, 4)
+          .forEach(({g, grouping, label}) => {
+            const key = grouping + ':' + g.kern;
+            if (grpSeen.has(key)) return;
+            grpSeen.add(key);
+            const gesArr = [...g.ges];
+            const anlagen = g.anlagen;
+            items.push({ typ: label, label: g.kern, meta: `${gesArr.length} Ges. · ${anlagen} Anlagen`,
+                         act: () => { document.getElementById('stats-filter').value = g.kern; _statsState.filter = g.kern; renderBetreiber(); } });
+          });
+      }
+      // Einzel-Betreiber (max 6):
+      const seen = new Set();
+      for (const u of allUnits) {
+        if (items.length >= 12) break;
+        if (!u.ab || seen.has(u.ab)) continue;
+        if (norm(u.ab).includes(nq)) {
+          seen.add(u.ab);
+          items.push({ typ: 'Betreiber', label: u.ab, meta: '',
+                       act: () => { document.getElementById('stats-filter').value = u.ab; _statsState.filter = u.ab; renderBetreiber(); } });
+        }
+      }
+      if (!items.length) { _sfSuggestBox.style.display = 'none'; _sfSuggestBox.innerHTML = ''; return; }
+      _sfSuggestBox.innerHTML = items.map((it, i) =>
+        `<div class="np-row" data-sg-i="${i}"><span class="np-name">${esc(it.label)}</span><span class="np-meta">${esc(it.typ)}${it.meta ? ' · ' + esc(it.meta) : ''}</span></div>`).join('');
+      _sfSuggestBox.style.display = 'block';
+      _sfSuggestBox.querySelectorAll('.np-row').forEach(el => {
+        el.onclick = () => { items[parseInt(el.dataset.sgI)].act(); _sfSuggestBox.style.display = 'none'; _sfSuggestBox.innerHTML = ''; };
+      });
+    }, 250);
+  }
+  // Klick außerhalb schließt die Vorschläge; Enter im Filterfeld ebenfalls (V21-UX-Fix:
+  // Vision-Befund — offenes Dropdown verdeckt die Gruppen-Zeile unter dem Filterfeld).
+  document.getElementById('stats-filter').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === 'Escape') { _sfSuggestBox.style.display = 'none'; }
+  });
+  document.addEventListener('click', (ev) => {
+    if (_sfSuggestBox.style.display === 'block' && !_sfSuggestBox.contains(ev.target) && ev.target.id !== 'stats-filter') {
+      _sfSuggestBox.style.display = 'none';
+    }
+  });
   document.getElementById('stats-filter-clear').addEventListener('click', function() {
     const f = document.getElementById('stats-filter'); f.value = ''; _statsState.filter = ''; this.style.display = 'none'; renderBetreiber(); f.focus();
   });
@@ -3341,9 +3467,48 @@ function renderBetreiber() {
     rows = rows.filter(b => b.tech[_statsState.tech] > 0);
   }
   // Textfilter (accent-/case-unabhängig)
+  // V21 (User-Wunsch 2): Filter matcht jetzt auch Betreibergruppen (Brand) und Portfolios
+  // (Kern-Gruppen) — gleiche Logik wie Betroffenheits-Tab (bffPortfolioGroups).
+  // Gruppen-Treffer erscheinen ZUERST („ganz weit oben", User-Wunsch 3), als
+  // <tr data-gruppe> mit Sammel-Zeilen (Klick → alle Anlagen der Gruppe auf der Karte).
   const nf = norm(_statsState.filter);
+  let gruppenRows = [];
+  if (nf && nf.length >= 2) {
+    // V21-Fix (Browser-Test-Befund): Gruppenfilter wie im Suggest — NUR Brand/Kern-Name
+    // matchen (Präfix vor Enthaltensein), NICHT über Gesellschaftsnamen (sonst fand 'rwe'
+    // „Bürgerwind Südergeest Errweiterung" → falsche Gruppe oben).
+    // V21-Fix 2: _bffGrpCache ist beim frischen Load null (wird erst im Betroffenheits-Tab
+    // gefüllt) → bffPortfolioGroups('') einmal aufrufen baut Cache ohne Treffer-Filterung auf.
+    const scored = [];
+    if (!_bffGrpCache) bffPortfolioGroups(nf); // baut _bffGrpCache (deterministisch, term-unabhängig)
+    {
+      _bffGrpCache.brandGroups.forEach(g => {
+        const kn = norm(g.kern);
+        let sc = -1;
+        if (kn.startsWith(nf)) sc = 0; else if (kn.includes(nf)) sc = 1;
+        if (sc >= 0) scored.push({g, sc, grouping: 'brand'});
+      });
+      _bffGrpCache.kernGroups.forEach(g => {
+        const kn = norm(g.kern);
+        let sc = -1;
+        if (kn.startsWith(nf)) sc = 0; else if (kn.includes(nf)) sc = 1;
+        if (sc >= 0) scored.push({g, sc, grouping: 'kern'});
+      });
+    }
+    scored.sort((a, b) => a.sc - b.sc || b.g.ges.size - a.g.ges.size).slice(0, 3)
+      .forEach(({g, grouping}) => {
+        const ges = [...g.ges];
+        gruppenRows.push({
+          gruppe: g.kern, grouping,
+          ges, anzahl: g.anlagen,
+          sum_mw: allUnits.reduce((s, u) => s + (ges.includes(u.ab) ? (u.mw || 0) : 0), 0),
+        });
+      });
+  }
   if (nf) {
     rows = rows.filter(b => norm(b.name).includes(nf));
+    // Einzel-Betreiber, die zu einer angezeigten Gruppe gehören, NICHT doppelt zeigen?
+    // Doch — behalten (User kann Einzelgesellschaft direkt wählen); Gruppen stehen nur oben.
   }
   // Sortierung
   const key = _statsState.sortKey;
@@ -3360,14 +3525,35 @@ function renderBetreiber() {
     rows = rows.slice(0, parseInt(_statsState.top, 10));
   }
   // Render (ohne Tech-Badge — Nutzer-Wunsch)
-  tbody.innerHTML = rows.map(b => {
+  // V21.3 (User-Korrektur 04.09., ersetzt North-Data-Wunsch): KEIN externer Link mehr.
+  // Klick auf den Betreiber-Namen (Einzel / Portfolio / Betreibergruppe) zeigt die Anlagen
+  // direkt auf der Karte (Zeilen-Klick-Handler unten, Zeile = ganzer Klickbereich).
+  // V21: Gruppen-Zeilen (Betreibergruppe/Portfolio) zuerst — „ganz weit oben" (User-Wunsch 3).
+  const gruppenHtml = gruppenRows.map(g => {
+    const label = g.grouping === 'brand' ? '👥 Betreibergruppe' : '📁 Portfolio';
+    return `<tr class="gruppe-row" data-gruppe="${esc(g.gruppe)}" title="${esc(g.ges.length)} Betreiber-Gesellschaften: ${esc(g.ges.slice(0,4).join(', '))}${g.ges.length > 4 ? ' …' : ''}">
+      <td class="name" title="${esc(g.gruppe)}"><b>${label} „${esc(g.gruppe)}“</b> <span style="color:#6b7280;font-weight:400;">(${g.ges.length} Ges.)</span></td>
+      <td class="num">${g.anzahl}</td>
+      <td class="num">${g.sum_mw.toLocaleString('de-DE', {minimumFractionDigits:1, maximumFractionDigits:1})}</td>
+      <td class="num">—</td>
+    </tr>`;
+  }).join('');
+  const einzelHtml = rows.map(b => {
     return `<tr data-betreiber="${esc(b.name)}">
       <td class="name" title="${esc(b.name)}">${esc(b.name.split(')')[0].split('(')[0].trim())}</td>
       <td class="num">${b.anzahl}</td>
-      <td class="num">${b.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:0})}</td>
-      <td class="num">${b.avg_mw.toLocaleString('de-DE', {maximumFractionDigits:1})}</td>
+      <td class="num">${b.sum_mw.toLocaleString('de-DE', {minimumFractionDigits:1, maximumFractionDigits:1})}</td>
+      <td class="num">${b.avg_mw.toLocaleString('de-DE', {minimumFractionDigits:1, maximumFractionDigits:1})}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="4">Keine Treffer</td></tr>';
+  }).join('') || '';
+  tbody.innerHTML = gruppenHtml + einzelHtml || '<tr><td colspan="4">Keine Treffer</td></tr>';
+  // Klick auf Gruppe -> alle Anlagen aller Gruppen-Gesellschaften auf der Karte
+  tbody.querySelectorAll('tr[data-gruppe]').forEach(tr => {
+    tr.addEventListener('click', () => {
+      const g = gruppenRows.find(x => x.gruppe === tr.dataset.gruppe);
+      if (g) selectBetreiberGruppe(g);
+    });
+  });
   // Klick auf Zeile -> Karte filtert Betreiber
   tbody.querySelectorAll('tr[data-betreiber]').forEach(tr => {
     tr.addEventListener('click', () => selectBetreiber(tr.dataset.betreiber));
@@ -3394,6 +3580,20 @@ function selectBetreiber(name) {
   document.getElementById('search-input').value = matching.length > 1
     ? `Betreiber: ${name} (${matching.length} Anlagen)`
     : name;
+  document.getElementById('search-clear').style.display = 'block';
+  closeStats();
+}
+
+// V21: BetreiberGRUPPE auf der Karte zeigen (alle Gesellschaften des Brand/Kern-Portfolios)
+function selectBetreiberGruppe(g) {
+  const abs = new Set(g.ges);
+  const matching = allUnits.filter(u => u.ab && abs.has(u.ab));
+  if (!matching.length) return;
+  renderMarkers(matching);
+  map.fitBounds(matching.map(u => [u.lat, u.lon]), { padding: [30, 30] });
+  const typ = g.grouping === 'brand' ? 'Betreibergruppe' : 'Portfolio';
+  document.getElementById('search-input').value =
+    `${typ}: ${g.gruppe} (${matching.length} Anlagen, ${g.ges.length} Gesellschaften)`;
   document.getElementById('search-clear').style.display = 'block';
   closeStats();
 }
@@ -4456,12 +4656,16 @@ function drawRateChart(ctx, windRates, pvRates, labels, W, H, PAD_L, PAD_B, PAD_
       const y = PAD_T + plotH * (1 - (rates[i] - minR) / (maxR - minR));
       ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 4, 0, 2*Math.PI); ctx.fill();
       ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 2, 0, 2*Math.PI); ctx.fill();
-      // V20: Wert-Label senkrecht (User-Wunsch) — rotiert um den Datenpunkt
+      // V21.6 (User-Wunsch): Label ÜBER dem Datenpunkt statt darauf — nach rotate(-90°)
+      // wächst Text bei textAlign 'left' nach OBEN. Anker 12px über/unter dem Punkt
+      // (Dot r=4 + Abstand). Negative Raten: Label unterhalb (weg von Nulllinie).
+      // V20-Seiten-Offset (L/R) bleibt.
+      const ueber = rates[i] >= 0;
       ctx.save();
-      ctx.translate(x + (seite === 'L' ? -6 : 6), y + (rates[i] >= 0 ? -8 : 8));
+      ctx.translate(x + (seite === 'L' ? -7 : 7), ueber ? y - 12 : y + 12);
       ctx.rotate(-Math.PI / 2);
       ctx.fillStyle = color; ctx.font = 'bold 10px system-ui';
-      ctx.textAlign = 'right'; ctx.textBaseline = seite === 'L' ? 'right' : 'left';
+      ctx.textAlign = ueber ? 'left' : 'right';
       ctx.fillText(rates[i] + '%', 0, 0);
       ctx.restore();
     }
@@ -4512,12 +4716,14 @@ function drawCumChart(ctx, windCum, pvCum, labels, W, H, PAD_L, PAD_B, PAD_T, PA
       const y = PAD_T + plotH * (1 - rates[i] / maxR);
       ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 4, 0, 2*Math.PI); ctx.fill();
       ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 2, 0, 2*Math.PI); ctx.fill();
-      // V20: Wert-Label senkrecht (User-Wunsch) — rotiert über dem Datenpunkt
+      // V21.6 (User-Wunsch): Label ÜBER dem Datenpunkt — Anker 12px über dem Punkt,
+      // nach rotate(-90°) wächst der Text bei textAlign 'left' nach OBEN (weg vom Dot).
+      // V20-Seiten-Offset (L/R) bleibt.
       ctx.save();
-      ctx.translate(x + (seite === 'L' ? -6 : 6), y - 8);
+      ctx.translate(x + (seite === 'L' ? -7 : 7), y - 12);
       ctx.rotate(-Math.PI / 2);
       ctx.fillStyle = color; ctx.font = 'bold 10px system-ui';
-      ctx.textAlign = 'right'; ctx.textBaseline = seite === 'L' ? 'right' : 'left';
+      ctx.textAlign = 'left';
       ctx.fillText(rates[i] + '%', 0, 0);
       ctx.restore();
     }
