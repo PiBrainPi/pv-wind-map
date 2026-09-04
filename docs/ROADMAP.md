@@ -557,6 +557,192 @@ Damit sind V11–V20 vollständig live. Offen für künftige Sessions:
 Deploy-Skript liegt als Vorlage in /tmp (flüchtig!) — bei nächster Gelegenheit als
 `scripts/deploy_ghpages.sh` ins Repo aufnehmen, damit die Methode nicht verloren geht.
 
+### V21 — Revisionspaket 7 (04.09., Betreiber-Tab, User-3-Wünsche, 10-Punkte-Plan)
+
+**User-Wünsche:** (1) Betreiber-Liste mit Deeplink zu „Norse-Data" → Rückfrage lief
+in Timeout; Deutung **North Data** (northdata.de, Firmenprofil in neuem Tab) konsistent
+mit existierenden Impressums-/Datenquellen-Links. (2) Filter soll auch Betreibergruppen/
+Portfolios finden (wie Betroffenheits-Tab). (3) Gruppen/Portfolios ganz oben + Live-Suggest
+ab 2 Zeichen wie `#bff-ref-input`.
+
+**Umsetzung (alle in renderBetreiber/selectBetreiber-Umfeld, Block 2):**
+- **W1:** Neue 5. Spalte „↗" (`td.dl`, 34 px) mit `https://www.northdata.de/?searchTerm=<Name>`,
+  `target=_blank rel=noopener`, `onclick=stopPropagation` (Zeilen-Klick bleibt Karten-Filter).
+  Header mit Tooltip. CSS `.nd-link` (blau, hover-Hintergrund).
+- **W2:** `renderBetreiber`-Filter erweitert: Gruppen-Zeilen (`tr.gruppe-row`) aus
+  `_bffGrpCache.brandGroups/kernGroups` — Match NUR über Brand/Kern-Name (Präfix score 0,
+  enthält score 1, Top 3), **nicht** über Gesellschaftsnamen.
+- **W3:** Suggest-Dropdown `#betreiber-suggest` unter `#stats-filter` (250 ms Debounce,
+  ab 2 Zeichen, Gruppen zuerst mit 👥/📁 + Ges./Anlagen-Metadaten, max 12, Klick = Filter
+  übernehmen); Enter/Escape schließt, Klick außerhalb schließt. `selectBetreiberGruppe(g)`
+  neu: alle Anlagen aller Gruppen-Gesellschaften → `fitBounds`.
+
+**2 Bugs im eigenen Erstwurf, durch Browser-Tests gefangen:**
+1. **Substring-False-Positive:** bffPortfolioGroups matcht auch über Gesellschaftsnamen —
+   „rwe" fand „Bürgerwind Südergeest **Erwei**terung GmbH" → burgerwind statt rwe oben.
+   Fix in Suggest UND Tabelle: Match nur über Brand/Kern-Name, Präfix vor Enthaltensein.
+2. **Cache-timing:** `_bffGrpCache` ist beim frischen Load null (Wird erst im
+   Betroffenheits-Tab gefüllt) → Gruppen fehlten komplett im Betreiber-Tab. Fix:
+   `if (!_bffGrpCache) bffPortfolioGroups(nf)` baut den Cache on-demand (deterministisch,
+   term-unabhängig).
+
+**UX-Fix (Vision-Befund):** Offenes Suggest-Dropdown verdeckte die Gruppen-Zeile →
+Enter/Escape schließt jetzt.
+
+**Verifikation (Browser, frische Loads v21b–v21g):** rwe → Gruppe „rwe" (17 Ges./512 Anl.)
+oben in Suggest UND Tabelle ✅ · enerparc → „👥 Betreibergruppe „enerparc" (212 Ges.)
+522 Anlagen / 3.218 MW" ganz oben ✅ · Gruppen-Klick → 522 Marker + Label in Suche ✅ ·
+50 Deeplinks mit korrekter URL + target=_blank ✅ · Einzel-Zeilen-Klick → Karten-Filter
+(83 Marker Borkum Riffgrund 3) ✅ · Betroffenheits-Regression: ENERPARC 14 Treffer ✅ ·
+Syntax-Check beide Blöcke OK (4 Builds).
+
+**Revision:** iterations/V21_BetreiberTabRevision1.html. Nicht gepusht (Regel 4 —
+Freigabe steht aus).
+
+### V21.1 — Revisionspaket 7a (04.09., User-Korrektur Deeplink-Platzierung)
+
+**User-Korrektur:** Deeplink sollte NICHT als separate „↗"-Spalte nach Ø MW, sondern
+**in der Spalte „Betreiber"** sitzen — der Name selbst ist der Link. Zusatz: die
+hinzugefügte Spalte „war sowieso fehlerhaft" (Links feuerten, saßen aber am falschen Ort).
+
+**Umsetzung:**
+- Separate Spalte komplett entfernt: Header-`th`, beide `td.dl`-Zellen (Einzel + Gruppe),
+  CSS `td.dl/.nd-link`-Block, colspan 5→4. grep-Verifizierung: 0 Reste von `num dl`/`td.dl`.
+- **Neu:** `td.name`-Inhalt ist jetzt der Link (`a.nd-link`, Farbe erbt, hover blau +
+  Unterstrich): Einzel-Betreiber → `northdata.de/?searchTerm=<Gesellschaftsname>`,
+  Gruppen/Portfolios → `?searchTerm=<Gruppenname>`. `stopPropagation` bleibt — Zeilen-Klick
+  (Karten-Filter) vom Link-Klick getrennt.
+
+**Verifikation (Browser + Vision, frischer Load):** Header exakt
+[Betreiber, Anzahl, Summe MW, Ø MW] ✅ · 0 `td.dl` ✅ · Einzel-Link href/target/text korrekt
+(Borkum Riffgrund 3 → northdata.de) ✅ · Gruppen-Link „👥 Betreibergruppe „enerparc""
+→ `?searchTerm=enerparc` ✅ · Zeilen-Klick weiterhin 522 Marker (Karten-Filter intakt) ✅ ·
+Vision: 4 Spalten, Gruppenname blau als Link, Layout sauber ✅ · Syntax beide Blöcke OK.
+
+**Revision:** iterations/V21_BetreiberTabRevision2.html. Nicht gepusht (Regel 4).
+
+### V21.2 — Revisionspaket 7b (04.09., User-Feinschliff Betreiber-Tab)
+
+**User-Wünsche:** (1) Deeplink pro Zeile in Spalte „Betreiber" — bei North Data soll der
+Betreiber **direkt gesucht und angezeigt** werden. (2) „Summe MW" mit **genau 1
+Nachkommastelle**, identische Formatierung in „Ø MW".
+
+**Umsetzung:**
+- Deeplink war in V21.1 bereits auf dem Namen in Spalte 1 — verifiziert, dass JEDE Zeile
+  (50/50, Einzel + Gruppen) einen `northdata.de/?searchTerm=<Name>`-Link trägt
+  (`target=_blank`, `stopPropagation`, Zeilen-Klick bleibt Karten-Filter).
+- Formatierung: `sum_mw` und `avg_mw` jetzt `{minimumFractionDigits:1, maximumFractionDigits:1}`
+  → „958,7", „765,0" (kaufmännisch, eine Nachkommastelle, de-DE-Tausenderpunkt).
+
+**Verifikation (Browser, frischer Load):** 50/50 Zeilen mit gültigem North-Data-Link ✅ ·
+0 Zeilen ohne Link ✅ · Summe-MW-Regex-Check `^\d{1,3}(\.\d{3})*,\d$` über alle Zeilen:
+0 Abweichungen ✅ · Ø-MW-Check: 0 Abweichungen ✅ · Gruppen-Zeile „enerparc":
+„3.217,5" + Link `?searchTerm=enerparc` ✅ · Syntax beide Blöcke OK.
+
+**Revision:** iterations/V21_BetreiberTabRevision3.html. Nicht gepusht (Regel 4).
+
+### V21.3 — Revisionspaket 7c (04.09., User-Korrektur: KEIN North-Data im Betreiber-Tab)
+
+**User-Korrektur:** Klick auf Eintrag in Spalte „Betreiber" soll NICHT zu northdata.de
+führen, sondern das **Asset / Portfolio / alle Anlagen der Betreibergruppe auf der Karte
+anzeigen** (User bereute den North-Data-Wunsch). Format 1 Nachkommastelle bleibt.
+
+**Umsetzung:**
+- Alle `<a class="nd-link" href="northdata…">` aus der Betreiber-Tabelle entfernt
+  (Einzel-Zeilen + Gruppen-Zeilen), CSS-Restblock `.nd-link` entfernt; grep-Check: 0
+  `nd-link`/`northdata` im Tab-Code (bleibende 5 Treffer = Popup/Asset-Tabelle/BFF —
+  dort ist der Link gewünscht und unangetastet).
+- Klick auf Zeile/Name → interner Karten-Filter (Existenz seit V21): Einzel = alle Anlagen
+  des Betreibers, Gruppe = alle Anlagen aller Gruppen-Gesellschaften.
+
+**Verifikation (Browser, frischer Load):** 0 northdata-Links in der Betreiber-Tabelle ✅ ·
+Einzel-Klick „Borkum Riffgrund 3 GmbH & Co. oHG" → 83 Marker + Chip ✅ · Gruppen-Klick
+„enerparc" → 522 Marker + Chip „Betreibergruppe: enerparc (522 Anlagen, 212 Gesellschaften)" ✅ ·
+Format: „3.217,5" (1 Nachkommastelle) ✅ · Syntax beide Blöcke OK.
+
+**Revision:** iterations/V21_BetreiberTabRevision4.html. Nicht gepusht (Regel 4).
+
+### V21.4 — Revisionspaket 7d (04.09., Anlagen-Popup + Sortier-Fix)
+
+**User-Wünsche:** (1) Popup: Inbetriebnahme im Format **TT.MM.JJJJ**. (2) Popup: **NAP
+klickbar** → alle Anlagen am selben NAP auf der Karte. (3) Popup: **Spannungsebene**
+(existierte bereits als Feld F2 — Bestätigung reicht). (4) Sortier-Bug der Spalte
+„Inbetriebnahme" in der „Alle Anlagen anzeigen"-Tabelle.
+
+**Umsetzung:**
+- **Datum:** `_parseMaStrDate` parst jetzt auch den **Tag** (`d`, aus UTC-Epoche bzw.
+  ISO-Substring); `dateFullFmt` liefert `TT.MM.JJJJ` (Fallback `MM.JJJJ` falls kein Tag).
+- **NAP-Link:** buildPopup rendert NAP-Nummer(n) als `popup-link` mit `data-nap-lid`;
+  Lazy-Popup bindet `contentupdate`-Handler → Klick ruft `selectNAP(napEntry)` (gleicher
+  Pfad wie NAP-Suche: renderMarkers + fitBounds + Chip „⚡ NAP … (n Anlagen)").
+- **Sortier-Fix (echter Bug):** alter Schlüssel `dateYear+dateMonth` war ein STRING —
+  `'201910' < '20192'` lexikalisch → Oktober sortierte vor Februar. Neu: numerisch
+  `y*100+m`, Assets ohne Datum immer ans Ende.
+
+**2 Bugs im Erstwurf, browser-gefangen:**
+1. `e.lid` (NUMBER) vs `dataset.napLid` (STRING) → strikter Vergleich fehlgeschlagen,
+   Link-Klick tat nichts. Fix: `String(e.lid) === String(dataset)`.
+2. (Analyse) „Multi-NAP"-Einträge im Index = mehrere NAP-Nummern je Lokation, nicht
+   mehrere Assets — selectNAP nach lid ist korrekt; größter Verbund testet 219 Anlagen.
+
+**Verifikation (Browser, frische Loads):** Popup „A52": „15.01.2026" ✅ · Popup „PVA
+Zaacko I": „29.01.2019" + Spannungsebene „Mittelspannung" + NAP-Link ✅ · Link-Klick
+SAN929299871095 (50Hertz, HöS): **219 Marker** + Chip ✅ · Offshore ohne NAP: „kein NAP
+zugeordnet" (Link-frei) ✅ · Sortierung 2.152 Zeilen (Jahr 2019): ASC monatskorrekt ✅,
+DESC monatskorrekt ✅ · Syntax beide Blöcke OK (2 Builds).
+
+**Revision:** iterations/V21_PopupNAP_Sortierung.html. Nicht gepusht (Regel 4).
+
+### V21.5 — Revisionspaket 7e (04.09., Asset-Name klickbar in „Alle Anlagen anzeigen")
+
+**User-Wunsch:** In der Tabelle des Buttons „Alle Anlagen anzeigen" soll der **Asset-Name
+(Spalte 2 „Name") klickbar** sein → Karte zeigt das Asset mit Popup; **alle gefilterten
+Marker bleiben** auf der Karte.
+
+**Umsetzung:**
+- Name-Zelle rendert jetzt `<span class="tbl-link tbl-name" data-m="…">` (Assets ohne
+  Koordinaten bleiben Text).
+- Delegierter Handler in tbody.onclick VOR dem Geo-Handler: Overlay schließen →
+  `clusterGroup.zoomToShowLayer(marker, () => marker._lazyPopup())` — identischer Pfad
+  wie der bewährte 📍-Geo-Klick (Marker bleiben, Cluster spiderft auf, Popup lazy gebaut).
+
+**Verifikation (Browser, frischer Load):** Filter Brandenburg → 6.243 Marker · Overlay
+geöffnet, erste Namen klickbar („PVA Zaacko I", „Altranft", „Groß Neuendorf") · Klick auf
+„PVA Zaacko I" → Overlay zu, **Markerzahl unverändert 6.243** ✅, Popup offen mit
+Titel „PVA Zaacko I" und 18 Feldern ✅ · Syntax beide Blöcke OK.
+
+**Revision:** iterations/V21_AssetNameKlick.html. Nicht gepusht (Regel 4).
+
+### V21.6 — Revisionspaket 7f (04.09., Chart-Labels über den Datenpunkten)
+
+**User-Wunsch:** Zubau-Tab, Liniencharts „Wachstum gegenüber kumuliertem Bestand"
+(zubau-cumulative) und „Zubauraten (Wachstum gegenüber Vorjahr)" (zubau-rates) — beide
+je Datumstyp (Registrierung/Inbetriebnahme) und Maß (Anlagen/MW): Die senkrechten
+y-Wert-Labels überlappten die Datenpunkte. Labels sollen ÜBER dem Punkt stehen,
+Textausrichtung bleibt senkrecht.
+
+**Root Cause:** Nach `rotate(-90°)` ankerte der Text mit `textAlign:'right'` am
+Übersetzungspunkt und wuchs von dort NACH UNTEN — direkt durch den Datenpunkt.
+
+**Umsetzung (drawCL + drawRL):**
+- Anker jetzt 12 px über dem Punkt (Dot r=4 + Abstand), `textAlign:'left'` → Text
+  wächst nach rotate(-90°) nach OBEN, weg vom Punkt.
+- drawRL (Raten): negative Werte → Label UNTERHALB des Punkts (weg von der Nulllinie,
+  Symmetrie). Seiten-Offset (Wind links / PV rechts, V20) bleibt unverändert.
+- Kleiner Tippfehler im Patch (`w=y`) sofort korrigiert, 2. Build sauber.
+
+**Verifikation (browser_vision, mehrere Scroll-Positionen):**
+- Kumulativ/Registrierung: Labels aller Jahre klar ÜBER den Punkten (110,4 %/101,7 %
+  2021, 7,4 %/22,8 % 2022 …), Wind links / PV rechts getrennt, keine Kollisionen ✅
+- Raten/Registrierung: positive Labels darüber (118 %), negative darunter (−79 %),
+  durchgängig symmetrisch zur Nulllinie ✅
+- Kumulativ/Inbetriebnahme: Labels über Punkten, dichte Jahre (38 × 2) knapp aber
+  kollisionsfrei ✅ · Kumulativ/MW: 88,5 %/95,2 % nebeneinander getrennt ✅
+- Hinweis: Kumulativ + Raten zeigen immer %-Werte; Anlagen/MW betrifft nur die
+  Balkencharts (dort Labels unverändert über den Balken) ✅ · Syntax beide Blöcke OK.
+
+**Revision:** iterations/V21_ChartLabelsUeberPunkten.html. Nicht gepusht (Regel 4).
+
 ---
 
 ## F1 — NAP in die Suche integrieren

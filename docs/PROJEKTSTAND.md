@@ -111,6 +111,33 @@
   Deploy-Skript-Vorlage: /tmp/deploy_ghpages_v20.sh (Worktree-Methode, CNAME bleibt;
   **jetzt fest im Repo: scripts/deploy_ghpages.sh** — pfadunabhängige Commit-Message,
   permanente Methode für alle künftigen Releases).
+- **Stand V21 (04.09., wartet auf Freigabe):** Betreiber-Tab-Paket (3 Wünsche) —
+  (1) North-Data-Deeplink-Spalte „↗" pro Zeile (neuer Tab, Zeilen-Klick bleibt Karte).
+  (2) Filter findet jetzt auch Betreibergruppen/Portfolios (Gruppen-Zeilen oben).
+  (3) Live-Suggest unter dem Filter (ab 2 Zeichen, 250 ms, Gruppen zuerst, Enter/Escape
+  schließt) + `selectBetreiberGruppe()` (alle Anlagen aller Gesellschaften → fitBounds).
+  Zwei Erstwurf-Bugs browser-gefangen und gefixt (Substring-False-Positive, Cache-Timing).
+  Revision: iterations/V21_BetreiberTabRevision1.html.
+  **V21.1 (04.09., User-Korrektur):** separate ↗-Spalte komplett entfernt; der
+  **Betreiber-Name selbst** (Einzel + Gruppen/Portfolios) ist jetzt der North-Data-Deeplink
+  in der Spalte „Betreiber". Tabelle wieder 4 Spalten. Revision:
+  iterations/V21_BetreiberTabRevision2.html.
+  **V21.2 (04.09., User-Feinschliff):** Deeplink pro Zeile verifiziert (50/50 inkl. Gruppen);
+  „Summe MW" und „Ø MW" jetzt mit genau 1 Nachkommastelle. Revision:
+  iterations/V21_BetreiberTabRevision3.html.
+  **V21.3 (04.09., User-Korrektur):** KEIN North-Data-Link im Betreiber-Tab mehr —
+  Klick auf Betreiber/Portfolio/Gruppe zeigt die Anlagen auf der Karte. Revision:
+  iterations/V21_BetreiberTabRevision4.html.
+  **V21.4 (04.09.):** Popup-Datum TT.MM.JJJJ (Tag wird jetzt mitgeparst), NAP im Popup
+  klickbar → alle Anlagen am selben NAP auf der Karte (219-Anlagen-Test ok), Sortier-Fix
+  Inbetriebnahme-Spalte (numerisch statt String — Oktober-sortierte-vor-Februar-Bug).
+  Revision: iterations/V21_PopupNAP_Sortierung.html.
+  **V21.5 (04.09.):** Asset-Name in „Alle Anlagen anzeigen"-Tabelle klickbar → Karte +
+  Popup, alle gefilterten Marker bleiben (6.243-Marker-Test ok). Revision:
+  iterations/V21_AssetNameKlick.html.
+  **V21.6 (04.09.):** Chart-Labels in den 2 Zubau-Liniencharts (kumulativ + Raten) stehen
+  jetzt ÜBER den Datenpunkten statt auf ihnen (negativ: darunter); senkrechte Ausrichtung
+  bleibt. Revision: iterations/V21_ChartLabelsUeberPunkten.html.
 - **ROADMAP (`docs/ROADMAP.md`, 03.09.):** User-Feature-Wünsche F1–F6 dokumentiert mit
   verifizierter Umsetzbarkeit: F1 NAP-Suche, F2 Spannungsebenen-Filter, F3 NAP-Gruppenansicht
   (opt-in), F4+F6 Betroffenheits-Match (neue + entfernte Anlagen vs. Betreiber/NAP),
