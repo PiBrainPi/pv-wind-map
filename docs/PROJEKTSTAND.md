@@ -1,28 +1,165 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-08-31 · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+> Stand: 2026-09-04 · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+
+## Aktueller Stand (2026-09-04, V19 — Betroffenheits-Tab final, LIVE deployed)
+
+**LIVE:** https://wind-pv-map.ingenieur-tools.de · **Code-Stand:** V19 · **Single-File:** 38,7 MB
+**Letzter Deploy:** 04.09.2026 (V19, User freigegeben) · **Deploy-Verifizierung:** served-SHA = local-SHA, Daten-JSON live OK
+- **Grundsatzentscheidung (2026-09-03, User-Freigabe):** `GRUNDSATZENTSCHEIDUNG.md` im Repo-Root —
+  Regel 1 (NICHTS löschen ohne explizite Zustimmung), Regel 2 (100 % der MaStR-Daten Wind/PV auf
+  den Server: alle 118 Felder + NAP), Regel 3 (iterierte HTML-Versionen niemals löschen), Regel 4
+  (GitHub nur nach explizitem „Ja": kein Push, keine Settings-Änderungen).
+- **Pipeline 2.0 (neu, neben V1):** `fetch_v2.py` (volle 118-Feld-Records → `data/raw_v2/`) +
+  `fetch_nap.py` (Netzanschlusspunkte je Lokation, Cache in `nap_fetch_log`, append-only
+  `data/nap/netzanschlusspunkte.jsonl`) + `import_v2.py` (Schema 2.0: Tabellen `einheiten_raw`
+  1:1-Rohdaten, `netzanschlusspunkte`, UPSERT-inkrementell via DatumLetzteAktualisierung,
+  DB-Backup-Pflicht nach `~/backups/` vor jedem Lauf).
+- **Verifiziert (03.09.):** alle 54.544 Records mit exakt 118 Feldern (0 Verlust), NAP-Endpoint
+  90/90 Requests fehlerfrei (~0,36 s/req), ~30.678 eindeutige Lokationen (Vollzug ≈ 3 h,
+  inkrementell danach Minuten), Snapshots #7/#8 unangetastet, alte Tabellen unverändert.
+  Echte Multi-NAP-Lokation gefunden (Lokation 1798726, 2 NAPs).
+- **NAP-Vollzug erledigt (03.09., ~3,1 h):** 30.611/30.628 Lokationen ok → **27.870 NAPs in
+  `netzanschlusspunkte`**. Datenqualität: Spannungsebene + Regelzone 100 % gefüllt,
+  Messlokation 51 %, **479 Multi-NAP-Lokationen**. 17 Fehler = MaStR-Datenfehler („Keine
+  Lokation" vom BNetzA-System, je 1 Wind-Einheit betroffen, retry-verifiziert, protokolliert
+  in `nap_fetch_log`). 3.404 Lokationen haben 0 NAPs (Register-leer, normal).
+  Cron-Design (Punkt 5): EIN Cronjob triggert alle drei Stränge (Wind, PV, NAP) —
+  Details in `docs/update.md` § Pipeline 2.0.
+- **HTML-Export (Punkt 9):** bleibt vorläufig unverändert (19 Kernfelder); Kernfeld-Anpassung
+  für spätere Versionen MUSS explizit mit dem Nutzer besprochen werden.
+- **Stand V11c (03.09., abgenommen):** F2 Spannungsebenen-Filter (V10) ✅, F1 NAP-Suche (V11) ✅,
+  Performance-Fix Lazy-Popup (V11b, applyFilters 24,2 s → 0,68 s) ✅, Datumsfilter-Fix
+  Epoch-Strings (V11c) ✅ — alle browser-verifiziert, Revisionen in iterations/, Single-File
+  38,7 MB. Nächste AP: F3 (NAP-Gruppenansicht), danach F4+F6 (Betroffenheitsanalyse).
+- **Stand V12 (03.09., wartet auf Freigabe):** F3 NAP-Gruppenansicht umgesetzt —
+  Toggle „⚡ NAP-Gruppen" (opt-in, localStorage), 6.258 Gruppen-Badges auf der Karte,
+  NAP-Panel mit allen Anlagen je Anschlusspunkt (Chunk-Rendering, Multi-NAP-Unterstützung,
+  Betreiber-Warnung), F1-Suche öffnet bei aktivem Toggle dasselbe Panel. Revision:
+  iterations/V12_NAPGruppenansicht.html. Danach: F4+F6 (Betroffenheitsanalyse).
+- **Stand V13 (03.09., wartet auf Freigabe):** F4+F6 Betroffenheitsanalyse umgesetzt —
+  neuer Statistik-Tab „⚠ Betroffenheit": Referenz (Anlage/Betreiber/NAP) suchen, Match-Modi
+  (NAP-Gleichheit + Radius 2–20 km), Zeitfenster (letztes/alle Updates), Modi
+  „neu registriert"/„neu in Betrieb", Leistungs-Betroffenheit (+MW neu/entfernt vs. Bestand
+  am Knoten), Ereignisliste NEU/ENTFERNT klickbar auf Karte. Indikations-Hinweis im UI.
+  Analyse < 1 ms (BBox-Vorfilter). Revision: iterations/V13_Betroffenheit.html.
+  **Alle Features F1–F6 aus der Roadmap sind damit umgesetzt.** Offen: Punkt 9
+  (HTML-Kernfeld-Auswahl) mit User besprechen.
+- **Stand V13b (04.09., nach User-Feedback):** Live-Suggest im Betroffenheits-Tab wie
+  Hauptsuche (ab 2 Zeichen, 250 ms Debounce). Revision: iterations/V13b_BetroffenheitLiveSuche.html.
+- **Stand V13c (04.09., nach User-Feedback):** Anlagennamen-Suche gefixt (Feld heißt `n`,
+  nicht `name` — Namen wurden nie gematcht); Betreiber max 8 / Anlagen max 12 Treffer.
+  Revision: iterations/V13c_AnlagennameLiveSuche.html.
+- **Stand V14 (04.09., wartet auf Freigabe):** Portfolio-Suche im Betroffenheits-Tab —
+  Betreiber werden über Namenskerne zu Portfolios gruppiert (Rechtsformen/Branchen-Wörter/
+  Nummern normalisiert); ein Eintrag prüft ALLE Invest-Gesellschaften gleichzeitig. Summary
+  zeigt „Betroffene Gesellschaften X von N". Beispiel ABO Energy: 30 Gesellschaften /
+  65 Anlagen in einer Analyse. Revision: iterations/V14_PortfolioSuche.html.
+- **Stand V15 (04.09., wartet auf Freigabe):** Revisionspaket Betroffenheits-Tab —
+  (1) **Betreibergruppen (Brand-Ebene):** Portfolios werden zusätzlich über das Markenwort
+  gebildet (ENERPARC 212 Ges, CEE 60 Ges, ANUMAR 220 …), fixt „Betroffene Gesellschaften
+  leer" (ENERPARC) und „kein CEE-Gesamtportfolio"; Klapptext nennt die betroffenen
+  Gesellschaften namentlich. (2) **„🗺️ Anzeigen"-Button:** filtert die Karte auf die
+  Analyse-Treffer + zoomt hin; Reset via „Alle anzeigen"/Filterwechsel. (3) **Farbringe:**
+  gestrichelter Bernstein-Kreis mit gewähltem Suchradius um jede Referenz-Anlage
+  (Dedupe, max 50). (4) **Beschreibungs-Klapptext** zur Prüfmethode (NAP-Gleichheit ODER
+  Haversine-Umkreis). Revision: iterations/V15_BetroffenheitRevision.html.
+- **Stand V16 (04.09., wartet auf Freigabe):** Revisionspaket 2 Betroffenheits-Tab —
+  (1) Suchreihenfolge: Betreibergruppe → Portfolio → Betreiber → NAP → Anlagen. (2) ✕-Button
+  leert das Suchfeld. (3) **Vermischungs-Fix:** Folge-Suchen mit 0 Treffern räumen Ringe/
+  Anzeigen-Filter der Vor-Suche auf. (4) Ringe NUR um tatsächlich betroffene Referenz-Anlagen
+  (vorher alle bis 50). (5) „Anzeigen" zeigt Bestands- + Neue Anlagen zusammen. (6)
+  Vergleichstabelle Bestand↔Neu (Betreiber + Asset mit Deeplink je Zeile). Revision:
+  iterations/V16_BetroffenheitRevision2.html.
+- **Stand V17 (04.09., wartet auf Freigabe):** Revisionspaket 3 Betroffenheits-Tab —
+  (1) „Betroffene Gesellschaften" gefixt: zählt jetzt die Portfolio-Gesellschaften über
+  betroffene Bestandsanlagen UND NEU-Assets (vorher nur Neu-Betreiber → teils „0 von N");
+  Berechnung nach der Bestands-Ermittlung (vorher: Wert der Vor-Analyse). (2) Ring-Geometrie
+  mathematisch verifiziert (Haversine-Nachrechnung: 20 km → max 19,8 km; 5 km → max 2,9 km)
+  — korrekt. (3) Erklär-Klapptext erweitert: NAP-ODER-Radius-Verfahren, geplante Anlagen
+  ohne NAP → Geolokation, Grenzen (Luftlinie ≠ Netztopologie, Falsch-Positive). (4) Fix:
+  Syntaxfehler aus V16-Patch (Karte hing bei „Lade Daten…"). Revision:
+  iterations/V17_BetroffenheitRevision3.html.
+- **Stand V18 (04.09., wartet auf Freigabe):** Revisionspaket 4 Betroffenheits-Tab —
+  (1) Trefferliste unter der Vergleichstabelle entfernt (Tabelle ist alleinige Ergebnis-
+  darstellung). (2) Neue Spalte „MW" vor Match: Anschlussleistung des Neu-Assets
+  (PV → MWp, Wind → MW). (3) Radius-Slider erweitert auf 2–50 km, Default 20 km;
+  Erklärtexte angepasst. (4) Bug gefixt: Ring-Tooltip „Suchradius N km" fing Maus-Events
+  ab („Suchradius"-Popup statt Assetname) → Ringe jetzt `interactive: false` ohne Tooltip.
+  Revision: iterations/V18_BetroffenheitRevision4.html.
+- **Stand V19 (04.09., wartet auf Freigabe):** Revisionspaket 5 Betroffenheits-Tab —
+  3 Bugs im „Anzeigen"-Modus gefixt: (1) Anzeigen-Modus ersetzt jetzt alle Filter
+  (vorher Schnittmenge → Assets verschwanden bei aktivem Typ-Filter). (2) Clustering
+  im Anzeigen-Modus aus → betroffene Bestandsanlagen nicht mehr in Cluster-Bubbles
+  versteckt (Ringe wirken „leer"). (3) „Alle anzeigen" stellt Karte wieder her
+  (applyFilters-Nachlauf; vorher blieben 21 Anzeigen-Marker stehen). Datensimulation:
+  jeder Ring-Zentrum hat reale Bestands-Unit, jede Neuanlage im Bestand — kein
+  Datenfehler. Revision: iterations/V19_BetroffenheitRevision5.html.
+  **V19 Status: von User freigegeben (04.09.) → auf main + gh-pages deployed, LIVE.**
+- **ROADMAP (`docs/ROADMAP.md`, 03.09.):** User-Feature-Wünsche F1–F6 dokumentiert mit
+  verifizierter Umsetzbarkeit: F1 NAP-Suche, F2 Spannungsebenen-Filter, F3 NAP-Gruppenansicht
+  (opt-in), F4+F6 Betroffenheits-Match (neue + entfernte Anlagen vs. Betreiber/NAP),
+  F5 Status-Filter (Katalog verifiziert: 4 Werte — In Planung/In Betrieb/Vorüb. stillgelegt/
+  Endg. stillgelegt; „In Bau" existiert nicht; Nicht-InBetrieb-Volumen: 12.547 Anlagen).
+  Umsetzung je Punkt nur nach User-Freigabe.
+
+- **V11 — NAP-Suche (2026-09-03, F1, klickbare HTML zur Freigabe):**
+  Suchfeld findet jetzt **Netzanschlusspunkte**: grüne „⚡ NAP"-Treffer-Blöcke (NAP-Nr.,
+  Netzbetreiber, Spannungsebene, Regelzone, Anzahl Anlagen) über den Anlagen-Treffern.
+  Ranking: SAN exakt > Präfix > enthält > Netzbetreiber-Name. Klick → alle Anlagen der
+  Lokation auf der Karte + Zoom (Großparks bis 219 Anlagen). Popup: „NAP" + „NAP-
+  Netzbetreiber" (Multi-NAPs kommagetrennt). Quelle: neuer NAP-Index (27.078 NAPs mit
+  sichtbaren Anlagen, 3 MB; hostbar: assets/nap_index.json lazy, Single-File: eingebettet,
+  38,7 MB). Anlagen-seitig neues Feld `lid` (lokation_id). NAPs ohne georef In-Betrieb-
+ Anlage (792) sind bewusst nicht suchbar. Revision: iterations/V11_NAPSuche.html.
+ - **V11b — Performance- + NAP-Vorschlags-Fix (2026-09-03, nach User-Feedback):**
+ Beide User-Bugs behoben: (1) Langsamkeit — Popups wurden für ALLE 53.400 Marker
+ vorgeneriert (17,7 s pro Filterwechsel!); jetzt Lazy-Popup beim Klick → applyFilters
+ 24,2 s → 0,68 s, Suchfeld-Löschen 28,4 s → 0,49 s. Zusätzlich Cluster-Quirk gefixt:
+ marker.openPopup() zeigte bei Cluster-Markern leere Popups → map.openPopup() mit
+ setLatLng. (2) NAP-Vorschläge bei beliebigen Texten — Netzbetreiber-Match now erst
+ ab 5 Zeichen (SAN-Nummern ab 2). Revision: iterations/V11b_PerformanceFix.html.
+ - **V11c — Datumsfilter-Fix (2026-09-03, nach User-Feedback):** Filter Registrierung/
+ Inbetriebnahme lieferten 0 Treffer — reg/inb sind `/Date(...)`-Epochen-Strings, Filter
+ schnitten `substring(0,4)` → `'/Dat'`. Fix: zentrale Normalisierer dateYear()/dateMonth()
+ mit Cache, eingesetzt an beiden Filterstellen (applyFilters + showAllUnits-Duplikat),
+ Tabellen-Sortierung und Zubau-Chart. Verifiziert: inb 2023 → 2.566, reg 2019 → 16.747,
+ Zubau-Chart korrekt, Performance unverändert schnell (477 ms).
+ Revision: iterations/V11c_DatumsfilterFix.html.
+ - **V10 — Spannungsebenen-Filter (2026-09-03, F2, klickbare HTML zur Freigabe):**
+  Toolbar-Dropdown „Spannungsebene" (Mittelspannung, Hochspannung, Höchstspannung,
+  Niederspannung (Hausanschluss), 3 Umspannebenen, „ohne Angabe"); Quelle: NAP-Join
+  (53.025/53.533 In-Betrieb georef = 99,05 % Abdeckung). Multi-NAP-Lokationen (173,
+  z. B. MS+NS) matchen, wenn EINE der Ebenen gewählt. Popup-Zeile „Spannungsebene",
+  Statistik-Tab „Spannungsebenen" (Balken, folgt aktivem Filter), Tabellen-Spalte „Ebene"
+  (Kürzel MS/NS/HS/HöS, Volltext im Tooltip). Export: neues Feld `se` (Pipe-getrennt),
+  meta.spannungsebenen. Revision: iterations/V10_SpannungsebenenFilter.html.
+- **V9c — Tabellen-Deep-Links final (2026-09-03, AS-BUILT, von User abgenommen):**
+  Übersichtstabelle „Alle Anlagen anzeigen": **Betreiber = externer NorthData-Link**
+  (neuer Tab, identischer Slug wie im Popup — '＆'→'&' etc.), **Koordinaten = interner
+  Deep-Link** (Karte zoomt via zoomToShowLayer + Popup öffnet), **MaStR-Nr.-Spalte entfernt**
+  (funktionslos, Info bleibt im Anlagen-Popup). Sortierbare Betreiber-Spalte weiter aktiv.
+  Header: # · Name · Typ · Art · MW · Bundesland · Landkreis · Gemeinde · Registriert ·
+  Inbetriebnahme · Betreiber ↗ · Koordinaten. Revision: iterations/V9c_Tabelle_NorthData_MaStRWeg.html.
+- **V9b — Tabellen-Filter-Fix (2026-09-03):** Status-Filter greift jetzt auch in der
+  Tabellen-Ansicht (war zuvor nur auf der Karte aktiv); Registrierungs-Spalte parst
+  /Date(...)-Epochen-Strings; Inbetriebnahme-Jahr-Dropdown bereinigt.
+- **V9 — Status-Filter (2026-09-03, F5):** Neue Toolbar-Sektion
+  „Status" mit **4 Checkboxen (Mehrfachauswahl)**: In Planung (31), In Betrieb (35, Default ✓),
+  Vorübergehend stillgelegt (37), Endgültig stillgelegt (38). Marker-Stile: In Betrieb gefüllt
+  (Wind blau/PV orange), In Planung gestrichelter Umriss, Vorüb. stillgelegt mit Kreuz, Endg.
+  stillgelegt grau. Badge zählt aktive Filter-Kombination. Datenbasis: fetch_v2 `--extended-status`
+  (separate Dateien `*_status{31,37,38}.json`, Bestand unangetastet), import_v2 UPSERT mit
+  Statuswechsel-Erkennung, export_app liest ALLE Status aus einheiten_raw (V1-Tabelle nur noch
+  Legacy) → 65.659 georef Anlagen: 53.405 In Betrieb / 9.273 In Planung / 66 Vorüb. stillg. /
+  2.915 Endg. stillg. Browser-Tests: 10 Filter-Kombis, Badge == erwartete Mathematik,
+  0 JS-Fehler, Bug-Fix: 0 gewählte Status = 0 Anlagen (zunächst falsch 65.659).
+  **Nicht gepusht** (Regel 4) — wartet auf User-Freigabe der HTML.
 
 ## Was das Projekt ist
 Interaktive, offline-fähige HTML-Karte aller **Wind- (≥100 kW) und PV-Anlagen (≥0,5 MWp)**
 in Betrieb**, aus dem Marktstammdatenregister (MaStR, BNetzA). Klickbare Single-File + hostbare Version.
-
-## Aktueller Stand (2026-09-03, V8j)
-- **Datenbasis:** Wind **30.996** (V8h-Korrektur: to_mw() Kleinwind 15–80 kW→MW, 220 Anlagen
-  entfernt, max MW 80→15) · PV **22.384** → **53.380 Anlagen auf der Karte** (alle georeferenziert).
-- **Schwellen (final):** Wind ≥100 kW, PV ≥0,5 MWp (beide 2026-08-29 durch Nutzer-Wunsch gesenkt).
-- **Version:** V8j (QA-20-Punkte-Test + 3 Fixes, siehe Changelog). HEAD `dd19a30` (main) /
-  `e61579b` (gh-pages); `main` ist Quell-, `gh-pages` Deploy-Branch.
-- **Remote:** `PiBrainPi/pv-wind-map` auf GitHub (**öffentlich**, `main`) + `gh-pages`-Branch (Deploy).
-- **Klickbare Datei:** `dist/index_singlefile.html` (26,2 MB) + Kopien in
-  `iterations/V8i_Disclaimer.html` und
-  `/home/claw_01_rasbpi5_1/hermes_human-share/PV-Wind-Karte_V8i_Disclaimer.html`.
-- **Live im Internet:** `https://wind-pv-map.ingenieur-tools.de/` (Karte, HTTPS aktiv, V8j) ·
-  `https://ingenieur-tools.de/` (Portal) — Details in `docs/DEPLOYMENT.md`.
-- **Wichtig (Daten-Pipeline):** `data/mastr.db` wurde beim Deploy 2026-09-03 versehentlich gelöscht
-  (Deploy-Cleanup rm -rf). App/Deloy läuft ohne DB (Assets sind fertig), aber vor dem **nächsten
-  Daten-Update** DB per `python3 scripts/import_mastr.py` neu aufbauen. Regeln: Deploy-Cleanup NUR
-  `src/ scripts/`, nie `data/ dist/ iterations/`. DB-Backup vor jedem Deploy nach `~/backups/`.
 
 ## Features
 - **Karte:** Leaflet + MarkerCluster, Filter nach Typ (Wind/PV), Bundesland, **Art des Assets**

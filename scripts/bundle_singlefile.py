@@ -41,7 +41,14 @@ def main() -> None:
     except (FileNotFoundError, json.JSONDecodeError):
         hist_js = "window.__PVWIND_HISTORIE__ = null;"
 
-    injection = f"<script>\n{data_js}\n{meta_js}\n{stats_js}\n{hist_js}\n</script>\n"
+    # F1 (Punkt 3): NAP-Index einbetten (falls vorhanden) — Such-Treffer für Netzanschlusspunkte
+    try:
+        nap = json.loads((DIST / "assets" / "nap_index.json").read_text(encoding="utf-8"))
+        nap_js = "window.__PVWIND_NAP__ = " + json.dumps(nap, ensure_ascii=False, separators=(",", ":")) + ";"
+    except (FileNotFoundError, json.JSONDecodeError):
+        nap_js = "window.__PVWIND_NAP__ = null;"
+
+    injection = f"<script>\n{data_js}\n{meta_js}\n{stats_js}\n{hist_js}\n{nap_js}\n</script>\n"
     # Daten-Skript VOR dem Haupt-App-Script einfügen (sonst ist window.__PVWIND_DATA__
     # beim init()-Aufruf noch nicht definiert). Anker: CSS-Block der App.
     anchor = "<style>\n* { margin:0;"

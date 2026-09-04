@@ -36,6 +36,58 @@ FROM einheiten
 WHERE geolokation = 1
 """
 
+# F5: Zusatz-Status (In Planung / stillgelegt) leben in einheiten_raw (118-Feld-JSON).
+# F5b (Heute): Die Status-35-Basis kommt AUCH aus einheiten_raw — der Karten-Export ist damit
+# vollständig unabhängig von der V1-Tabelle `einheiten` (die nur beim Legacy-Update befüllt wird).
+# Einheitliches Schema, bs_id = BetriebsStatusId (35/31/37/38) für ALLE Rows.
+SELECT_RAW_EXTRA = """
+SELECT
+    json_extract(raw_json,'$.MaStRNummer'),
+    json_extract(raw_json,'$.EinheitName'),
+    energietraeger_id,
+    json_extract(raw_json,'$.EnergietraegerName'),
+    COALESCE(json_extract(raw_json,'$.ArtDerSolaranlageBezeichnung'),
+             json_extract(raw_json,'$.WindAnLandOderSeeBezeichnung')),
+    CAST(NULL AS REAL),  -- Platzhalter Spalte 5: bruttoleistung_mw wird in Python via to_mw normalisiert
+    json_extract(raw_json,'$.BetriebsStatusName'),
+    json_extract(raw_json,'$.SystemStatusName'),
+    NULLIF(json_extract(raw_json,'$.InbetriebnahmeDatum'),''),
+    json_extract(raw_json,'$.Bundesland'),
+    json_extract(raw_json,'$.Landkreis'),
+    json_extract(raw_json,'$.Gemeinde'),
+    json_extract(raw_json,'$.Plz'),
+    json_extract(raw_json,'$.Ort'),
+    CAST(json_extract(raw_json,'$.Breitengrad') AS REAL),
+    CAST(json_extract(raw_json,'$.Laengengrad') AS REAL),
+    NULLIF(json_extract(raw_json,'$.NetzbetreiberNamen'),''),
+    NULLIF(json_extract(raw_json,'$.AnlagenbetreiberName'),''),
+    CAST(json_extract(raw_json,'$.AnzahlSolarModule') AS INTEGER),
+    json_extract(raw_json,'$.HauptausrichtungSolarModuleBezeichnung'),
+    json_extract(raw_json,'$.SolarparkName'),
+    CAST(json_extract(raw_json,'$.NabenhoeheWindenergieanlage') AS REAL),
+    CAST(json_extract(raw_json,'$.RotordurchmesserWindenergieanlage') AS REAL),
+    CAST(json_extract(raw_json,'$.LichteHoehe') AS REAL),
+    json_extract(raw_json,'$.Typenbezeichnung'),
+    json_extract(raw_json,'$.HerstellerWindenergieanlageBezeichnung'),
+    json_extract(raw_json,'$.WindparkName'),
+    json_extract(raw_json,'$.WindAnLandOderSeeBezeichnung'),
+    NULLIF(json_extract(raw_json,'$.EinheitRegistrierungsdatum'),''),
+    CAST(json_extract(raw_json,'$.BetriebsStatusId') AS INTEGER) AS bs_id,
+    CAST(json_extract(raw_json,'$.Bruttoleistung') AS REAL) AS brutto_raw,
+    -- F2 (Punkt 2): Spannungsebene(n) via NAP-Join — Pipe-getrennt bei Mehrfach-NAPs
+    -- (SQLite: GROUP_CONCAT(DISTINCT x, '|') ist verboten → DISTINCT in Subquery)
+    (SELECT GROUP_CONCAT(ebene, '|') FROM (
+        SELECT DISTINCT nap.spannungsebene AS ebene
+        FROM netzanschlusspunkte nap WHERE nap.lokation_id = er.lokation_id
+        AND nap.spannungsebene IS NOT NULL
+     )) AS spannungsebene,
+    -- F1 (Punkt 1): lokation_id für NAP-Suche (Klick auf NAP-Treffer → alle Anlagen der Lokation)
+    er.lokation_id
+FROM einheiten_raw er
+WHERE json_extract(raw_json,'$.Breitengrad') IS NOT NULL
+  AND json_extract(raw_json,'$.Breitengrad') != ''
+"""
+
 
 def build_units(rows) -> list[dict]:
     # Spaltenreihenfolge laut SELECT:
@@ -45,6 +97,7 @@ def build_units(rows) -> list[dict]:
     # 18 anzahl_module, 19 ausr, 20 solarpark,
     # 21 nabenhoehe, 22 rotordurchmesser, 23 lichte, 24 typ, 25 hersteller,
     # 26 windpark, 27 land_oder_see, 28 registrierungsdatum
+    # (nur bei F5-Raw-Extra-Rows:) 29 bs_id (BetriebsStatusId), 30 brutto_raw (kW/kWp-Original)
     units = []
     for r in rows:
         is_pv = (r[2] == 2495)
@@ -66,6 +119,15 @@ def build_units(rows) -> list[dict]:
             "lon": r[15],
             "reg": r[28],           # registrierungsdatum (YYYY-MM-DD)
         }
+        # F2 (Punkt 3): Spannungsebene(n) — Spalte 31, Pipe-getrennt bei Mehrfach-NAPs
+        if len(r) > 31 and r[31]:
+            u["se"] = r[31]
+        # F1 (Punkt 1): lokation_id — Spalte 32, für NAP-Suche (Klick → alle Anlagen der Lokation)
+        if len(r) > 32 and r[32] is not None:
+            u["lid"] = int(r[32])
+        # F5: Betriebs-Status-ID nur bei Raw-Extra-Rows (31/37/38) — V1-Rows (35) bekommen kein bs
+        if len(r) > 29 and r[29] is not None:
+            u["bs"] = int(r[29])
         if is_pv:
             u["mod"]   = r[18]     # anzahl_solar_module
             u["ausr"]  = r[19]     # hauptausrichtung
@@ -80,6 +142,23 @@ def build_units(rows) -> list[dict]:
             u["los"]   = r[27]     # land_oder_see
         units.append(u)
     return units
+
+
+def _spannungsebenen_counts(units: list[dict]) -> dict:
+    """F2 (Punkt 4): Verteilung der Spannungsebenen über den Export.
+
+    Multi-Ebenen-Anlagen (Pipe-Liste) werden je Ebene 1x gezählt.
+    Liefert {ebenenname: anzahl, ...} inkl. 'ohne Angabe' für Anlagen ohne NAP.
+    """
+    counts: dict[str, int] = {}
+    for u in units:
+        se = u.get("se")
+        if not se:
+            counts["ohne Angabe"] = counts.get("ohne Angabe", 0) + 1
+            continue
+        for ebene in se.split("|"):
+            counts[ebene] = counts.get(ebene, 0) + 1
+    return dict(sorted(counts.items(), key=lambda x: -x[1]))
 
 
 def build_statistiken(db) -> dict:
@@ -209,9 +288,29 @@ def main() -> None:
     DIST.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(DB_PATH)
     rows = db.execute(SELECT + " ORDER BY energietraeger_id, mastr_nummer").fetchall()
-    db.close()
 
-    units = build_units(rows)
+    # F5: Zusatz-Status aus einheiten_raw anhängen (bruttoleistung_mw via to_mw-Logik
+    # hier normalisiert: Wind kW/MW-Heuristik, PV /1000 — identisch zu import_mastr.to_mw)
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from import_mastr import to_mw
+    raw_rows = db.execute(SELECT_RAW_EXTRA).fetchall()
+    db.close()
+    extra_rows = []
+    for r in raw_rows:
+        r_list = list(r)
+        et_id = r_list[2]
+        brutto = to_mw({"Bruttoleistung": r_list[30], "Typenbezeichnung": r_list[24]}, et_id)
+        # Wind <100 kW nach Normalisierung verwerfen (konsistent zum Kern-Filter)
+        if et_id == 2497 and (brutto is None or brutto < 0.1):
+            continue
+        r_list[5] = brutto
+        extra_rows.append(tuple(r_list))
+
+    units_raw = build_units(extra_rows)
+    # Status-35-Rows bekommen das bs-Feld ebenfalls (uniform: bs=35)
+    for u in units_raw:
+        u.setdefault("bs", 35)
+    units = units_raw
 
     # Metadaten + Zähler
     db = sqlite3.connect(DB_PATH)
@@ -223,9 +322,18 @@ def main() -> None:
     meta = {
         "stand": stand or datetime.now().isoformat(timespec="seconds"),
         "quelle": "Marktstammdatenregister (BNetzA)",
-        "abgrenzung": "Wind >= 100 kW und PV >= 0.5 MWp, Status 'In Betrieb', nur Anlagen mit vorhandener Geolokation",
+        "abgrenzung": "Wind >= 100 kW und PV >= 0.5 MWp, Status 'In Betrieb' (weitere Status optional filterbar), nur Anlagen mit vorhandener Geolokation",
         "counts": counts,
         "total_geolokation": len(units),
+        # F5: Status-Zähler (nur georeferenzierte Einheiten im Export, einheitlich bs-Feld)
+        "status_counts": {
+            "35_in_betrieb": sum(1 for u in units if u.get("bs") == 35),
+            "31_in_planung": sum(1 for u in units if u.get("bs") == 31),
+            "37_voruebergehend_stillgelegt": sum(1 for u in units if u.get("bs") == 37),
+            "38_endgueltig_stillgelegt": sum(1 for u in units if u.get("bs") == 38),
+        },
+        # F2 (Punkt 4): Spannungsebenen-Verteilung (Pipe-Multi-Ebenen je 1x gezählt)
+        "spannungsebenen": _spannungsebenen_counts(units),
     }
 
     # Statistik-Panel

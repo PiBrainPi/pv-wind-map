@@ -1,6 +1,6 @@
 # Update — PV & Wind Karte (MaStR)
 
-> Manuell auslösbar, cronjob-fähig. Stand: 2026-09-01.
+> Manuell auslösbar, cronjob-fähig. Stand: 2026-09-03 (Pipeline 2.0 inkl. Netzanschlusspunkte).
 
 ## Update ausführen (DE)
 
@@ -10,6 +10,47 @@ Die komplette Pipeline ist nicht-interaktiv und kann als ein Befehl laufen:
 cd ~/Projects/pv-wind-map
 bash scripts/build.sh   # fetch → import → export → bundle (ein Schritt, erzeugt auch Single-File)
 ```
+
+### Pipeline 2.0 — vollständige Datenhaltung (Regel 2 der Grundsatzentscheidung)
+
+Seit 2026-09-03 werden zusätzlich zu den Kernfeldern **alle 118 API-Felder** und die
+**Netzanschlusspunkte (NAP)** vorgehalten. Der Ein-Befehl für die Server-Datenbasis:
+
+```bash
+cd ~/Projects/pv-wind-map
+python3 scripts/fetch_v2.py --extended-status   # 1. Alle 118 Felder → data/raw_v2/ + F5-Status 31/37/38 (separate Dateien; alte raw/ unangetastet)
+python3 scripts/import_v2.py       # 2. Schema 2.0: einheiten_raw (UPSERT inkrementell) + Backup nach ~/backups/
+python3 scripts/fetch_nap.py       # 3. NAP je Lokation (Cache: nur neue/geänderte, resumable)
+python3 scripts/import_v2.py       # 4. NAP-JSONL in netzanschlusspunkte-Tabelle importieren
+```
+
+> **⚠️ F5-Pflicht-Flag `--extended-status` (seit 03.09., nicht optional):**
+> Ohne das Flag werden die 6 Status-Dateien `{wind,pv}_status{31,37,38}.json`
+> NICHT aktualisiert — `import_v2.py` liest sie aber trotzdem ein. Die Status-Filter-Daten
+> der Karte (In Planung / stillgelegt) würden auf altem Stand einfrieren. Cron & alle
+> manuellen Läufe MÜSSEN daher `pipeline2_update.sh` nutzen (das Flag enthält) oder
+> fetch_v2 mit dem Flag aufrufen. Status-Wechsel einer Anlage (z. B. In Planung → In Betrieb)
+> kommen zuverlässig an: Der UPSERT erkennt abweichende BetriebsStatusId, auch bei
+> gleichem Aktualisierungsdatum.
+
+**Kurzantwort zur Cron-Frage: Ja — alle drei Datenstränge (Wind, PV, NAP) werden von
+einem einzigen Cronjob getriggert.** Der NAP-Schritt braucht keine eigene Behandlung im
+Cron: `fetch_nap.py` nutzt den Cache (`nap_fetch_log`), d. h. der erste Lauf dauert ~3 h
+(erledigt, 27.870 NAPs liegen vor), jeder folgende Lauf holt nur noch neue/veränderte
+Lokationen (Minuten statt Stunden). Empfohlener Cronjob (Punkt 5, 10-Punkte-Plan):
+
+```cron
+0 3 1,15 * * cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map && \
+  bash scripts/pipeline2_update.sh >> /tmp/pvwind_pipeline2.log 2>&1
+```
+
+> Der Cronjob führt `pipeline2_update.sh` aus — das Skript enthält das Pflicht-Flag
+> `--extended-status` (F5) und den kompakten Telegram-Report inkl. Status-Zählern.
+
+> Hinweis: `build.sh` (Karte) und Pipeline 2.0 (Server-Datenbasis) sind getrennt.
+> Für einen kombinierten Lauf beides hintereinander ausführen. Daten-Updates ändern
+> die Karte NICHT automatisch — der HTML-Export (Punkt 9) bleibt bis zur geplanten
+> Kernfeld-Besprechung mit dem Nutzer unverändert.
 
 Der vollständige Weg in Einzelschritten (falls du Zwischenschritte prüfen willst):
 
@@ -57,6 +98,16 @@ Austauschordner `~/hermes_human-share/`).
 - `export_app.py`: schreibt `dist/assets/einheiten.json` + `meta.json` + **`statistiken.json`**
   (Betreiber, Größenklassen) + **`historie.json`** (alle Snapshots + Deltas).
 - `bundle_singlefile.py`: erzeugt `dist/index_singlefile.html` (Daten + Statistik + Historie eingebettet).
+- `fetch_v2.py --extended-status` + `import_v2.py`: Pipeline 2.0 — alle 118 Felder 1:1 in `einheiten_raw`
+  (UPSERT, inkrementell via `DatumLetzteAktualisierung` + BetriebsStatus-Wechsel-Erkennung),
+  DB-Backup-Pflicht nach `~/backups/`. **F5:** Zusatz-Status 31/37/38 in separaten Dateien
+  `{wind,pv}_status{31,37,38}.json` — Flag ist Pflicht (siehe Warnung oben), sonst frieren
+  die Status-Filter der Karte ein.
+- `fetch_nap.py`: **Netzanschlusspunkte** je Lokation → `data/nap/*.jsonl` + Cache
+  `nap_fetch_log` (resumable, inkrementell). Abfrage je Lokation:
+  `/MaStR/Einheit/Json/NetzanschlusspunkteKendoList/{lokationId}` (verifiziert 03.09.).
+  `import_v2.py` (2. Aufruf) befüllt die Tabelle `netzanschlusspunkte` (27.870 NAPs, Stand 03.09.).
+
 
 > **Wichtig (Hosting):** Nach einem Daten-Update müssen geänderte `dist/assets/*.json` auch
 > auf die **Live-Website** übertragen werden — der `gh-pages`-Branch des Repos enthält die
