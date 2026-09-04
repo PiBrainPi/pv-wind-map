@@ -505,6 +505,46 @@ V11–V19 sind damit gegenstandslos — Freigabe lag vor, Push + Deploy erfolgte
 Betroffenheits-Tab damit in allen Punkten (F4+F6 + alle Revisionen bis V19) abgeschlossen;
 nächstes offenes Projektthema: Punkt 9 (HTML-Kernfeld-Auswahl) mit User.
 
+### V20 — Revisionspaket 6 (04.09., User-Laptop-Review, 30-Punkte-Plan, 7 Punkte)
+
+**User-Befunde (Brain-Dump) und Umsetzung:**
+1. **Popup-Datum kaputt** („/Date(1548892800000)/" statt Datum) — buildPopup gab rohen
+   MaStR-Epochen-String aus. Fix: `dateFullFmt()` (nutzt bestehenden `_parseMaStrDate`-
+   Cache) → Anzeige „MM.JJJJ" (Tag liegt im Epochen-String, Parser liefert y/m).
+   Verifiziert: PVA Zaacko I → „01.2019".
+2. **Topbar-Überlappung:** Wind/PV-Legende + „Stand:" überlagerten hinter den Buttons
+   NAP-Gruppen/Statistik. Fix: `#topbar-meta` entfernt; Legende + Datenstand als neue
+   Sektion „Karte & Datenstand" im Hinweise-Panel (disclaimer-panel). IDs `data-stand`,
+   `m-dot-wind/pv` unverändert → JS-Befüllung läuft weiter. CSS-Klassen globalisiert
+   (vormals `#topbar-meta`-scoped), Mobile-Media-Query bereinigt.
+3. **Statistik-Fenster zu schmal** (8 Tabs mit horizontalem Scroll): Panel 700→820 px,
+   Tabs kompakter (font 13→11.5 px, padding 9→8/2 px, gap 4→2). Verifiziert:
+   scrollWidth 805 = clientWidth 805 → alle 8 Tabs ohne Scroll sichtbar. Tablet/Mobile
+   unverändert (Tabs scrollen dort).
+4. **Tabelle ohne Typ-Kennzeichnung + ENTFERNT fehlten komplett:** `paarRows` wurde nur
+   aus NEU-Events befüllt. Fix: alle Events; neue schmale 1. Spalte mit 🆕 (neu) /
+   🗑️ (entfernt), title-Tooltip, 11 px. Verifiziert: ENERPARC → 14× 🆕;
+   „WP Buschmühlen"-Referenz (das einzige entfernte Asset der Historie) → 🗑️-Zeile.
+   Nebenbefund: Doppel-Deklaration `const paarRows` (V17-Verschiebe-Rest) → Syntax-
+   Fehler im Bundle, durch Node-Check gefangen und behoben.
+5. (User „Viertens/Sechstens" = 1 Punkt) **Zubau-Charts: Wert-Labels senkrecht** —
+   drawStackedBar/drawSingleBar (Balken) + drawRateChart/drawCumChart (Linien) auf
+   `rotate(-PI/2)` umgestellt; PAD_T 16→46, H 290→320 (Kopffreiraum). Vision-Check:
+   Labels senkrecht, vollständig lesbar, beide Modi (Anlagen/Leistung), beide Sub-Tabs.
+6. **Gestrichelte Trendlinie entfernt** (PV/Wind-Einzelcharts): drawTrendLine-Aufrufe
+   entfernt (Funktion bleibt im Code), Untertitel „mit Trendlinie" → „Balkendiagramm".
+   Vision-Check: keine gestrichelte Linie mehr.
+7. **Label-Überlappung Wind/PV** (Vision-Befund nach 1. Build): In drawRL/drawCL
+   Wind-Labels links (seite 'L'), PV-Labels rechts (seite 'R') der Datenpunkte →
+   Vision-Check: getrennt und lesbar (Rest: 2020 identische Werte 100 %, unvermeidbar).
+
+**Regression grün:** Hauptsuche (Vorschläge), 53.405 Marker, Betroffenheit ENERPARC
+(14 Treffer, 21/21 Anzeigen-Marker, „Alle anzeigen" → volle Karte), Zubau-Render in
+allen Modi. Syntax-Check beide Script-Blöcke OK (2 Builds).
+
+**Revision:** iterations/V20_BetroffenheitRevision6.html. Nicht gepusht (Regel 4 —
+Freigabe für V20 steht aus).
+
 ---
 
 ## F1 — NAP in die Suche integrieren

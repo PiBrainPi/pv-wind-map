@@ -97,6 +97,15 @@
   jeder Ring-Zentrum hat reale Bestands-Unit, jede Neuanlage im Bestand — kein
   Datenfehler. Revision: iterations/V19_BetroffenheitRevision5.html.
   **V19 Status: von User freigegeben (04.09.) → auf main + gh-pages deployed, LIVE.**
+- **Stand V20 (04.09., wartet auf Freigabe):** Revisionspaket 6 (Laptop-Review, 7 Punkte) —
+  (1) Popup-Datum gefixt (war roher `/Date(…)`-String → „MM.JJJJ"). (2) Wind/PV-Legende +
+  Datenstand aus der Topbar (überlagerte Buttons) ins Hinweise-Panel verlagert. (3)
+  Statistik-Panel 700→820 px + kompaktere Tabs → alle 8 Tabs ohne horizontales Scrollen.
+  (4) Vergleichstabelle: neue schmale Typ-Spalte 🆕/🗑️; ENTFERNT-Assets erscheinen jetzt
+  überhaupt (vorher nur NEU-Events). (5) Zubau-Charts: Wert-Labels senkrecht (Balken +
+  Linien-Charts, beide Modi), PAD_T erhöht. (6) Gestrichelte Trendlinie entfernt.
+  (7) Wind/PV-Label-Überlappung in Linien-Charts getrennt (L/R-Positionierung).
+  Revision: iterations/V20_BetroffenheitRevision6.html.
 - **ROADMAP (`docs/ROADMAP.md`, 03.09.):** User-Feature-Wünsche F1–F6 dokumentiert mit
   verifizierter Umsetzbarkeit: F1 NAP-Suche, F2 Spannungsebenen-Filter, F3 NAP-Gruppenansicht
   (opt-in), F4+F6 Betroffenheits-Match (neue + entfernte Anlagen vs. Betreiber/NAP),

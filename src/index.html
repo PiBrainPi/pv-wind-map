@@ -989,15 +989,13 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   margin-top:6px; display:flex; justify-content:space-between; align-items:center; gap:8px;
 }
 /* Kompakte Farblegende + Datenstand (in der Top-Bar, links neben Statistik-Button) */
-#topbar-meta {
-  font-size:11px; color:#555; line-height:1.4; min-width:0;
-}
-#topbar-meta .m-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:4px; vertical-align:middle; }
-#topbar-meta .m-dot-wind { background:#2563eb; }
-#topbar-meta .m-dot-pv   { background:#d97706; }
-#topbar-meta .m-line { display:inline; white-space:nowrap; }
-#topbar-meta .m-line + .m-line::before { content:" · "; color:#ccc; }
-#topbar-meta #data-stand { color:#888; }
+/* V20: Legende/Datenstand jetzt im Hinweise-Panel (disclaimer-panel) —
+   topbar-meta existiert nicht mehr; m-dot/m-line-Klassen bleiben global definiert. */
+.m-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:4px; vertical-align:middle; }
+.m-dot-wind { background:#2563eb; }
+.m-dot-pv   { background:#d97706; }
+.m-line { display:inline; white-space:nowrap; color:#555; font-size:11px; }
+#data-stand { color:#888; }
 #btn-stats {
   font-size:13px; padding:6px 14px; border:1px solid #2563eb; background:#2563eb;
   color:#fff; border-radius:8px; cursor:pointer; font-weight:600; flex-shrink:0;
@@ -1059,8 +1057,10 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #stats-overlay.open { display:block; opacity:1; }
 
 /* Sidebar */
+/* V20 (User-Feedback 04.09.): 700→820 px, damit alle 8 Tabs (Betreiber … Betroffenheit)
+   ohne horizontales Scrollen sichtbar sind */
 #stats-panel {
-  position:fixed; top:0; right:-760px; width:700px; max-width:94vw; height:100%;
+  position:fixed; top:0; right:-860px; width:820px; max-width:94vw; height:100%;
   background:#fff; z-index:1600; box-shadow:-4px 0 24px rgba(0,0,0,.3);
   display:flex; flex-direction:column;
   transition:right .25s ease; border-radius:12px 0 0 12px;
@@ -1069,7 +1069,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
 /* Responsive Breakpoints */
 @media (max-width:1023px) {
-  #stats-panel { width:560px; right:-580px; }
+  #stats-panel { width:560px; right:-580px; }  /* V20: Tablet bleibt 560px (Tabs scrollen dort) */
 }
 @media (max-width:767px) {
   #stats-panel { width:100vw; right:-100vw; border-radius:0; }
@@ -1079,9 +1079,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   #search-wrapper { width:100%; }
   #search-input { width:100%; box-sizing:border-box; }
   #topbar-actions { flex-wrap:nowrap; align-items:center; }
-  #topbar-meta { flex:1; order:1; }
-  #topbar-meta .m-line { display:inline; white-space:nowrap; }
-  #topbar-meta .m-line + .m-line::before { content:" · "; color:#ccc; }
+  /* V20: topbar-meta entfernt — Legende/Datenstand im Hinweise-Panel */
   #btn-stats { order:2; flex-shrink:0; }
   /* Bundesländer Pie: Chart über Legende (untereinander auf Mobile) */
   #bundesland-chart-wrap { flex-direction:column; align-items:center; }
@@ -1112,10 +1110,12 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #stats-close:hover { background:#fca5a5; color:#991b1b; }
 
 /* Tabs */
-#stats-tabs { display:flex; gap:4px; padding:10px 18px 0; border-bottom:1px solid #eee; }
+/* V20: kompaktere Tabs (8 Stück müssen nebeneinander passen, kein Horizontal-Scroll) */
+#stats-tabs { display:flex; gap:2px; padding:8px 10px 0; border-bottom:1px solid #eee; overflow-x:auto; }
 #stats-tabs .tab {
-  flex:1; padding:9px; border:1px solid #ddd; border-bottom:none; border-radius:8px 8px 0 0;
-  background:#f5f5f5; color:#555; font-size:13px; font-weight:600; cursor:pointer;
+  flex:1; padding:8px 2px; border:1px solid #ddd; border-bottom:none; border-radius:8px 8px 0 0;
+  background:#f5f5f5; color:#555; font-size:11.5px; font-weight:600; cursor:pointer;
+  white-space:nowrap; text-align:center; min-width:0;
 }
 #stats-tabs .tab.active { background:#fff; color:#2563eb; border-color:#e0e0e0; }
 
@@ -1543,6 +1543,10 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   <p><strong>Auslandsanlagen.</strong> Das MaStR erfasst Anlagen, die an ein deutsches Stromnetz angeschlossen sind — auch wenn sie geografisch im Ausland stehen (z.&nbsp;B. Dänemark, Polen, Frankreich). Diese erscheinen auf der Karte außerhalb Deutschlands.</p>
   <p><strong>Statistik-Verzerrung.</strong> Aufgrund der genannten Filter und Bereinigungen spiegeln die Statistiken nicht den vollständigen Anlagenbestand Deutschlands wider. Die Zahlen sind konsistent innerhalb des Datensatzes, aber nicht mit offiziellen Gesamtausbauzahlen vergleichbar.</p>
   <p><strong>Hobbyprojekt.</strong> Diese Website ist ein nicht-kommerzielles Projekt einer Privatperson. Update-Intervalle und Bug-Fixes erfolgen nach bestem Können, aber ohne Gewähr. Die Nutzung der Daten erfolgt auf eigene Gefahr. Eine Haftung für die Richtigkeit, Vollständigkeit oder Aktualität der Daten ist ausgeschlossen.</p>
+  <p style="border-top:1px solid #e5e7eb;padding-top:8px;margin-top:8px;"><strong>Karte & Datenstand.</strong><br>
+    <span class="m-line"><span class="m-dot m-dot-wind"></span>Wind (≥100 kW) &nbsp;·&nbsp; <span class="m-dot m-dot-pv"></span>PV (≥0,5 MWp)</span><br>
+    <span class="m-line">Stand: <span id="data-stand">–</span></span>
+  </p>
 </div>
 <!-- DSGVO: OSM-Kachel-Consent (2-Klick) — keine Kacheln ohne Einwilligung -->
 <div id="tile-consent" role="dialog" aria-label="Kartendaten laden">
@@ -1570,10 +1574,9 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     </div>
     <div id="topbar-hits" style="display:none">0 Treffer · <span id="topbar-result"></span></div>
     <div id="topbar-actions">
-      <div id="topbar-meta">
-        <span class="m-line"><span class="m-dot m-dot-wind"></span>Wind (≥100 kW) · <span class="m-dot m-dot-pv"></span>PV (≥0,5 MWp)</span>
-        <span class="m-line">Stand: <span id="data-stand">–</span></span>
-      </div>
+      <!-- V20 (User-Feedback 04.09.): Legende/Datenstand in das Hinweise-Panel (disclaimer-panel)
+           verlagert — überlagerte die Info hinter den Buttons NAP-Gruppen/Statistik.
+           IDs (data-stand, m-dot-…) bleiben erhalten → JS-Befüllung unverändert. -->
       <!-- F3 (Punkt 4): NAP-Gruppenansicht opt-in Toggle -->
       <button type="button" id="btn-nap-groups" title="NAP-Gruppenansicht: zeigt pro Anschlusspunkt alle zugehörigen Anlagen im Panel" aria-pressed="false">⚡ NAP-Gruppen</button>
       <button type="button" id="btn-stats" title="Statistik öffnen">📊 Statistik</button>
@@ -2614,6 +2617,14 @@ function _parseMaStrDate(v) {
 }
 function dateYear(v)  { const d = _parseMaStrDate(v); return d ? d.y : ''; }
 function dateMonth(v) { const d = _parseMaStrDate(v); return d ? d.m : ''; }
+// V20-Fix (User-Feedback 04.09.): Popup zeigte rohen MaStR-Epochen-String '/Date(…)/'
+// beim Inbetriebnahme-Datum. Zentrales Anzeige-Format MM.JJJJ (Tag liegt im MaStR-
+// Epochen-String vor, _parseMaStrDate parst nur y/m — Anzeige daher Monat.Jahr).
+function dateFullFmt(v) {
+  const d = _parseMaStrDate(v);
+  if (!d || !d.y) return '';
+  return `${d.m}.${d.y}`;
+}
 
 function applyFilters() {
   const type   = document.getElementById('filter-type').value;
@@ -3112,7 +3123,7 @@ function buildPopup(u) {
   add('Landkreis', u.lk);
   add('Gemeinde', u.g);
   add('PLZ', u.plz);
-  add('Inbetriebnahme', u.inb);
+  add('Inbetriebnahme', dateFullFmt(u.inb) || '—');  // V20-Fix: war roher '/Date(…)'-String
   add('Status', u.st);
   add('Netzbetreiber', u.nb);
   // F2 (Punkt 11): Spannungsebene(n) der Netzanschlusspunkte
@@ -4193,14 +4204,14 @@ function renderZubau() {
   // === Chart 2: PV einzeln ===
   html += '<div class="zubau-chart-block">';
   html += '<h3>Zubau Photovoltaik</h3>';
-  html += '<div class="zc-sub">Balkendiagramm mit Trendlinie — ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + '</div>';
+  html += '<div class="zc-sub">Balkendiagramm — ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + '</div>';
   html += '<div class="zubau-canvas-wrap"><canvas id="zubau-pv"></canvas></div>';
   html += '</div>';
 
   // === Chart 3: Wind einzeln ===
   html += '<div class="zubau-chart-block">';
   html += '<h3>Zubau Windenergie</h3>';
-  html += '<div class="zc-sub">Balkendiagramm mit Trendlinie — ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + '</div>';
+  html += '<div class="zc-sub">Balkendiagramm — ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + '</div>';
   html += '<div class="zubau-canvas-wrap"><canvas id="zubau-wind"></canvas></div>';
   html += '</div>';
 
@@ -4228,7 +4239,8 @@ function renderZubau() {
   container.innerHTML = html;
 
   // --- Zeichne Charts ---
-  const W = 640, H = 290, PAD_L = 50, PAD_B = 50, PAD_T = 16, PAD_R = 16;
+  // V20: PAD_T 16→46 — senkrechte Wert-Labels über den Balken brauchen Kopffreiraum
+  const W = 640, H = 320, PAD_L = 50, PAD_B = 50, PAD_T = 46, PAD_R = 16;
   const windVals = years.map(y => valW(yearData[y]));
   const pvVals = years.map(y => valP(yearData[y]));
 
@@ -4240,7 +4252,7 @@ function renderZubau() {
     const canvas = document.getElementById('zubau-pv');
     const ctx = setupCanvas(canvas, W, H);
     const maxVal = drawSingleBar(ctx, pvVals, years, '#d97706', W, H, PAD_L, PAD_B, PAD_T, PAD_R);
-    drawTrendLine(ctx, pvVals, W, H, PAD_L, PAD_B, PAD_T, PAD_R, maxVal, '#92400e');
+    // V20: gestrichelte Trendlinie entfernt (User-Wunsch — reine Balkendarstellung)
   }
 
   // Wind einzeln mit Trend
@@ -4248,7 +4260,7 @@ function renderZubau() {
     const canvas = document.getElementById('zubau-wind');
     const ctx = setupCanvas(canvas, W, H);
     const maxVal = drawSingleBar(ctx, windVals, years, '#2563eb', W, H, PAD_L, PAD_B, PAD_T, PAD_R);
-    drawTrendLine(ctx, windVals, W, H, PAD_L, PAD_B, PAD_T, PAD_R, maxVal, '#1e3a5f');
+    // V20: gestrichelte Trendlinie entfernt (User-Wunsch — reine Balkendarstellung)
   }
 
   // Zubauraten (YoY)
@@ -4324,11 +4336,15 @@ function drawStackedBar(canvasId, windVals, pvVals, labels, W, H, PAD_L, PAD_B, 
     const hP = plotH * (pv / maxVal);
     ctx.fillStyle = '#d97706';
     ctx.fillRect(x, PAD_T + plotH - hW - hP, barW, hP);
-    // Wert-Label horizontal oberhalb des Balkens
+    // V20: Wert-Label SENKRECHT oberhalb des Balkens (User-Wunsch, wie X-Achsen-Labels)
     const total = wv + pv;
     const topY = PAD_T + plotH - hW - hP;
-    ctx.fillStyle = '#374151'; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-    ctx.fillText(fmtY(total), x + barW/2, topY - 3);
+    ctx.save();
+    ctx.translate(x + barW/2, topY - 6);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = '#374151'; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(fmtY(total), 0, 0);
+    ctx.restore();
   }
   // X-Achsen Labels senkrecht, mit Abstand nach unten
   ctx.fillStyle = '#374151'; ctx.font = '11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -4368,10 +4384,14 @@ function drawSingleBar(ctx, vals, labels, color, W, H, PAD_L, PAD_B, PAD_T, PAD_
     const h = plotH * (v / maxVal);
     ctx.fillStyle = color;
     ctx.fillRect(x, PAD_T + plotH - h, barW, h);
-    // Wert-Label horizontal oberhalb des Balkens
+    // V20: Wert-Label SENKRECHT oberhalb des Balkens (User-Wunsch, wie X-Achsen-Labels)
     const topY = PAD_T + plotH - h;
-    ctx.fillStyle = '#374151'; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-    ctx.fillText(fmtY(v), x + barW/2, topY - 3);
+    ctx.save();
+    ctx.translate(x + barW/2, topY - 6);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = '#374151'; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(fmtY(v), 0, 0);
+    ctx.restore();
   }
   // X-Achsen Labels senkrecht, mit Abstand nach unten
   ctx.fillStyle = '#374151'; ctx.font = '11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -4420,7 +4440,8 @@ function drawRateChart(ctx, windRates, pvRates, labels, W, H, PAD_L, PAD_B, PAD_
     ctx.fillStyle = '#6b7280'; ctx.font = '10px system-ui'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
     ctx.fillText(v.toFixed(0) + '%', PAD_L - 6, y);
   }
-  function drawRL(rates, color) {
+  function drawRL(rates, color, seite) {
+    // V20: seite 'L' = Label links (textAlign right), 'R' = rechts (left) — keine Überlappung
     const n = rates.length;
     ctx.strokeStyle = color; ctx.lineWidth = 2.5;
     ctx.beginPath();
@@ -4435,13 +4456,18 @@ function drawRateChart(ctx, windRates, pvRates, labels, W, H, PAD_L, PAD_B, PAD_
       const y = PAD_T + plotH * (1 - (rates[i] - minR) / (maxR - minR));
       ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 4, 0, 2*Math.PI); ctx.fill();
       ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 2, 0, 2*Math.PI); ctx.fill();
-      ctx.fillStyle = color; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center';
-      ctx.textBaseline = rates[i] >= 0 ? 'bottom' : 'top';
-      ctx.fillText(rates[i] + '%', x, y + (rates[i] >= 0 ? -6 : 6));
+      // V20: Wert-Label senkrecht (User-Wunsch) — rotiert um den Datenpunkt
+      ctx.save();
+      ctx.translate(x + (seite === 'L' ? -6 : 6), y + (rates[i] >= 0 ? -8 : 8));
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillStyle = color; ctx.font = 'bold 10px system-ui';
+      ctx.textAlign = 'right'; ctx.textBaseline = seite === 'L' ? 'right' : 'left';
+      ctx.fillText(rates[i] + '%', 0, 0);
+      ctx.restore();
     }
   }
-  drawRL(windRates, '#2563eb');
-  drawRL(pvRates, '#d97706');
+  drawRL(windRates, '#2563eb', 'L');
+  drawRL(pvRates, '#d97706', 'R');
   // X-Achsen Labels senkrecht, mit Abstand nach unten
   ctx.fillStyle = '#374151'; ctx.font = '11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   labels.forEach((lbl, i) => {
@@ -4469,7 +4495,9 @@ function drawCumChart(ctx, windCum, pvCum, labels, W, H, PAD_L, PAD_B, PAD_T, PA
     ctx.fillStyle = '#6b7280'; ctx.font = '10px system-ui'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
     ctx.fillText(v.toFixed(0) + '%', PAD_L - 6, y);
   }
-  function drawCL(rates, color) {
+  function drawCL(rates, color, seite) {
+    // V20: seite 'L' = Label links der Linie (textAlign right), 'R' = rechts (left)
+    // → Wind/PV-Labels überlappen sich bei nahen Kurven nicht mehr (Vision-Befund).
     const n = rates.length;
     ctx.strokeStyle = color; ctx.lineWidth = 2.5;
     ctx.beginPath();
@@ -4484,12 +4512,18 @@ function drawCumChart(ctx, windCum, pvCum, labels, W, H, PAD_L, PAD_B, PAD_T, PA
       const y = PAD_T + plotH * (1 - rates[i] / maxR);
       ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 4, 0, 2*Math.PI); ctx.fill();
       ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 2, 0, 2*Math.PI); ctx.fill();
-      ctx.fillStyle = color; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-      ctx.fillText(rates[i] + '%', x, y - 6);
+      // V20: Wert-Label senkrecht (User-Wunsch) — rotiert über dem Datenpunkt
+      ctx.save();
+      ctx.translate(x + (seite === 'L' ? -6 : 6), y - 8);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillStyle = color; ctx.font = 'bold 10px system-ui';
+      ctx.textAlign = 'right'; ctx.textBaseline = seite === 'L' ? 'right' : 'left';
+      ctx.fillText(rates[i] + '%', 0, 0);
+      ctx.restore();
     }
   }
-  drawCL(windCum, '#2563eb');
-  drawCL(pvCum, '#d97706');
+  drawCL(windCum, '#2563eb', 'L');
+  drawCL(pvCum, '#d97706', 'R');
   // X-Achsen Labels senkrecht, mit Abstand nach unten
   ctx.fillStyle = '#374151'; ctx.font = '11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   labels.forEach((lbl, i) => {
@@ -5224,7 +5258,7 @@ function runBetroffenheitsanalyse() {
     (napCtx ? `<div style="font-size:11.5px;color:#6b7280;margin-top:6px;">NAP-Kontext: ${esc(napCtx.nap)} · ${esc(napCtx.nb || '')} · ${esc(napCtx.se || '')} · Regelzone ${esc(napCtx.rz || '')}</div>` : '');
   // V16/V19: Tabellarische Gegenüberstellung Bestand ↔ Neu (Betreiber + Asset, mit Deeplinks).
   // V19-Fix: bestandNachOrt ebenfalls mit Koordinaten-Toleranz (wie _bffLastBestand).
-  const paarRows = [];
+  // V20: paarRows wird weiter unten befüllt (alle Events, mit typ-Spalte 🆕/🗑️).
   const bestandNachOrt = new Map(); // refKey/refLid → Bestands-Units
   const _mKeysArr2 = [...matchedKeys].map(k => k.split(',').map(Number));
   (_bffLastBestand || []).forEach(u => {
@@ -5240,18 +5274,24 @@ function runBetroffenheitsanalyse() {
     }
   });
   const neuEvents = events.filter(e => e.typ === 'NEU');
-  neuEvents.forEach(e => {
+  // V20 (User-Feedback 04.09.): Tabelle zeigt jetzt BEIDE Typen — NEU (🆕) und ENTFERNT (🗑️)
+  // in einer schmalen 1. Spalte. Vorher nur NEU-Events → Entfernte Anlagen waren unsichtbar.
+  const paarRows = [];
+  events.forEach(e => {
     const key = e.matchTyp === 'NAP' ? 'lid:' + e.refLid : e.refKey;
     const best = bestandNachOrt.get(key) || [];
     const bU = best[0] || null; // erste Bestandsanlage am Ort
-    paarRows.push({ neu: e.asset, bestand: bU, distKm: e.distKm, matchTyp: e.matchTyp, datum: e.datum });
+    paarRows.push({ neu: e.asset, bestand: bU, distKm: e.distKm, matchTyp: e.matchTyp, datum: e.datum, typ: e.typ });
   });
   if (paarRows.length) {
     sumEl.innerHTML += `<div style="margin-top:10px;overflow-x:auto;"><table style="border-collapse:collapse;width:100%;font-size:11px;">` +
-      `<tr style="background:#f3f4f6;"><th style="text-align:left;padding:4px 6px;border:1px solid #e5e7eb;">Bestand · Betreiber</th><th style="text-align:left;padding:4px 6px;border:1px solid #e5e7eb;">Bestand · Anlage</th><th style="text-align:left;padding:4px 6px;border:1px solid #e5e7eb;">Neu · Betreiber</th><th style="text-align:left;padding:4px 6px;border:1px solid #e5e7eb;">Neu · Anlage (Update)</th><th style="text-align:right;padding:4px 6px;border:1px solid #e5e7eb;">MW</th><th style="padding:4px 6px;border:1px solid #e5e7eb;">Match</th></tr>` +
+      `<tr style="background:#f3f4f6;"><th style="padding:4px 3px;border:1px solid #e5e7eb;" title="🆕 = neu hinzugefügt · 🗑️ = entfernt"></th><th style="text-align:left;padding:4px 6px;border:1px solid #e5e7eb;">Bestand · Betreiber</th><th style="text-align:left;padding:4px 6px;border:1px solid #e5e7eb;">Bestand · Anlage</th><th style="text-align:left;padding:4px 6px;border:1px solid #e5e7eb;">Neu · Betreiber</th><th style="text-align:left;padding:4px 6px;border:1px solid #e5e7eb;">Neu · Anlage (Update)</th><th style="text-align:right;padding:4px 6px;border:1px solid #e5e7eb;">MW</th><th style="padding:4px 6px;border:1px solid #e5e7eb;">Match</th></tr>` +
       paarRows.map((p, pi) => {
         const dLink = (m, name) => m ? `<a href="#" data-bff-dl="${esc(m)}" style="color:#2563eb;text-decoration:underline;">${esc(name)}</a>` : '—';
+        // V20: schmale Typ-Spalte — 🆕 = neu registriert/in Betrieb, 🗑️ = entfernt
+        const typIcon = p.typ === 'ENTFERNT' ? '<span title="Anlage wurde entfernt" style="font-size:11px;">🗑️</span>' : '<span title="Anlage ist neu hinzugekommen" style="font-size:11px;">🆕</span>';
         return `<tr>` +
+          `<td style="padding:4px 3px;border:1px solid #e5e7eb;text-align:center;">${typIcon}</td>` +
           `<td style="padding:4px 6px;border:1px solid #e5e7eb;">${esc(p.bestand ? (p.bestand.ab || '—') : '—')}</td>` +
           `<td style="padding:4px 6px;border:1px solid #e5e7eb;">${p.bestand ? dLink(p.bestand.m, p.bestand.n || p.bestand.m) : '—'}</td>` +
           `<td style="padding:4px 6px;border:1px solid #e5e7eb;">${esc(p.neu.ab || '—')}</td>` +
