@@ -78,6 +78,16 @@ Beide Repos nutzen den **`gh-pages`-Branch** als Pages-Quelle (statisch, keine G
   (65.659 Anlagen), Pages `status: built`, Deployment-SHA = gh-pages-HEAD e66c774.
   gh-pages-Update künftig mit `/tmp/deploy_ghpages_v19.sh`-Muster (Worktree, CNAME unangetastet,
   kein dist/-Pickup — siehe Skill publishing-projects-to-github).
+- ✅ **V21 live (04.09. Abend, User-Freigabe):** 6 Revisionspakete — Betreiber-Tab
+  (Live-Suggest + Gruppen/Portfolio-Filter, 'rwe'-False-Positive-Fix, Zahlformat 1 NK),
+  Popup (TT.MM.JJJJ, NAP-Klick → alle Anlagen am NAP, 219-Anlagen-Test), Sortier-Fix
+  Inbetriebnahme (numerisch statt String), Asset-Name-Klick in „Alle Anlagen anzeigen",
+  Chart-Labels über den Datenpunkten. **main `d1096b4`, gh-pages `48da2ae`**, Deploy per
+  `scripts/deploy_ghpages.sh` (datumsbasierte Message, CNAME unangetastet).
+  Live-Verifikation: Index 433.686 B = lokal identisch, V21-Marker (tbl-name,
+  „Gruppe oder Portfolio filtern…", V21.6) in Live-Datei + Live-JS.
+  **CDN max-age=600:** erste ~10 min nach Deploy kann Cache Altstand zeigen —
+  Cache-Buster-Query (`?v…=1`) umgeht das.
 - ✅ V8j-Fixes live (`top: 86px` im HTML nachweisbar), Disclaimer-Trigger unter Zoom-Control
 - ✅ Portal `index.html` → HTTP 200, enthält Link zur Karten-Subdomain
 - ✅ Single-File rekonstruiert, SHA-identisch mit Backup (kein Datenverlust)

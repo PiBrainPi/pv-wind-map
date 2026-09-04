@@ -3,10 +3,38 @@
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
 > Stand: 2026-09-04 · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
 
-## Aktueller Stand (2026-09-04, V19 — Betroffenheits-Tab final, LIVE deployed)
+## Aktueller Stand (2026-09-04, V21 — Betreiber-Deep-Links, Popup-Erweiterung, Chart-Fixes, LIVE deployed)
 
-**LIVE:** https://wind-pv-map.ingenieur-tools.de · **Code-Stand:** V19 · **Single-File:** 38,7 MB
-**Letzter Deploy:** 04.09.2026 (V19, User freigegeben) · **Deploy-Verifizierung:** served-SHA = local-SHA, Daten-JSON live OK
+**LIVE:** https://wind-pv-map.ingenieur-tools.de · **Code-Stand:** V21.6 · **Single-File:** 38,7 MB
+**Letzter Deploy:** 04.09.2026 Abend (V21, User freigegeben) · **main:** d1096b4 · **gh-pages:** 48da2ae
+**Deploy-Verifizierung:** Live-Index 433.686 B = lokal identisch, V21-Marker (tbl-name,
+„Gruppe oder Portfolio filtern…", V21.6) in Live-Datei + Live-JS bestätigt.
+CDN-Hinweis: max-age=600 → bis 10 min nach Deploy kann Cache den Altstand zeigen
+(Cache-Buster-Query `?v…=1` umgeht das).
+
+### V21 im Überblick (04.09., 6 Revisionspakete, alle browser-verifiziert)
+- **V21.0 Betreiber-Tab:** Live-Suggest (ab 2 Zeichen, 250 ms Debounce, Gruppen 👥 /
+  Portfolios 📁 zuerst, klickbar), Tabellen-Filter über Gruppen/Portfolios (kein
+  substring-False-Positive mehr — 'rwe'-Bug), Gruppen-Klick = alle Anlagen der Gruppe.
+- **V21.1–V21.3 Deeplink-Saga (User-Korrekturen):** ↗-Spalte → Name-Link → Korrrektur:
+  KEIN North-Data im Betreiber-Tab; Klick auf Betreiber/Gruppe/Portfolio = Anlagen auf
+  der Karte. Zahlformat „Summe MW"/„Ø MW" = exakt 1 Nachkommastelle (de-DE).
+- **V21.4 Popup + Sortierung:** Popup-Datum TT.MM.JJJJ (`_parseMaStrDate` parst Tag,
+  `dateFullFmt`), NAP im Popup klickbar → alle Anlagen am selben NAP (selectNAP,
+  String-Vergleich-Fix; 219-Anlagen-Test), Spannungsebene bestätigt vorhanden.
+  Sortier-Fix „Alle Anlagen anzeigen": Inbetriebnahme-Spalte numerisch (y*100+m)
+  statt String (alter Bug: '201910' < '20192' lexikalisch).
+- **V21.5 Asset-Name-Klick:** Tabelle „Alle Anlagen anzeigen", Spalte Name klickbar →
+  Karte zoomt + Popup, alle gefilterten Marker bleiben (6.243-Marker-Test).
+- **V21.6 Chart-Labels:** Zubau-Liniencharts (kumulativ + Raten) — senkrechte
+  y-Wert-Labels stehen ÜBER dem Datenpunkt (negativ: darunter), kein Overlap mehr.
+
+### Offene Punkte / nächste Themen (für nahtlose Weiterarbeit)
+- **Punkt 9 (alt):** HTML-Kernfeld-Auswahl — NUR mit User besprechen, nicht selbst decidieren.
+- **NAP-Korrelation (User-Interesse):** Anlagen ↔ Netzanschlusspunkt via LokationId für
+  künftige Karten-Features (Grundlage existiert: napByLid, 479 Multi-NAP-Lokationen).
+- Revisionsdateien V21: iterations/V21_BetreiberTabRevision1–4, V21_PopupNAP_Sortierung,
+  V21_AssetNameKlick, V21_ChartLabelsUeberPunkten (+ Kopien in ~/hermes_human-share/).
 - **Grundsatzentscheidung (2026-09-03, User-Freigabe):** `GRUNDSATZENTSCHEIDUNG.md` im Repo-Root —
   Regel 1 (NICHTS löschen ohne explizite Zustimmung), Regel 2 (100 % der MaStR-Daten Wind/PV auf
   den Server: alle 118 Felder + NAP), Regel 3 (iterierte HTML-Versionen niemals löschen), Regel 4
@@ -106,8 +134,11 @@
   Linien-Charts, beide Modi), PAD_T erhöht. (6) Gestrichelte Trendlinie entfernt.
   (7) Wind/PV-Label-Überlappung in Linien-Charts getrennt (L/R-Positionierung).
   Revision: iterations/V20_BetroffenheitRevision6.html.
-  **V20 Status: von User freigegeben (04.09.) → auf main (2c35f84) + gh-pages (0fe70b2)
-  deployed, LIVE. Live-SHA-Abgleich identisch (30c1fcd2…), V20-Marker in Live-Datei.**
+  **V21 Status: von User freigegeben (04.09. Abend) → auf main (d1096b4) + gh-pages
+  (48da2ae) deployed, LIVE. Live-Verifikation: Index 433.686 Byte identisch lokal/live,
+  V21.6-Marker + tbl-name + „Gruppe oder Portfolio filtern…" in Live-Datei, Placeholder
+  im Live-JS bestätigt. (Hinweis: CDN max-age=600 — erste 10 min nach Deploy kann der
+  alte Stand aus dem Cache kommen; Cache-Buster-Query umgeht das.)**
   Deploy-Skript-Vorlage: /tmp/deploy_ghpages_v20.sh (Worktree-Methode, CNAME bleibt;
   **jetzt fest im Repo: scripts/deploy_ghpages.sh** — pfadunabhängige Commit-Message,
   permanente Methode für alle künftigen Releases).
