@@ -131,9 +131,14 @@ Values 81–99 mislabeled as “MW” (≈ 0.1 MW micro-turbines) are treated as
 - **PV**: ≥ 0.5 MWp (≥ 500 kWp), status "In Betrieb".
 - **Map**: only geolocated units (`geolokation=1`). No geocoding.
 
-### Current figures (import 2026-08-29)
+### Current figures (import 2026-09-04, V19)
 | Category | In DB | Georeferenced |
 |----------|-------|---------------|
-| Wind (≥100 kW) | 32,144 | 31,114 |
-| PV (≥0.5 MWp) | 22,371 | 22,368 |
-| **Total** | **54,515** | **53,482** |
+| Wind (≥100 kW) | 31,116 | 31,116 |
+| PV (≥0.5 MWp) | 22,384 | 22,384 |
+| **Total** | **65,659** | **65,659** |
+
+> Stand 04.09.2026 (V19-Live-Datenstand): infobar „31.116 Wind · 22.384 PV".
+> Historie inkl. Updates (NEU/ENTFERNT) → `assets/historie.json`; NAP-Index
+> 27.078 → 27.870 NAPs (`assets/nap_index.json`). Import-Sektion oben dokumentiert
+> den ersten Stand vom 29.08. — die Live-Zahlen folgen dem jeweils aktuellen Export.

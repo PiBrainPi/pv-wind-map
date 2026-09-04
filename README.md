@@ -46,6 +46,20 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
   gestapeltes Balkendiagramm (Wind+PV), PV/Wind einzeln mit Trendlinie, Bundesländer-Heatmap
   (Rot→Gelb→Grün, sqrt-skaliert), Zubauraten (YoY-Wachstum %), Wachstum gegenüber kumuliertem Bestand.
   Toggle Anlagen/Leistung (MW). Senkrechte X-Achsen-Labels, Werte horizontal oberhalb der Balken.
+- ⚡ **NAP-Gruppenansicht (V12):** Toggle zeigt Gruppen-Badges aller Anlagen am selben
+  Netzanschlusspunkt; Panel listet alle Anlagen je Anschlusspunkt (Multi-NAP-Unterstützung).
+- 📉 **Spannungsebenen-Filter (V10):** Dropdown (Mittel-/Hoch-/Höchstspannung, NS, 3 Umspann-
+  ebenen, „ohne Angabe") via NAP-Join (99 % Abdeckung), Statistik-Tab + Tabellen-Spalte „Ebene".
+- ⚠️ **Betroffenheits-Tab (V13–V19):** Referenzsuche (Anlage > Betreibergruppe > Portfolio >
+  Betreiber > NAP) prüft Neu-/Entfernt-Updates aus der Historie gegen den Bestand — Match via
+  NAP-Gleichheit **oder** Haversine-Umkreis (2–50 km, Default 20 km, Radius-Ringe um die
+  getroffenen Bestandsanlagen). Vergleichstabelle Bestand↔Neu (Betreiber, Asset mit
+  Karten-Deeplink, Anschlussleistung MW/MWp, Match-Kriterium + Distanz), „🗺️ Anzeigen"
+  blendet alle betroffenen Assets ohne Filter-Schnittmenge und ohne Clustering ein,
+  „Betroffene Gesellschaften" zählt über die Bestandsanlagen des Portfolios. Zeitfenster-
+  Wahl (letztes/alle Updates). Expliziter Hinweis: **Indikation, keine rechtsverbindliche
+  Auskunft** (Luftlinie ≠ Netztopologie; geplante Anlagen ohne NAP werden über die
+  Geolokation geprüft).
 
 ---
 

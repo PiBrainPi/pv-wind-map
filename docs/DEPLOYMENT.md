@@ -66,7 +66,12 @@ Beide Repos nutzen den **`gh-pages`-Branch** als Pages-Quelle (statisch, keine G
 
 ### Verifikation (durchgeführt 2026-08-30, aktualisiert 2026-09-03)
 
-- ✅ Karte `index.html` → HTTP 200, Leaflet lädt, `assets/einheiten.json` (24 MB) → **53.380 Einheiten (V8h/V8i/V8j, Stand 2026-09-03)**
+- ✅ Karte `index.html` → HTTP 200, Leaflet lädt, `assets/einheiten.json` (24 MB) → **65.659 Einheiten (V19, Stand 2026-09-04)**
+- ✅ V19 live (04.09., User-Freigabe): Betroffenheits-Tab final — Deploy-Verifizierung
+  served-SHA (index_singlefile.html) = local-SHA (d678a6c6…), Daten-JSON live OK
+  (65.659 Anlagen), Pages `status: built`, Deployment-SHA = gh-pages-HEAD e66c774.
+  gh-pages-Update künftig mit `/tmp/deploy_ghpages_v19.sh`-Muster (Worktree, CNAME unangetastet,
+  kein dist/-Pickup — siehe Skill publishing-projects-to-github).
 - ✅ V8j-Fixes live (`top: 86px` im HTML nachweisbar), Disclaimer-Trigger unter Zoom-Control
 - ✅ Portal `index.html` → HTTP 200, enthält Link zur Karten-Subdomain
 - ✅ Single-File rekonstruiert, SHA-identisch mit Backup (kein Datenverlust)
