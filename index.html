@@ -1229,13 +1229,19 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #landkreis-table tr.lk-sum td { background:#f7f9fc; font-weight:600; border-top:2px solid #e5e7eb; cursor:default; }
 #landkreis-count { margin-top:8px; font-size:12px; color:#888; }
 /* V26 (Paket 1): Scroll-Container gilt jetzt für PC UND mobil (V25 war mobil-only). */
-#landkreis-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; max-width:100%; } /* V28: Scroll-Container auf Panelbreite begrenzt */
-/* Bedien-Hinweis ÜBER der Tabelle (sofort sichtbar, scrollt nicht weg) */
-#landkreis-scroll-hint { font-size:11px; color:#9ca3af; text-align:center; margin-bottom:5px; }
+#landkreis-scroll {
+  overflow-x:auto; -webkit-overflow-scrolling:touch; max-width:100%;
+  padding-bottom:6px;
+  scrollbar-width:auto;
+  scrollbar-color:#94a3b8 #e5e7eb;
+}
+#landkreis-scroll::-webkit-scrollbar { height:12px; }
+#landkreis-scroll::-webkit-scrollbar-track { background:#e5e7eb; border-radius:6px; }
+#landkreis-scroll::-webkit-scrollbar-thumb { background:#94a3b8; border-radius:6px; }
+#landkreis-scroll::-webkit-scrollbar-thumb:hover { background:#64748b; } /* V28: Scroll-Container auf Panelbreite begrenzt */
 @media (max-width:767px) {
   #tab-landkreis { padding:14px 10px; }
   #landkreis-table th, #landkreis-table td { padding:6px 7px; }
-  #landkreis-scroll-hint::after { content:" (am Smartphone: seitlich wischen)"; }
 }
 
 /* Größenklassen-Balken (professionell mit Achsen) */
@@ -1281,7 +1287,6 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   display:flex; gap:20px; flex-wrap:wrap; line-height:1.5;
 }
 #groesse-summary b { color:#111827; }
-#groesse-summary .kritis-hint { color:#b91c1c; font-size:12px; }
 
 /* Chart-Achsen-Layout */
 .chart-wrap { display:flex; gap:8px; align-items:stretch; }
@@ -1320,14 +1325,9 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .bar-fill.wind { background:linear-gradient(90deg,#1d4ed8,#3b82f6); }
 .bar-fill.pv   { background:linear-gradient(90deg,#b45309,#f59e0b); }
 .bar-fill.gesamt { background:linear-gradient(90deg,#4338ca,#818cf8); }
-.bar-fill.kritis { background:linear-gradient(90deg,#b91c1c,#f87171) !important; }
 /* Gesamt-Diagramm: zwei Balken (Wind+PV) nebeneinander in einer Zeile */
 .bar-track-gesamt { position:relative; display:flex; gap:2px; height:16px; flex:1; }
 .bar-row-gesamt { display:flex; align-items:center; gap:8px; }
-.bar-fill.kritis-glow { position:absolute; left:0; top:-2px; bottom:-2px; right:0;
-  border:1px solid #f87171; border-radius:4px; pointer-events:none; }
-.bar-label .kritis-badge { display:inline-block; margin-left:4px; padding:0 5px; border-radius:4px;
-  background:#fee2e2; color:#b91c1c; font-size:10px; font-weight:700; }
 #groesse-legend .legend-swatch { display:inline-block; width:12px; height:12px; border-radius:3px;
   vertical-align:middle; margin:0 2px 0 6px; }
 #groesse-legend .sw-wind { background:#2563eb; }
@@ -1832,7 +1832,6 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         NAP-MW = Nettoengpassleistung der zugeordneten NAPs (Anschlusskapazität, nicht Anlagenleistung) ·
         Klick auf eine Zeile zeigt alle Anlagen des Landkreises auf der Karte
       </div>
-      <div id="landkreis-scroll-hint">← Tabelle ist horizontal scrollbar →</div>
       <div id="landkreis-scroll">
       <table id="landkreis-table">
         <thead>
@@ -4260,8 +4259,7 @@ function renderGroesse() {
     `<span><b>${techName}</b></span>` +
     `<span>${anzahlLabel}: <b>${sumAnzahl.toLocaleString('de-DE')}</b></span>` +
     `<span>Gesamtleistung: <b>${sumMW.toLocaleString('de-DE', {maximumFractionDigits:0})} MW</b></span>` +
-    `<span>Max ${basis === 'cluster' ? 'Park' : 'Einzelanlage'}: <b>${maxMw.toLocaleString('de-DE', {maximumFractionDigits:0})} MW</b></span>` +
-    `<span class="kritis-hint">🔴 = Kritis-Schwellwert-Klasse</span>`;
+    `<span>Max ${basis === 'cluster' ? 'Park' : 'Einzelanlage'}: <b>${maxMw.toLocaleString('de-DE', {maximumFractionDigits:0})} MW</b></span>`;
   document.getElementById('groesse-legend').innerHTML =
     (tech === 'gesamt'
       ? `<span class="legend-swatch sw-wind"></span> Wind · <span class="legend-swatch sw-pv"></span> PV`
@@ -4307,8 +4305,7 @@ function renderGroesse() {
       const totalVal = isFinite(valW) && isFinite(valP) ? (measure==='anzahl' ? totalN : totalS) : 0;
       const pctW = Math.max(4, Math.round(100 * valW / maxVal));
       const pctP = Math.max(4, Math.round(100 * valP / maxVal));
-      const kritisBadge = k.kritis ? '<span class="kritis-badge">KRITIS</span>' : '';
-      const countLabel = measure === 'anzahl'
+        const countLabel = measure === 'anzahl'
         ? totalN.toLocaleString('de-DE')
         : totalS.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' MW';
       return `<div class="bar-cell">
@@ -4320,10 +4317,9 @@ function renderGroesse() {
           <div class="bar-track-gesamt">
             <span class="bar-fill wind" style="width:${widthByPct(pctW)}" title="Wind" data-tech="wind"></span>
             <span class="bar-fill pv" style="width:${widthByPct(pctP)}" title="PV" data-tech="pv"></span>
-            ${k.kritis ? '<span class="bar-fill kritis-glow"></span>' : ''}
           </div>
         </div>
-        <div class="bar-label"><span class="bar-klasse">${esc(k.label)}</span><small> MW</small>${kritisBadge}<span class="bar-sublabel">${measure==='anzahl' ? 'Summe: ' + totalS.toLocaleString('de-DE',{maximumFractionDigits:0}) + ' MW' : 'Anlagen: ' + totalN.toLocaleString('de-DE')} · Wind ${w.n.toLocaleString('de-DE')} / PV ${p.n.toLocaleString('de-DE')}</span></div>
+        <div class="bar-label"><span class="bar-klasse">${esc(k.label)}</span><small> MW</small><span class="bar-sublabel">${measure==='anzahl' ? 'Summe: ' + totalS.toLocaleString('de-DE',{maximumFractionDigits:0}) + ' MW' : 'Anlagen: ' + totalN.toLocaleString('de-DE')} · Wind ${w.n.toLocaleString('de-DE')} / PV ${p.n.toLocaleString('de-DE')}</span></div>
       </div>`;
     }
     const rawVal = measure === 'anzahl' ? k.anzahl : k.sum_mw;
@@ -4336,7 +4332,6 @@ function renderGroesse() {
     const amountLabel = measure === 'anzahl'
       ? k.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:0}) + ' MW'
       : k.anzahl.toLocaleString('de-DE') + ' Anlagen';
-    const kritisBadge = k.kritis ? '<span class="kritis-badge">KRITIS</span>' : '';
     return `<div class="bar-cell">
       <div class="bar-row" data-tip='${JSON.stringify({
         klasse: k.label + ' MW', anzahl: k.anzahl, sum: k.sum_mw,
@@ -4348,7 +4343,7 @@ function renderGroesse() {
         </div>
         <span class="bar-value">${countLabel}</span>
       </div>
-      <div class="bar-label"><span class="bar-klasse">${esc(k.label)}</span><small> MW</small>${kritisBadge}<span class="bar-sublabel">${measure==='anzahl' ? 'Summe: ' + amountLabel : 'Anlagen: ' + k.anzahl.toLocaleString('de-DE')}</span></div>
+      <div class="bar-label"><span class="bar-klasse">${esc(k.label)}</span><small> MW</small><span class="bar-sublabel">${measure==='anzahl' ? 'Summe: ' + amountLabel : 'Anlagen: ' + k.anzahl.toLocaleString('de-DE')}</span></div>
     </div>`;
   }).join('');
 
