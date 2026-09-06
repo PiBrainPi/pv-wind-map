@@ -4,6 +4,16 @@
 
 ## Bekannte Fehlerbilder & Lösungen
 
+### 0. „Alle Anlagen anzeigen"-Klick tut nichts (BEHOBEN in V25)
+**Fehlerbild:** Filter aktiv, Button erscheint, Klick → sichtbar keine Reaktion.
+**Ursache (V23-Regression):** `showAllUnits()` las die V23-Geo-Filter (Landkreis/Gemeinde)
+nicht — die Meta-Zeile referenzierte `lk`, bevor es definiert war → `ReferenceError:
+lk is not defined` → Funktion brach ab, bevor das Overlay geöffnet wurde.
+**Lösung (V25):** Geo-Filter in `showAllUnits()` einlesen und anwenden (u.lk / u.g).
+**Lektion:** Neue Filter IMMER in beiden Funktionen ergänzen: `applyFilters()` UND
+`showAllUnits()` (gleiche Filterlogik, zwei Stellen — Browsers-Konsole via F12 zeigt
+den ReferenceError sofort).
+
 ### 1. „Fehler beim Laden: Failed to fetch" (hostbare Version)
 **Ursache:** Die hostbare `dist/index.html` lädt ihre Daten per `fetch()` aus
 `assets/*.json`. Ab `file://` ist fetch() wegen CORS gesperrt.

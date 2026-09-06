@@ -1,6 +1,6 @@
 # Statistik-Panel — Betreiber & Größenklassen (PV & Wind Karte)
 
-> Stand: 2026-09-06 (V24) · Zweisprachig (DE / EN)
+> Stand: 2026-09-06 (V25) · Zweisprachig (DE / EN)
 
 ## Überblick (DE)
 
@@ -114,6 +114,10 @@ Zähler-Zeile („377 Landkreise · …"). Datenbasis: 377 LKs · 51.722 Assets 
 27.313 NAPs · 260.481.655,5 NAP-MW (verifiziert 06.09.). **Seit V24:** `table-layout:fixed`
 mit festen Spaltenverhältnissen — die 9 Spalten passen ohne horizontales Scrollen in die
 805-px-Panel-Breite (V24-Paket 2, alle 9 Tabs browser-verifiziert overflow-frei).
+**Mobile (V25):** Bei ≤767 px wird die Tabelle über `#landkreis-scroll` horizontal
+ scrollbar (Touch-Wischen) und erhält `min-width:860px` mit `table-layout:auto` —
+ die Header bleiben vollständig lesbar, ein Hinweis „← seitlich wischen →" erscheint
+ unter der Tabelle. PC-Ansicht unverändert (kein Scroll).
 
 Datenbasis (Import 2026-09-04, Wind ≥100 kW / PV ≥0,5 MWp, alle Status, geolokation=1):
 | | Wind | PV |

@@ -78,6 +78,15 @@ Beide Repos nutzen den **`gh-pages`-Branch** als Pages-Quelle (statisch, keine G
   (65.659 Anlagen), Pages `status: built`, Deployment-SHA = gh-pages-HEAD e66c774.
   gh-pages-Update künftig mit `/tmp/deploy_ghpages_v19.sh`-Muster (Worktree, CNAME unangetastet,
   kein dist/-Pickup — siehe Skill publishing-projects-to-github).
+- ✅ **V25 live (06.09. Abend, User-Freigabe):** Bugfix + Mobile-Politur —
+  1) **„Alle Anlagen anzeigen" repariert** (V23-Regression: `showAllUnits()` kannte die
+  Geo-Filter nicht → `ReferenceError: lk is not defined`, Overlay öffnete nie; jetzt LK+
+  Gemeinde einlesen + filtern; Test SH+Dithmarschen = 923 Anlagen).
+  2) **Landkreis-Tab mobil:** Scroll-Container `#landkreis-scroll` (overflow-x, Touch),
+  `table-layout:auto` + `min-width:860px` bei ≤767 px → Header nie abgekürzt
+  (375-px-Test: Tabelle 1.024 px, alle Header FULL); PC bleibt Fixed-Layout.
+  3) Such-Placeholder „…z.B. Solarpark Döllen GmbH".
+  Deploy nach DB-Backup; Live-Verifikation: Placeholder-String + LK-Fix im Live-HTML.
 - ✅ **V24 live (06.09., User-Freigabe „pushe + stelle live"):** Politur — Landkreis-Tab-Header
   mit Leistungseinheiten („Leistung PV (MWp)" / „Leistung Wind (MW)") + Statistik-Panel ohne
   horizontales Scrollen (Landkreis-Tabelle `table-layout:fixed` + Spaltenverhältnisse,

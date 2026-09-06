@@ -72,6 +72,16 @@ Remote-Feldliste) sind alle in den Entscheidungen 4–7 bzw. in docs/ dokumentie
   (31.116 Wind ≥100 kW + 22.384 PV ≥0,5 MWp). Top-Betreiber nach Anzahl: PROKON (275 Anlagen).
 - Statistik-Aggregation erfolgt in `export_app.py` aus SQLite (nur `geolokation=1`,
   konsistent zur Karte) → `dist/assets/statistiken.json`.
+## 2026-09-06 · V25 — Bugfix + Mobile + Live-Gang (User-Freigabe)
+
+- **Bugfix:** „Alle Anlagen anzeigen" tot seit V23 (`showAllUnits()` ohne Geo-Filter →
+  ReferenceError). Lektion dokumentiert: **neue Filter immer in BOTH `applyFilters()` UND
+  `showAllUnits()` ergänzen** — der Betroffenheits-Overlay-Code spiegelte genau dieses
+  Muster schon früher (F5-Fix).
+- **Mobile:** Landkreis-Tab horizontal scrollbar (Header vollständig), PC unverändert.
+- **Placeholder:** „Solarpark Döllen GmbH".
+- **Deploy:** User-Freigabe → push main + gh-pages, Live-Verifikation wie gehabt.
+
 ## 2026-09-06 · V24 — Politur + Live-Gang (User-Freigabe)
 
 - **Entscheidung:** Landkreis-Tab-Header tragen die Leistungseinheit — „Leistung PV (MWp)"

@@ -3,9 +3,15 @@
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
 > Stand: 2026-09-06 · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
 
-## Aktueller Stand (2026-09-06, **V24 LIVE** — enthält V22 „Parks aggregiert" + V23 „Geo-Ebene" + V24-Politur)
+## Aktueller Stand (2026-09-06, **V25 LIVE** — V22+V23+V24+V25)
 
-**LIVE:** https://wind-pv-map.ingenieur-tools.de (**V24-Stand**) · **Code-Stand:** V24 (main `7172681`) · **Single-File:** 42,3 MB
+**LIVE:** https://wind-pv-map.ingenieur-tools.de (**V25-Stand**) · **Code-Stand:** V25 (main `V25-SHA`) · **Single-File:** 42,3 MB
+**V25 (06.09.):** **Bugfix „Alle Anlagen anzeigen"** — V23-Regression: Geo-Filter (LK/Gemeinde)
+fehlten in `showAllUnits()` → ReferenceError, Overlay öffnete nie. Jetzt: LK+Gemeinde gelesen
+und gefiltert (Test: SH+Dithmarschen = 923 Anlagen, Meta korrekt). **Mobile:** Landkreis-Tab
+horizontal scrollbar (Touch-Wischen, Hinweis unter der Tabelle), Header vollständig lesbar
+(375-px-Test: Tabelle 1.024 px, alle 9 Header FULL); PC unverändert Fixed-Layout ohne Scroll.
+Such-Placeholder: „Suche Anlage… z.B. Solarpark Döllen GmbH".
 **LIVE-Deploy:** 06.09.2026 (V22+V23+V24 gemeinsam, User-Freigabe erteilt) · **main:** `7172681` · **gh-pages:** `1b9c85a`
 **V24 (06.09.):** Landkreis-Tab-Header mit Leistungseinheiten („Leistung PV **(MWp)**",
 „Leistung Wind **(MW)**"); Statistik-Panel **ohne horizontales Scrollen** — alle 9 Tabs
@@ -50,6 +56,9 @@ CDN-Hinweis: max-age=600 → bis 10 min nach Deploy kann Cache den Altstand zeig
   y-Wert-Labels stehen ÜBER dem Datenpunkt (negativ: darunter), kein Overlap mehr.
 
 ### Offene Punkte / nächste Themen (für nahtlose Weiterarbeit)
+- **Stand 06.09. (V25 LIVE):** V25 = „Alle Anlagen anzeigen"-Bugfix (V23-Regression, Geo-Filter
+  in showAllUnits ergänzt) + Landkreis-Tab mobil scrollbar (Header voll) + Such-Placeholder.
+  Keine offenen Arbeitspakete — nächste Themen hier ergänzen.
 - **Stand 06.09. (V24 LIVE):** V22+V23+V24 sind deployed (main `7172681`, gh-pages `1b9c85a`).
   V24 = Header-Einheiten im Landkreis-Tab (PV (MWp) / Wind (MW)) + Statistik-Panel ohne
   horizontales Scrollen (alle 9 Tabs verifiziert `scrollWidth ≤ clientWidth`). Keine

@@ -20,6 +20,14 @@
 
 ---
 
+## V25 (2026-09-06) — Bugfix „Alle Anlagen anzeigen" + Mobile Landkreis-Tab (LIVE)
+
+| # | Paket | Umsetzung | Verifikation |
+|---|---|---|---|
+| 1 | Bugfix | V23-Regression: `showAllUnits()` kannte `lk`/`gemeinde` nicht → ReferenceError beim Klick, Overlay öffnete nie. Fix: Geo-Filter einlesen + anwenden (u.lk / u.g) | Repro vorher (Fehler + Overlay zu), nachher: SH+Dithmarschen → 923 Zeilen, Meta korrekt, 0 Fehler |
+| 2 | Mobile | `#landkreis-scroll` (overflow-x auto, touch) + `table-layout:auto` + `min-width:860px` ≤767 px; Wisch-Hinweis via `#landkreis-count::before`; PC unangetastet (Fixed-Layout) | 375-px-Test: Tabelle 1.024 px, scrollbar, alle 9 Header [FULL] |
+| 3 | Placeholder | „Suche Anlage… z.B. Solarpark Döllen GmbH" | Browser-Snapshot + Live-HTML |
+
 ## V24 (2026-09-06) — Politur: Header-Einheiten + kein Horizontal-Scroll (LIVE)
 
 | # | Paket | Umsetzung | Verifikation |
