@@ -463,7 +463,13 @@ def main() -> None:
     for r in raw_rows:
         r_list = list(r)
         et_id = r_list[2]
-        brutto = to_mw({"Bruttoleistung": r_list[30], "Typenbezeichnung": r_list[24]}, et_id)
+        # V27-Fix (06.09.2026): Rotordurchmesser MITGEBEN — to_mw-Physik-Check (RD<60 & >=1,5 MW
+        # => kW-Falschangabe) braucht das Feld, sonst bleiben Kleinwindräder als "1,5 MW" … "80 MW".
+        brutto = to_mw({
+            "Bruttoleistung": r_list[30],
+            "Typenbezeichnung": r_list[24],
+            "RotordurchmesserWindenergieanlage": r_list[22],
+        }, et_id)
         # Wind <100 kW nach Normalisierung verwerfen (konsistent zum Kern-Filter)
         if et_id == 2497 and (brutto is None or brutto < 0.1):
             continue

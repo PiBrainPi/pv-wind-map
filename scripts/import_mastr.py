@@ -146,8 +146,19 @@ def to_mw(r, et_id: int) -> float | None:
     if et_id == 2495:             # PV: kWp -> MW
         return round(v / 1000.0, 4)
     # Wind: mehrstufige Prüfung
+    # V27-Fix Hülle (06.09.2026): Physik-Check NACH der kW->MW-Wandlung —
+    # eine echte >= 1,5-MW-WEA hat Rotordurchmesser >= 60 m (25.151 Anlagen, empirisch
+    # MIN = 60,0 m). Werte, die danach >= 1,5 MW ergeben würden, aber RD < 60 m haben,
+    # sind doppelte kW-Meldungen (z. B. GCI-15K = 15 kW als 12.500 "kW" → sonst 12,5 MW).
+    rd = as_float(r, "RotordurchmesserWindenergieanlage")
+
+    def _physik_check(mw):
+        if mw is not None and mw >= 1.5 and rd is not None and rd < 60:
+            return round(mw / 1000.0, 4)
+        return mw
+
     if v > 80:
-        return round(v / 1000.0, 4)   # kW -> MW
+        return _physik_check(round(v / 1000.0, 4))   # kW -> MW (+ Physik-Check)
     # Wert 15–80: prüfe ob echte MW (V236-15MW etc.) oder falsche kW
     if 15 <= v <= 80:
         typ = (r.get("Typenbezeichnung") or "").lower()
@@ -156,7 +167,10 @@ def to_mw(r, et_id: int) -> float | None:
             return round(v, 4)       # bereits MW (echte 15 MW WEA)
         # Alle anderen 15–80: sind kW (Kleinwindanlagen)
         return round(v / 1000.0, 4)  # kW -> MW
-    return round(v, 4)               # < 15: bereits MW
+    # V27-Fix (06.09.2026, User-Befund): v < 15 ist NICHT automatisch MW!
+    # MaStR meldet Kleinwindanlagen (IstaBreeze 1,5 kW, GCI-15K = 15 kW, TW80 = 80 kW)
+    # teils in kW — die fielen als "1,5 MW" … "14,5 MW" durch die alte Heuristik.
+    return _physik_check(round(v, 4))    # < 15: bereits MW (+ Physik-Check)
 
 
 def make_row(r: dict, et_id: int, et_name: str):
