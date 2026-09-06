@@ -3135,7 +3135,11 @@ function selectGeo(hit) {
 function selectGroessenKlasse(von, bis, tech, basis) {
   const usePark = basis === 'cluster';
   const getVal = u => usePark ? (u.pkmw ?? u.mw) : u.mw;
+  // V29 (Paket 3-Fix): NUR In-Betrieb (bs35) — identisch zur Chart-Basis (statistiken.json).
+  // Vorher flossen Planungsprojekte (bs31, große MW) in den Karten-Klick ein → Karte zeigte
+  // mehr Assets als das Balkendiagramm (User-Meldung zu 104–150 / 150+).
   const matching = allUnits.filter(u => {
+    if ((u.bs || 35) !== 35) return false;
     if (tech !== 'gesamt' && u.t !== tech) return false;
     const v = getVal(u);
     return v != null && v >= von && v < bis;
@@ -4953,7 +4957,22 @@ function loadHistorie() {
     return Promise.resolve();
   }
   return fetch('assets/historie.json').then(r => r.ok ? r.json() : null)
-    .then(d => { _historie = d || null; })
+    .then(d => {
+      // V29 (Paket 4): Dedup — Rebuilds hängten identische Datums-Duplikate mit LEEREM Delta
+      // an (5 tote Zeilen 01.09./06.09.). KEINE Daten löschen, nur Anzeige bereinigen:
+      // je Datum gewinnt der Snapshot mit Delta-Inhalt; chronologische Reihenfolge bleibt.
+      if (Array.isArray(d)) {
+        const byDate = new Map();
+        const cnt = x => { const dl = x.delta || {}; return (dl.added_assets || []).length + (dl.removed_assets || []).length; };
+        for (const s of d) {
+          const prev = byDate.get(s.datum);
+          if (!prev) { byDate.set(s.datum, s); continue; }
+          if (cnt(s) > cnt(prev)) byDate.set(s.datum, s);
+        }
+        d = [...byDate.values()];
+      }
+      _historie = d || null;
+    })
     .catch(() => { _historie = null; });
 }
 
