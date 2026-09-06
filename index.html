@@ -1208,10 +1208,10 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #hersteller-count { margin-top:8px; font-size:12px; color:#888; }
 
 /* V23 (Paket 4): Landkreis-Tabelle — identische Formatierung wie Hersteller-Tabelle */
-/* V24: table-layout:fixed + kompakte Zahlen (font-variant-numeric) — 9 Spalten müssen
-   ohne horizontales Scrollen in die 805-px-Panel-Breite passen (User-Vorgabe Paket 2) */
-#landkreis-table { width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
-#landkreis-table th, #landkreis-table td { padding:7px 6px; border-bottom:1px solid #eee; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+/* V26: table-layout:fixed (V24) ersetzt durch auto + min-width im V26-Block unten —
+   die 9 Spalten passen real nicht in 805 px; Header müssen vollständig lesbar sein. */
+#landkreis-table { width:max-content; min-width:900px; border-collapse:collapse; font-size:13px; table-layout:auto; }
+#landkreis-table th, #landkreis-table td { padding:7px 6px; border-bottom:1px solid #eee; text-align:left; white-space:nowrap; }
 #landkreis-table th { background:#f7f9fc; color:#333; cursor:pointer; user-select:none; }
 #landkreis-table th.num, #landkreis-table td.num { text-align:right; font-variant-numeric:tabular-nums; }
 #landkreis-table th.sorted-asc::after { content:" ▲"; color:#2563eb; font-size:10px; }
@@ -1219,34 +1219,17 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #landkreis-table tbody tr { cursor:pointer; }
 #landkreis-table tbody tr:hover { background:#eef3ff; }
 #landkreis-table td.name { max-width:none; }
-/* V24: feste Spaltenverhältnisse (Name breit, 8 Zahlen-Spalten kompakt) */
-#landkreis-table th[data-key="lk"] { width:17%; }
-#landkreis-table th[data-key="n"] { width:8.5%; }
-#landkreis-table th[data-key="mw"] { width:12.5%; }
-#landkreis-table th[data-key="n_pv"] { width:8.5%; }
-#landkreis-table th[data-key="mw_pv"] { width:12%; }
-#landkreis-table th[data-key="n_wind"] { width:8.5%; }
-#landkreis-table th[data-key="mw_wind"] { width:12%; }
-#landkreis-table th[data-key="n_nap"] { width:8%; }
-#landkreis-table th[data-key="mw_nap"] { width:13%; }
+/* V26: Die V24-%-Breiten sind mit table-layout:auto wirkungslos — entfernt. */
 #landkreis-table tr.lk-sum td { background:#f7f9fc; font-weight:600; border-top:2px solid #e5e7eb; cursor:default; }
 #landkreis-count { margin-top:8px; font-size:12px; color:#888; }
-/* V25 (Paket 2): Mobile/Smartphone — 9 Spalten passen nicht auf ~360 px. Table bekommt
-   eine Mindestbreite (Header NICHT abgekürzt), der Container wird horizontal scrollbar
-   („Schieberegler"). PC bleibt beim Fixed-Layout ohne Scroll (V24). */
+/* V26 (Paket 1): Scroll-Container gilt jetzt für PC UND mobil (V25 war mobil-only). */
+#landkreis-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+/* Bedien-Hinweis ÜBER der Tabelle (sofort sichtbar, scrollt nicht weg) */
+#landkreis-scroll-hint { font-size:11px; color:#9ca3af; text-align:center; margin-bottom:5px; }
 @media (max-width:767px) {
   #tab-landkreis { padding:14px 10px; }
-  #landkreis-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
-  #landkreis-table { table-layout:auto; min-width:860px; width:max-content; }
   #landkreis-table th, #landkreis-table td { padding:6px 7px; }
-  #landkreis-table th[data-key="lk"] { width:auto; }
-  #landkreis-table th[data-key="n"], #landkreis-table th[data-key="mw"],
-  #landkreis-table th[data-key="n_pv"], #landkreis-table th[data-key="mw_pv"],
-  #landkreis-table th[data-key="n_wind"], #landkreis-table th[data-key="mw_wind"],
-  #landkreis-table th[data-key="n_nap"], #landkreis-table th[data-key="mw_nap"] { width:auto; }
-  /* Hinweis, dass seitlich gewischt werden kann (außerhalb der Scrollfläche) */
-  #landkreis-count::before { content:"← seitlich wischen →"; display:block; text-align:center;
-    font-size:11px; color:#9ca3af; padding-bottom:4px; }
+  #landkreis-scroll-hint::after { content:" (am Smartphone: seitlich wischen)"; }
 }
 
 /* Größenklassen-Balken (professionell mit Achsen) */
@@ -1842,6 +1825,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         NAP-MW = Nettoengpassleistung der zugeordneten NAPs (Anschlusskapazität, nicht Anlagenleistung) ·
         Klick auf eine Zeile zeigt alle Anlagen des Landkreises auf der Karte
       </div>
+      <div id="landkreis-scroll-hint">← Tabelle ist horizontal scrollbar →</div>
       <div id="landkreis-scroll">
       <table id="landkreis-table">
         <thead>
