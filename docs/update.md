@@ -190,10 +190,10 @@ cp src/index.html dist/index.html
 python3 scripts/bundle_singlefile.py
 ```
 
-Or as a crontab job (**1st & 15th of the month, 03:00** — consistent with the DE section):
+Or as a crontab job (**every Sunday, 18:00** — consistent with the DE section):
 
 ```cron
-0 3 1,15 * * cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map && bash scripts/build.sh >> /tmp/pvwind_update.log 2>&1
+0 18 * * 0 cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map && bash scripts/build.sh >> /tmp/pvwind_update.log 2>&1
 ```
 
 Note (Pi5): in cron contexts do not use `execute_code`; use plain shell/Python.
