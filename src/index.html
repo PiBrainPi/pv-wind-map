@@ -1231,6 +1231,23 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #landkreis-table th[data-key="mw_nap"] { width:13%; }
 #landkreis-table tr.lk-sum td { background:#f7f9fc; font-weight:600; border-top:2px solid #e5e7eb; cursor:default; }
 #landkreis-count { margin-top:8px; font-size:12px; color:#888; }
+/* V25 (Paket 2): Mobile/Smartphone — 9 Spalten passen nicht auf ~360 px. Table bekommt
+   eine Mindestbreite (Header NICHT abgekürzt), der Container wird horizontal scrollbar
+   („Schieberegler"). PC bleibt beim Fixed-Layout ohne Scroll (V24). */
+@media (max-width:767px) {
+  #tab-landkreis { padding:14px 10px; }
+  #landkreis-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  #landkreis-table { table-layout:auto; min-width:860px; width:max-content; }
+  #landkreis-table th, #landkreis-table td { padding:6px 7px; }
+  #landkreis-table th[data-key="lk"] { width:auto; }
+  #landkreis-table th[data-key="n"], #landkreis-table th[data-key="mw"],
+  #landkreis-table th[data-key="n_pv"], #landkreis-table th[data-key="mw_pv"],
+  #landkreis-table th[data-key="n_wind"], #landkreis-table th[data-key="mw_wind"],
+  #landkreis-table th[data-key="n_nap"], #landkreis-table th[data-key="mw_nap"] { width:auto; }
+  /* Hinweis, dass seitlich gewischt werden kann (außerhalb der Scrollfläche) */
+  #landkreis-count::before { content:"← seitlich wischen →"; display:block; text-align:center;
+    font-size:11px; color:#9ca3af; padding-bottom:4px; }
+}
 
 /* Größenklassen-Balken (professionell mit Achsen) */
 #groesse-header {
@@ -1612,7 +1629,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 <div id="topbar">
   <div id="topbar-inner">
     <div id="search-wrapper">
-      <input type="text" id="search-input" placeholder="Suche Anlage… z.B. Döllen" autocomplete="off">
+      <input type="text" id="search-input" placeholder="Suche Anlage… z.B. Solarpark Döllen GmbH" autocomplete="off">
       <button type="button" id="search-clear" title="Suche löschen" style="display:none">✕</button>
       <div id="search-suggest"></div>
     </div>
@@ -1825,6 +1842,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         NAP-MW = Nettoengpassleistung der zugeordneten NAPs (Anschlusskapazität, nicht Anlagenleistung) ·
         Klick auf eine Zeile zeigt alle Anlagen des Landkreises auf der Karte
       </div>
+      <div id="landkreis-scroll">
       <table id="landkreis-table">
         <thead>
           <tr>
@@ -1841,6 +1859,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         </thead>
         <tbody id="landkreis-tbody"></tbody>
       </table>
+      </div>
       <div id="landkreis-count"></div>
     </section>
 
@@ -2651,6 +2670,11 @@ function showAllUnits() {
   const monat  = document.getElementById('filter-monat').value;
   const inbJahr  = document.getElementById('filter-inb-jahr').value;
   const inbMonat = document.getElementById('filter-inb-monat').value;
+  // V25-Fix (Bug: Klick auf „Alle Anlagen anzeigen" tat nichts): V23 hat die Geo-Filter
+  // nur in applyFilters() ergänzt, nicht hier — `lk` war undefined → ReferenceError,
+  // Overlay öffnete nie. LK + Gemeinde jetzt einlesen und filtern.
+  const lk       = document.getElementById('filter-lk') ? document.getElementById('filter-lk').value : '';
+  const gemeinde = document.getElementById('filter-g') ? document.getElementById('filter-g').value : '';
   // F5-Fix: Status-Filter auch in der Tabellen-Ansicht anwenden (war zuvor nur in applyFilters)
   const statusSel = [...document.querySelectorAll('#filter-status input[type=checkbox]:checked')]
     .map(cb => Number(cb.value));
@@ -2660,6 +2684,8 @@ function showAllUnits() {
   }
   if (type) filtered = filtered.filter(u => u.t === type);
   if (bl)   filtered = filtered.filter(u => u.b === bl);
+  if (lk)   filtered = filtered.filter(u => u.lk === lk);
+  if (gemeinde) filtered = filtered.filter(u => (u.g || '') === gemeinde);
   if (art)  filtered = filtered.filter(u => (u.art || '') === art);
   if (gr) {
     const [von, bis] = gr.split(',').map(Number.parseFloat);
