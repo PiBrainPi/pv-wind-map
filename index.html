@@ -817,6 +817,12 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   color:#2563eb; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;
 }
 #btn-show-all:hover { background:#2563eb; color:#fff; }
+/* V28 (Paket 4): Filter-Reset-Button */
+#btn-reset-filters {
+  font-size:12px; padding:5px 10px; border:1px solid #dc2626; background:#fff;
+  color:#dc2626; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;
+}
+#btn-reset-filters:hover { background:#dc2626; color:#fff; }
 
 /* V7b: Alle-Anlagen-Tabelle Overlay */
 #all-units-overlay {
@@ -1131,7 +1137,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #stats-tabs .tab.active { background:#fff; color:#2563eb; border-color:#e0e0e0; }
 
 /* Panel-Inhalt scrollbar */
-#stats-body { flex:1; overflow-y:auto; padding-bottom:20px; }
+#stats-body { flex:1; min-width:0; overflow-y:auto; padding-bottom:20px; } /* V28: min-width:0 — Flex-Item wuchs sonst auf Inhaltsbreite (LK-Tabelle übergelaufen) */
 .stats-tab { display:none; padding:14px 18px; }
 .stats-tab.active { display:block; }
 
@@ -1223,7 +1229,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #landkreis-table tr.lk-sum td { background:#f7f9fc; font-weight:600; border-top:2px solid #e5e7eb; cursor:default; }
 #landkreis-count { margin-top:8px; font-size:12px; color:#888; }
 /* V26 (Paket 1): Scroll-Container gilt jetzt für PC UND mobil (V25 war mobil-only). */
-#landkreis-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+#landkreis-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; max-width:100%; } /* V28: Scroll-Container auf Panelbreite begrenzt */
 /* Bedien-Hinweis ÜBER der Tabelle (sofort sichtbar, scrollt nicht weg) */
 #landkreis-scroll-hint { font-size:11px; color:#9ca3af; text-align:center; margin-bottom:5px; }
 @media (max-width:767px) {
@@ -1693,6 +1699,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
       <button class="tab" data-tab="groesse">Größenklassen</button>
       <button class="tab" data-tab="bundesland">Bundesländer</button>
       <button class="tab" data-tab="landkreis">Landkreis</button>
+      <button class="tab" data-tab="nap">NAP</button>
       <button class="tab" data-tab="spannung">Spannungsebenen</button>
       <button class="tab" data-tab="historie">Update-Historie</button>
       <button class="tab" data-tab="zubau">Zubau</button>
@@ -1847,10 +1854,39 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
       <div id="landkreis-count"></div>
     </section>
 
+    <!-- V28 (Paket 2): NAP-Ranking-Tab -->
+    <section id="tab-nap" class="stats-tab">
+      <div style="font-size:12px;color:#6b7280;margin-bottom:10px;">
+        Ranking der Netzanschlusspunkte (NAP) nach angeschlossener Leistung ·
+        Leistung = Summe der angeschlossenen Wind- &amp; PV-Anlagen (≥ 100 kW) ·
+        Klick auf NAP-Name → Karte fokussiert den NAP · Klick auf Bundesland → alle NAPs des Bundeslandes
+      </div>
+      <div style="position:relative;margin-bottom:10px;">
+        <input type="text" id="nap-search" placeholder="NAP oder Bundesland suchen… (z. B. Bertikow, Bayern)"
+               autocomplete="off" style="width:100%;box-sizing:border-box;font-size:13.5px;padding:8px 10px;border:1px solid #d1d5db;border-radius:8px;">
+        <div id="nap-suggest" style="display:none;position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);max-height:280px;overflow-y:auto;z-index:50;"></div>
+      </div>
+      <div id="nap-count" style="font-size:12px;color:#6b7280;margin-bottom:6px;"></div>
+      <div id="nap-table-wrap" style="overflow-y:auto;max-height:calc(100vh - 300px);border:1px solid #e5e7eb;border-radius:8px;">
+        <table id="nap-table" style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="background:#f7f9fc;position:sticky;top:0;z-index:2;">
+              <th data-key="nm" style="text-align:left;padding:8px 10px;border-bottom:2px solid #e5e7eb;cursor:pointer;white-space:nowrap;">NAP-Name</th>
+              <th data-key="mw" class="num" style="text-align:right;padding:8px 10px;border-bottom:2px solid #e5e7eb;cursor:pointer;white-space:nowrap;">Angeschlossene Leistung [MW]</th>
+              <th data-key="g" class="num" style="text-align:right;padding:8px 10px;border-bottom:2px solid #e5e7eb;cursor:pointer;white-space:nowrap;">Angeschlossene Gesellschaften</th>
+              <th data-key="bl" style="text-align:left;padding:8px 10px;border-bottom:2px solid #e5e7eb;cursor:pointer;white-space:nowrap;">Bundesland</th>
+            </tr>
+          </thead>
+          <tbody id="nap-tbody"></tbody>
+        </table>
+      </div>
+      <div id="nap-empty" style="display:none;color:#6b7280;font-size:13px;padding:20px 0;text-align:center;">NAP-Ranking nicht geladen — bitte Seite neu laden.</div>
+    </section>
+
     <!-- Spannungsebenen-Tab (F2: Verteilung der Netzanschluss-Ebenen, folgt aktivem Filter) -->
     <section id="tab-spannung" class="stats-tab">
       <div id="spannung-note" style="font-size:12px;color:#6b7280;margin-bottom:10px;">
-        Netzanschluss-Ebene laut Netzanschlusspunkten (MaStR) · Mehrfach-Zuordnungen zählen je Ebene · folgt dem aktiven Karten-Filter
+        Netzanschluss-Ebene laut Netzanschlusspunkten (MaStR) · Mehrfach-Zuordnungen zählen je Ebene · always alle Assets „In Betrieb“ (unabhängig vom Karten-Filter)
       </div>
       <div id="spannung-bars"></div>
     </section>
@@ -2105,6 +2141,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   </select>
   <span id="art-count" class="filter-count" hidden></span>
   <button type="button" id="btn-show-all" title="Alle gefilterten Anlagen in Tabelle anzeigen" hidden>📋 Alle Anlagen anzeigen</button>
+  <button type="button" id="btn-reset-filters" title="Alle Filter löschen — zurück zu Default (nur „In Betrieb“)">🗑️ Filter löschen</button>
 </div>
 
 <div id="attribution">
@@ -2286,6 +2323,11 @@ async function init() {
       statistiken = await fetchJson('assets/statistiken.json', true);  // optional (Statistik-Panel)
       // F1 (Punkt 4): NAP-Index lazy nachladen (optional — Suche funktioniert ohne weiter)
       fetchJson('assets/nap_index.json', true).then(d => { window.__PVWIND_NAP__ = d; }).catch(() => {});
+      // V28 (Paket 2): NAP-Ranking lazy nachladen (optional — NAP-Tab zeigt Hinweis ohne Daten)
+      fetchJson('assets/nap_ranking.json', true).then(d => {
+        window.__PVWIND_NAP_RANKING__ = d;
+        if (_statsState.activeTab === 'nap') renderNAP();
+      }).catch(() => {});
     }
 
     if (!einheiten || !einheiten.length) {
@@ -2378,6 +2420,8 @@ async function init() {
   document.querySelectorAll('#filter-status input[type=checkbox]').forEach(cb =>
     cb.addEventListener('change', applyFilters));
   document.getElementById('btn-show-all').addEventListener('click', showAllUnits);
+  // V28 (Paket 4): Alle Filter löschen → Default (nur „In Betrieb")
+  document.getElementById('btn-reset-filters').addEventListener('click', resetFilters);
   document.getElementById('all-units-close').addEventListener('click', function() {
     document.getElementById('all-units-overlay').classList.remove('open');
   });
@@ -2837,6 +2881,41 @@ function dateFullFmt(v) {
   const d = _parseMaStrDate(v);
   if (!d || !d.y) return '';
   return d.d ? `${d.d}.${d.m}.${d.y}` : `${d.m}.${d.y}`;
+}
+
+
+// ═══ V28 (Paket 4): Alle Filter zurücksetzen ═══
+function resetFilters() {
+  const ids = ['filter-type', 'filter-bl', 'filter-lk', 'filter-g', 'filter-art',
+               'filter-gr', 'filter-jahr', 'filter-monat', 'filter-inb-jahr',
+               'filter-inb-monat', 'filter-se'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  // Leistungs-Basis zurück auf Default „Park (aggregiert)"
+  const basis = document.getElementById('filter-gr-basis');
+  if (basis) basis.value = 'park';
+  // Status: nur „In Betrieb" (35)
+  ['st-31', 'st-37', 'st-38'].forEach(id => {
+    const cb = document.getElementById(id);
+    if (cb) cb.checked = false;
+  });
+  const st35 = document.getElementById('st-35');
+  if (st35) st35.checked = true;
+  // Suche leeren (Feld + Vorschläge + evtl. aktive Suche)
+  const si = document.getElementById('search-input');
+  if (si && si.value) {
+    si.value = '';
+    if (typeof clearSearch === 'function') clearSearch();
+  }
+  // Geo-Hierarchie: Gemeinde-Optionen hängen von BL/LK — neu befüllen
+  if (typeof populateFilterG === 'function') populateFilterG();
+  // art-count Badge verstecken (V26-Verhalten nach Filterwechsel)
+  const ac = document.getElementById('art-count');
+  if (ac) ac.hidden = true;
+  // Marker/Tabelle neu anwenden
+  applyFilters();
 }
 
 function applyFilters() {
@@ -3550,12 +3629,14 @@ function initStats() {
       if (btn.dataset.tab === 'groesse') renderGroesse();
       if (btn.dataset.tab === 'bundesland') renderBundesland();
       if (btn.dataset.tab === 'landkreis') renderLandkreise();   // V23 (Paket 4)
+      if (btn.dataset.tab === 'nap') renderNAP();                // V28 (Paket 2)
       if (btn.dataset.tab === 'spannung') renderSpannung();
       if (btn.dataset.tab === 'historie') renderHistorie();
       if (btn.dataset.tab === 'zubau') renderZubau();
       if (btn.dataset.tab === 'betroffen') initBetroffen();
     });
   });
+  initNAPTab();   // V28 (Paket 2)
   // V8: Zubau Measure-Toggle
   document.querySelectorAll('#zubau-measure .mbtn').forEach(b => {
     b.addEventListener('click', function() {
@@ -4492,11 +4573,12 @@ const SE_SHORT = {
 // V24 (Paket 2): Titel-Zeile der Spannungs-Balken darf die 805-px-Panel-Breite nicht
 // sprengen (früher 820>805 → Horizontal-Scroll). Flex-Break statt nowrap.
 function computeSpannungData() {
-  // Aggregiert die AKTUELL gefilterten Anlagen — aber applyFilters kennt sein Ergebnis nicht global.
-  // Trick: Der Tab rendert beim Öffnen/Filtern aus allUnits mit derselben Filterlogik → wir
-  // speichern das letzte Filterergebnis in _lastFiltered (von applyFilters gesetzt).
+  // V28-Fix (Paket 3, User-Befund): Die Tabelle folgte dem aktiven Karten-Filter (_lastFiltered)
+  // — mit gesetztem Filter blieben nur Bruchteile übrig ("nur 100 MW"). Gewünschtes Verhalten:
+  // IMMER alle Anlagen im Status "In Betrieb" (bs===35), unabhängig vom Karten-Filter.
   const counts = new Map();
-  for (const u of (_lastFiltered || allUnits)) {
+  for (const u of allUnits) {
+    if (u.bs !== 35) continue;
     for (const ebene of (u.se || 'ohne Angabe').split('|')) {
       let e = counts.get(ebene);
       if (!e) { e = { name: ebene, anzahl: 0, sum_mw: 0 }; counts.set(ebene, e); }
@@ -4506,6 +4588,175 @@ function computeSpannungData() {
   }
   return [...counts.values()].sort((a, b) => b.anzahl - a.anzahl);
 }
+
+// ═══ V28 (Paket 2): NAP-Ranking-Tab ═══
+const _napState = { sortKey: 'mw', sortDir: 'desc', query: '' };
+
+function napData() {
+  return window.__PVWIND_NAP_RANKING__ || null;
+}
+
+function renderNAP() {
+  const data = napData();
+  const empty = document.getElementById('nap-empty');
+  const wrap = document.getElementById('nap-table-wrap');
+  if (!data) { empty.style.display = 'block'; wrap.style.display = 'none'; return; }
+  empty.style.display = 'none'; wrap.style.display = 'block';
+
+  // Sortierung anwenden
+  const q = _napState.query.trim().toLowerCase();
+  let rows = data.filter(r => {
+    if (!q) return true;
+    return (r.nm || '').toLowerCase().includes(q) || (r.bl || '').toLowerCase().includes(q) || (r.m || '').toLowerCase().includes(q);
+  });
+  const key = _napState.sortKey, dir = _napState.sortDir === 'asc' ? 1 : -1;
+  rows = rows.slice().sort((a, b) => {
+    const va = a[key] ?? '', vb = b[key] ?? '';
+    if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir;
+    return String(va).localeCompare(String(vb), 'de') * dir;
+  });
+
+  // Header-Sortierpfeile
+  document.querySelectorAll('#nap-table th').forEach(th => {
+    th.classList.toggle('sorted-desc', th.dataset.key === key && _napState.sortDir === 'desc');
+    th.classList.toggle('sorted-asc', th.dataset.key === key && _napState.sortDir === 'asc');
+  });
+
+  document.getElementById('nap-count').textContent =
+    `${rows.length.toLocaleString('de-DE')} NAPs` + (q ? ` (Suche: „${_napState.query.trim()}“)` : '') +
+    ` · Gesamtsumme angeschlossene Leistung: ${Math.round(rows.reduce((s, r) => s + r.mw, 0)).toLocaleString('de-DE')} MW`;
+
+  const tbody = document.getElementById('nap-tbody');
+  // Performance: 27k Zeilen — Chunked Rendering, erste 400 sofort, Rest per rAF-Batches
+  const CHUNK = 400;
+  let idx = 0;
+  tbody.innerHTML = '';
+  const esc2 = esc;
+  function paintChunk() {
+    const frag = document.createDocumentFragment();
+    const end = Math.min(idx + CHUNK, rows.length);
+    for (; idx < end; idx++) {
+      const r = rows[idx];
+      const tr = document.createElement('tr');
+      tr.style.cssText = 'border-bottom:1px solid #eee;cursor:default;';
+      tr.innerHTML = `
+        <td class="nap-cell" style="padding:6px 10px;cursor:pointer;color:#2563eb;" title="Auf der Karte anzeigen">${esc2(r.nm || r.m)}</td>
+        <td class="num" style="padding:6px 10px;text-align:right;">${r.mw.toLocaleString('de-DE')}</td>
+        <td class="num" style="padding:6px 10px;text-align:right;">${r.g.toLocaleString('de-DE')}</td>
+        <td class="bl-cell" style="padding:6px 10px;cursor:pointer;color:#2563eb;" title="Alle NAPs dieses Bundeslandes zeigen">${esc2(r.bl || '—')}</td>`;
+      tr.querySelector('.nap-cell').addEventListener('click', () => focusNAPOnMap(r));
+      tr.querySelector('.bl-cell').addEventListener('click', () => showNAPsOfBundesland(r.bl));
+      frag.appendChild(tr);
+    }
+    tbody.appendChild(frag);
+    if (idx < rows.length) requestAnimationFrame(paintChunk);
+  }
+  paintChunk();
+}
+
+function initNAPTab() {
+  const input = document.getElementById('nap-search');
+  const box = document.getElementById('nap-suggest');
+  if (input.dataset.bound) return;
+  input.dataset.bound = '1';
+
+  const BUNDESLAENDER = ['Baden-Württemberg','Bayern','Berlin','Brandenburg','Bremen','Hamburg','Hessen',
+    'Mecklenburg-Vorpommern','Niedersachsen','Nordrhein-Westfalen','Rheinland-Pfalz','Saarland','Sachsen',
+    'Sachsen-Anhalt','Schleswig-Holstein','Thüringen','Ausschließliche Wirtschaftszone'];
+
+  input.addEventListener('input', () => {
+    _napState.query = input.value;
+    renderNAP();
+    // Suggest: Bundesländer ZUERST, dann NAP-Namen (Top-Treffer nach MW)
+    const q = input.value.trim().toLowerCase();
+    const data = napData();
+    if (!data || q.length < 2) { box.style.display = 'none'; return; }
+    const blHits = BUNDESLAENDER.filter(b => b.toLowerCase().includes(q)).slice(0, 4);
+    const napHits = data.filter(r => (r.nm || '').toLowerCase().includes(q)).slice(0, 8);
+    if (!blHits.length && !napHits.length) { box.style.display = 'none'; return; }
+    box.innerHTML =
+      blHits.map(b => `<div class="nap-sug-bl" data-bl="${esc(b)}" style="padding:7px 12px;cursor:pointer;font-size:13px;">
+        <strong>🏠 ${esc(b)}</strong> <span style="color:#6b7280">· Bundesland</span></div>`).join('') +
+      napHits.map(r => `<div class="nap-sug-nap" data-m="${esc(r.m)}" style="padding:7px 12px;cursor:pointer;font-size:13px;border-top:1px solid #f3f4f6;">
+        ${esc(r.nm || r.m)} <span style="color:#6b7280">· ${r.mw.toLocaleString('de-DE')} MW${r.bl ? ' · ' + esc(r.bl) : ''}</span></div>`).join('');
+    box.style.display = 'block';
+    box.querySelectorAll('.nap-sug-bl').forEach(el => el.addEventListener('mousedown', e => {
+      e.preventDefault(); box.style.display = 'none'; input.value = el.dataset.bl; _napState.query = el.dataset.bl; renderNAP();
+    }));
+    box.querySelectorAll('.nap-sug-nap').forEach(el => el.addEventListener('mousedown', e => {
+      e.preventDefault();
+      const r = data.find(x => x.m === el.dataset.m);
+      box.style.display = 'none'; input.value = r.nm || r.m; _napState.query = r.nm || r.m; renderNAP();
+      if (r) focusNAPOnMap(r);
+    }));
+  });
+  input.addEventListener('blur', () => setTimeout(() => { box.style.display = 'none'; }, 150));
+  input.addEventListener('keydown', e => { if (e.key === 'Escape') { box.style.display = 'none'; input.blur(); } });
+
+  // Header-Sortierung
+  document.querySelectorAll('#nap-table th').forEach(th => {
+    th.addEventListener('click', () => {
+      const k = th.dataset.key;
+      if (_napState.sortKey === k) _napState.sortDir = _napState.sortDir === 'asc' ? 'desc' : 'asc';
+      else { _napState.sortKey = k; _napState.sortDir = k === 'nm' || k === 'bl' ? 'asc' : 'desc'; }
+      renderNAP();
+    });
+  });
+}
+
+// NAP auf der Karte fokussieren: existierende NAP-Gruppenansicht (openNapPanel) nutzen.
+function focusNAPOnMap(r) {
+  closeStats();
+  // nap -> lid via nap_index; Gruppen-Panel zeigt alle Anlagen der Lokation
+  const napIdx = window.__PVWIND_NAP__;
+  let targetLid = null;
+  if (napIdx) {
+    const hit = napIdx.find(x => x.nap === r.m);
+    if (hit) targetLid = hit.lid;
+  }
+  if (targetLid != null && typeof openNapPanel === 'function') {
+    const grp = (typeof _buildNapGroups === 'function') ? _buildNapGroups().get(targetLid) : null;
+    if (grp && grp.units.length) {
+      // Karte zur Gruppe fliegen (Mittelpunkt der Einheiten)
+      const lats = grp.units.map(u => u.lat).filter(v => v != null);
+      const lons = grp.units.map(u => u.lon).filter(v => v != null);
+      if (lats.length && typeof map !== 'undefined' && map) {
+        map.flyTo([lats.reduce((s, v) => s + v, 0) / lats.length, lons.reduce((s, v) => s + v, 0) / lons.length],
+          Math.min(map.getMaxZoom(), 13), { duration: 1.0 });
+      }
+      openNapPanel(targetLid);
+      return;
+    }
+  }
+  // Fallback: Karte auf NAP-Koordinate fliegen + Kreis-Overlay
+  if (r.lat != null && r.lon != null && typeof map !== 'undefined' && map) {
+    map.flyTo([r.lat, r.lon], 12, { duration: 1.2 });
+    if (typeof L !== 'undefined') {
+      if (window.__napFocusCircle) map.removeLayer(window.__napFocusCircle);
+      window.__napFocusCircle = L.circle([r.lat, r.lon], { radius: 1500, color: '#2563eb', fillColor: '#2563eb', fillOpacity: 0.12, weight: 2 }).addTo(map)
+        .bindPopup(`<strong>${esc(r.nm || r.m)}</strong><br>${r.mw.toLocaleString('de-DE')} MW · ${r.g} Gesellschaften${r.bl ? '<br>' + esc(r.bl) : ''}`).openPopup();
+    }
+  }
+}
+
+// Alle NAPs eines Bundeslandes: Bundesland-Filter (filter-bl) setzen + Karte zeigen
+function showNAPsOfBundesland(bl) {
+  if (!bl) return;
+  closeStats();
+  const sel = document.getElementById('filter-bl');
+  if (sel) {
+    // AWZ-Option existiert im Bundesland-Select? (fetch-basiert befüllt — sicher ist sicher)
+    if (![...sel.options].some(o => o.value === bl)) {
+      const opt = document.createElement('option');
+      opt.value = bl; opt.textContent = bl;
+      sel.appendChild(opt);
+    }
+    sel.value = bl;
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  if (typeof map !== 'undefined' && map && bl === 'Ausschließliche Wirtschaftszone') map.flyTo([54.5, 6.5], 6, { duration: 1 });
+}
+
 function renderSpannung() {
   const wrap = document.getElementById('spannung-bars');
   const data = computeSpannungData();
@@ -4518,7 +4769,7 @@ function renderSpannung() {
     return `<div style="margin-bottom:7px;">
       <div style="display:flex;justify-content:space-between;gap:8px;font-size:12.5px;margin-bottom:2px;flex-wrap:wrap;">
         <span><strong>${esc(label)}</strong> <span style="color:#6b7280">· ${d.anzahl.toLocaleString('de-DE')} · ${pct} %</span></span>
-        <span style="color:#6b7280">${Math.round(d.sum_mw).toLocaleString('de-DE')} MW</span>
+        <span style="color:#6b7280">${Math.round(d.sum_mw).toLocaleString('de-DE')} MW · ${d.anzahl.toLocaleString('de-DE')} Assets</span>
       </div>
       <div style="background:#e5e7eb;border-radius:4px;height:14px;overflow:hidden;">
         <div style="background:#2563eb;height:100%;width:${w}%;border-radius:4px;"></div>
