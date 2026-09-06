@@ -24,6 +24,24 @@ Karten-Pfad hatte nur 2 aktive Fälle (V117/N163 mit falschem RD im MaStR, echte
 776 ungeorefte Kleinwind-Fälle (EasyWind 6 kW etc.) betrafen die Karte nie. PV unberührt
 (kWp→/1000 eindeutig; Top 162 MWp = real). Nachher: Wind 42.006 (−2), MW-Summe unverändert
 plausibel (~82 GW In-Betrieb real). Revision: iterations/V27b_KW_MW_Fix.html.
+**V28 (06.09. Nacht, 4 Arbeitspakete User):** ① LK-Tabelle übergelaufen auf PC — Root-Cause
+`#stats-body` Flex-Item ohne `min-width:0` (wuchs auf Inhaltsbreite 1.024 px) → Fix + Scroll-
+Container max-width:100 %, verifiziert (Container 769 px, Tabelle 1.024 px, scrollbar). ② Neuer
+Statistik-Tab **„NAP"** (zwischen Landkreis & Spannungsebenen): Ranking 27.130 NAPs nach
+angeschlossener Leistung — neue `build_nap_ranking()` in export_app.py → `nap_ranking.json`
+(to_mw-normalisiert, BL-Mehrheitskonsens, Gesellschaften DISTINCT, lat/lon-Mittel; Top: SP WINI
+648 MW, UW Bertikow 548 MW/51 Ges. ✓). Tabelle sortierbar (Default MW desc), Suchfeld mit
+Live-Suggest (Bundesländer ZUERST, dann NAP-Namen), NAP-Klick → openNapPanel (Gruppenansicht
++ Karte-FlyTo), BL-Klick → Bundesland-Filter der Hauptseite. ③ Spannungsebenen-Bug bestätigt:
+`computeSpannungData()` nutzte `_lastFiltered` → mit Karten-Filter „nur 100 MW". Fix: immer
+allUnits mit bs===35 (In Betrieb), filter-unabhängig + neue Angabe „X Assets" je Ebene.
+④ Toolbar-Button **„🗑️ Filter löschen"** (rot): setzt alle 11 Filter auf Default, nur st-35
+„In Betrieb" gecheckt, Suche+Gemeinde-Optionen+Badge zurück, applyFilters(). Verifiziert:
+Bayern+5-10MW+St31+Suche → Reset → alles Default, Infobar 31.010/22.409.
+**Achtung Pitfall:** Patch-Skript ohne `open().write()` endet still (p4a schrieb HTML nicht →
+Button fehlte im DOM trotz JS-Bindung; erst Browser-DOM-Diagnose (querySelectorAll len 0 bei
+innerHTML.includes true) entlarvte fehlendes Element). Revision: iterations/V28_NAP_Tab_SpannungsFix_FilterReset.html.
+gh-pages `…` Deploy OK, Live-Check nap_ranking.json 200. main `2481411`.
 **Cron:** Pipeline-Intervall User-Wunsch → **sonntags 18:00** (Job 79229dc1690d, vorher
 1./15. 03:00). Nächster Lauf: 13.09. 18:00.
 **V25 (06.09.):** **Bugfix „Alle Anlagen anzeigen"** — V23-Regression: Geo-Filter (LK/Gemeinde)
