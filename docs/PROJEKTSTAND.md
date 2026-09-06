@@ -24,6 +24,20 @@ Karten-Pfad hatte nur 2 aktive Fälle (V117/N163 mit falschem RD im MaStR, echte
 776 ungeorefte Kleinwind-Fälle (EasyWind 6 kW etc.) betrafen die Karte nie. PV unberührt
 (kWp→/1000 eindeutig; Top 162 MWp = real). Nachher: Wind 42.006 (−2), MW-Summe unverändert
 plausibel (~82 GW In-Betrieb real). Revision: iterations/V27b_KW_MW_Fix.html.
+**V29/V29.1 (06.09. spät, 3 Pakete):** Paket 1 LK-Tab: Hinweistext „← Tabelle ist horizontal
+scrollbar →" entfernt, stattdessen dauerhaft sichtbarer Scrollbalken UNTER der Tabelle
+(Webkit+Firefox-Styling). NAP-Tab-Klick → Karte zeigt NUR NAP-⚡-Marker + zugehörige Anlagen
+(renderMarkers-Analogie zum Hersteller-Tab; vorher openNapPanel). KRITIS-Rahmen/-Badge/-Legende
+entfernt (User: einheitliche Klassenformatierung). Größen-Klick auf In-Betrieb-Basis (bs35) —
+vorher flossen Planungsprojekte ein (4 statt 2 bei 104–150). Historie-Dedup beim Load
+(Duplikate 01.09./06.09. mit leerem Delta = 5 tote Zeilen; je Datum gewinnt Snapshot mit
+Delta-Inhalt) — Betroffenheit „letztes Update" funktioniert damit wieder (58 Treffer enova).
+Paket 2: main 55c42af + 729e068 gepusht, Deploy OK, Live HTTP 200 (0 kritis-glow/hint-Refs).
+Paket 3 Artikel as-built: `Artikel/artikel_20260906_v29.md` (65.674 Anlagen, 42.006 Wind,
+enerparc 3.218 MW, NAP 30.948 Lokationen/27.898 NAPs, enova-Abb. 8 auf 58-Treffer-Stand,
+Projektentwicklung-Abschnitt an exakter Position, LK/Gemeinde-Such-Hinweis, HSE raus) +
+`screenshots_v29/` (9 neue Playwright-Shots vom Live-Stand) +
+`LinkedIn_Artikel_Vorschau_20260906_v29.html` (build_vorschau_v29.py). Kopien in human-share.
 **V28 (06.09. Nacht, 4 Arbeitspakete User):** ① LK-Tabelle übergelaufen auf PC — Root-Cause
 `#stats-body` Flex-Item ohne `min-width:0` (wuchs auf Inhaltsbreite 1.024 px) → Fix + Scroll-
 Container max-width:100 %, verifiziert (Container 769 px, Tabelle 1.024 px, scrollbar). ② Neuer
