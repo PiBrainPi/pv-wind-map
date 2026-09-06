@@ -78,7 +78,13 @@ Beide Repos nutzen den **`gh-pages`-Branch** als Pages-Quelle (statisch, keine G
   (65.659 Anlagen), Pages `status: built`, Deployment-SHA = gh-pages-HEAD e66c774.
   gh-pages-Update künftig mit `/tmp/deploy_ghpages_v19.sh`-Muster (Worktree, CNAME unangetastet,
   kein dist/-Pickup — siehe Skill publishing-projects-to-github).
-- ✅ **V25 live (06.09. Abend, User-Freigabe):** Bugfix + Mobile-Politur —
+- ✅ **Daten-Update + Deploy (06.09. Abend, außer der Planung, User-Wunsch):**
+  `pipeline2_update.sh` (Backup `mastr.db.2026-09-06.preUpdateRun.bak` + Skript-Backup
+  `mastr_20260906_185449.db`) → `build.sh` → `deploy_ghpages.sh`.
+  gh-pages `edf116f → 5e94114`, Live-Verifikation: meta.json stand=2026-09-06T18:59:45,
+  total=65.676. Funktionale Browser-Checks bestanden (LK-Tab, Geo-Suche, rwe-Suggest,
+  Kritis-Cluster). **User plant häufigeres Intervall — Cron 79229dc1690d (1./15. 03:00)
+  bleibt, ggf. Anpassung durch User.**
   1) **„Alle Anlagen anzeigen" repariert** (V23-Regression: `showAllUnits()` kannte die
   Geo-Filter nicht → `ReferenceError: lk is not defined`, Overlay öffnete nie; jetzt LK+
   Gemeinde einlesen + filtern; Test SH+Dithmarschen = 923 Anlagen).

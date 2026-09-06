@@ -3,9 +3,17 @@
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
 > Stand: 2026-09-06 · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
 
-## Aktueller Stand (2026-09-06, **V25 LIVE** — V22+V23+V24+V25)
+## Aktueller Stand (2026-09-06 Abend, **V27 = Daten-Update LIVE** — Code V26, Daten 06.09. 18:59)
 
-**LIVE:** https://wind-pv-map.ingenieur-tools.de (**V25-Stand**) · **Code-Stand:** V25 (main `4cd13b1`, gh-pages `effd023`) · **Single-File:** 42,3 MB
+**LIVE:** https://wind-pv-map.ingenieur-tools.de (**V26-Code + Datenstand 2026-09-06 18:59**) · **Code-Stand:** V26 (main `f842c9a`, gh-pages `5e94114`) · **Single-File:** 42,4 MB
+**Daten-Update (06.09., außer der Planung auf User-Wunsch):** Pipeline 2.0 (Wind/PV 118 Felder
+inkl. F5-Status-Flag + NAP inkrementell, 28 neue NAPs → 27.898; 17 MaStR-Datenfehler =
+unverändert datenseitig) + `build.sh` (Snapshot-Delta: **52 neu [+142,6 MW Wind / +108,4 MWp
+PV], 133 entfernt**, Kern-Bestand 53.424 In-Betrieb georef). Karte jetzt **65.676 Anlagen**
+(Wind 42.008 · PV 23.668; Infobar 31.010 Wind · 22.409 PV im In-Betrieb-Kern).
+Verifiziert: Landkreis-Tab 377 LKs · 51.640 Assets · 27.338 NAPs; Geo-Suche „dithmarschen"
+✓; „rwe" 126 Betreiber ✓; Größenklassen Park-Modus Max-Cluster 958,65 MW ✓; V26-Scrollbar ✓.
+Revision: iterations/V27_Datenstand_2026-09-06.html.
 **V25 (06.09.):** **Bugfix „Alle Anlagen anzeigen"** — V23-Regression: Geo-Filter (LK/Gemeinde)
 fehlten in `showAllUnits()` → ReferenceError, Overlay öffnete nie. Jetzt: LK+Gemeinde gelesen
 und gefiltert (Test: SH+Dithmarschen = 923 Anlagen, Meta korrekt). **Mobile:** Landkreis-Tab
