@@ -132,13 +132,21 @@ def to_mw(r, et_id: int) -> float | None:
               (500..1000 kW) ebenfalls kW. Nur sehr wenige Einträge liegen
               bereits in MW vor (z. B. 3.0, 4.5, 2.3).
 
-    Heuristik (mehrstufig, V8h):
+    Heuristik (mehrstufig, V8h + V27b-Physik-Check 06.09.2026):
       1. Wert > 80 -> kW (durch 1000). Moderne WEA: 80–15000 kW.
       2. Wert <= 80 -> normalerweise MW, ABER:
          - Ausnahme: 15–80 mit Typ 'V236-15MW' / '15.0 MW' -> echte MW, nicht korrigieren.
          - Alle anderen 15–80 sind kW (Kleinwindanlagen 15–80 kW), die fälschlich als MW
            gemeldet wurden. Korrektur: / 1000. Danach < 100 kW -> werden vom Wind-Filter entfernt.
       3. Wert < 15 -> MW (bereits). Reale MW-Werte: 0.1–14.0.
+      4. V27b PHYSIK-CHECK (alle Zweige, NACH der MW-Wandlung): eine echte >= 1,5-MW-WEA
+         hat Rotordurchmesser >= 60 m (empirisch 06.09.: 25.151 Anlagen, MIN = 60,0 m).
+         Resultat >= 1,5 MW bei RD < 60 m => kW-Falschangabe => nochmal / 1000.
+         (Fälle: TW80 = 80 kW als "80 MW", GCI-15K = 15 kW als "12,5 MW", IstaBreeze 1,5 kW
+         als "1,5 MW". User-Befund 06.09. nach Snapshot-Delta -133 Wind.)
+         ⚠ 2 bekannte Restunsicherheiten: V117/N163-Projektierungen mit falsch NIEDRIGEM RD
+         im MaStR (58,5/16,0 statt 117/163) wurden vom Check gefiltert — sie sind echte
+         MW-Projekte. Akzeptiert: 2 von 42.006, MaStR-Datenfehler bleibt dokumentiert.
     """
     v = as_float(r, "Bruttoleistung")
     if v is None:

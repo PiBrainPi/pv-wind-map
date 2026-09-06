@@ -14,6 +14,18 @@ PV], 133 entfernt**, Kern-Bestand 53.424 In-Betrieb georef). Karte jetzt **65.67
 Verifiziert: Landkreis-Tab 377 LKs · 51.640 Assets · 27.338 NAPs; Geo-Suche „dithmarschen"
 ✓; „rwe" 126 Betreiber ✓; Größenklassen Park-Modus Max-Cluster 958,65 MW ✓; V26-Scrollbar ✓.
 Revision: iterations/V27_Datenstand_2026-09-06.html.
+**V27b (06.09. spät abend, User-Befund kW/MW):** Snapshot-Delta hatte 133 Wind-Abgänge,
+davon 107 alte Klein-WKA (TW80 = 80 kW, als „80 MW" geführt). Ursache: MaStR meldet
+Kleinwindräder teils in kW ohne Einheiten-Kennzeichnung; to_mw-Heuristik (v<15 ⇒ „bereits
+MW") ließ sie durch. **Fix (beide Pfade):** Physik-Check in `to_mw` — eine echte ≥1,5-MW-WEA
+hat RD ≥ 60 m (empirisch: 25.151 Anlagen, MIN exakt 60,0) ⇒ RD < 60 & ≥1,5 MW = kW-Falsch-
+angabe → /1000 (→ <100 kW → gefiltert). `export_app` übergibt RD jetzt an to_mw (fehlte!).
+Karten-Pfad hatte nur 2 aktive Fälle (V117/N163 mit falschem RD im MaStR, echte MW) — raus.
+776 ungeorefte Kleinwind-Fälle (EasyWind 6 kW etc.) betrafen die Karte nie. PV unberührt
+(kWp→/1000 eindeutig; Top 162 MWp = real). Nachher: Wind 42.006 (−2), MW-Summe unverändert
+plausibel (~82 GW In-Betrieb real). Revision: iterations/V27b_KW_MW_Fix.html.
+**Cron:** Pipeline-Intervall User-Wunsch → **sonntags 18:00** (Job 79229dc1690d, vorher
+1./15. 03:00). Nächster Lauf: 13.09. 18:00.
 **V25 (06.09.):** **Bugfix „Alle Anlagen anzeigen"** — V23-Regression: Geo-Filter (LK/Gemeinde)
 fehlten in `showAllUnits()` → ReferenceError, Overlay öffnete nie. Jetzt: LK+Gemeinde gelesen
 und gefiltert (Test: SH+Dithmarschen = 923 Anlagen, Meta korrekt). **Mobile:** Landkreis-Tab

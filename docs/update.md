@@ -40,9 +40,12 @@ Cron: `fetch_nap.py` nutzt den Cache (`nap_fetch_log`), d. h. der erste Lauf dau
 Lokationen (Minuten statt Stunden). Empfohlener Cronjob (Punkt 5, 10-Punkte-Plan):
 
 ```cron
-0 3 1,15 * * cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map && \
+0 18 * * 0 cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map && \
   bash scripts/pipeline2_update.sh >> /tmp/pvwind_pipeline2.log 2>&1
 ```
+
+> **Intervall-Historie:** bis 06.09.2026 1. & 15. (03:00); seit User-Entscheid 06.09.:
+> **jeden Sonntag 18:00** (Hermes-Cronjob 79229dc1690d).
 
 > Der Cronjob führt `pipeline2_update.sh` aus — das Skript enthält das Pflicht-Flag
 > `--extended-status` (F5) und den kompakten Telegram-Report inkl. Status-Zählern.
@@ -70,6 +73,26 @@ python3 scripts/export_app.py
 cp src/index.html dist/index.html
 python3 scripts/bundle_singlefile.py
 ```
+
+### ⚠️ Plausibilitäts-Checks nach JEDER Aktualisierung (Pflicht seit V27b, 06.09.2026)
+
+Der MaStR meldet Leistungen **ohne verlässliche Einheit** (kW/MW gemischt). Nach jedem
+Update daher automatisch prüfen (beide Checks in Sekunden via SQLite/JSON):
+
+1. **kW/MW-Verwechslung Wind:** Physik-Regel — eine echte ≥1,5-MW-WEA hat Rotordurchmesser
+   ≥ 60 m. Abfrage gegen die exportierten Daten: Gibt es Wind-Anlagen mit
+   `mw >= 1.5 AND rd < 60`? Wenn ja: kW-Falschangaben → to_mw-Physik-Check greift (seit
+   V27b automatisch). Falls zukünftig neue Fälle auftauchen (z. B. ohne RD-Wert), Muster
+   `Typenbezeichnung` + `Nabenhoehe` gegenprüfen und Heuristik nachziehen.
+2. **Snapshot-Delta-Sprünge:** Wind-Änderung > ±500 MW oder > ±150 Anlagen gegenüber dem
+   Vortag ist verdächtig (realer Wochenzubau ist kleiner) — Deltas in der Update-Historie
+   gegenprüfen, ob Abgänge Stilllegungen (plausibel) oder kW-Fälle (Bug) sind.
+3. **PV-Gegenprobe:** Top-3-PV zwischen 100–200 MWp (real: Gottesgabe/SILUX-Klasse);
+   Werte > 250 MWp oder < 0,5 MWp im Export wären Filter-Fehler.
+
+Der Physik-Check (1) ist in `to_mw` (import_mastr.py) implementiert und läuft damit in
+**jedem** `build.sh`-/Pipeline-Lauf automatisch. (2) und (3) bei jedem manuellen Update
+gegen die Konsolenausgabe von `export_app.py` prüfen (Zähler + Wind max/PV max).
 
 ### Als Cronjob (automatisch)
 
