@@ -1,6 +1,6 @@
 # Update — PV & Wind Karte (MaStR)
 
-> Manuell auslösbar, cronjob-fähig. Stand: 2026-09-03 (Pipeline 2.0 inkl. Netzanschlusspunkte).
+> Manuell auslösbar, cronjob-fähig. Stand: 2026-09-06 (Pipeline 2.0 inkl. NAP + V22-Cluster-Statistik + V23-Geo-Ebene).
 
 ## Update ausführen (DE)
 
@@ -96,7 +96,11 @@ Austauschordner `~/hermes_human-share/`).
   wird der neue Stand als weiterer Snapshot gespeichert und das Delta berechnet
   (neue/entfernte Anlagen, Bundesländer-Veränderung).
 - `export_app.py`: schreibt `dist/assets/einheiten.json` + `meta.json` + **`statistiken.json`**
-  (Betreiber, Größenklassen) + **`historie.json`** (alle Snapshots + Deltas).
+  (Betreiber, Größenklassen **+ seit V22 `groessen_cluster`**: Park-Cluster-Verteilung nach
+  Schlüssel (Energieträger, Betreiber, Parkname) — bei jedem Update automatisch frisch berechnet;
+  **seit V23** zusätzlich `pk`/`pkmw` (unit→Park-Mapping für den park-aggregierten
+  Leistungsfilter), `landkreise` (377 inkl. NAP-Anzahl/-MW) und `gemeinden` (6.499))
+  + **`historie.json`** (alle Snapshots + Deltas).
 - `bundle_singlefile.py`: erzeugt `dist/index_singlefile.html` (Daten + Statistik + Historie eingebettet).
 - `fetch_v2.py --extended-status` + `import_v2.py`: Pipeline 2.0 — alle 118 Felder 1:1 in `einheiten_raw`
   (UPSERT, inkrementell via `DatumLetzteAktualisierung` + BetriebsStatus-Wechsel-Erkennung),
@@ -163,10 +167,10 @@ cp src/index.html dist/index.html
 python3 scripts/bundle_singlefile.py
 ```
 
-Or as a crontab job (monthly, 3rd, 02:00):
+Or as a crontab job (**1st & 15th of the month, 03:00** — consistent with the DE section):
 
 ```cron
-0 2 3 * * cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map && bash scripts/build.sh >> /tmp/pvwind_update.log 2>&1
+0 3 1,15 * * cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map && bash scripts/build.sh >> /tmp/pvwind_update.log 2>&1
 ```
 
 Note (Pi5): in cron contexts do not use `execute_code`; use plain shell/Python.

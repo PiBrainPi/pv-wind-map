@@ -1,5 +1,6 @@
 # --- Daten (lokal, groß, NICHT committen) ---
 data/raw/
+data/raw_v2/
 data/*.db
 data/*.sqlite
 
@@ -21,4 +22,4 @@ venv/
 # --- Secrets (niemals committen) ---
 .env
 *.key
-*secret*
+*secret*data/nap/

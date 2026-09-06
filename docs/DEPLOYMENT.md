@@ -1,6 +1,6 @@
 # Deployment — GitHub Pages + eigene Domain
 
-> Stand: 2026-08-30 · Ziel: `ingenieur-tools.de` als Portal, `wind-pv-map.ingenieur-tools.de` für die Karte.
+> Stand: 2026-09-06 (V24 LIVE) · Ziel: `ingenieur-tools.de` als Portal, `wind-pv-map.ingenieur-tools.de` für die Karte.
 
 ## Architektur
 
@@ -78,6 +78,20 @@ Beide Repos nutzen den **`gh-pages`-Branch** als Pages-Quelle (statisch, keine G
   (65.659 Anlagen), Pages `status: built`, Deployment-SHA = gh-pages-HEAD e66c774.
   gh-pages-Update künftig mit `/tmp/deploy_ghpages_v19.sh`-Muster (Worktree, CNAME unangetastet,
   kein dist/-Pickup — siehe Skill publishing-projects-to-github).
+- ✅ **V24 live (06.09., User-Freigabe „pushe + stelle live"):** Politur — Landkreis-Tab-Header
+  mit Leistungseinheiten („Leistung PV (MWp)" / „Leistung Wind (MW)") + Statistik-Panel ohne
+  horizontales Scrollen (Landkreis-Tabelle `table-layout:fixed` + Spaltenverhältnisse,
+  Spannungs-Zeilen flex-wrap; alle 9 Tabs browser-verifiziert `scrollWidth ≤ clientWidth`).
+  **main `7172681` (V22+V23+V24 gemeinsam), gh-pages `1b9c85a`**, Deploy per
+  `scripts/deploy_ghpages.sh` nach DB-Backup `~/backups/mastr.db.2026-09-06.preV24.bak`.
+  Live-Verifikation: HTTP 200, beide Header-Strings im Live-HTML, `statistiken.json`
+  (377 LKs · 6.499 Gemeinden · `groessen_cluster`) live abrufbar.
+- ✅ **V22+V23 fertig gestellt → mit V24 live (06.09.):** V22 Größenklassen-Basis-Umschalter
+  „Einzelanlagen / Parks aggregiert" (`groessen_cluster` im Export, Revision
+  `iterations/V22_GroessenCluster.html`); V23 Geo-Ebene (Geo-Suche BL/LK/Gemeinde,
+  Geo-Filter, Landkreis-Tab inkl. NAPs, Balken-Klick → Karte, park-aggregierter
+  Leistungsfilter; Revision `iterations/V23_GeoEbene.html`). Beide waren zuvor
+  browser-verifiziert und warteten auf Freigabe — mit V24-Deploy gemeinsam live gegangen.
 - ✅ **V21 live (04.09. Abend, User-Freigabe):** 6 Revisionspakete — Betreiber-Tab
   (Live-Suggest + Gruppen/Portfolio-Filter, 'rwe'-False-Positive-Fix, Zahlformat 1 NK),
   Popup (TT.MM.JJJJ, NAP-Klick → alle Anlagen am NAP, 219-Anlagen-Test), Sortier-Fix

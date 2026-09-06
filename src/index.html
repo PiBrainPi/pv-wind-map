@@ -979,6 +979,17 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #search-suggest .sug-nap .sug-betreiber-txt { flex:1; line-height:1.3; }
 #search-suggest .sug-nap .sug-betreiber-txt b { color:#065f46; }
 #search-suggest .sug-nap .sug-betreiber-txt small { color:#64748b; }
+/* V23 (Paket 1–3): Geo-Suggest (Landkreis/Gemeinde/Bundesland) — unter Betreiber, über Assets */
+#search-suggest .sug-geo {
+  display:flex; align-items:center; gap:8px; padding:8px 12px; cursor:pointer;
+  border-bottom:1px solid #e5e7eb; background:#f8fafc;
+}
+#search-suggest .sug-geo:hover, #search-suggest .sug-geo.active { background:#e0e7ff; }
+#search-suggest .sug-geo-icon { font-size:16px; flex-shrink:0; }
+#search-suggest .sug-geo-txt { flex:1; line-height:1.3; }
+#search-suggest .sug-geo-txt b { color:#3730a3; }
+#search-suggest .sug-geo-txt small { color:#64748b; }
+#search-suggest .sug-geo .sug-meta { color:#4338ca; font-size:13px; }
 #search-suggest .sug-nap .sug-meta { color:#059669; font-size:14px; white-space:nowrap; }
 #topbar-hits {
   font-size:11px; color:#888; margin-top:4px; padding:0 2px;
@@ -1196,6 +1207,31 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #hersteller-table td.name { max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #hersteller-count { margin-top:8px; font-size:12px; color:#888; }
 
+/* V23 (Paket 4): Landkreis-Tabelle — identische Formatierung wie Hersteller-Tabelle */
+/* V24: table-layout:fixed + kompakte Zahlen (font-variant-numeric) — 9 Spalten müssen
+   ohne horizontales Scrollen in die 805-px-Panel-Breite passen (User-Vorgabe Paket 2) */
+#landkreis-table { width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
+#landkreis-table th, #landkreis-table td { padding:7px 6px; border-bottom:1px solid #eee; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#landkreis-table th { background:#f7f9fc; color:#333; cursor:pointer; user-select:none; }
+#landkreis-table th.num, #landkreis-table td.num { text-align:right; font-variant-numeric:tabular-nums; }
+#landkreis-table th.sorted-asc::after { content:" ▲"; color:#2563eb; font-size:10px; }
+#landkreis-table th.sorted-desc::after { content:" ▼"; color:#2563eb; font-size:10px; }
+#landkreis-table tbody tr { cursor:pointer; }
+#landkreis-table tbody tr:hover { background:#eef3ff; }
+#landkreis-table td.name { max-width:none; }
+/* V24: feste Spaltenverhältnisse (Name breit, 8 Zahlen-Spalten kompakt) */
+#landkreis-table th[data-key="lk"] { width:17%; }
+#landkreis-table th[data-key="n"] { width:8.5%; }
+#landkreis-table th[data-key="mw"] { width:12.5%; }
+#landkreis-table th[data-key="n_pv"] { width:8.5%; }
+#landkreis-table th[data-key="mw_pv"] { width:12%; }
+#landkreis-table th[data-key="n_wind"] { width:8.5%; }
+#landkreis-table th[data-key="mw_wind"] { width:12%; }
+#landkreis-table th[data-key="n_nap"] { width:8%; }
+#landkreis-table th[data-key="mw_nap"] { width:13%; }
+#landkreis-table tr.lk-sum td { background:#f7f9fc; font-weight:600; border-top:2px solid #e5e7eb; cursor:default; }
+#landkreis-count { margin-top:8px; font-size:12px; color:#888; }
+
 /* Größenklassen-Balken (professionell mit Achsen) */
 #groesse-header {
   display:flex; justify-content:space-between; align-items:center; gap:8px;
@@ -1226,6 +1262,12 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 }
 #groesse-measure { display:flex; gap:4px; }
 #groesse-measure .mbtn.active { background:#111827; color:#fff; border-color:#111827; }
+#groesse-basis { display:flex; gap:4px; }
+#groesse-basis .mbtn.active { background:#0f766e; color:#fff; border-color:#0f766e; }
+.groesse-basis-hint {
+  display:none; background:#f0fdfa; border:1px solid #99f6e4; border-radius:8px;
+  padding:8px 12px; margin-bottom:12px; font-size:12.5px; color:#134e4a; line-height:1.55;
+}
 
 #groesse-summary {
   background:#f7f9fc; border:1px solid #e5e7eb; border-radius:8px;
@@ -1650,6 +1692,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
       <button class="tab" data-tab="hersteller">Hersteller</button>
       <button class="tab" data-tab="groesse">Größenklassen</button>
       <button class="tab" data-tab="bundesland">Bundesländer</button>
+      <button class="tab" data-tab="landkreis">Landkreis</button>
       <button class="tab" data-tab="spannung">Spannungsebenen</button>
       <button class="tab" data-tab="historie">Update-Historie</button>
       <button class="tab" data-tab="zubau">Zubau</button>
@@ -1740,7 +1783,12 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
           <button class="mbtn active" data-measure="anzahl">Anlagen</button>
           <button class="mbtn" data-measure="leistung">Leistung (MW)</button>
         </div>
+        <div id="groesse-basis">
+          <button class="mbtn active" data-basis="einheiten" title="Jede MaStR-Einheit einzeln gezählt — Register-Perspektive">Einzelanlagen</button>
+          <button class="mbtn" data-basis="cluster" title="Zusammengehörige Einheiten zu Parks aggregiert (z. B. Splittungen wie Solarpark Döllen = 13 Einheiten, 154,8 MW) — Betreiber-Perspektive">Parks aggregiert</button>
+        </div>
       </div>
+      <div id="groesse-basis-hint" class="groesse-basis-hint"></div>
       <div id="groesse-summary"></div>
       <div id="groesse-chart"></div>
       <div id="groesse-pie-wrap"></div>
@@ -1768,6 +1816,32 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         <div id="bundesland-pie-side"></div>
       </div>
       <div id="bundesland-pie-note"></div>
+    </section>
+
+    <!-- V23 (Paket 4): Landkreis-Tab — Assets (Wind&PV) + NAPs je Landkreis, analog Hersteller-Tabelle -->
+    <section id="tab-landkreis" class="stats-tab">
+      <div style="font-size:12px;color:#6b7280;margin-bottom:10px;">
+        Verteilung der Assets (Wind &amp; PV) und Netzanschlusspunkte je Landkreis ·
+        NAP-MW = Nettoengpassleistung der zugeordneten NAPs (Anschlusskapazität, nicht Anlagenleistung) ·
+        Klick auf eine Zeile zeigt alle Anlagen des Landkreises auf der Karte
+      </div>
+      <table id="landkreis-table">
+        <thead>
+          <tr>
+            <th data-key="lk">Landkreis</th>
+            <th data-key="n" class="num">Assets P/W</th>
+            <th data-key="mw" class="num">Leistung P/W (MW)</th>
+            <th data-key="n_pv" class="num">Assets PV</th>
+            <th data-key="mw_pv" class="num">Leistung PV (MWp)</th>
+            <th data-key="n_wind" class="num">Assets Wind</th>
+            <th data-key="mw_wind" class="num">Leistung Wind (MW)</th>
+            <th data-key="n_nap" class="num">NAP</th>
+            <th data-key="mw_nap" class="num">NAP-MW</th>
+          </tr>
+        </thead>
+        <tbody id="landkreis-tbody"></tbody>
+      </table>
+      <div id="landkreis-count"></div>
     </section>
 
     <!-- Spannungsebenen-Tab (F2: Verteilung der Netzanschluss-Ebenen, folgt aktivem Filter) -->
@@ -1936,6 +2010,10 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   <select id="filter-type"><option value="">Alle</option><option value="wind">Wind</option><option value="pv">PV</option></select>
   <label>Bundesland</label>
   <select id="filter-bl"><option value="">Alle</option></select>
+  <label>Landkreis</label>
+  <select id="filter-lk" title="V23: Landkreis-Filter (kombinierbar mit allen anderen Filtern)"><option value="">Alle</option></select>
+  <label>Gemeinde</label>
+  <select id="filter-g" title="V23: Gemeinde-Filter — Optionen folgen dem gewählten Landkreis (kombinierbar)"><option value="">Alle</option></select>
   <label>Art</label>
   <select id="filter-art"><option value="">Alle</option></select>
   <label>Leistung (MW)</label>
@@ -1952,6 +2030,12 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     <option value="100,104">100–104</option>
     <option value="104,150">104–150</option>
     <option value="150,1e9">150+</option>
+  </select>
+  <!-- V23 (Paket 8): Leistungs-Basis — Park = zersplitterte Parks werden über die
+       Park-Gesamtleistung geprüft (Solarpark Döllen: 13 EH → Park 154,8 MW → „150+"). -->
+  <select id="filter-gr-basis" title="Leistungs-Prüfbasis: „Park" fasst zersplitterte Registrierungen zu einem Park zusammen (V23) · „Einzelanlage" = Register-Perspektive (V21-Verhalten)">
+    <option value="park">Park (aggregiert)</option>
+    <option value="einzel">Einzelanlage</option>
   </select>
   <label>Registrierung</label>
   <select id="filter-jahr" title="Registrierungsdatum im MaStR">
@@ -2246,6 +2330,8 @@ async function init() {
 
     populateFilterBl();
     populateFilterArt();
+    populateFilterLk();   // V23 (Paket 6)
+    populateFilterG();    // V23 (Paket 7)
     renderMarkers(einheiten);
     if (typeof initStats === 'function') initStats();
     // V4: Historie laden (nach Datenladen, da renderHistorie im openStats gerufen wird)
@@ -2260,9 +2346,22 @@ async function init() {
 
   // Filter-Listener
   document.getElementById('filter-type').addEventListener('change', applyFilters);
-  document.getElementById('filter-bl').addEventListener('change', applyFilters);
+  document.getElementById('filter-bl').addEventListener('change', function() {
+    // V23: BL-Wechsel → LK-/Gemeinde-Optionen kontextuell neu befüllen (Werte verwerfen,
+    // die im neuen BL nicht mehr existieren — populateFilterX erhält gültige Werte)
+    populateFilterLk();
+    populateFilterG();
+    applyFilters();
+  });
+  document.getElementById('filter-lk').addEventListener('change', function() {
+    // V23: LK-Wechsel → Gemeinde-Optionen kontextuell neu befüllen
+    populateFilterG();
+    applyFilters();
+  });
+  document.getElementById('filter-g').addEventListener('change', applyFilters);
   document.getElementById('filter-art').addEventListener('change', applyFilters);
   document.getElementById('filter-gr').addEventListener('change', applyFilters);
+  document.getElementById('filter-gr-basis').addEventListener('change', applyFilters);  // V23 (Paket 8)
   document.getElementById('filter-jahr').addEventListener('change', applyFilters);
   document.getElementById('filter-monat').addEventListener('change', applyFilters);
   document.getElementById('filter-inb-jahr').addEventListener('change', applyFilters);
@@ -2329,6 +2428,58 @@ function populateFilterBl() {
     const o = document.createElement('option');
     o.value = b; o.textContent = b; sel.appendChild(o);
   });
+}
+
+// V23 (Pakete 6–7): Landkreis- + Gemeinde-Filter.
+// LK-Liste: kontextabhängig zum gewählten Bundesland (ohne BL-Wahl: alle 377).
+// Gemeinde-Liste: kontextabhängig zum gewählten Landkreis (ohne LK: alle —
+// mehrfach vergebene Gemeindenamen erhalten BL-Klartext-Zusatz zur Eindeutigkeit).
+function populateFilterLk() {
+  const bl = document.getElementById('filter-bl').value;
+  const sel = document.getElementById('filter-lk');
+  const cur = sel.value;
+  const set = new Set();
+  allUnits.forEach(u => { if (u.lk && (!bl || u.b === bl)) set.add(u.lk); });
+  sel.innerHTML = '<option value="">Alle</option>';
+  [...set].sort().forEach(lk => {
+    const o = document.createElement('option');
+    o.value = lk; o.textContent = lk; sel.appendChild(o);
+  });
+  if (cur && set.has(cur)) sel.value = cur;
+}
+
+function populateFilterG() {
+  const bl = document.getElementById('filter-bl').value;
+  const lk = document.getElementById('filter-lk').value;
+  const sel = document.getElementById('filter-g');
+  const cur = sel.value;
+  // Kontext-Sets: welche (BL,LK)-Kombis hat jede Gemeinde? Für Namens-Zusatz bei Mehrfachnamen.
+  const set = new Map();   // name -> {count, combos:Set, lk:Set}
+  for (const u of allUnits) {
+    if (!u.g) continue;
+    if (bl && u.b !== bl) continue;
+    if (lk && u.lk !== lk) continue;
+    let e = set.get(u.g);
+    if (!e) { e = { count: 0, combos: new Set(), lkSet: new Set() }; set.set(u.g, e); }
+    e.count++;
+    e.combos.add((u.b || '') + '|' + (u.lk || ''));
+    if (u.lk) e.lkSet.add(u.lk);
+  }
+  sel.innerHTML = '<option value="">Alle</option>';
+  [...set.keys()].sort((a, b) => a.localeCompare(b, 'de')).forEach(g => {
+    const e = set.get(g);
+    const o = document.createElement('option');
+    o.value = g;
+    // Mehrfachnamen (über LK/BL hinweg) ohne aktiven LK-Kontext → Eindeutigkeits-Zusatz
+    if (!lk && e.lkSet.size > 1) {
+      const lkTxt = [...e.lkSet].slice(0, 2).join(', ') + (e.lkSet.size > 2 ? ' …' : '');
+      o.textContent = `${g}  (${lkTxt})`;
+    } else {
+      o.textContent = g;
+    }
+    sel.appendChild(o);
+  });
+  if (cur && set.has(cur)) sel.value = cur;
 }
 
 // Art-Filter befüllen: eindeutige Asset-Arten (u.art) aus dem Datensatz
@@ -2558,6 +2709,8 @@ function showAllUnits() {
   const parts = [];
   if (type)  parts.push(type === 'wind' ? 'Wind' : 'PV');
   if (bl)    parts.push(bl);
+  if (lk)    parts.push('LK ' + lk);
+  if (gemeinde) parts.push('Gem. ' + gemeinde);
   if (art)   parts.push(art);
   if (gr)    parts.push('Leistung ' + gr.replace(',', '\u2013').replace('1e9','+'));
   if (jahr)  parts.push('Jahr ' + jahr);
@@ -2679,6 +2832,9 @@ function dateFullFmt(v) {
 function applyFilters() {
   const type   = document.getElementById('filter-type').value;
   const bl     = document.getElementById('filter-bl').value;
+  // V23 (Pakete 6–7): Landkreis-/Gemeinden-Filter
+  const lk     = document.getElementById('filter-lk') ? document.getElementById('filter-lk').value : '';
+  const gemeinde = document.getElementById('filter-g') ? document.getElementById('filter-g').value : '';
   const art    = document.getElementById('filter-art').value;
   const gr     = document.getElementById('filter-gr').value;
   const jahr   = document.getElementById('filter-jahr').value;
@@ -2702,14 +2858,25 @@ function applyFilters() {
   }
   if (type) filtered = filtered.filter(u => u.t === type);
   if (bl)   filtered = filtered.filter(u => u.b === bl);
+  if (lk)   filtered = filtered.filter(u => u.lk === lk);
+  if (gemeinde) filtered = filtered.filter(u => u.g === gemeinde);
   if (art)  filtered = filtered.filter(u => (u.art || '') === art);
   if (gr) {
     const [von, bis] = gr.split(',').map(Number.parseFloat);
-    if (!Number.isNaN(von) && !Number.isNaN(bis))
+    if (!Number.isNaN(von) && !Number.isNaN(bis)) {
+      // V23 (Paket 8): Leistungs-Prüfbasis. „park" = Park-Gesamtleistung (u.pkmw, im
+      // Export über den V22-Cluster-Schlüssel berechnet) — alle Einheiten des Parks
+      // erscheinen zusammen, sobald der Park die Klasse erfüllt (Variante A, User-Freigabe).
+      // Einheiten ohne Mehrfach-Park (pkmw fehlt) fallen auf u.mw zurück.
+      // „einzel" = Register-Perspektive (V21-Verhalten, u.mw je Registrierung).
+      const grBasis = document.getElementById('filter-gr-basis')
+        ? document.getElementById('filter-gr-basis').value : 'park';
+      const usePark = grBasis === 'park';
       filtered = filtered.filter(u => {
-        const mw = u.mw;
-        return mw != null && mw >= von && mw < bis;
+        const v = usePark ? (u.pkmw ?? u.mw) : u.mw;
+        return v != null && v >= von && v < bis;
       });
+    }
   }
   if (jahr) {
     filtered = filtered.filter(u => dateYear(u.reg) === jahr);
@@ -2746,7 +2913,7 @@ function applyFilters() {
   const statusActive = !(statusSel.length === 4);
   // F2: Spannungsebene als aktiver Filter
   const seActive = !!se;
-  const hasFilter = !!(art || bl || gr || jahr || monat || inbJahr || inbMonat || type || statusActive || seActive);
+  const hasFilter = !!(art || bl || lk || gemeinde || gr || jahr || monat || inbJahr || inbMonat || type || statusActive || seActive);
   const countEl = document.getElementById('art-count');
   const btnShowAll = document.getElementById('btn-show-all');
   if (hasFilter) {
@@ -2817,6 +2984,84 @@ function searchBetreiber(nq) {
     if (norm(b.name).includes(nq)) found.push(b);
   }
   return found.sort((a, b) => b.count - a.count);
+}
+
+/* V23 (Pakete 1–3): Geo-Suche — Landkreis / Gemeinde / Bundesland als kombinierter
+   Anzeigen-Treffer. Basis: Live-Index über alleUnits (u.lk / u.g / u.b), konsistent
+   zu Filtern und Karte. Rangierung: exakter Name > Präfix > enthält; je Typ max 2. */
+let _geoIndex = null;
+function geoIndex() {
+  if (_geoIndex) return _geoIndex;
+  const lk = new Map(), g = new Map(), b = new Map();
+  for (const u of allUnits) {
+    if (u.lk) { const e = lk.get(u.lk) || { name: u.lk, typ: 'lk', count: 0, b: new Set() }; e.count++; if (u.b) e.b.add(u.b); lk.set(u.lk, e); }
+    if (u.g)  { const e = g.get(u.g)  || { name: u.g,  typ: 'g',  count: 0, lkSet: new Set(), bSet: new Set() }; e.count++; if (u.lk) e.lkSet.add(u.lk); if (u.b) e.bSet.add(u.b); g.set(u.g, e); }
+    if (u.b)  { const e = b.get(u.b)  || { name: u.b,  typ: 'bl', count: 0 }; e.count++; b.set(u.b, e); }
+  }
+  _geoIndex = { lk, g, b };
+  return _geoIndex;
+}
+function searchGeo(nq) {
+  const idx = geoIndex();
+  const buckets = { bl: [], lk: [], g: [] };
+  const add = (map, typ) => {
+    for (const e of map.values()) {
+      const nn = norm(e.name);
+      let rank = -1;
+      if (nn === nq) rank = 0; else if (nn.startsWith(nq)) rank = 1; else if (nn.includes(nq)) rank = 2;
+      if (rank >= 0) buckets[typ].push({ ...e, rank });
+    }
+  };
+  add(idx.b, 'bl'); add(idx.lk, 'lk'); add(idx.g, 'g');
+  const out = [];
+  for (const typ of ['bl', 'lk', 'g']) {
+    buckets[typ].sort((a, b) => a.rank - b.rank || b.count - a.count);
+    out.push(...buckets[typ].slice(0, 2));
+  }
+  return out;
+}
+
+// V23: Klick auf Geo-Treffer → alle Anlagen des Landkreises/der Gemeinde/des Bundeslands
+function selectGeo(hit) {
+  let matching = [];
+  if (hit.typ === 'bl') matching = allUnits.filter(u => u.b === hit.name);
+  else if (hit.typ === 'lk') matching = allUnits.filter(u => u.lk === hit.name);
+  else matching = allUnits.filter(u => u.g === hit.name);
+  if (!matching.length) return;
+  renderMarkers(matching);
+  map.fitBounds(matching.map(u => [u.lat, u.lon]), { padding: [30, 30] });
+  const typLabel = hit.typ === 'bl' ? 'Bundesland' : hit.typ === 'lk' ? 'Landkreis' : 'Gemeinde';
+  document.getElementById('search-input').value =
+    `${typLabel}: ${hit.name} (${matching.length.toLocaleString('de-DE')} Anlagen)`;
+  document.getElementById('search-clear').style.display = 'block';
+  closeSuggest();
+  closeStats();
+}
+
+/* V23 (Paket 5): Klick auf einen Größenklassen-Balken → zugehörige Anlagen auf der Karte.
+   tech: 'wind' | 'pv' | 'gesamt' (Klick-Position im gesamt-Modus entscheidet: linker
+   Wind-Balkenabschnitt → nur Wind, rechter PV-Abschnitt → nur PV, Label/Zeile → beide).
+   Basis: im Cluster-Modus wird die PARK-Größe (u.pkmw) geprüft — konsistent zur
+   angezeigten Verteilung (Döllen-Klick auf 150+ zeigt alle 13 EH). */
+function selectGroessenKlasse(von, bis, tech, basis) {
+  const usePark = basis === 'cluster';
+  const getVal = u => usePark ? (u.pkmw ?? u.mw) : u.mw;
+  const matching = allUnits.filter(u => {
+    if (tech !== 'gesamt' && u.t !== tech) return false;
+    const v = getVal(u);
+    return v != null && v >= von && v < bis;
+  });
+  if (!matching.length) return;
+  renderMarkers(matching);
+  map.fitBounds(matching.map(u => [u.lat, u.lon]), { padding: [30, 30] });
+  const klasseTxt = bis >= 1e8 ? `${von}+` : `${von}–${bis}`;
+  const techTxt = tech === 'gesamt' ? 'Wind + PV' : tech === 'wind' ? 'Wind' : 'PV';
+  const basisTxt = usePark ? 'Parks aggregiert' : 'Einzelanlagen';
+  document.getElementById('search-input').value =
+    `Größenklasse ${klasseTxt} MW · ${techTxt} · ${basisTxt} (${matching.length.toLocaleString('de-DE')} Anlagen)`;
+  document.getElementById('search-clear').style.display = 'block';
+  closeSuggest();
+  closeStats();
 }
 
 /* ---------- F1 (Punkte 5–7): NAP-Suche ---------- */
@@ -3058,8 +3303,24 @@ function showSuggest(hits) {
       <span class="sug-betreiber-txt"><b>Betreiber: ${esc(q)}</b><br><small>${abHits.length} Betreiber · ${totalUnits} Anlagen in ganz Deutschland — alle anzeigen</small></span>
       <span class="sug-meta">→</span></div>`;
   }
+  // V23 (Pakete 1–3): Geo-Treffer (Bundesland / Landkreis / Gemeinde) — unter Betreiber, über Assets
+  const geoHits = nq.length >= 2 ? searchGeo(nq) : [];
+  for (const e of geoHits) {
+    const icon = e.typ === 'bl' ? '🗺️' : e.typ === 'lk' ? '🏙️' : '🏘️';
+    const typLabel = e.typ === 'bl' ? 'Bundesland' : e.typ === 'lk' ? 'Landkreis' : 'Gemeinde';
+    let ctx = '';
+    if (e.typ === 'lk' && e.b && e.b.size) ctx = [...e.b].join(', ');
+    if (e.typ === 'g' && e.lkSet && e.lkSet.size) {
+      ctx = [...e.lkSet].slice(0, 2).join(', ');
+      if (e.lkSet.size > 2) ctx += ` +${e.lkSet.size - 2}`;
+    }
+    html += `<div class="sug-geo" data-geo-i="${geoHits.indexOf(e)}" title="Alle Anlagen in ${esc(e.name)} auf der Karte anzeigen">
+      <span class="sug-geo-icon">${icon}</span>
+      <span class="sug-geo-txt"><b>${typLabel}: ${esc(e.name)}</b>${ctx ? `<br><small>${esc(ctx)}</small>` : ''}</span>
+      <span class="sug-meta">${e.count.toLocaleString('de-DE')} Anlagen →</span></div>`;
+  }
 
-  if (!hits.length && !abHits.length && !napHits.length) {
+  if (!hits.length && !abHits.length && !napHits.length && !geoHits.length) {
     box.classList.remove('open'); box.innerHTML='';
     hitsEl.style.display='none'; return;
   }
@@ -3085,12 +3346,16 @@ function showSuggest(hits) {
   // Klick auf Betreiber-Treffer -> alle Anlagen der gematchten Betreiber auf der Karte
   const abBtn = box.querySelector('[data-absearch]');
   if (abBtn) abBtn.onclick = () => selectBetreiberSearch(q);
+  // V23: Klick auf Geo-Treffer -> alle Anlagen des Landkreises/der Gemeinde/des Bundeslands
+  box.querySelectorAll('.sug-geo').forEach(el => {
+    el.onclick = () => selectGeo(geoHits[parseInt(el.dataset.geoI)]);
+  });
   // Klick auf Vorschlag
   box.querySelectorAll('.sug-item').forEach(el => {
     el.onclick = () => selectSuggestion(parseInt(el.dataset.i));
   });
   // Trefferzahl anzeigen
-  const totalHits = hits.length + (abHits.length ? 1 : 0) + napHits.length;
+  const totalHits = hits.length + (abHits.length ? 1 : 0) + napHits.length + geoHits.length;
   hitsEl.style.display='block';
   resultEl.textContent = totalHits > 8 ? totalHits + ' Treffer (zeige 8)' : totalHits + ' Treffer';
 }
@@ -3247,6 +3512,7 @@ let _statsState = {         // UI-Zustand
   sortDir: 'desc',
   groesseTech: 'wind',
   groesseMeasure: 'anzahl', // 'anzahl' | 'leistung'
+  groesseBasis: 'einheiten', // V22: 'einheiten' | 'cluster' (Parks aggregiert)
   zubauMeasure: 'anzahl',   // V8: 'anzahl' | 'leistung'
   zubauDateType: 'reg',     // V8e: 'reg' | 'inb'
   herstellerTop: '50',
@@ -3273,6 +3539,7 @@ function initStats() {
       if (btn.dataset.tab === 'hersteller') renderHersteller();
       if (btn.dataset.tab === 'groesse') renderGroesse();
       if (btn.dataset.tab === 'bundesland') renderBundesland();
+      if (btn.dataset.tab === 'landkreis') renderLandkreise();   // V23 (Paket 4)
       if (btn.dataset.tab === 'spannung') renderSpannung();
       if (btn.dataset.tab === 'historie') renderHistorie();
       if (btn.dataset.tab === 'zubau') renderZubau();
@@ -3313,6 +3580,19 @@ function initStats() {
         _statsState.herstellerSortDir = 'desc';
       }
       renderHersteller();
+    });
+  });
+  // V23 (Paket 4): Landkreis-Tabellen-Sortierung (Default mw desc, Klick toggelt)
+  document.querySelectorAll('#landkreis-table th').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.key;
+      if (_lkState.sortKey === key) {
+        _lkState.sortDir = _lkState.sortDir === 'desc' ? 'asc' : 'desc';
+      } else {
+        _lkState.sortKey = key;
+        _lkState.sortDir = key === 'lk' ? 'asc' : 'desc';
+      }
+      renderLandkreise();
     });
   });
   // Betreiber-Controls
@@ -3420,6 +3700,14 @@ function initStats() {
     b.addEventListener('click', () => {
       document.querySelectorAll('#groesse-measure .mbtn').forEach(x => x.classList.toggle('active', x === b));
       _statsState.groesseMeasure = b.dataset.measure;
+      renderGroesse();
+    });
+  });
+  // V22: Basis-Umschalter (Einzelanlagen vs. Parks aggregiert)
+  document.querySelectorAll('#groesse-basis .mbtn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#groesse-basis .mbtn').forEach(x => x.classList.toggle('active', x === b));
+      _statsState.groesseBasis = b.dataset.basis;
       renderGroesse();
     });
   });
@@ -3596,6 +3884,57 @@ function selectBetreiberGruppe(g) {
     `${typ}: ${g.gruppe} (${matching.length} Anlagen, ${g.ges.length} Gesellschaften)`;
   document.getElementById('search-clear').style.display = 'block';
   closeStats();
+}
+
+// ----- V23 (Paket 4): Landkreis-Tabelle (Assets P/W + NAPs, analog Hersteller) -----
+let _lkState = { sortKey: 'mw', sortDir: 'desc' };
+function renderLandkreise() {
+  const tbody = document.getElementById('landkreis-tbody');
+  if (!_stats || !_stats.landkreise) {
+    tbody.innerHTML = '<tr><td colspan="9">Keine Landkreis-Daten (Export &lt; V23)</td></tr>';
+    return;
+  }
+  let rows = [..._stats.landkreise];
+  const tot = rows.reduce((a, x) => ({
+    n: a.n + x.n, mw: a.mw + x.mw, n_pv: a.n_pv + x.n_pv, mw_pv: a.mw_pv + x.mw_pv,
+    n_wind: a.n_wind + x.n_wind, mw_wind: a.mw_wind + x.mw_wind,
+    n_nap: a.n_nap + x.n_nap, mw_nap: a.mw_nap + x.mw_nap,
+  }), { n: 0, mw: 0, n_pv: 0, mw_pv: 0, n_wind: 0, mw_wind: 0, n_nap: 0, mw_nap: 0 });
+  // Sortierung
+  const key = _lkState.sortKey;
+  rows.sort((a, b) => {
+    let va = a[key], vb = b[key];
+    if (key === 'lk') return _lkState.sortDir === 'asc' ? va.localeCompare(vb, 'de') : vb.localeCompare(va, 'de');
+    return _lkState.sortDir === 'asc' ? va - vb : vb - va;
+  });
+  const fmt0 = v => v.toLocaleString('de-DE', { maximumFractionDigits: 0 });
+  const fmt1 = v => v.toLocaleString('de-DE', { maximumFractionDigits: 1 });
+  const sumRow = `<tr class="lk-sum">
+    <td class="name">Gesamt</td>
+    <td class="num">${fmt0(tot.n)}</td><td class="num">${fmt1(tot.mw)}</td>
+    <td class="num">${fmt0(tot.n_pv)}</td><td class="num">${fmt1(tot.mw_pv)}</td>
+    <td class="num">${fmt0(tot.n_wind)}</td><td class="num">${fmt1(tot.mw_wind)}</td>
+    <td class="num">${fmt0(tot.n_nap)}</td><td class="num">${fmt1(tot.mw_nap)}</td>
+  </tr>`;
+  tbody.innerHTML = rows.map(r => `
+    <tr data-lk="${esc(r.lk)}" title="Alle Anlagen in ${esc(r.lk)} auf der Karte anzeigen">
+      <td class="name" title="${esc(r.lk)}">${esc(r.lk)}</td>
+      <td class="num">${fmt0(r.n)}</td><td class="num">${fmt1(r.mw)}</td>
+      <td class="num">${fmt0(r.n_pv)}</td><td class="num">${fmt1(r.mw_pv)}</td>
+      <td class="num">${fmt0(r.n_wind)}</td><td class="num">${fmt1(r.mw_wind)}</td>
+      <td class="num">${fmt0(r.n_nap)}</td><td class="num">${fmt1(r.mw_nap)}</td>
+    </tr>`).join('') + sumRow;
+  // Klick auf Zeile -> Karte zeigt nur Anlagen dieses Landkreises
+  tbody.querySelectorAll('tr[data-lk]').forEach(tr => {
+    tr.addEventListener('click', () => selectGeo({ typ: 'lk', name: tr.dataset.lk }));
+  });
+  // Sortier-Indikatoren
+  document.querySelectorAll('#landkreis-table th').forEach(th => {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    if (th.dataset.key === _lkState.sortKey) th.classList.add(_lkState.sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+  });
+  document.getElementById('landkreis-count').textContent =
+    `${rows.length} Landkreise · Gesamt ${fmt0(tot.n)} Assets / ${fmt1(tot.mw)} MW · ${fmt0(tot.n_nap)} NAPs`;
 }
 
 // ----- Hersteller-Tabelle (nur Wind) -----
@@ -3795,30 +4134,44 @@ function renderGroesse() {
   const chart = document.getElementById('groesse-chart');
   if (!_stats || !_stats.groessenklassen) { chart.innerHTML = '<p>Keine Daten</p>'; return; }
   const tech = _statsState.groesseTech; // 'wind' | 'pv' | 'gesamt'
-  const klassen = _stats.groessenklassen[tech];
+  const basis = _statsState.groesseBasis || 'einheiten'; // V22: 'einheiten' | 'cluster'
+  // V22: Cluster-Basis bevorzugt groessen_cluster; fehlt es (alter Export) → Rückfall auf Einheiten
+  const klassenQuelle = (basis === 'cluster' && _stats.groessen_cluster) ? _stats.groessen_cluster : _stats.groessenklassen;
+  const klassen = klassenQuelle[tech];
   if (!klassen || !klassen.length) { chart.innerHTML = '<p>Keine Daten</p>'; return; }
 
   const measure = _statsState.groesseMeasure; // 'anzahl' | 'leistung'
   const maxVal = Math.max(...klassen.map(k => measure === 'anzahl' ? k.anzahl : k.sum_mw));
   const gesTotal = _stats.gesamt;
 
+  // V22: Basis-Hinweiszeile (nur bei cluster sichtbar)
+  const hintEl = document.getElementById('groesse-basis-hint');
+  if (hintEl) {
+    hintEl.innerHTML = basis === 'cluster'
+      ? '🔗 <b>Parks aggregiert:</b> Zusammengehörige MaStR-Einheiten wurden zu einem Park zusammengefasst (Schlüssel: Betreiber + Parkname; Splittungen wie Solarpark Döllen — 13 Einheiten, zusammen 154,8 MW — erscheinen jetzt in ihrer realen Größe). „Anlagen" zählt hier Parks.'
+      : '';
+    hintEl.style.display = basis === 'cluster' ? 'block' : 'none';
+  }
+
   // Summary-Box
   const sumAnzahl = klassen.reduce((s, k) => s + k.anzahl, 0);
   const sumMW = klassen.reduce((s, k) => s + k.sum_mw, 0);
   let techName, maxMw;
-  if (tech === 'wind') { techName = 'Wind'; maxMw = gesTotal.wind_max_mw; }
-  else if (tech === 'pv') { techName = 'Photovoltaik'; maxMw = gesTotal.pv_max_mw; }
-  else { techName = 'Wind + PV'; maxMw = Math.max(gesTotal.wind_max_mw || 0, gesTotal.pv_max_mw || 0); }
+  if (tech === 'wind') { techName = 'Wind'; maxMw = basis === 'cluster' ? (gesTotal.wind_cluster_max_mw || gesTotal.wind_max_mw) : gesTotal.wind_max_mw; }
+  else if (tech === 'pv') { techName = 'Photovoltaik'; maxMw = basis === 'cluster' ? (gesTotal.pv_cluster_max_mw || gesTotal.pv_max_mw) : gesTotal.pv_max_mw; }
+  else { techName = 'Wind + PV'; maxMw = Math.max(gesTotal.wind_max_mw || 0, gesTotal.pv_max_mw || 0, gesTotal.wind_cluster_max_mw || 0, gesTotal.pv_cluster_max_mw || 0); }
+  const anzahlLabel = basis === 'cluster' ? (tech === 'gesamt' ? 'Parks' : `Parks (${tech === 'wind' ? 'Wind' : 'PV'})`) : 'Anlagen';
   document.getElementById('groesse-summary').innerHTML =
     `<span><b>${techName}</b></span>` +
-    `<span>Anlagen: <b>${sumAnzahl.toLocaleString('de-DE')}</b></span>` +
+    `<span>${anzahlLabel}: <b>${sumAnzahl.toLocaleString('de-DE')}</b></span>` +
     `<span>Gesamtleistung: <b>${sumMW.toLocaleString('de-DE', {maximumFractionDigits:0})} MW</b></span>` +
-    `<span>Max Einzelanlage: <b>${maxMw.toLocaleString('de-DE', {maximumFractionDigits:0})} MW</b></span>` +
+    `<span>Max ${basis === 'cluster' ? 'Park' : 'Einzelanlage'}: <b>${maxMw.toLocaleString('de-DE', {maximumFractionDigits:0})} MW</b></span>` +
     `<span class="kritis-hint">🔴 = Kritis-Schwellwert-Klasse</span>`;
   document.getElementById('groesse-legend').innerHTML =
     (tech === 'gesamt'
       ? `<span class="legend-swatch sw-wind"></span> Wind · <span class="legend-swatch sw-pv"></span> PV`
-      : `<span>Balken = ${measure === 'anzahl' ? 'Anzahl der Anlagen' : 'installierte Leistung'} je Größenklasse</span> ·`) +
+      : `<span>Balken = ${measure === 'anzahl' ? (basis === 'cluster' ? 'Anzahl der Parks' : 'Anzahl der Anlagen') : 'installierte Leistung'} je Größenklasse</span> ·`) +
+    (basis === 'cluster' ? ` <span style="color:#6b7280">Parks aggregiert (V22)</span> ·` : '') +
     ` Hover für Details · Klassen: [von, bis) in MW/MWp`;
 
   // Achsen-Skala: 0 / 50 / 100 %
@@ -3847,10 +4200,11 @@ function renderGroesse() {
   const isGesamt = tech === 'gesamt';
 
   // Für den Gesamt-Tab: pro Klasse Wind- und PV-Werte getrennt zeigen
+  // V22: aggTech liest aus derselben Quelle wie `klassen` (Cluster- oder Einheiten-Basis)
   body += klassen.map(k => {
     if (isGesamt) {
-      const w = aggTech(_stats.groessenklassen.wind, k.von, k.bis);
-      const p = aggTech(_stats.groessenklassen.pv, k.von, k.bis);
+      const w = aggTech(_stats.groessenklassen === klassenQuelle ? _stats.groessenklassen.wind : _stats.groessen_cluster.wind, k.von, k.bis);
+      const p = aggTech(_stats.groessenklassen === klassenQuelle ? _stats.groessenklassen.pv : _stats.groessen_cluster.pv, k.von, k.bis);
       const valW = measure === 'anzahl' ? w.n : w.s;
       const valP = measure === 'anzahl' ? p.n : p.s;
       const totalN = w.n + p.n;
@@ -3867,10 +4221,10 @@ function renderGroesse() {
           klasse: k.label + ' MW', anzahl: totalN, sum: totalS,
           anzahl_wind: w.n, anzahl_pv: p.n, sum_wind: w.s, sum_pv: p.s,
           kritis: !!k.kritis, units: measure
-        })}'>
+        })}' data-von="${k.von}" data-bis="${k.bis}" data-tech="gesamt">
           <div class="bar-track-gesamt">
-            <span class="bar-fill wind" style="width:${widthByPct(pctW)}" title="Wind"></span>
-            <span class="bar-fill pv" style="width:${widthByPct(pctP)}" title="PV"></span>
+            <span class="bar-fill wind" style="width:${widthByPct(pctW)}" title="Wind" data-tech="wind"></span>
+            <span class="bar-fill pv" style="width:${widthByPct(pctP)}" title="PV" data-tech="pv"></span>
             ${k.kritis ? '<span class="bar-fill kritis-glow"></span>' : ''}
           </div>
         </div>
@@ -3893,7 +4247,7 @@ function renderGroesse() {
         klasse: k.label + ' MW', anzahl: k.anzahl, sum: k.sum_mw,
         anteil_anzahl: k.anteil_anzahl, anteil_summe: k.anteil_summe,
         kritis: !!k.kritis, units: measure
-      })}'>
+      })}' data-von="${k.von}" data-bis="${k.bis}" data-tech="${tech}">
         <div class="bar-track">
           <span class="bar-fill ${color}" style="width:${widthByPct(pct)}"></span>
         </div>
@@ -3906,11 +4260,23 @@ function renderGroesse() {
   body += `</div></div>`;
   chart.innerHTML = body;
 
-  // Klick auf Zeile -> nichts (nur Tooltip)
+  // V23 (Paket 5): Klick auf Zeile/Balken → zugehörige Anlagen auf der Karte.
+  // gesamt-Modus: Klick auf Wind- oder PV-Balkenabschnitt filtert nur diese Technik;
+  // Klick auf Zeile (Label-Seite, Track-Hintergrund) → beide Techniken.
   chart.querySelectorAll('.bar-row').forEach(row => {
     row.addEventListener('mouseenter', e => showBarTip(e, row.dataset.tip));
     row.addEventListener('mousemove', moveBarTip);
     row.addEventListener('mouseleave', hideBarTip);
+    row.addEventListener('click', e => {
+      const von = Number.parseFloat(row.dataset.von);
+      const bis = Number.parseFloat(row.dataset.bis);
+      if (Number.isNaN(von) || Number.isNaN(bis)) return;
+      let tech = row.dataset.tech || 'gesamt';
+      // Im gesamt-Modus: Klick direkt auf einem Balkenabschnitt → nur diese Technik
+      const fillTech = e.target.closest('.bar-fill')?.dataset?.tech;
+      if (tech === 'gesamt' && (fillTech === 'wind' || fillTech === 'pv')) tech = fillTech;
+      selectGroessenKlasse(von, bis, tech, _statsState.groesseBasis || 'einheiten');
+    });
   });
 
   // V6: Art-Verteilungs-Pie (nur für Wind und PV, nicht für Gesamt)
@@ -3924,6 +4290,9 @@ function renderGroesseArtPie(tech, measure) {
     container.innerHTML = '';
     return;
   }
+  // V22: Bei Basis 'cluster' klar kennzeichnen, dass der Pie weiter die MaStR-Einheiten zeigt
+  const basis = _statsState.groesseBasis || 'einheiten';
+  const titelSuffix = basis === 'cluster' ? ' (MaStR-Einheiten)' : '';
 
   // Art-Gruppen definieren
   let artGroups;
@@ -3958,7 +4327,7 @@ function renderGroesseArtPie(tech, measure) {
   const size = 240, cx = size/2, cy = size/2, R = size/2 - 8;
   const dpr = window.devicePixelRatio || 1;
   let html = `<canvas id="groesse-art-pie" width="${size}" height="${size}"></canvas>`;
-  html += `<div class="gp-side"><div class="gp-title">Verteilung nach Anlagentyp</div>`;
+  html += `<div class="gp-side"><div class="gp-title">Verteilung nach Anlagentyp${titelSuffix}</div>`;
   segs.forEach(s => {
     const pct = totalVal > 0 ? (100 * s.val / totalVal).toLocaleString('de-DE', {maximumFractionDigits:1}) : '0';
     const valStr = measure === 'anzahl'
@@ -4110,6 +4479,8 @@ const SE_SHORT = {
   'Höchstspannung': 'HöS',
   'Umspannebene Höchstspannung/Hochspannung': 'Umspann HöS/HS',
 };
+// V24 (Paket 2): Titel-Zeile der Spannungs-Balken darf die 805-px-Panel-Breite nicht
+// sprengen (früher 820>805 → Horizontal-Scroll). Flex-Break statt nowrap.
 function computeSpannungData() {
   // Aggregiert die AKTUELL gefilterten Anlagen — aber applyFilters kennt sein Ergebnis nicht global.
   // Trick: Der Tab rendert beim Öffnen/Filtern aus allUnits mit derselben Filterlogik → wir
@@ -4135,7 +4506,7 @@ function renderSpannung() {
     const pct = total ? (100 * d.anzahl / total).toFixed(1) : '0';
     const w = (100 * d.anzahl / max).toFixed(1);
     return `<div style="margin-bottom:7px;">
-      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:2px;">
+      <div style="display:flex;justify-content:space-between;gap:8px;font-size:12.5px;margin-bottom:2px;flex-wrap:wrap;">
         <span><strong>${esc(label)}</strong> <span style="color:#6b7280">· ${d.anzahl.toLocaleString('de-DE')} · ${pct} %</span></span>
         <span style="color:#6b7280">${Math.round(d.sum_mw).toLocaleString('de-DE')} MW</span>
       </div>

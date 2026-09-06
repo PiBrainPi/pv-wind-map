@@ -22,16 +22,23 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
 - 🎯 Klick auf Anlage → Detail-Popup mit allen MaStR-Daten (MaStR-Nr., Leistung, Standort, Netzbetreiber,
   Betreiber, **Inbetriebnahme TT.MM.JJJJ, Spannungsebene, NAP-Nummer klickbar → alle Anlagen am selben
   Netzanschlusspunkt auf der Karte**, wind-/PV-spezifische Felder)
-- 🔍 **Filter (4):** Typ (Wind/PV), Bundesland (inkl. Offshore), **Art des Assets** (Freiflächen-/Gebäude-/Sonstige Solaranlage, Windkraft an Land/auf See) und **Leistung (MW)** in festen Größenklassen `[von, bis)`:
+- 🔍 **Filter (6):** Typ (Wind/PV), Bundesland (inkl. Offshore), **Landkreis** (seit V23, Optionen folgen dem Bundesland), **Gemeinde** (seit V23, Optionen folgen dem Landkreis; Mehrfachnamen über LK unterschieden), **Art des Assets** (Freiflächen-/Gebäude-/Sonstige Solaranlage, Windkraft an Land/auf See) und **Leistung (MW)** in festen Größenklassen `[von, bis)`:
   `0.1–0.5 · 0.5–1 · 1–2 · 2–5 · 5–10 · 10–30 · 30–60 · 60–100 · 100–104 · 104–150 · 150+`
-  (Wind ≈ Nennleistung/MW, PV = MWp — das MaStR unterscheidet nicht zwischen AC/DC; **Kritis-Schwelle: erst ab 104 MW** nach BSI-KritisV → nur `104–150` und `150+` sind Kritis). Sobald ein Art-/Bundesland-/Leistungs-Filter gesetzt ist, zeigt ein Badge neben dem Leistungs-Dropdown die **Anzahl der aktuell sichtbaren Anlagen** (`Anzahl: n` — zählt **alle** gesetzten Filter inkl. Wind/PV, konsistent mit den Marker-Clustern).
-- 📊 **Statistik-Panel** (8 Tabs): Betreiber-Tabelle (Live-Suggest-Filter mit Betreibergruppen 👥 /
+  (Wind ≈ Nennleistung/MW, PV = MWp — das MaStR unterscheidet nicht zwischen AC/DC; **Kritis-Schwelle: erst ab 104 MW** nach BSI-KritisV → nur `104–150` und `150+` sind Kritis). **Seit V23:** Leistungs-Basis-Umschalter **„Park (aggregiert)"** (Default) ⇄ „Einzelanlage" — zersplitterte Parks werden über ihre Park-Gesamtleistung geprüft (Solarpark Döllen: 13 Einheiten à 7,4–31,4 MW → Park 154,8 MW → erscheint bei „150+"). Sobald ein Filter gesetzt ist, zeigt ein Badge neben dem Leistungs-Dropdown die **Anzahl der aktuell sichtbaren Anlagen** (`Anzahl: n` — zählt **alle** gesetzten Filter inkl. Wind/PV, konsistent mit den Marker-Clustern).
+- 🔎 **Geo-Suche (V23):** Die Suche findet neben Anlagen, Betreibern/Portfolios und NAPs jetzt auch **Bundesländer 🗺️, Landkreise 🏙️ und Gemeinden ⛪** (unter dem Betreiber-Block, mit Kontextzeile und Anlagenzahl; Klick → alle Anlagen der Region auf der Karte).
+- 📊 **Statistik-Panel** (9 Tabs): Betreiber-Tabelle (Live-Suggest-Filter mit Betreibergruppen 👥 /
   Portfolios 📁 — Gruppen zuerst, 250 ms Debounce ab 2 Zeichen; Zahlformat 1 Nachkommastelle;
   Klick auf Zeile/Name → alle Anlagen des Betreibers/der Gruppe auf der Karte),
-  Hersteller-Tab (nur Wind, + %-Anteil + interaktiver Donut), **Größenklassen-Diagramme** (Toggle
-  Wind / PV / Wind + PV) mit fester Leistungsskala und Kritis-Markierung (ab 104 MW, BSI-KritisV),
+  Hersteller-Tab (nur Wind, + %-Anteil + interaktiver Donut), **Größenklassen-Diagramme** (Toggles
+  Wind / PV / Wind + PV, Anlagen ⇄ Leistung, **seit V22: Basis „Einzelanlagen ⇄ Parks aggregiert"** —
+  zersplitterte Parks wie Solarpark Döllen (13 Einheiten) werden zu einem Park (154,8 MW) summiert,
+  damit Kritis-Objekte ≥104 MW real sichtbar sind; **seit V23: Balken-Klick → alle Anlagen der Klasse
+  auf der Karte**, im Wind+PV-Modus je nach Klick-Position nur Wind oder nur PV) mit fester
+  Leistungsskala und Kritis-Markierung (ab 104 MW, BSI-KritisV),
   **Bundesländer-Tab** (interaktives Donut-Chart mit Wind/PV/Gesamt-Modus, Anlagen/Leistung-Umschalter,
-  Klick → Karten-Filter), **Update-Historie** (Revisions-Tracker mit Snapshot-Vergleich, Delta-Summary,
+  Klick → Karten-Filter), **Landkreis-Tab (V23)** (Tabelle: Assets PV/Wind kombiniert + getrennt,
+  NAP-Anzahl + NAP-Gesamtleistung je Landkreis; sortierbar, Default MW gesamt absteigend;
+  Klick auf Zeile → Karte), **Update-Historie** (Revisions-Tracker mit Snapshot-Vergleich, Delta-Summary,
   Verlauf-Tabelle, Bundesländer-Veränderung, Zeitleiste, Asset-Detail mit Deeplinks).
 
 - 📱 **Responsive Design:** 3 Breakpoints (PC ≥1024px: Stats-Panel 700px, Tablet 768–1023px: 560px,
@@ -106,11 +113,14 @@ bash scripts/build.sh   # fetch + import + export + bundle in einem Schritt
 
 ## Datenbasis & Abgrenzung
 
-| Kategorie | Umfang | In DB | Mit Geolokation |
-|-----------|--------|-------|-----------------|
-| **Wind** | ≥ 100 kW (nach Einheiten-Normalisierung MW), Status „In Betrieb“ | 32.155 | 30.996 |
-| **Photovoltaik** | ≥ 0,5 MWp (Bruttoleistung ≥ 500 kWp), Status „In Betrieb“ | 22.389 | 22.384 |
-| **Gesamt** | | **54.544** | **53.380** |
+| Kategorie | Umfang | Georef (alle Status) | „In Betrieb" |
+|-----------|--------|----------------------|--------------|
+| **Wind** | ≥ 100 kW (nach Einheiten-Normalisierung MW) | 42.167 | 31.134 (Export/Karte: 31.116) |
+| **Photovoltaik** | ≥ 0,5 MWp (Bruttoleistung ≥ 500 kWp) | 23.652 | 22.399 (Export/Karte: 22.384) |
+| **Gesamt** | | **65.819** | **53.533 (Karte: 53.500)** |
+
+Die Karte filtert per Default auf „In Betrieb" (Status-Checkboxen können 31/37/38 zuschalten).
+Stand: Import 04.09.2026 (V21-Datenstand), verifiziert 06.09. (Details: `docs/datenmodell.md`).
 
 - **Geolokation**: nur Anlagen MIT vorhandenen Koordinaten im MaStR (kein Geocoding)
 - **Einheiten-Hinweis**: MaStR liefert PV in kWp und Wind gemischt (kW/MW) — der Import normalisiert auf MW (Details: docs/datenmodell.md)

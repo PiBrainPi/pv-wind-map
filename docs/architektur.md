@@ -1,6 +1,6 @@
 # Architektur — PV & Wind Karte (MaStR)
 
-> Stand: 2026-08-29 · Zweisprachig (DE / EN unten)
+> Stand: 2026-09-06 (V23) · Zweisprachig (DE / EN unten)
 
 ## Überblick (DE)
 
@@ -47,7 +47,7 @@ kompakte JSON-Dateien für die Karte (inkl. Statistik) exportiert.
 | **Import** | `scripts/import_mastr.py` | SQLite-Schema, Einheiten-Normalisierung, ≥100-kW-Wind / ≥0,5-MWp-PV-Filter, `data/mastr.db`. **V4:** Sichert alten Stand als Snapshot vor Rebuild, berechnet Delta nach Import. |
 | **Export** | `scripts/export_app.py` | SQLite → kompaktes JSON für Karte (`dist/assets/*.json`) + Statistik (`statistiken.json`) + Historie (`historie.json`), nur Anlagen mit Geolokation. |
 | **Snapshot** | `scripts/snapshot.py` | **V4 (neu):** SQLite-Schema für `snapshots` + `snapshot_einheiten` (26 Asset-Felder), `save_snapshot()`, `compute_delta()`, `build_historie()`. Grundlage für den Update-Historie-Tab. |
-| **App** | `src/index.html` | Leaflet-Karte + MarkerCluster (beide **lokal in `src/vendor/`, inline eingebettet** seit 2026-08-31 / DSGVO — kein unpkg-CDN) + Filter + Detail-Popups + **Statistik-Panel (6 Tabs)** + **2-Klick-Consent für OSM-Kacheln** + **V8i: Disclaimer-Panel (Hover/Tap, position:fixed, z-index 1200/1201, Trigger unter Zoom-Control seit V8j: Desktop top:86px/Mobile 96px)**. **V5:** Responsive Design (3 Breakpoints). **V6:** Art-Verteilungs-Pie unter Größenklassen. **V7/V7b/V7c:** Registrierungs-Filter (Jahr/Monat), Alle-Anlagen-Tabelle mit sortierbaren Headern. **V8c:** Inbetriebnahme-Filter (Jahr/Monat, 1988–2026). **V8h: to_mw() mehrstufige kW/MW-Korrektur.** **V8e:** Zubau-Tab mit Sub-Tabs (Registrierung/Inbetriebnahme), 6 Charts pro Sub-Tab. **V8f/V8g:** Senkrechte X-Achsen-Labels, Werte außerhalb der Balken, volle MW-Zahlen. |
+| **App** | `src/index.html` | Leaflet-Karte + MarkerCluster (beide **lokal in `src/vendor/`, inline eingebettet** seit 2026-08-31 / DSGVO — kein unpkg-CDN) + Filter + Detail-Popups + **Statistik-Panel (9 Tabs, seit V23 inkl. „Landkreis")** + **2-Klick-Consent für OSM-Kacheln** + **V8i: Disclaimer-Panel (Hover/Tap, position:fixed, z-index 1200/1201, Trigger unter Zoom-Control seit V8j: Desktop top:86px/Mobile 96px)**. **V5:** Responsive Design (3 Breakpoints). **V6:** Art-Verteilungs-Pie unter Größenklassen. **V7/V7b/V7c:** Registrierungs-Filter (Jahr/Monat), Alle-Anlagen-Tabelle mit sortierbaren Headern. **V8c:** Inbetriebnahme-Filter (Jahr/Monat, 1988–2026). **V8h: to_mw() mehrstufige kW/MW-Korrektur.** **V8e:** Zubau-Tab mit Sub-Tabs (Registrierung/Inbetriebnahme), 6 Charts pro Sub-Tab. **V8f/V8g:** Senkrechte X-Achsen-Labels, Werte außerhalb der Balken, volle MW-Zahlen. **V11–V21:** NAP-Suche/Gruppenansicht, Spannungsebenen-Filter, Status-Filter, Betroffenheits-Tab, Betreiber-Live-Suggest mit Gruppen/Portfolios, Popup TT.MM.JJJJ + NAP-Klick. **V22:** Größenklassen-Basis-Umschalter „Einzelanlagen / Parks aggregiert" (Splittungs-bereinigte Kritis-Sichtbarkeit, Döllen-Problem). **V23:** Geo-Ebene — Suche/Filter nach Bundesland/Landkreis/Gemeinde (kontextuell, kombinierbar), Stats-Tab „Landkreis" (Assets P/W + NAPs, 9 Spalten), Größenklassen-Balken-Klick → Karte, Leistungsfilter-Basis „Park (aggregiert)" (`pk`/`pkmw`, Default). |
 | **Bundle** | `scripts/bundle_singlefile.py` | Erzeugt `dist/index_singlefile.html` (Daten eingebettet, direkt klickbar). |
 | **Build** | `scripts/build.sh` | Ein-Befehl-Build (Export + Kopieren). |
 
@@ -59,8 +59,12 @@ kompakte JSON-Dateien für die Karte (inkl. Statistik) exportiert.
    - Pagination mit `page`/`pageSize`, `chunkedLoading`-freundlich.
 2. **import_mastr.py** normalisiert und speichert in SQLite.
 3. **export_app.py** wählt nur Anlagen mit `geolokation=1`, schreibt die schlanken Karten-Datensätze
-   (`einheiten.json`, `meta.json`) und berechnet zusätzlich die **Statistik** (`statistiken.json`:
-   Betreiber-Aggregation + Größenklassen je Technologie).
+   (`einheiten.json`, `meta.json` — seit V23 inkl. `pk`/`pkmw`: unit→Park-Mapping für den
+   park-aggregierten Leistungsfilter) und berechnet zusätzlich die **Statistik** (`statistiken.json`:
+   Betreiber-Aggregation, Größenklassen je Technologie **und seit V22 `groessen_cluster`**
+   — Park-Cluster-Verteilung nach Schlüssel (Energieträger, Betreiber, Parkname), damit
+   Splittungen wie Solarpark Döllen (13 EH = 154,8 MW) korrekt in den Kritis-Klassen erscheinen;
+   **seit V23 `landkreise` + `gemeinden`** für Geo-Suche, Geo-Filter und Landkreis-Tab).
 4. **src/index.html** lädt die Daten (eingebettet aus Single-File ODER per `fetch()` im hostbaren Modus),
    rendert Leaflet-Cluster und bietet Suche + Statistik-Panel.
 5. **build.sh** bündelt `fetch → import → export → bundle` in einem nicht-interaktiven Befehl

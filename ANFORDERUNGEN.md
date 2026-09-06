@@ -1,6 +1,6 @@
 # Anforderungen — PV & Wind Karte (MaStR)
 
-> Status: **Brainstorming / Entwurf** · Stand: 2026-08-29
+> Status: **Brainstorming / Entwurf (historisch, V1-Gründungsdoku)** · Stand: 2026-08-29
 > Dieses Dokument lebt und wird im Laufe des Projekts ergänzt.
 
 ## 1. Zielbild

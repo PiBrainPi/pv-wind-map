@@ -1,6 +1,6 @@
 # Datenmodell — PV & Wind Karte (MaStR)
 
-> Stand: 2026-08-29 · Zweisprachig (DE / EN)
+> Stand: 2026-09-06 (V23) · Zweisprachig (DE / EN)
 
 ## Datenbasis (DE)
 
@@ -88,13 +88,32 @@ kW-Kleinstanlagen (≈ 0.1 MW) und werden korrekt als kW behandelt; Anlagen <100
 - **PV**: ≥ 0,5 MWp (Bruttoleistung ≥ 500 kWp), Status „In Betrieb".
 - **Karte**: nur Anlagen mit vorhandener Geolokation (`geolokation=1`). Kein Geocoding.
 
-## Aktuelle Datenkennzahlen (Import 2026-08-29)
+## Aktuelle Datenkennzahlen
 
-| Kategorie | Gesamt in DB | Mit Geolokation |
-|-----------|-------------|-----------------|
-| Wind (≥100 kW) | 32.155 | 31.116 |
-| PV (≥0,5 MWp) | 22.389 | 22.384 |
-| **Summe** | **54.544** | **53.500** |
+**Pipeline 2.0 (einheiten_raw, alle 4 Status, Stand 04.09. — verifiziert 06.09.):**
+
+| Kategorie | Georef (alle Status) | 35 In Betrieb | 31 In Planung | 37 vorüb. stillg. | 38 endg. stillg. |
+|-----------|---------------------|---------------|---------------|-------------------|------------------|
+| Wind (≥100 kW) | 42.167 | 31.134 | 8.088 | 58 | 2.887 |
+| PV (≥0,5 MWp) | 23.652 | 22.399 | 1.187 | 14 | 52 |
+| **Summe** | **65.819** | 53.533 | 9.275 | 72 | 2.939 |
+
+Die Karte (Infobar „31.116 Wind · 22.384 PV") zählt die **exportierten** Einheiten
+(einheiten.json: georef In-Betrieb nach ≥100-kW-Normalisierung; Differenz zu 31.134/22.399
+= Einheiten unter der Schwelle bzw. Export-Konsolidierung).
+Die **Statistik-DB-Tabelle `einheiten`** (V1-Schema) umfasst 31.116 Wind + 22.384 PV =
+53.500 georef Einheiten (alle Status) — Basis der Betreiber-/Größenstatistik
+(inkl. `groessen_cluster` seit V22).
+
+**V23-Zusätze im Export (updatefähig, in jedem build.sh neu berechnet):**
+- `einheiten.json` je Einheit: `pk` (Park-Cluster-Hash) + `pkmw` (Park-Gesamtleistung MW,
+  nur bei Mehrfach-Parks mit n ≥ 2; Basis = V22-Cluster-Schlüssel). 35.092 Einheiten in
+  Mehrfach-Parks. Zweck: Leistungsfilter-Basis „Park (aggregiert)" — Solarpark Döllen
+  (13 EH à 7,4–31,4 MW) erfüllt „150+" über pkmw = 154,8 MW.
+- `statistiken.json`: `landkreise` (377 LKs: Assets n/MW kombiniert + PV + Wind,
+  NAP-Anzahl + NAP-MW — NAP-Join über **numerische LokationId** aus `einheiten_raw.lokation_id`,
+  nicht über den SEL-String) und `gemeinden` (6.499 Gemeinden mit BL/LK-Kontext,
+  Pivot Landkreis wegen Namens-Dubletten über Bundesländer).
 
 ```sql
 -- Beispiel für eigene Abfragen
@@ -131,12 +150,27 @@ Values 81–99 mislabeled as “MW” (≈ 0.1 MW micro-turbines) are treated as
 - **PV**: ≥ 0.5 MWp (≥ 500 kWp), status "In Betrieb".
 - **Map**: only geolocated units (`geolokation=1`). No geocoding.
 
-### Current figures (import 2026-09-04, V19)
-| Category | In DB | Georeferenced |
-|----------|-------|---------------|
-| Wind (≥100 kW) | 31,116 | 31,116 |
-| PV (≥0.5 MWp) | 22,384 | 22,384 |
-| **Total** | **65,659** | **65,659** |
+### Current figures (einheiten_raw, all 4 statuses, import 2026-09-04 — verified 2026-09-06)
+| Category | Georef (all statuses) | 35 In operation | 31 Planned | 37 temp. shut down | 38 perm. shut down |
+|----------|-----------------------|-----------------|------------|--------------------|--------------------|
+| Wind (≥100 kW) | 42,167 | 31,134 | 8,088 | 58 | 2,887 |
+| PV (≥0.5 MWp) | 23,652 | 22,399 | 1,187 | 14 | 52 |
+| **Total** | **65,819** | 53,533 | 9,275 | 72 | 2,939 |
+
+Map infobar (“31.116 Wind · 22.384 PV”) counts exported units (georef, in operation,
+after ≥100 kW normalisation). The V1 statistics table `einheiten` holds 31,116 wind +
+22,384 PV = 53,500 georef units (all statuses) — basis of the operator/size statistics
+(incl. `groessen_cluster` since V22).
+
+**V23 export additions (update-capable, recomputed on every build.sh run):**
+- `einheiten.json` per unit: `pk` (park-cluster hash) + `pkmw` (park total MW, only for
+  multi-unit parks n ≥ 2; based on the V22 cluster key). 35,092 units in multi-unit parks.
+  Purpose: power-filter basis “Park (aggregated)” — Solarpark Döllen (13 units of
+  7.4–31.4 MW) matches “150+” via pkmw = 154.8 MW.
+- `statistiken.json`: `landkreise` (377 districts: units/MW combined + PV + wind,
+  NAP count + NAP MW — NAP join via **numeric LokationId** from `einheiten_raw.lokation_id`,
+  not the SEL string) and `gemeinden` (6,499 municipalities with BL/LK context,
+  pivoted by district because of name duplicates across federal states).
 
 > Stand 04.09.2026 (V19-Live-Datenstand): infobar „31.116 Wind · 22.384 PV".
 > Historie inkl. Updates (NEU/ENTFERNT) → `assets/historie.json`; NAP-Index

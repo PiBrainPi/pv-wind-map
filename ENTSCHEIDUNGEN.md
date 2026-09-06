@@ -72,3 +72,44 @@ Remote-Feldliste) sind alle in den Entscheidungen 4–7 bzw. in docs/ dokumentie
   (31.116 Wind ≥100 kW + 22.384 PV ≥0,5 MWp). Top-Betreiber nach Anzahl: PROKON (275 Anlagen).
 - Statistik-Aggregation erfolgt in `export_app.py` aus SQLite (nur `geolokation=1`,
   konsistent zur Karte) → `dist/assets/statistiken.json`.
+## 2026-09-06 · V24 — Politur + Live-Gang (User-Freigabe)
+
+- **Entscheidung:** Landkreis-Tab-Header tragen die Leistungseinheit — „Leistung PV (MWp)"
+  und „Leistung Wind (MW)" (konsistent zur Größenklassen-Konvention der Karte).
+- **Layout:** Landkreis-Tabelle auf `table-layout:fixed` mit festen Spaltenverhältnissen,
+  Spannungs-Balken-Titel flex-wrap → **alle 9 Statistik-Tabs ohne horizontales Scrollen**
+  (vorher: Tabelle 996 px > 805 px Container).
+- **Deploy:** User-Freigabe „pushe die neueste Revision auf GitHub und stelle live" →
+  main `7172681` (V22+V23+V24), gh-pages `1b9c85a`, DB-Backup `mastr.db.2026-09-06.preV24.bak`
+  vorher. Live-Verifikation: HTTP 200 + Header-Strings + statistiken.json (377/6.499/cluster).
+
+## 2026-09-06 · V23 — „Geo-Ebene" (Arbeitspakete 1–8)
+
+- **Entscheidung:** Bundesland/Landkreis/Gemeinde als eigene Suche- und Filter-Dimension
+  (kontextuelle Dropdowns BL→LK→Gemeinde, kombinierbar); neuer Stats-Tab „Landkreis" mit
+  NAP-Spalten (Join über numerische LokationId — SEL-String-Join ist leer); Größenklassen-Balken
+  klickbar (gesamt-Modus: Klick-Position entscheidet Wind vs. PV); Leistungsfilter mit
+  Basis-Umschalter **„Park (aggregiert)" als Default** — zersplitterte Parks erfüllen
+  Größenklassen über ihre Park-Summe (`pkmw`), nicht je Registrierung.
+- **User-Entscheidung (Darstellung):** Variante A — bei Park-Filter erscheinen alle Einheiten
+  des Parks als Marker (konsistent zum V22-Diagramm), kein Zusammenfassen zu einem Marker.
+- **Updatefähigkeit:** `pk`/`pkmw` + `landkreise`/`gemeinden` entstehen komplett in
+  `export_app.py` → jeder build.sh-Lauf berechnet sie automatisch frisch.
+- **Status:** implementiert, browser-verifiziert (Döllen-Kontrollfall: Park 150+ = 1.603
+  inkl. 13 EH vs. Einzel = 3), NICHT deployed — wartet auf User-Freigabe (gemeinsam mit V22).
+
+## 2026-09-06 · V22 — Größenklassen: Park-Cluster-Basis („Parks aggregiert")
+
+- **Entscheidung:** Die Größenklassen-Statistik bekommt eine zweite Auswertungsbasis.
+  Neben der bestehenden Einheiten-Sicht (Register-Perspektive) rechnet der Export eine
+  Park-Cluster-Verteilung (Betreiber-Perspektive) nach Schlüssel (Energieträger, Betreiber,
+  Parkname mit Suffix-Normalisierung). UI: Umschalter im Größen-Tab, Default bleibt
+  „Einzelanlagen" (V21-Verhalten unverändert).
+- **Begründung:** Das MaStR zersplittert große Parks in viele Einheiten (Solarpark Döllen =
+  13 EH à 7,4–31,4 MW = 154,8 MW). Auf Einheiten-Ebene sind Kritis-Objekte (≥104 MW,
+  BSI-KritisV) praktisch unsichtbar: nur 5 Einzel-Einheiten vs. 52 reale Cluster
+  (Offshore-Windparks bis 958,7 MW). User-Meldung 06.09., Umsetzung gleicher Tag.
+- **Updatefähigkeit:** Cluster-Aggregation läuft vollständig in `export_app.py::build_statistiken()`
+  — jeder Daten-Update-Lauf erzeugt `groessen_cluster` automatisch frisch. Keine manuellen Schritte.
+- **Status:** Umgesetzt + browser-verifiziert (12 Kombi-Stufen, F5-Regression ok).
+  Revision `iterations/V22_GroessenCluster.html`. Commit/Deploy nach User-Freigabe (Regel 4).

@@ -1,16 +1,19 @@
 # Hosting — PV & Wind Karte (MaStR)
 
-> **Stand: 2026-08-31** — Das Projekt ist **live deployed** auf **GitHub Pages** unter
+> **Stand: 2026-09-06** — Das Projekt ist **live deployed** auf **GitHub Pages** unter
 > eigener Domain. Details & alle Schritte: **[docs/DEPLOYMENT.md](DEPLOYMENT.md)**.
 > Diese Datei fasst die Auslieferungsformen zusammen und dokumentiert den
 > **Self-Hosting-Fallback** (ohne GitHub).
 
-## Live-Status (Stand 2026-08-31)
+## Live-Status (Stand 2026-09-06)
 
-- **Karte:** `https://wind-pv-map.ingenieur-tools.de/` — HTTP **und HTTPS** aktiv. Aktive Revision: **V3** (Fix Erstladen-ohne-Daten). ✅
-- **Portal:** `https://ingenieur-tools.de/` — DSGVO-v2 live; HTTPS-Zert in Ausstellung (wartet auf GitHub).
-- **Sun Tracker:** `https://sonne.ingenieur-tools.de/` — V04 (DSGVO); HTTP aktiv, HTTPS-Zert in Ausstellung.
-- **Galton Board:** `https://galton-board.ingenieur-tools.de/` — V12 (DSGVO); HTTPS aktiv. ✅
+- **Karte:** `https://wind-pv-map.ingenieur-tools.de/` — HTTPS enforced ✅. Aktive Live-Revision: **V21**
+  (04.09., Betreiber-Live-Suggest + Popup TT.MM.JJJJ/NAP-Klick); **V22 (Parks aggregiert) fertig,
+  wartet auf User-Freigabe** → danach Deploy per `scripts/deploy_ghpages.sh`.
+- **Portal:** `https://ingenieur-tools.de/` — DSGVO-v2 live; HTTPS wartet auf LE-Rate-Limit-Fenster
+  (Watchdog `b950b901245e` prüft alle 30 min).
+- **Sun Tracker:** `https://sonne.ingenieur-tools.de/` — V04 (DSGVO); HTTPS wartet ebenfalls auf LE-Fenster.
+- **Galton Board:** `https://galton-board.ingenieur-tools.de/` — V12 DE/EN (DSGVO); HTTPS enforced ✅.
 - **Hosting:** GitHub Pages, Repos `PiBrainPi/pv-wind-map`, `ingenieur-tools-portal`, `sun-tracker`, `galton-board` — **öffentlich**.
 - **Domain:** `ingenieur-tools.de` (netcup). A-Record für Apex, CNAME für Subdomains.
 

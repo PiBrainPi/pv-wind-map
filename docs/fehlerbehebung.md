@@ -1,6 +1,6 @@
 # Fehlerbehebung (Troubleshooting) — PV & Wind Karte
 
-> Stand: 2026-08-29
+> Stand: 2026-09-06
 
 ## Bekannte Fehlerbilder & Lösungen
 

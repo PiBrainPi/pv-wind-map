@@ -1,14 +1,34 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-09-04 · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+> Stand: 2026-09-06 · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
 
-## Aktueller Stand (2026-09-04, V21 — Betreiber-Deep-Links, Popup-Erweiterung, Chart-Fixes, LIVE deployed)
+## Aktueller Stand (2026-09-06, **V24 LIVE** — enthält V22 „Parks aggregiert" + V23 „Geo-Ebene" + V24-Politur)
 
-**LIVE:** https://wind-pv-map.ingenieur-tools.de · **Code-Stand:** V21.6 · **Single-File:** 38,7 MB
-**Letzter Deploy:** 04.09.2026 Abend (V21, User freigegeben) · **main:** d1096b4 · **gh-pages:** 48da2ae
-**Deploy-Verifizierung:** Live-Index 433.686 B = lokal identisch, V21-Marker (tbl-name,
-„Gruppe oder Portfolio filtern…", V21.6) in Live-Datei + Live-JS bestätigt.
+**LIVE:** https://wind-pv-map.ingenieur-tools.de (**V24-Stand**) · **Code-Stand:** V24 (main `7172681`) · **Single-File:** 42,3 MB
+**LIVE-Deploy:** 06.09.2026 (V22+V23+V24 gemeinsam, User-Freigabe erteilt) · **main:** `7172681` · **gh-pages:** `1b9c85a`
+**V24 (06.09.):** Landkreis-Tab-Header mit Leistungseinheiten („Leistung PV **(MWp)**",
+„Leistung Wind **(MW)**"); Statistik-Panel **ohne horizontales Scrollen** — alle 9 Tabs
+und alle Tab-Inhalte passen in die 805-px-Panel-Breite (Landkreis-Tabelle via
+`table-layout:fixed` + feste Spaltenverhältnisse, Spannungs-Zeilen flex-wrap).
+**V22 (06.09.):** Größenklassen-Basis-Umschalter „Einzelanlagen / Parks aggregiert"
+(Döllen-Splittungs-Problem — Kritis-Sichtbarkeit 5 → 52 Objekte). Export liefert
+`statistiken.json → groessen_cluster`, UI-Revision `iterations/V22_GroessenCluster.html`,
+browser-verifiziert (12 Kombis, F5-Regression ok). **LIVE seit 06.09.** (Deploy mit V23+V24).
+Details: `docs/ROADMAP.md` § V22.
+**V23 (06.09., Arbeitspakete 1–8, Plan: `.hermes/plans/2026-09-06_V23-GeoEbene_30-Punkte-Plan.md`):**
+1)–3) Geo-Suche (Landkreis/Gemeinde/Bundesland) unter Betreiber-Block; 4) Stats-Tab
+„Landkreis" (9 Spalten: Assets P/W kombiniert + PV + Wind, NAP-Anzahl + NAP-MW;
+analog Hersteller; NAP-Join über numerische LokationId: 377 LKs · 51.722 Assets ·
+27.313 NAPs); 5) Größenklassen-Balken-Klick → Karte (gesamt-Modus: Wind-/PV-Abschnitte
+einzeln klickbar; Cluster-Basis prüft Park-MW); 6)–7) Filter „Landkreis" + „Gemeinde"
+(zwischen Bundesland und Art, kontextuell BL→LK→Gemeinde, kombinierbar); 8) Leistungs-
+filter-Basis „Park (aggregiert)" als Default — zersplitterte Parks über Park-Gesamtleistung
+(Döllen: 150+ = 1.603 Anlagen inkl. aller 13 Döllen-EH; Einzel-Modus: 3). Export: `pk`/
+`pkmw` in einheiten.json + `landkreise`/`gemeinden` in statistiken.json (updatefähig,
+läuft in jedem build.sh). Revision: iterations/V23_GeoEbene.html (42,3 MB). Browser-
+verifiziert (Suche/Filter/Tab/Balken-Klick/Döllen-Kontrollfall + F5-Regression ok).
+**LIVE seit 06.09.** (Deploy mit V22+V24).
 CDN-Hinweis: max-age=600 → bis 10 min nach Deploy kann Cache den Altstand zeigen
 (Cache-Buster-Query `?v…=1` umgeht das).
 
@@ -30,6 +50,23 @@ CDN-Hinweis: max-age=600 → bis 10 min nach Deploy kann Cache den Altstand zeig
   y-Wert-Labels stehen ÜBER dem Datenpunkt (negativ: darunter), kein Overlap mehr.
 
 ### Offene Punkte / nächste Themen (für nahtlose Weiterarbeit)
+- **Stand 06.09. (V24 LIVE):** V22+V23+V24 sind deployed (main `7172681`, gh-pages `1b9c85a`).
+  V24 = Header-Einheiten im Landkreis-Tab (PV (MWp) / Wind (MW)) + Statistik-Panel ohne
+  horizontales Scrollen (alle 9 Tabs verifiziert `scrollWidth ≤ clientWidth`). Keine
+  offenen Arbeitspakete — nächste Themen hier ergänzen.
+- **V23 (2026-09-06):** Geo-Ebene (Arbeitspakete 1–8) — Geo-Suche (BL/LK/Gemeinde
+  unter Betreiber-Block), Geo-Filter (Landkreis zwischen BL/Art + Gemeinde; kontextuell),
+  Stats-Tab „Landkreis" (9 Spalten + NAPs, analog Hersteller, Default MW desc),
+  Größenklassen-Balken-Klick → Karte (gesamt-Modus: Klick-Position → Wind/PV),
+  Leistungsfilter-Basis „Park (aggregiert)" als Default (`pk`/`pkmw`; Döllen 150+ =
+  1.603 inkl. 13 EH vs. Einzel = 3). Plan: `.hermes/plans/2026-09-06_V23-GeoEbene_30-Punkte-Plan.md`,
+  Revision: iterations/V23_GeoEbene.html. Status: implementiert + browser-verifiziert
+  (inkl. F5-Regression), **LIVE seit 06.09. (mit V22+V24 gemeinsam).**
+- **V22 (2026-09-06):** Größenklassen-Cluster-Basis „Parks aggregiert" —
+  Splittungs-bereinigte Verteilung (Döllen-Problem). Export liefert `groessen_cluster`
+  (wind/pv/gesamt), UI hat Basis-Umschalter im Größen-Tab. Revision:
+  iterations/V22_GroessenCluster.html. Status: implementiert + browser-verifiziert,
+  **LIVE seit 06.09.** (Deploy mit V23+V24).
 - **Punkt 9 (alt):** HTML-Kernfeld-Auswahl — NUR mit User besprechen, nicht selbst decidieren.
 - **NAP-Korrelation (User-Interesse):** Anlagen ↔ Netzanschlusspunkt via LokationId für
   künftige Karten-Features (Grundlage existiert: napByLid, 479 Multi-NAP-Lokationen).
@@ -269,7 +306,7 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
 |---------|-------|-------|
 | Fetch | `scripts/fetch_mastr.py` | MaStR-API (Wind ≥100 kW, PV ≥0,5 MWp) → `data/raw/*.json` |
 | Import | `scripts/import_mastr.py` | Normalisierung (kW↔MW) + SQLite `data/mastr.db` |
-| Export | `scripts/export_app.py` | `dist/assets/*.json` (nur georeferenziert) + Statistik (inkl. `groessenklassen.gesamt`) |
+| Export | `scripts/export_app.py` | `dist/assets/*.json` (nur georeferenziert) + Statistik (`groessenklassen` je wind/pv/gesamt **+ V22: `groessen_cluster`**) |
 | Klassen-Rebuild | `scripts/rebuild_groessen.py` | DB-freies Rebuild der Größenklassen in `statistiken.json` (falls `mastr.db` fehlt, identische Logik) |
 | Bundle | `scripts/bundle_singlefile.py` | `dist/index_singlefile.html` (eingebettete Daten) |
 | App | `src/index.html` | Leaflet-Karte + Suche + Statistik-Panel + Impressum-Modal |
@@ -285,7 +322,9 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
   Das Feld `kritis: true/false` markiert Kritis-relevante Klassen. **Kritis gilt erst ab 104 MW**
   (BSI-KritisV Kat. 1.1.1): nur `104–150` und `150+` tragen `kritis:true`; `100–104` ist **kein** Kritis.
   Die Karten-Statistik (`dist/assets/statistiken.json`) enthält den Schlüssel `groessenklassen.gesamt`
-  für das gemeinsame Diagramm (zusätzlich zu `wind`/`pv`).
+  für das gemeinsame Diagramm (zusätzlich zu `wind`/`pv`) — und **seit V22** `groessen_cluster`
+  (wind/pv/gesamt) mit der Park-Cluster-Verteilung (Schlüssel: Energieträger + Betreiber + Parkname;
+  Splittungen wie Solarpark Döllen = 13 EH → 1 Park 154,8 MW; Details `docs/ROADMAP.md` § V22).
 - **Kritis-Klassen:** Im Diagramm 🔴 rot markiert (`bar-fill.kritis`), mit `KRITIS`-Badge im Label +
   Tooltip-Hinweis. Leere Kritis-Klassen bei Wind (104+ real leer) bleiben sichtbar.
 - **Gesamt-Diagramm („Wind + PV"):** zeigt pro Klasse **zwei Balken** (Wind blau, PV orange) nebeneinander
@@ -295,8 +334,9 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
   `Number.parseFloat`, filtert `u.mw >= von && u.mw < bis`. Der Badge (`#art-count`) wird aktiviert
   bei `art || bl || gr`.
 - **Rechtliches:** Quellenvermerk DL-De-BY-2.0 + Impressum (§5 DDG) fest in der App (Modal).
-- **`data/`-Ist-Stand:** `data/raw/ + data/mastr.db` sind gitignored und aktuell **nicht vorhanden**;
-  `fetch_mastr.py` legt sie beim nächsten vollständigen Update automatisch neu an.
+- **`data/`-Ist-Stand:** `data/raw/ + data/mastr.db` sind gitignored und **im Working-Tree
+  vorhanden** (Stand 04.09.2026, Backup `~/backups/mastr.db.2026-09-04.bak`, 419 MB);
+  `fetch_mastr.py` legt sie bei einem vollständigen Update automatisch neu an.
 - **rebuild_groessen.py:** Temporäres Hilfsskript (DB-frei) zur Neuberechnung der Größenklassen in
   `dist/assets/statistiken.json` aus `einheiten.json`, für den Fall, dass die SQLite-DB fehlt.
   Dieselbe Logik wie `export_app.py::build_statistiken()`.
@@ -320,7 +360,7 @@ bash scripts/build.sh          # fetch → import → export → bundle (erzeugt
       Pipeline + Doku). Working tree sauber (Stand nach Commit dieses Dokuments).
 - [x] `docs/statistik.md`, `docs/datenmodell.md`, `docs/update.md`, `docs/architektur.md` auf neue
       PV/Wind-Zahlen, Badge und Staffeln konsistent.
-- [ ] **Performance:** Single-File ist auf ~25 MB gewachsen — optional hostbare Version nutzen,
+- [ ] **Performance:** Single-File ist auf ~38,7 MB gewachsen — optional hostbare Version nutzen,
       Daten-CDN, oder GeoJSON-Minify. Bei `file://`-Laden beachten (einmal war eine leere Seite transient).
 - [ ] **Domain/HTTPS-Rest:** Portal + Sun-HTTPS warten auf Let's Encrypt (Rate-Limit, 7-Tage-Fenster).
       Watchdog `b950b901245e` (alle 30 Min, alle Hosts) meldet automatisch bei Erfolg. Karte + Galton

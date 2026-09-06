@@ -20,6 +20,36 @@
 
 ---
 
+## V24 (2026-09-06) — Politur: Header-Einheiten + kein Horizontal-Scroll (LIVE)
+
+| # | Paket | Umsetzung | Verifikation |
+|---|---|---|---|
+| 1 | Header-Einheiten | „Leistung PV **(MWp)**" / „Leistung Wind **(MW)**" im Landkreis-Tab (Konsens zur Größenklassen-Konvention: PV = MWp, Wind = MW) | Header-Strings im Live-HTML (curl grep = 2) |
+| 2 | Kein Horizontal-Scroll | Vorher: Landkreis-Tabelle 996 px > 805 px Container, Spannungs-Zeile 820 px. Fix: `table-layout:fixed` + feste Spaltenverhältnisse (LK 17 %, MW-Spalten 12–13 %, Zähl-Spalten 8–8,5 %) + `flex-wrap` bei Spannungs-Balken | Alle **9 Tabs** `scrollWidth ≤ clientWidth` (browser-verifiziert), Tabs-Zeile 805/805, Panel 820/820 |
+| 3 | Push + Live | main `7172681` (V22+V23+V24, 38 Dateien), gh-pages `1b9c85a` via `scripts/deploy_ghpages.sh`, DB-Backup davor | HTTP 200, Header live, statistiken.json live (377/6.499/cluster ok) |
+| 4 | Doku as-built | PROJEKTSTAND, DEPLOYMENT, ROADMAP, README, statistik, ENTSCHEIDUNGEN aktualisiert | — |
+
+## V23 „Geo-Ebene" (2026-09-06) — Arbeitspakete 1–8 UMGESETZT → LIVE seit 06.09. (mit V22+V24)
+
+| # | Paket | Umsetzung | Verifikation |
+|---|---|---|---|
+| 1 | Suche Landkreis | Geo-Suggest (🏙️) unter Betreiber-Block, Klick → Marker+fitBounds | „dithmarschen" → 1 Treffer, 1.117 Anlagen, Reihenfolge per DOM geprüft |
+| 2 | Suche Gemeinde | Geo-Suggest (⛪) mit BL/LK-Kontextzeile | im selben Block, kontextuell |
+| 3 | Suche Bundesland | Geo-Suggest (🗺️) | im selben Block |
+| 4 | Stats-Tab „Landkreis" | 9 Spalten (Assets P/W komb. + PV + Wind, NAP n + MW), Design analog Hersteller, Default mw desc, Gesamtzeile, Zeilen-Klick → Karte | 377 LKs · 51.722 Assets · 133.875 MW · 27.313 NAPs; Sortier-Klick LK→„Ahrweiler" ok |
+| 5 | Balken-Klick → Karte | data-von/bis/tech an bar-row; gesamt-Modus: Wind-/PV-Abschnitte einzeln klickbar; Cluster-Basis prüft pkmw | Wind 60–100 = 1.243 Anlagen; PV 150+ cluster = 24; Labels korrekt |
+| 6 | Filter „Landkreis" | #filter-lk zwischen BL und Art; Optionen folgen BL; LK-Klick resettet abhängige Filter | SH → 15 LKs; Dithmarschen → 923; +Albersdorf → 13 |
+| 7 | Filter „Gemeinde" | #filter-g nach LK; Mehrfachnamen bekommen LK-Zusatz (Pivot LK) | Optionen kontextuell, kombinierbar |
+| 8 | Leistungsfilter park-aggregiert | #filter-gr-basis „Park (aggregiert)" Default / „Einzelanlage"; Filter nutzt pkmw ?? mw | **Döllen: Park 150+ = 1.603 (alle 13 EH sichtbar am Parkstandort) vs. Einzel = 3** |
+
+**Datenbasis (updatefähig in `export_app.py`, läuft in jedem build.sh):**
+`einheiten.json` + `pk` (Cluster-Hash) / `pkmw` (Park-MW, nur Mehrfach-Parks);
+`statistiken.json` + `landkreise` (377, inkl. NAP-Anzahl/-MW via Join über numerische
+LokationId — SEL-String-Join liefert 0!) und `gemeinden` (6.499, mit BL/LK-Kontext,
+Pivot Landkreis wegen Namens-Dubletten über Bundesländer).
+Plan: `.hermes/plans/2026-09-06_V23-GeoEbene_30-Punkte-Plan.md` · Revision:
+`iterations/V23_GeoEbene.html` (42,3 MB).
+
 ## Freigabe-Status (03.09.2., User-Braindump Nr. 2)
 
 | Feature | Status | User-Entscheidung |
@@ -1240,3 +1270,36 @@ als Report laufen (z. B. als Teil des Cron-Reports oder eigenes HTML).
 - Test-Infra-Pitfall: zoomToShowLayer-Cluster-Animation kann Browser-Eval blockieren —
   Tests besser mit map.setView + openPopup fragmentieren.
 - Revision: iterations/V10_SpannungsebenenFilter.html. Nicht gepusht (Regel 4).
+
+## V22 — Größenklassen: Basis-Umschalter „Einzelanlagen / Parks aggregiert" (2026-09-06)
+
+**Problem (User-Meldung, Beispiel Solarpark Döllen GmbH):** Das MaStR zersplittert
+große Parks in viele Einheiten. Döllen = 13 Einheiten à 7,4–31,4 MW = **154,8 MW**
+(2 Lokationen, solarpark_name NULL, Namen „Döllen I/II - Block - Trafo - Station").
+Auf Einheiten-Ebene landet Döllen in 5–10/10–30/30–60 — die Kritis-Schwelle (≥104 MW,
+BSI-KritisV) ist im Balkendiagramm praktisch unsichtbar: nur **5 von 53.500 Einheiten**
+sind einzeln ≥104 MW, aber **52 Cluster** real (v. a. Offshore-Windparks: Borkum
+Riffgrund 3 = 83 EH/958,7 MW, EnBW He Dreiht = 51 EH/765 MW …).
+
+**Lösung (updatefähig in der Export-Pipeline):**
+- `scripts/export_app.py`: neuer Block in `build_statistiken()` — Park-Cluster-Schlüssel
+  = (Energieträger, Betreiber, Parkname). Parkname = `solarpark_name`/`windpark_name`,
+  sonst normalisiertes Namens-Präfix (röm./arab. Suffix entfernt: „Döllen II" → „Döllen"),
+  namenlose Einheiten bleiben einzeln. Ausgabe: `statistiken.json → groessen_cluster
+  {wind, pv, gesamt}` (gleiche Staffel + kritis-Flag wie `groessenklassen`) + Cluster-
+  Kennzahlen in `gesamt` (n_cluster, max_mw je Tech). Einheiten-Basis unverändert erhalten.
+- `src/index.html` Größen-Tab: dritter Umschalter **„Einzelanlagen / Parks aggregiert"**
+  (teal), Hinweis-Kasten bei cluster (erklärt Aggregation + Döllen-Beispiel), Summary-
+  Labels dynamisch („Parks"/„Max Park"), Legende „Parks aggregiert (V22)", Pie-Titel
+  bei cluster mit „(MaStR-Einheiten)"-Suffix, aggTech im gesamt-Tab liest aus der
+  aktiven Basis (Bugfix während Umsetzung: zeigte sonst Einheiten-Werte im Cluster-Modus).
+
+**Verifikation (Browser, localhost:8804, v22final2/final3):**
+- PV cluster: 20.844 Parks, Max Park 198 MW; Kritis 104–150 = 10 Cluster (1.221 MW),
+  150+ = 6 Cluster (1.000 MW) ✅ (Döllen in 150+ enthalten)
+- Wind cluster: 13.248 Parks, Max Park 959 MW; Kritis 9 + 27 Cluster (1.112/9.856 MW) ✅
+- gesamt cluster: 34.092 Parks; 104–150 = 19 (2.333 MW, Wind 9/PV 10), 150+ = 33
+  (10.856 MW, Wind 27/PV 6) ✅
+- F5-Regression: einheiten-Basis Werte identisch zu V21 (53.500/144.894 MW, 254/466 MW),
+  Döllen-Suggest-Bündelung OK („2 Betreiber · 21 Anlagen"), 12 Kombis ohne JS-Fehler ✅
+- Revision: iterations/V22_GroessenCluster.html. Nicht gepusht/deployed (Regel 4).

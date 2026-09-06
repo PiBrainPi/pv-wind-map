@@ -12,6 +12,7 @@ Die Daten werden bewusst schlank gehalten (nur Felder für Karte + Detail-Popup)
 Nutzung: python3 scripts/export_app.py
 """
 import json
+import re
 import sqlite3
 import sys
 from datetime import datetime
@@ -20,6 +21,28 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = ROOT / "data" / "mastr.db"
 DIST = ROOT / "dist" / "assets"
+
+# V23: Park-Schlüssel auf Modulebene — identische Logik zu build_statistiken._park_key (V22),
+# damit Frontend-Filter (Paket 8: park-aggregierter Leistungsfilter) und Statistik (V22-Cluster)
+# denselben Schlüssel verwenden. ROMAN = Suffixe, die einen Park-Split bezeichnen.
+ROMAN = {"i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x", "xi", "xii",
+         "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}
+
+
+def park_key(tech: str, park_name: str | None, einheit_name: str | None) -> str:
+    """Normalisierter Park-Schlüssel: SolarparkName/WindparkName, sonst Namens-Präfix."""
+    if park_name and park_name.strip():
+        return park_name.strip().lower()
+    p = re.split(r"\s+[-–]\s+", (einheit_name or "").strip())[0].strip()
+    toks = p.rsplit(" ", 1)
+    if len(toks) == 2 and toks[1].lower() in ROMAN and len(toks[0]) >= 4:
+        return toks[0].lower()
+    return p.lower() if p and len(p) >= 4 else f"__einzel__{(einheit_name or '').lower()}"
+
+
+def cluster_key(tech: str, betreiber: str | None, pk: str) -> str:
+    """V23: Cluster-Schlüssel (ET + Betreiber + Park-Schlüssel) für Mapping & Statistik."""
+    return f"{tech}|{(betreiber or '').strip().lower()}|{pk}"
 
 SELECT = """
 SELECT
@@ -229,6 +252,50 @@ def build_statistiken(db) -> dict:
     et_ids = {"wind": 2497, "pv": 2495}
     groessen = {"wind": [], "pv": []}
     maxima = {}
+
+    # V22/V23: Park-Cluster — Splittungs-bereinigte Größenverteilung.
+    # Problem: Das MaStR zersplittert große Parks in viele kleine Einheiten
+    # (z. B. Solarpark Döllen GmbH = 13 Einheiten à 7,4–31,4 MW = 154,8 MW).
+    # Einheiten-Basis ordnet sie in 5–10/10–30/30–60 ein; die Kritis-Schwelle
+    # (≥104 MW) wird auf Einheiten-Ebene praktisch nie sichtbar (5 statt 52).
+    # Lösung: zusätzlich eine CLUSTER-Basis ausliefern. Cluster-Schlüssel =
+    # (Energieträger, Betreiber, Parkname) — Parkname aus solarpark_name /
+    # windpark_name, sonst normalisiertes Namens-Präfix (röm./arab. Suffix am
+    # Ende wird entfernt: „Döllen II" → „Döllen"); namenlose Einheiten bleiben
+    # einzeln. Berechnung HIER (Export-Pipeline) ⇒ automatisch updatefähig.
+    # V23: Schlüssel-Logik liegt auf Modulebene (park_key/cluster_key), damit
+    # das Einheiten-Export-Mapping (pk/pkmw) dieselben Schlüssel nutzt.
+
+    def _cluster_rows(tech: str):
+        """Liefert (cluster_mw-Liste, clusters-Dict keyed by cluster_key)."""
+        et = et_ids[tech]
+        rows = db.execute(
+            "SELECT anlagenbetreiber, einheit_name, bruttoleistung_mw,"
+            "       solarpark_name, windpark_name FROM einheiten"
+            " WHERE geolokation=1 AND energietraeger_id=?", (et,)).fetchall()
+        clusters: dict = {}
+        for betreiber, name, mw, sp_name, wp_name in rows:
+            park = sp_name if tech == "pv" else wp_name
+            key = cluster_key(tech, betreiber, park_key(tech, park, name))
+            c = clusters.setdefault(key, {"n": 0, "mw": 0.0})
+            c["n"] += 1
+            c["mw"] += mw or 0.0
+        mws = [c["mw"] for c in clusters.values() if c["mw"]]
+        return mws, clusters
+
+    def _verteilung(mws, staffel, total_mw, total_n):
+        out = []
+        for label, von, bis, kritis in staffel:
+            n = sum(1 for v in mws if von <= v < bis)
+            s = sum(v for v in mws if von <= v < bis)
+            out.append({
+                "label": label, "von": von, "bis": bis, "kritis": kritis,
+                "anzahl": n, "sum_mw": round(s, 2),
+                "anteil_anzahl": round(100.0 * n / total_n, 1) if total_n else 0,
+                "anteil_summe": round(100.0 * s / total_mw, 1) if total_mw else 0,
+            })
+        return out
+
     for tech, kliste in klassen.items():
         rows = db.execute(
             "SELECT bruttoleistung_mw FROM einheiten WHERE geolokation=1 AND energietraeger_id=?",
@@ -267,6 +334,95 @@ def build_statistiken(db) -> dict:
         })
     groessen["gesamt"] = gesamt_klassen
 
+    # V22: Cluster-Basis je Tech + gesamt (aggregiert über Park-Schlüssel).
+    # Struktur: groessen_cluster[tech] = Verteilung der CLUSTER-Größen (Summe MW
+    # je Park) über dieselbe Staffel. „anzahl" = Anzahl Parks, „sum_mw" = deren
+    # gemeinsame Leistung. Namenlose Einheiten bleiben Einzel-Cluster.
+    groessen_cluster = {"wind": [], "pv": []}
+    cluster_stats = {}
+    for tech in ("wind", "pv"):
+        kliste = klassen[tech]
+        mws_c, clusters = _cluster_rows(tech)
+        total_mw_c = sum(mws_c)
+        total_n_c = len(mws_c)
+        cluster_stats[tech] = {
+            "n_cluster": len(clusters),
+            "n_multi": sum(1 for c in clusters.values() if c["n"] > 1),
+            "max_mw": round(max(mws_c), 2) if mws_c else 0,
+        }
+        groessen_cluster[tech] = _verteilung(mws_c, kliste, total_mw_c, total_n_c)
+
+    # gesamt = Wind- und PV-Cluster gemischt → Schlüssel müssen getrennt bleiben
+    # (gleicher Betreiber + gleicher Parkname über ET hinweg wäre Zufall, nicht
+    # derselbe Park). Daher: beide Listen konkatenieren (Wind-Cluster + PV-Cluster).
+    all_cluster_mws = []
+    for tech in ("wind", "pv"):
+        mws_c, _clusters = _cluster_rows(tech)
+        all_cluster_mws.extend(mws_c)
+    groessen_cluster["gesamt"] = _verteilung(
+        all_cluster_mws, _staffel(), sum(all_cluster_mws), len(all_cluster_mws))
+
+    # V23 (Paket 4): Landkreis-/Gemeinde-Statistik inkl. NAP-Join.
+    # Basis: einheiten (georef, alle Status) — identisch zur Betreiber-Statistik.
+    # NAPs: netzanschlusspunkte via lokation_id; NAP-MW = Nettoengpassleistung
+    # (NAP-Kapazität, NICHT Anlagenleistung — Begriff im Tab dokumentieren).
+    lk_stat: dict = {}
+    for lk, et_id, mw, lid in db.execute(
+            "SELECT landkreis, energietraeger_id, bruttoleistung_mw, lokation_nr "
+            "FROM einheiten WHERE geolokation=1 AND landkreis IS NOT NULL AND landkreis!=''").fetchall():
+        s = lk_stat.setdefault(lk, {"n": 0, "mw": 0.0, "n_pv": 0, "mw_pv": 0.0, "n_wind": 0, "mw_wind": 0.0})
+        s["n"] += 1
+        s["mw"] += mw or 0.0
+        if et_id == 2495:
+            s["n_pv"] += 1; s["mw_pv"] += mw or 0.0
+        else:
+            s["n_wind"] += 1; s["mw_wind"] += mw or 0.0
+
+    # LK → NAPs: Join über einheiten_raw.lokation_id (numerische LokationId — die V1-Tabelle
+    # speichert nur lokation_nr als SEL-String ohne ID). NAP-Menge = NAPs, deren lokation_id
+    # zu einer georef-Einheit im LK gehört (Landkreis direkt aus dem 118-Feld-JSON).
+    nap_lk: dict = {}
+    for lk, n_nap, mw in db.execute("""
+            SELECT json_extract(er.raw_json,'$.Landkreis') AS lk,
+                   COUNT(DISTINCT n.nap_mastr_nummer),
+                   SUM(n.nettoengpassleistung_mw)
+            FROM netzanschlusspunkte n
+            JOIN einheiten_raw er ON er.lokation_id = n.lokation_id
+            WHERE json_extract(er.raw_json,'$.Breitengrad') IS NOT NULL
+              AND json_extract(er.raw_json,'$.Breitengrad') != ''
+              AND json_extract(er.raw_json,'$.Landkreis') IS NOT NULL
+              AND json_extract(er.raw_json,'$.Landkreis') != ''
+            GROUP BY lk""").fetchall():
+        nap_lk[lk] = {"n": n_nap, "mw": mw or 0.0}
+
+    landkreise = []
+    for lk, s in lk_stat.items():
+        ninfo = nap_lk.get(lk, {"n": 0, "mw": 0.0})
+        landkreise.append({
+            "lk": lk, "n": s["n"], "mw": round(s["mw"], 1),
+            "n_pv": s["n_pv"], "mw_pv": round(s["mw_pv"], 1),
+            "n_wind": s["n_wind"], "mw_wind": round(s["mw_wind"], 1),
+            "n_nap": ninfo["n"], "mw_nap": round(ninfo["mw"], 1),
+        })
+    landkreise.sort(key=lambda x: -x["mw"])
+
+    gemeinden = []
+    g_stat: dict = {}
+    for g, lk, b, et_id, mw in db.execute(
+            "SELECT gemeinde, landkreis, bundesland, energietraeger_id, bruttoleistung_mw "
+            "FROM einheiten WHERE geolokation=1 AND gemeinde IS NOT NULL AND gemeinde!=''").fetchall():
+        s = g_stat.setdefault((g, lk, b), {"n": 0, "mw": 0.0, "n_pv": 0, "mw_pv": 0.0, "n_wind": 0, "mw_wind": 0.0})
+        s["n"] += 1; s["mw"] += mw or 0.0
+        if et_id == 2495: s["n_pv"] += 1; s["mw_pv"] += mw or 0.0
+        else: s["n_wind"] += 1; s["mw_wind"] += mw or 0.0
+    for (g, lk, b), s in g_stat.items():
+        gemeinden.append({
+            "g": g, "lk": lk, "b": b, "n": s["n"], "mw": round(s["mw"], 1),
+            "n_pv": s["n_pv"], "mw_pv": round(s["mw_pv"], 1),
+            "n_wind": s["n_wind"], "mw_wind": round(s["mw_wind"], 1),
+        })
+    gemeinden.sort(key=lambda x: -x["n"])
+
     totals = {
         "wind_anzahl": db.execute("SELECT COUNT(*) FROM einheiten WHERE geolokation=1 AND energietraeger_id=2497").fetchone()[0],
         "pv_anzahl": db.execute("SELECT COUNT(*) FROM einheiten WHERE geolokation=1 AND energietraeger_id=2495").fetchone()[0],
@@ -274,12 +430,20 @@ def build_statistiken(db) -> dict:
         "total_anzahl": db.execute("SELECT COUNT(*) FROM einheiten WHERE geolokation=1").fetchone()[0],
         "wind_max_mw": maxima["wind"],
         "pv_max_mw": maxima["pv"],
+        # V22: Cluster-Kennzahlen für Summary-Box
+        "wind_cluster": cluster_stats["wind"]["n_cluster"],
+        "pv_cluster": cluster_stats["pv"]["n_cluster"],
+        "wind_cluster_max_mw": cluster_stats["wind"]["max_mw"],
+        "pv_cluster_max_mw": cluster_stats["pv"]["max_mw"],
     }
 
     return {
         "betreiber": betreiber_list,
         "hersteller": hersteller_list,
         "groessenklassen": groessen,
+        "groessen_cluster": groessen_cluster,
+        "landkreise": landkreise,
+        "gemeinden": gemeinden,
         "gesamt": totals,
     }
 
@@ -311,6 +475,27 @@ def main() -> None:
     for u in units_raw:
         u.setdefault("bs", 35)
     units = units_raw
+
+    # V23 (Paket 8): unit→Park-Mapping für den park-aggregierten Leistungsfilter.
+    # Für jede Einheit mit Mehrfach-Park (Cluster n>=2): pk = Cluster-Hash (kurz),
+    # pkmw = Park-Gesamtleistung MW. Einheiten ohne Mehrfach-Park bleiben ohne Feld
+    # (Filter fällt auf u.mw zurück) → Dateigröße bleibt ~konstant.
+    # Updatefähigkeit: läuft in jedem Export-Lauf automatisch mit.
+    park_sums: dict = {}
+    for u in units:
+        tech = u["t"]
+        park_field = u.get("park") if tech == "pv" else u.get("wp")
+        ck = cluster_key(tech, u.get("ab"), park_key(tech, park_field, u.get("n")))
+        u["_ck"] = ck
+        s = park_sums.setdefault(ck, {"n": 0, "mw": 0.0})
+        s["n"] += 1
+        s["mw"] += u.get("mw") or 0.0
+    for u in units:
+        ck = u.pop("_ck")
+        s = park_sums[ck]
+        if s["n"] >= 2:
+            u["pk"] = ck
+            u["pkmw"] = round(s["mw"], 2)
 
     # Metadaten + Zähler
     db = sqlite3.connect(DB_PATH)

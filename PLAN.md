@@ -1,7 +1,9 @@
 # 30-Schritt-Plan — PV & Wind Karte (MaStR)
 
-> Stand: 2026-08-30 · Status: **V1 umgesetzt (Karte + Suche + Statistik) + LIVE gehostet auf GitHub Pages
-> unter eigener Domain `ingenieur-tools.de`**
+> Stand: 2026-09-06 · Status: **V21 LIVE (gh-pages 48da2ae) · V22 „Parks aggregiert" umgesetzt,
+> wartet auf User-Freigabe.** Der 30-Schritt-Plan ist historisch (V1-Gründungsdoku, alle
+> Kern-Schritte längst umgesetzt); Fortschritt wird in `docs/PROJEKTSTAND.md` +
+> `docs/ROADMAP.md` geführt.
 > Ziel: Interaktive, hostbare HTML-Karte aller deutschen Wind- & PV-Anlagen
 > aus dem Marktstammdatenregister, mit lokaler Datenbasis und Update-Pipeline.
 
