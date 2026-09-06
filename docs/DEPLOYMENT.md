@@ -86,7 +86,7 @@ Beide Repos nutzen den **`gh-pages`-Branch** als Pages-Quelle (statisch, keine G
   `table-layout:auto` + `min-width:860px` bei ≤767 px → Header nie abgekürzt
   (375-px-Test: Tabelle 1.024 px, alle Header FULL); PC bleibt Fixed-Layout.
   3) Such-Placeholder „…z.B. Solarpark Döllen GmbH".
-  Deploy nach DB-Backup; Live-Verifikation: Placeholder-String + LK-Fix im Live-HTML.
+  Deploy: main `4cd13b1`, gh-pages `effd023`, DB-Backup `mastr.db.2026-09-06.preV25.bak`. Live-Verifikation: HTTP 200, Placeholder + landkreis-scroll im Live-HTML.
 - ✅ **V24 live (06.09., User-Freigabe „pushe + stelle live"):** Politur — Landkreis-Tab-Header
   mit Leistungseinheiten („Leistung PV (MWp)" / „Leistung Wind (MW)") + Statistik-Panel ohne
   horizontales Scrollen (Landkreis-Tabelle `table-layout:fixed` + Spaltenverhältnisse,

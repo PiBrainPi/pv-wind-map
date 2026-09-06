@@ -5,7 +5,7 @@
 
 ## Aktueller Stand (2026-09-06, **V25 LIVE** — V22+V23+V24+V25)
 
-**LIVE:** https://wind-pv-map.ingenieur-tools.de (**V25-Stand**) · **Code-Stand:** V25 (main `V25-SHA`) · **Single-File:** 42,3 MB
+**LIVE:** https://wind-pv-map.ingenieur-tools.de (**V25-Stand**) · **Code-Stand:** V25 (main `4cd13b1`, gh-pages `effd023`) · **Single-File:** 42,3 MB
 **V25 (06.09.):** **Bugfix „Alle Anlagen anzeigen"** — V23-Regression: Geo-Filter (LK/Gemeinde)
 fehlten in `showAllUnits()` → ReferenceError, Overlay öffnete nie. Jetzt: LK+Gemeinde gelesen
 und gefiltert (Test: SH+Dithmarschen = 923 Anlagen, Meta korrekt). **Mobile:** Landkreis-Tab
