@@ -112,6 +112,77 @@ WHERE json_extract(raw_json,'$.Breitengrad') IS NOT NULL
 """
 
 
+
+def build_nap_ranking() -> list[dict]:
+    """V28 (Paket 2): NAP-Ranking fuer den Statistik-Tab 'NAP'.
+
+    Pro NAP (typ=0, Wind/PV-Lokationen): angeschlossene Leistung (to_mw-normalisiert),
+    Gesellschaften (DISTINCT Betreiber), Bundesland (Mehrheitskonsens der Einheiten),
+    Name (netzanschlusspunktbezeichnung, Fallback MaStR-Nr), NB/SE, lat/lon (Mittel).
+    Basis: einheiten_raw (118-Felder) — konsistent zum Karten-Export inkl. V27b-Physik-Check.
+    """
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT / "scripts"))
+    from import_mastr import to_mw as _to_mw
+
+    db = sqlite3.connect(DB_PATH)
+    rows = db.execute("""
+        SELECT nap.nap_mastr_nummer,
+               MAX(nap.netzanschlusspunktbezeichnung),
+               MAX(nap.netzbetreiber),
+               MAX(nap.spannungsebene),
+               ROUND(AVG(CAST(json_extract(er.raw_json,'$.Breitengrad') AS REAL)), 6),
+               ROUND(AVG(CAST(json_extract(er.raw_json,'$.Laengengrad') AS REAL)), 6),
+               er.energietraeger_id,
+               json_extract(er.raw_json,'$.Bruttoleistung'),
+               json_extract(er.raw_json,'$.Typenbezeichnung'),
+               json_extract(er.raw_json,'$.RotordurchmesserWindenergieanlage'),
+               json_extract(er.raw_json,'$.AnlagenbetreiberName'),
+               json_extract(er.raw_json,'$.Bundesland')
+        FROM netzanschlusspunkte nap
+        JOIN einheiten_raw er ON er.lokation_id = nap.lokation_id
+        WHERE nap.typ = 0
+        GROUP BY nap.nap_mastr_nummer, er.mastr_nummer
+    """).fetchall()
+    db.close()
+
+    agg: dict = {}
+    for (nap_m, name, nb, se, lat, lon, et_id, brutto, typ, rd, betreiber, bl) in rows:
+        a = agg.setdefault(nap_m, {"nm": None, "mw": 0.0, "g": set(), "bls": {}, "nb": nb, "se": se, "lat": [], "lon": [], "n": 0})
+        mw = _to_mw({"Bruttoleistung": brutto, "Typenbezeichnung": typ, "RotordurchmesserWindenergieanlage": rd}, et_id)
+        if mw is not None and mw >= 0.1:   # konsistent: <100 kW Wind verworfen; PV alle
+            a["mw"] += mw
+            a["n"] += 1
+        if name and not a["nm"]:
+            a["nm"] = name
+        if betreiber:
+            a["g"].add(betreiber)
+        if bl:
+            a["bls"][bl] = a["bls"].get(bl, 0) + 1
+        if lat is not None:
+            a["lat"].append(lat)
+        if lon is not None:
+            a["lon"].append(lon)
+
+    out = []
+    for nap_m, a in agg.items():
+        if a["n"] == 0:
+            continue
+        bl = max(a["bls"].items(), key=lambda kv: kv[1])[0] if a["bls"] else None
+        out.append({
+            "m": nap_m,
+            "nm": a["nm"] or nap_m,
+            "mw": round(a["mw"], 1),
+            "g": len(a["g"]),
+            "bl": bl,
+            "nb": a["nb"],
+            "se": a["se"],
+            "lat": round(sum(a["lat"]) / len(a["lat"]), 6) if a["lat"] else None,
+            "lon": round(sum(a["lon"]) / len(a["lon"]), 6) if a["lon"] else None,
+        })
+    out.sort(key=lambda x: -x["mw"])
+    return out
+
 def build_units(rows) -> list[dict]:
     # Spaltenreihenfolge laut SELECT:
     # 0 mastr, 1 name, 2 et_id, 3 et_name, 4 art, 5 mw, 6 status, 7 sysstatus,
@@ -538,6 +609,11 @@ def main() -> None:
         json.dump(meta, f, ensure_ascii=False)
     with open(DIST / "statistiken.json", "w", encoding="utf-8") as f:
         json.dump(statistiken, f, ensure_ascii=False)
+    # V28 (Paket 2): NAP-Ranking fuer den neuen Statistik-Tab "NAP"
+    nap_ranking = build_nap_ranking()
+    with open(DIST / "nap_ranking.json", "w", encoding="utf-8") as f:
+        json.dump(nap_ranking, f, ensure_ascii=False)
+    print(f"NAP-Ranking: {len(nap_ranking)} NAPs -> dist/assets/nap_ranking.json")
     size = (DIST / "einheiten.json").stat().st_size / 1024 / 1024
     print(f"Export: {len(units)} Anlagen -> dist/assets/einheiten.json ({size:.1f} MB)")
     print("Metadaten -> dist/assets/meta.json")
