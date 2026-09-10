@@ -1348,3 +1348,34 @@ UX-Runde 2 (20-Punkte-Plan, 3 Arbeitspakete User + Doku):
 - **WP2** Popup-Re-Open-Bug (Doppel-Dispatch `bindPopup`/`_lazyPopup`) behoben.
 - **WP3** Statistik-Panel 984 px (+20 %).
 Revision: `iterations/V34_UX_Runde2.html`. Deploy pending (V30…V34 gesammelt).
+
+## Status-Update V35 (10.09.2026)
+
+Betreiber-Paket (50-Punkte-Plan, 3 Arbeitspakete User + Doku):
+- **AP1 Betreiber-Diagramme:** Tab „Betreiber" → Button „📈 Diagramme" (ab 2 Zeichen Suchtext).
+  3 Charts: Wachstum nach Inbetriebnahmejahr (gestapelt, Anlagen/MW), Donut Technologie-%,
+  Donut EEG-Registrierung (Wind/PV je mit/ohne; Definition: `EegInbetriebnahmeDatum` vorhanden
+  — User-Freigabe 10.09.). Neues Exportfeld `eeg` in `einheiten.json` (SELECT_RAW_EXTRA
+  Spalte 33 + build_units in `scripts/export_app.py`).
+- **AP2 Filter-Reset = Ursprungszustand:** „Filter löschen" beendet zusätzlich BFF-Anzeigen-Modus,
+  entfernt Ringe/rote Marker/NAP-Kreis, schließt Panels, leert Suche/Popup, Default-View [51.5,10] z6.
+- **AP3 Betroffenheits-Legende:** „Karten-Symbole & Farben" in beiden Erklär-Blöcken
+  (grüner/roter Ring, roter Punkt, blau/orange, gestrichelt, grau/Kreuz, blauer NAP-Kreis).
+- **Nebenfix:** export_app.py schloss die DB vor dem Historie-Schreiben → „Historie übersprungen";
+  jetzt close() in finally, Historie schreibt wieder (3 Snapshots, Δ 06.09. +125,54 MW).
+- Verifikation: ENERPARC 522/3.217,5 MW == Tabelle, AP2 14 Assertions, Legende 8/8,
+  0 JS-Errors. Revision: `iterations/V35_BetreiberCharts_Reset_Legende.html`.
+
+## Status-Update V35.1 (10.09.2026)
+
+User-Wunsch: Donuts „Technologie-Verteilung" + „EEG-Registrierung" ebenfalls über den
+Toggle **Anlagen ⇄ Leistung (MW)** steuerbar (20-Punkte-Plan):
+- 4 MW-Akkus (eegW_mw/noEegW_mw/eegP_mw/noEegP_mw) in `renderBetreiberDiagramme()`.
+- Donut-Labels mit Einheit („Wind (MW)" / „PV (MWp)"), Untertitel dynamisch
+  (`#bc-tech-sub` / `#bc-eeg-sub`).
+- Verifikation: ENERPARC MW-Modus 3.217,514 MWp == Header-Summe; wpd 140,12+1.266,82 =
+  1.406,94 == Wind-MW; Pixel-Check 3 Canvases; Rück-Toggle ok; 0 JS-Errors.
+- Revision: `iterations/V35-1_Donuts_MeasureToggle.html`.
+- **Deploy V35+V35.1 (10.09., User-Freigabe):** main `e158aaa`, gh-pages `4d1a17c`,
+  LIVE (https://wind-pv-map.ingenieur-tools.de, last-modified 10.09. 12:21 UTC,
+  betreiber-charts-btn im Live-HTML).

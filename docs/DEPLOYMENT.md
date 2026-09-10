@@ -92,6 +92,18 @@ Beide Repos nutzen den **`gh-pages`-Branch** als Pages-Quelle (statisch, keine G
   `table-layout:auto` + `min-width:860px` bei ≤767 px → Header nie abgekürzt
   (375-px-Test: Tabelle 1.024 px, alle Header FULL); PC bleibt Fixed-Layout.
   3) Such-Placeholder „…z.B. Solarpark Döllen GmbH".
+- ✅ **V30–V34 (08./09.09.) lokal + Revisionen:** F-01..F-08 Fixrunde, V31 Netzbetreiber-Filter
+  + Typ-Tab, V32 Bugfixrunde 5 WP + V32.1 Singlefile-TDZ-Hotfix, V33 UX-Runde (grün/rote Ringe,
+  CARTO-File://-Fallback, V33.1 Popup-Hotfix), V34 UX-Runde 2 (LK-Scrollbalken oben,
+  Popup-Re-Open-Fix, Panel 984 px). Bis 09.09. gesammelt nicht deployed (Revisionen in
+  iterations/), dann gemeinsam mit V35 live.
+- ✅ **V35+V35.1 live (10.09., User-Freigabe „pushe + stelle live"):**
+  main `e158aaa` (V30…V35.1 gesammelt, 30 Dateien), gh-pages `4d1a17c` via
+  `scripts/deploy_ghpages.sh`. Live-Verifikation: HTTP 200, last-modified 10.09. 12:21 UTC,
+  „betreiber-charts-btn" im Live-HTML. Inhalt V35: Betreiber-Diagramme
+  (Wachstum/Technologie/EEG, Exportfeld `eeg`), Filter-Reset = Ursprungszustand,
+  Betroffenheits-Legende; V35.1: Donuts measure-steuerbar (Anlagen ⇄ MW).
+  export_app-Fix: Historie-DB-Close („Historie übersprungen" behoben).
   Deploy: main `4cd13b1`, gh-pages `effd023`, DB-Backup `mastr.db.2026-09-06.preV25.bak`. Live-Verifikation: HTTP 200, Placeholder + landkreis-scroll im Live-HTML.
 - ✅ **V24 live (06.09., User-Freigabe „pushe + stelle live"):** Politur — Landkreis-Tab-Header
   mit Leistungseinheiten („Leistung PV (MWp)" / „Leistung Wind (MW)") + Statistik-Panel ohne

@@ -31,6 +31,11 @@ Build-/Verify-Hinweise: `docs/architektur.md`.
 - 📊 **Statistik-Panel** (11 Tabs, V31 um Typ-Tab erweitert): Betreiber-Tabelle (Live-Suggest-Filter mit Betreibergruppen 👥 /
   Portfolios 📁 — Gruppen zuerst, 250 ms Debounce ab 2 Zeichen; Zahlformat 1 Nachkommastelle;
   Klick auf Zeile/Name → alle Anlagen des Betreibers/der Gruppe auf der Karte),
+  **Betreiber-Diagramme (seit V35/V35.1):** Button „📈 Diagramme" über der Tabelle —
+  gestapeltes Wachstums-Balkendiagramm nach Inbetriebnahmejahr + Donut Technologie-Verteilung +
+  Donut EEG-Registrierung (Definition: `EegInbetriebnahmeDatum` vorhanden), **alle 3 gesteuert
+  vom gemeinsamen Umschalter Anlagen ⇄ Leistung (MW)**, Scope = Einzelbetreiber oder
+  Gruppe/Portfolio),
   Hersteller-Tab (nur Wind, + %-Anteil + interaktiver Donut), **Größenklassen-Diagramme** (Toggles
   Wind / PV / Wind + PV, Anlagen ⇄ Leistung, **seit V22: Basis „Einzelanlagen ⇄ Parks aggregiert"** —
   zersplitterte Parks wie Solarpark Döllen (13 Einheiten) werden zu einem Park (154,8 MW) summiert,
@@ -75,7 +80,10 @@ Build-/Verify-Hinweise: `docs/architektur.md`.
   „Betroffene Gesellschaften" zählt über die Bestandsanlagen des Portfolios. Zeitfenster-
   Wahl (letztes/alle Updates). Expliziter Hinweis: **Indikation, keine rechtsverbindliche
   Auskunft** (Luftlinie ≠ Netztopologie; geplante Anlagen ohne NAP werden über die
-  Geolokation geprüft).
+  Geolokation geprüft). **Seit V35:** Legende „Karten-Symbole & Farben" in der Erklärung
+  (Ringe, Punkte, Planung/stillgelegt, NAP-Fokus) — und **„🗑️ Filter löschen" setzt die
+  Karte in den Ursprungszustand** (wie nach Seiten-Reload: beendet Anzeigen-Modus, entfernt
+  Ringe/Marker/NAP-Kreis, schließt Panels, leert Suche, Default-View).
 
 ---
 

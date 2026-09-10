@@ -1,6 +1,6 @@
 # Architektur — PV & Wind Karte (MaStR)
 
-> Stand: 2026-09-09 (V32.1) · Zweisprachig (DE / EN unten)
+> Stand: 2026-09-10 (V35/V35.1) · Zweisprachig (DE / EN unten)
 
 ## Überblick (DE)
 

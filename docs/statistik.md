@@ -1,10 +1,10 @@
 # Statistik-Panel — Betreiber & Größenklassen (PV & Wind Karte)
 
-> Stand: 2026-09-09 (V32.1: NAP-Klick → Kartenfokus) · Zweisprachig (DE / EN)
+> Stand: 2026-09-10 (V35.1: Betreiber-Diagramme, Donuts measure-steuerbar) · Zweisprachig (DE / EN)
 
 ## Überblick (DE)
 
-Das Statistik-Panel ist ein Seiten-Overlay (Sidebar rechts, 820 px, PC) in der Karten-App.
+Das Statistik-Panel ist ein Seiten-Overlay (Sidebar rechts, 984 px seit V34, PC) in der Karten-App.
 Es umfasst **11 Tabs** (V28 + V31 Typ-Tab; Prüfung 08.09.2026 DOM-verifiziert): Betreiber, Hersteller, **Typ (V31)**, **Größenklassen**,
 Bundesländer, **Landkreis** (V23), **NAP-Ranking** (V28), Spannungsebenen, Update-Historie, Zubau,
 **⚠ Betroffenheit**.
@@ -34,6 +34,26 @@ Bedienelemente (oberhalb der Tabelle):
 
 Klick auf eine **Zeile** → die Karte zeigt nur die Anlagen dieses Betreibers
 (bei 1 Anlage Fly-to + Popup, sonst Fit-Bounds). Panel schließt sich dabei.
+
+### Betreiber-Diagramme (V35/V35.1)
+
+Oberhalb der Betreiber-Tabelle: Textfilter setzen (ab 2 Zeichen) → Button **„📈 Diagramme"**
+erscheint. Der Chart-Block zeigt **3 Charts, alle gesteuert vom gemeinsamen Toggle
+„Anlagen ⇄ Leistung (MW)"**:
+
+1. **Wachstum nach Inbetriebnahmejahr** — gestapeltes Balkendiagramm (Wind blau / PV orange),
+   Umschalter Anlagen/MW; X-Achse = Inbetriebnahmejahr (`InbetriebnahmeDatum`).
+2. **Technologie-Verteilung** — Donut Wind/PV; Anlagen-Modus: Stückzahl, MW-Modus:
+   Wind (MW) / PV (MWp).
+3. **EEG-Registrierung** — Donut mit 4 Segmenten (Wind mit/ohne EEG, PV mit/ohne EEG);
+   Basis je Modus: Anzahl bzw. Leistung. **Definition „mit EEG":** Feld
+   `EegInbetriebnahmeDatum` vorhanden (registrierte EEG-Anlage). Das MaStR führt **keinen
+   direkten Vergütungs-Status** — der Erklärsatz im Diagramm weist darauf hin.
+   Datenbasis (V35-Export): PV 95,1 % / Wind 80,8 % mit EEG-Registrierung.
+
+**Scope:** Der Textfilter wählt Einzelbetreiber ODER Betreibergruppe/Portfolio
+(gleiches Brand/Kern-Matching wie die Tabelle). „Filter löschen" auf der Karte setzt
+auch den Diagramm-Block zurück (V35: Ursprungszustand).
 
 ### Hersteller-Tabelle (nur Wind) + Verteilungs-Pie-Chart
 

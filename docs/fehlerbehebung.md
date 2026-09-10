@@ -175,3 +175,13 @@ eigenes `L.popup` (maxWidth 420), Toggle im Marker-Handler, `openOn(map)` (Clust
 gelöst), NAP-Link-Delegation (V21.4) auf `contentupdate` übernommen. Verifiziert:
 Klick→Popup, Kartenklick→zu, Re-Klick→Popup (Plain UND Cluster UND BFF-Anzeigen-Modus).
 **F-V34-3 Statistik-Panel +20 %:** width 820→984 px, right:-860→-1024 px.
+
+### F-V35-1 (10.09.): export_app.py — „Historie: übersprungen (Cannot operate on a closed database)"
+**Symptom:** Beim Export-Run erschien die Meldung „Historie: übersprungen"; die
+Update-Historie bekam keinen neuen Snapshot-Eintrag.
+**Root-Cause:** `main()` schloss die SQLite-Verbindung (`db.close()`) direkt nach dem
+Statistik-Build — das Historie-Schreiben kam danach und lief in den geschlossenen Handle.
+**Fix:** `db.close()` entfernt, Statistik + Historie teilen sich die Verbindung; Schließen
+jetzt in `finally` mit Exception-Guard.
+**Verifikation:** Export-Run schreibt Historie wieder (3 Snapshots, Δ 06.09. +125,54 MW
+korrekt in `dist/assets/historie.json`).

@@ -1,6 +1,6 @@
 # Datenmodell — PV & Wind Karte (MaStR)
 
-> Stand: 2026-09-09 (V32.1; inkl. Wind-Typen-Referenz) · Zweisprachig (DE / EN)
+> Stand: 2026-09-10 (V35; inkl. eeg-Exportfeld + Wind-Typen-Referenz) · Zweisprachig (DE / EN)
 
 ## Datenbasis (DE)
 
@@ -110,6 +110,13 @@ V32-Snapshot-Migration `scripts/fix_snapshot_mw.py`).
 *(Stand V30. 08.09.2026 — Export 06.09.-Daten mit strikter Abgrenzung `ge~500` / Export-
 Sicherheitsnetz. Vorher: 42.167/31.134/23.652/22.399 = 65.819 (historisch. enthielt 11
 PV-Grenzfälle à 499.92 kWp).)*
+
+**V35-Zusatz im Export (10.09.2026):** je Einheit das Flag **`eeg`** (1/0) — Vorhandensein
+von `EegInbetriebnahmeDatum` im MaStR-Rohdatensatz (SQL: `SELECT_RAW_EXTRA` Spalte 33,
+aufbereitet in `build_units`). Bedeutung: registrierte EEG-Anlage. Basis der Donuts
+„EEG-Registrierung" im Betreiber-Diagramm-Block (V35.1: Anlagen- UND MW-Modus).
+Verteilung: PV 22.487/23.657 = 95,1 % mit EEG · Wind 33.935/42.006 = 80,8 % mit EEG.
+Das MaStR führt keinen direkten Vergütungs-Status — „ohne EEG" ≠ „keine Vergütung".
 
 Die Karte (Infobar „31.011 Wind · 22.402 PV") zählt die **exportierten** In-Betrieb-Einheiten
 (einheiten.json: georef bs35; V30: `meta.counts` wird aus dem Export selbst berechnet.

@@ -1,6 +1,6 @@
 # Update — PV & Wind Karte (MaStR)
 
-> Manuell auslösbar, cronjob-fähig. Stand: 2026-09-09 (V32.1; inkl. Snapshot-MW-Migration V32).
+> Manuell auslösbar, cronjob-fähig. Stand: 2026-09-10 (V35; inkl. eeg-Exportfeld, Historie-DB-Fix F-V35-1).
 
 ## Update ausführen (DE)
 
