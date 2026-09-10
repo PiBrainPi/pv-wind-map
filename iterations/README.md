@@ -38,3 +38,20 @@ einzelbare HTML-App (Single-File mit eingebetteten Daten, ~25 MB).
 | V8h | 2026-09-02 | Wind-Bruttoleistung-Korrektur (to_mw mehrstufig, 220 Kleinwindanlagen entfernt) |
 | V8i | 2026-09-02 | Disclaimer-Panel (Hover/Tap) + Mobile-Fix |
 | V8j | 2026-09-03 | QA-20-Punkte-Test: stray `</script>` entfernt, Disclaimer-Trigger unter Zoom-Control (Desktop 86px/Mobile 96px) (aktuelle Version) |
+| V9 | 2026-09-03 | Status-Filter (F5, 4 Checkboxen) + Marker-Stile je Status |
+| V9b | 2026-09-03 | Tabellen-Filter-Fix + Registrierungs-Spalten-Parsing |
+| V9c | 2026-09-03 | Tabellen-Deep-Links final (NorthData extern, Koordinaten intern) |
+| V10 | 2026-09-03 | Spannungsebenen-Filter (F2) |
+| V11/V11b/V11c | 2026-09-03 | NAP-Suche (F1) + Performance-Fix (Lazy-Popup) + Datumsfilter-Fix |
+| V12 | 2026-09-03 | NAP-Gruppenansicht (F3) |
+| V13–V20 | 2026-09-03/04 | Betroffenheits-Revisionen 1–6 |
+| V21–V21.6 | 2026-09-04 | Betreiber-Tab-Paket + Popup-Datum + Sortier-Fix |
+| V22–V25 | 2026-09-06 | Größenklassen-Cluster + Geo-Ebene + LK-Tab + LIVE-Deploy |
+| V27/V27b | 2026-09-06 | Daten-Update + kW/MW-Physik-Check |
+| V28/V29/V29.1 | 2026-09-06 | NAP-Ranking-Tab + Spannungs-Fix + Filter-Reset + Kritis-Entfernung |
+| V30 | 2026-09-08 | F-01 bis F-08 Fixrunde (Abgrenzung strikt, Snapshot-Dedup …) |
+| V31 | 2026-09-08 | Netzbetreiber-Filter + Typ-Tab |
+| V32/V32.1 | 2026-09-08/09 | Bugfixrunde 5 WP + Singlefile-TDZ-Hotfix |
+| V33/V33.1 | 2026-09-09 | UX-Runde (Ringe grün/rot, CARTO-Backup, Popup-Hotfix) |
+| V34 | 2026-09-09 | UX-Runde 2 (LK-Scroller oben, Popup-Re-Open, Panel 984 px) |
+| V35 | 2026-09-10 | Betreiber-Diagramme (Wachstum/Technologie/EEG) + Filter-Reset-Ursprungszustand + Betroffenheits-Legende (aktuelle Version) |

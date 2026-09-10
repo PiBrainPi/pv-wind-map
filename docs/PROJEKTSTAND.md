@@ -1,7 +1,68 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-09-06 · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+> Stand: 2026-09-10 (**V35 — Betreiber-Diagramme + Filter-Reset + Legende**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+
+## Aktueller Stand (2026-09-10, **V35/V35.1 — Betreiber-Diagramme, Filter-Reset-Ursprungszustand, Betroffenheits-Legende**)
+
+**Code-Stand:** V35 (lokal, **noch nicht gepusht**; online/Basis: main `d8dd8e4`, gh-pages `15c2058` = V29.1-Deploy)
+**Kern-Basis (unverändert):** 31.011 Wind · 22.402 PV = **53.413** In-Betrieb georef · Karte 65.663
+
+**V35 (10.09., 50-Punkte-Plan `2026-09-10_V35_BetreiberCharts_Reset_Legende_50-Punkte-Plan.md`):**
+- **AP1 Betreiber-Diagramme:** Tab „Betreiber" → Button **„📈 Diagramme"** neben dem Suchfeld (nur ab 2 Zeichen sichtbar). Chart-Block: (1) gestapeltes Wachstums-Balkendiagramm nach **Inbetriebnahmejahr** (Wind blau/PV orange, Toggle Anlagen/Leistung MW), (2) Donut **Technologie-%** (Wind/PV), (3) Donut **EEG-Registrierung** (Wind mit/ohne, PV mit/ohne) + Erklärsatz. Scope: Einzelbetreiber ODER Gruppe/Portfolio (Brand/Kern-Match wie die Tabelle). **Datenbasis:** neuer Export-Feld `eeg` (`EegInbetriebnahmeDatum` vorhanden = 1; PV 95,1 % / Wind 80,8 %). User-Freigabe-Definition 10.09.: „Mit/Ohne EEG-Registrierung" (MaStR hat keinen direkten Vergütungs-Status).
+- **AP2 Filter-Reset = Ursprungszustand:** „🗑️ Filter löschen" beendet jetzt ZUSÄTZLICH den BFF-Anzeigen-Modus (`_bffResetAnalysis`), entfernt Ringe/rote entfernte-Marker/NAP-Fokus-Kreis (`__napFocusCircle`), schließt Stats- + NAP-Panel, leert Suche + Popup, setzt Karte auf Default-View `[51.5, 10.0]` z6, dann alle Filter auf Default. Idempotent (Doppel-Klick getestet).
+- **AP3 Betroffenheits-Legende:** Beide „ℹ️ Wie funktioniert…?"-Blöcke um Abschnitt „Karten-Symbole & Farben" erweitert: grüner gestrichelter Ring (Neubau), roter gestrichelter Ring (nur Abmeldungen), roter gefüllter Punkt (entfernte Anlage), blau/orange Punkte (Wind/PV), gestrichelter Umriss (in Planung), grauer Punkt + Kreuz (stillgelegt), blauer Kreis (NAP-Fokus) + Hinweis auf AP2-Reset.
+- **Nebenfix:** `export_app.py` — DB wurde vor dem Historie-Schreiben geschlossen → „Historie übersprungen (Cannot operate on a closed database)". Jetzt `db.close()` in `finally` → Historie wieder regulär (3 Snapshots, Δ 06.09. +125,54 MW korrekt).
+- **Kosmetik:** Donut bei nur 1 Segment ohne weiße Trennlinie (100-%-Donut).
+- **Verifikation (Singlefile, file://, 0 JS-Errors):** AP1 ENERPARC 522 Anlagen/3.217,5 MW == Tabelle, EEG 94,1/5,9 %, Einzelbetreiber „stadtwerke bielefeld" 7 Wind → 100 %-Donuts; wpd 243 (236 Wind/7 PV) → 2 Segmente + weiße Trennlinie + %-Labels; AP2 14 Assertions grün (Layer weg, View default, Filter default, Infobar korrekt); AP3 Legende 8/8 Checks + Sichtprüfung; Regression: Bayern-PV-Badge 5.862 ✓, alle 11 Tabs rendern ✓, Zubau-Chart ✓.
+- Revision: `iterations/V35_BetreiberCharts_Reset_Legende.html` (+ human-share). **Deploy/Push nur nach User-Freigabe.**
+
+**V35.1 (10.09., 20-Punkte-Plan `2026-09-10_V35-1_Donuts_MeasureToggle_20-Punkte-Plan.md`):**
+Donuts „Technologie-Verteilung" + „EEG-Registrierung" jetzt ebenfalls über den Toggle **Anlagen ⇄ Leistung (MW)** steuerbar (User-Wunsch): 4 MW-Akkus (eegW_mw/noEegW_mw/eegP_mw/noEegP_mw) in `renderBetreiberDiagramme()`, Donut-Labels mit Einheit („Wind (MW)" / „PV (MWp)"), Untertitel dynamisch (`#bc-tech-sub`/`#bc-eeg-sub`). Verifiziert: ENERPARC MW-Modus PV 3.217,514 MWp == Header-Summe; wpd Wind-MW 140,12+1.266,82 = 1.406,94 == erwarteter Wind-MW-Summe; Rück-Toggle auf Anlagen korrekt; Pixel-Check alle 3 Canvases gezeichnet; Infobar unverändert. Revision: `iterations/V35-1_Donuts_MeasureToggle.html` (+ human-share).
+
+## Aktueller Stand (2026-09-09, **V34 UX-Runde 2 abgeschlossen**)
+
+## Aktueller Stand (2026-09-09, **V33 UX-Runde — lokal fertig, Deploy pending**)
+
+**Code-Stand:** V33 (lokal, **noch nicht gepusht**; online/Basis: main `d8dd8e4`, gh-pages `15c2058` = V29.1-Deploy)
+**Kern-Basis:** 31.011 Wind · 22.402 PV = **53.413** In-Betrieb georef · Karte 65.663
+**V33 (UX-Runde, 09.09., 20-Punkte-Plan):** WP1 LK-Scrollbalken kontraststark (14 px, sticky
+Name-Spalte bestätigt) · WP2 Statistik-Panel z-index 1800 über Topbar (User-Wunsch: Panel
+komplett sichtbar; ESC/✕/Toggle schließen) · WP3 Betroffenheit: Ringe nach Treffer-Art
+(**grün** = Neubau, **rot** = nur Abmeldungen) + Ring-Legende im Summary + entfernte Assets
+als rote Marker im Anzeigen-Modus (Root-Cause „leere Ringe": ENTFERNT-Treffer sind korrekt,
+aber nicht sichtbar — 9 NAPs nur-entfernt, entfernt-Assets nie in allUnits) · WP4 Singlefile
+ab `file://` lädt **CARTO basemaps** statt OSM (OSMF-Referer-Pflicht 03/2026 → „403r Access
+blocked"; Consent-Text dynamisch mit CARTO-Hinweis). Details: `fehlerbehebung.md` F-V33-1…4.
+**V33.1 (09.09., spät):** BFF-Anzeigen-Modus: `_bindLazyPopup` im Plain-Layer-Pfad nachgebunden
+(V32-WP4-Lücke — Klick auf Bestands-Anlage war tot). Revision: `iterations/V33-1_Popup_Hotfix.html`.
+Finale Revision V33: `iterations/V33_UX_Runde.html` (+ human-share).
+
+**V34 (09.09., spät, 20-Punkte-Plan „UX-Runde 2"):**
+- **WP1** LK-Tab: Scrollbalken JETZT OBERHALB der Tabelle (synthetischer Scroller
+  `#landkreis-scroll-bar`, bidirektional per JS synchronisiert, Loop-Schutz
+  `_lkSyncing`); Tabelle selbst ohne sichtbaren Balken (`scrollbar-width:none`).
+- **WP2** Popup-Re-Open-Bug gefixt: Root-Cause = Doppel-Dispatch (`_lazyPopup` +
+  Leaflet-`_openPopup` von `bindPopup` toggelten gegeneinander). Fix: KEIN
+  `marker.bindPopup()` mehr — eigenes `L.popup` pro Marker, Toggle im eigenen Handler,
+  Re-Open nach Kartenklick jederzeit möglich. NAP-Link (V21.4) übernommen.
+- **WP3** Statistik-Panel 20 % breiter: 820 → **984 px** (right:-1024 px); Tablet/Mobil
+  unverändert.
+Finale Revision: `iterations/V34_UX_Runde2.html` (+ human-share).
+
+**Code-Stand:** V32.1 (lokal, **noch nicht gepusht**; online/Basis: main `d8dd8e4`, gh-pages `15c2058` = V29.1-Deploy)
+**Kern-Basis:** 31.011 Wind · 22.402 PV = **53.413** In-Betrieb georef (Infobar)
+**Karte gesamt:** 65.663 Anlagen (Wind 42.006 · PV 23.657)
+**V32 (Bugfixrunde, 08.09.):** WP1 NAP-Ranking-Einbettung + NAP-Karten-Klick · WP2 LK-Scroll
+· WP3 Snapshot-7/8-MW-Migration (Δ +125,54 MW statt −8.410,85) · WP4 BFF-Clustering-Fix
+· WP5 NB-Filter-Listener · WP6 Doku. Details unten.
+**V32.1 (Hotfix, 09.09.):** Singlefile-TDZ — keine Marker + Statistik-Button tot beim direkten
+Öffnen der Singlefile. Root-Cause + Fix + Verifikation: unten „V32.1".
+Finale Revision: `iterations/V32-1_Singlefile_Hotfix.html` (+ human-share).
+**Wichtig:** Infobar-Zahlen älterer Doku-Abschnitte sind historische Stände — ab V30 gelten
+ausschließlich 31.011/22.402/53.413/65.663. **Verifikationsregel ab V32.1:** Änderungen müssen
+IMMER auch im Singlefile (`dist/index_singlefile.html`) browser-verifiziert werden — der
+Multi-File-Build maskiert TDZ-/Sync-Fehler durch await.
 
 ## Aktueller Stand (2026-09-06 Abend, **V27 = Daten-Update LIVE** — Code V26, Daten 06.09. 18:59)
 
@@ -65,6 +126,30 @@ horizontal scrollbar (Touch-Wischen, Hinweis unter der Tabelle), Header vollstä
 (375-px-Test: Tabelle 1.024 px, alle 9 Header FULL); PC unverändert Fixed-Layout ohne Scroll.
 Such-Placeholder: „Suche Anlage… z.B. Solarpark Döllen GmbH".
 **LIVE-Deploy:** 06.09.2026 (V22+V23+V24 gemeinsam, User-Freigabe erteilt) · **main:** `7172681` · **gh-pages:** `1b9c85a`
+## V30 (08.09.2026) — F-02 Design-Entscheidung
+
+**User-Entscheidung:** Karten-Klicks (Betreiber/Gruppe, Hersteller, Geo-Suche BL/LK/Gemeinde,
+NAP/Lokation, Bundesland) zeigen **bewusst alle Betriebs-Status**. Ausnahme: Größenklassen-Klick
+bleibt In-Betrieb (bs35), konsistent zur Chart-Basis. Kein Code-Fix; dokumentiert in
+`BUGS_ZU_ERLEDIGEN_2026-09-08.md` (F-02 geschlossen).
+
+## V30 Fixrunde (08.09.2026) — F-04 Zahlendrift (Variante B: strikte Abgrenzung)
+
+**User-Entscheidung 08.09.2026: Variante B** — Abgrenzung konsequent strikt durchsetzen:
+**Wind ≥ 0,1 MW (>= 100 kW), PV ≥ 0,5 MWp (>= 500 kWp).** Die 11 PV-Grenzfälle mit
+499,92 kWp (fetch-Filter `gt~499.9` hatte sie durchgelassen) sind **entfernt**.
+
+**Neue konsistente Basis (alle Zahlen aus identischem Export):**
+- **In-Betrieb-Kern (Infobar): 31.011 Wind · 22.402 PV = 53.413** (vorher 31.010/22.409 = 53.419, Drift behoben)
+- Karte gesamt: **65.663 Anlagen** (Wind 42.006 · PV 23.657 inkl. Planung/stillgelegt)
+- Legacy-V1-Tabelle war STALE (fehlte 1 Wind-Neuzugang SEE944775195571, enthielt 7 PV-Grenzfälle unter der eigenen Abgrenzung) — `meta.counts` zählt jetzt aus dem Export selbst, nie wieder Drift
+
+**Fix-Umsetzung:**
+1. `scripts/fetch_mastr.py` + `fetch_v2.py`: PV-Fetch-Filter `gt~499.9` → `ge~500` (strikt)
+2. `export_app.py`: Abgrenzungs-Sicherheitsnetz nach `build_units` (PV ≥ 0,5 MWp / Wind ≥ 0,1 MW nach to_mw; 11 Einheiten verworfen)
+3. `export_app.py`: `meta.counts` aus `units` (nur bs 35) statt Legacy-V1-Tabelle — Infobar-Semantik unverändert (nur In-Betrieb)
+4. Legacy-Projektstand-Zahlen (65.676/42.008/23.668, 53.424) sind historisch; neue Kopfzahlen nach diesem Stand: 65.663 gesamt / 31.011 Wind / 22.402 PV (Infobar) / 53.413 Kern
+
 **V24 (06.09.):** Landkreis-Tab-Header mit Leistungseinheiten („Leistung PV **(MWp)**",
 „Leistung Wind **(MW)**"); Statistik-Panel **ohne horizontales Scrollen** — alle 9 Tabs
 und alle Tab-Inhalte passen in die 805-px-Panel-Breite (Landkreis-Tabelle via
@@ -635,3 +720,114 @@ Ordner `iterations/` gespeichert werden (`V<Version>_<Kurzbeschreibung>.html`).
 - **Dateien dürfen niemals gelöscht oder überschrieben werden.**
 - Der Ordner ist gitignored (Dateien ~25 MB), bleibt also lokal.
 - Übersicht: `iterations/README.md` (wird committet, enthält Versions-Tabelle).
+
+## V30 Final (08.09.2026, Abend) — Fixrunde abgeschlossen
+
+Alle 8 Audit-Findings abgearbeitet:
+- F-01 Overlay-Dual-State: showAllUnits liest filter-se (inkl. __ohne__), Leistungsfilter auf Park-Basis — 10.751 bei HS+Overlay
+- F-02 Klick-Quellen-Status: BY DESIGN (alle Status sichtbar), geschlossen
+- F-03 Snapshot-Dedup: save_snapshot mit Datum+Kennzahlen-Dedup; historie.json 8→3 Einträge; DB bereinigt
+- F-04 Abgrenzung strikt (Variante B): Fetch ge~500, Export-Sicherheitsnetz; Basis 31.011 Wind · 22.402 PV = 53.413; Karte 65.663
+- F-05 Overlay-Datum: dateFullFmt statt ISO — „31.01.2019 / 29.01.2019"
+- F-06 Historie-Hinweis: „sonntags 18:00" statt „1. & 15. des Monats"
+- F-07 Freeze: Beobachtungspunkt (nicht reprodizierbar, Kern 11 ms) — docs/F07_ABSCHLUSS_2026-09-08.md
+- F-08 Doku: 9→10 Tabs (statistik.md, architektur.md, README.md)
+
+Verifikation (finaler Build, ?v30final=1): Infobar 31011/22402 ✓, F-01 53.413 ✓,
+F-05 DE-Datum ✓, F-06 Hinweistext ✓, 10 Tabs ✓, 0 JS-Errors ✓.
+Geänderte Dateien: src/index.html, scripts/{fetch_mastr,fetch_v2,export_app,snapshot}.py,
+README.md, docs/{PROJEKTSTAND,statistik,architektur}.md + BUGS_ZU_ERLEDIGEN_2026-09-08.md (neu).
+Iterations: V30_F01_DualStateFix, V30_F05_DatumOverlay, V30_F06_HistorieHinweistext,
+V30_F04_AbgrenzungStrikt, V30_F03_SnapshotDedup, V30_FINAL_Fixrunde (jeweils + human-share).
+
+### V30 Doku-Sync (08.09. Abend)
+
+Bestands-Doku gegen den Build-Status geprüft und angepasst:
+- `README.md`: Daten-Tabelle auf V30-IST (65.663 / 53.413; Wind 42.006, PV 23.657)
+- `docs/datenmodell.md`: Kennzahlen-Tabelle + Infobar-Absatz + Legacy-V1-Hinweis aktualisiert
+- `docs/statistik.md`: Kopf V30, Hersteller-Basis 30.847 (61 Hersteller), LK-Basis 377 · 51.634 Assets · 125.552,1 MW · 27.338 NAPs, Wind max 15 MW (300-MW-Falscheintrag Südwind korrekt per V27b-Physik-Check als 0,3 MW)
+- `docs/update.md`: V30-Snapshot-Dedup ergänzt; Cron-Beispiel auf sonntags 18:00
+- `docs/architektur.md`: Fetch-Filter gt~499.9 → ge~500
+- `scripts/fetch_mastr.py`: Header-Doku ge~500
+- **F-04-Nachzieh-Fix:** Legacy-V1-Tabelle `einheiten` gesynced (11 Grenzfälle raus, 5 fehlende Einheiten aus RAW nachgefügt, SEE944775195571 auf 0,3 MW korrigiert) → `statistiken.json` jetzt konsistent: gesamt 53.413, Wind 31.011, PV 22.402, Wind max 15 MW, LK 51.634 Assets
+- Verifikation: Browser ?v30doc=1 — Infobar 31011/22402 ✓, LK-Zähler „377 Landkreise · 51.634 Assets / 125.552,1 MW · 27.338 NAPs" ✓, 0 JS-Errors ✓
+- Rebuild: iterations/V30_FINAL_Fixrunde.html + human-share aktualisiert
+
+## V32 (08.09.2026, spät) — Bugfixrunde (50-Punkte-Plan): 5 Bugs + Doku
+
+### WP1: NAP-Ranking im Singlefile + NAP-Klick → Karte
+- **Bug:** `bundle_singlefile.py` bettete `nap_index.json` ein, aber NICHT `nap_ranking.json`
+  → Singlefile: "NAP-Ranking nicht geladen — bitte Seite neu laden." (Multi-File-Build war ok).
+- **Fix 1:** bundle_singlefile.py: `nap_ranking.json` als 6. Einbettung (`window.__PVWIND_NAP_RANKING__`).
+- **Fix 2:** `focusNAPOnMap()`: Klick auf NAP-Zeile im Statistik-Tab "NAP" rendert jetzt
+  **nur die Anlagen dieses NAPs** auf der Karte (selectHersteller-Muster: renderMarkers(grp.units)
+  + fitBounds + Suchfeld-Label "NAP: <name> (N Anlagen)") + NAP-Panel öffnet. Fallback ohne
+  nap_index-Gruppe: bisheriges Circle-Overlay.
+
+### WP2: Landkreis-Tabelle horizontal scrollbar
+- `#landkreis-scroll`: `overflow-x:auto` → `overflow-x:scroll` (Balken immer sichtbar),
+  Name-Spalte sticky (`position:sticky; left:0`), damit sie beim Scrollen lesbar bleibt.
+
+### WP3: Snapshot-7/8-MW-Korrektur (kW/MW-Verwechslung im Historie-Delta)
+- **Bug:** Snapshots 7 (29.08.) + 8 (01.09.) enthielten die VOR dem V27b-Physik-Check
+  importierten Wind-Leistungen: 120 Wind-Einträge mit kW-Falschangabe (z. B. E-18/20
+  = 80 kW als "80 MW"), zusammen 8.545 MW zu viel pro Snapshot. Das Delta 01.09→06.09
+  zeigte deshalb in "Entfernt: Wind" Werte wie 80 MW für Kleinstanlagen.
+- **Fix:** `scripts/fix_snapshot_mw.py` (Migration): Wind-MW in snapshot_einheiten der
+  Snapshots 7+8 mit to_mw-Heuristik neu berechnet (240 Einträge, Δ −17.072,8 MW),
+  snapshots.wind_mw/gesamt_mw + bundeslaender_json neu abgeleitet, Delta via
+  compute_delta neu berechnet, historie.json neu exportiert.
+- **Ist jetzt:** Delta 01.09→06.09: wind_diff_mw **+125,54 MW** (vorher −8.410,85),
+  removed wind ohne einzigen >15-MW-Ausreißer.
+- **Neu:** `docs/wind_typen_leistungen.md` — Referenzliste 3.922 Wind-Typen
+  (Hersteller; Typ; Anlagenleistung in MW; Anzahl) für künftige Korrekturen.
+
+### WP4: Betroffenheit "Anzeigen" — NEU-Asset war unsichtbar
+- **Bug:** `clusterGroup.disableClustering()` wurde aufgerufen, existiert aber nicht
+  (Leaflet.markercluster hat keine solche API) → im Anzeigen-Modus blieb Clustering
+  aktiv; Bestand+NEU am selben NAP verschmolzen in einem Cluster-Bubble.
+- **Fix:** renderMarkers: im BFF-Anzeigen-Modus Rendering in einfachen `L.layerGroup`
+  (clustering-frei) statt clusterGroup; Rückkehr zum Normal-Modus reaktiviert clusterGroup.
+  Marker-Bau in `_buildUnitMarker(u)` + Lazy-Popup in `_bindLazyPopup(m, u)` extrahiert.
+
+### WP5: Netzbetreiber-Filter reagierte nicht
+- **Bug:** `filter-nb` hatte keinen `change`-Listener (V31-Nachlässigkeit; der
+  Verifikationstest dispatchete programmatisch, daher unentdeckt).
+- **Fix:** `addEventListener('change', applyFilters)` ergänzt.
+
+### Build/Verifikation
+- node --check über alle Inline-Script-Blöcke: OK.
+- Browser-Verifikation: siehe Chat-Report vom 08.09.
+
+## V31 (08.09.2026, Abend) — Netzbetreiber-Filter + Typ-Tab
+
+### WP1: Netzbetreiber-Filter (Hauptseite)
+- Neuer Filter `filter-nb` zwischen **Gemeinde** und **Art** (V31-Position).
+- Optionen: 698 Netzbetreiber (Name ohne SNB-Klammer-Suffix, SNB-Nr im title-Attribut) + **„Keine Angabe"** (`__ohne__`) für 3.401 Anlagen ohne NB-Angabe (alle Status 31/38 — erscheinen nur mit aktivierten Status-Filtern).
+- Verkabelung: `populateFilterNb()` (Daten-Load-Init), `applyFilters()` + `showAllUnits()` (Overlay == Karte, F-01-Muster), `resetFilters()` (IDs-Liste).
+- NB-Match: exakter Vollstring ODER Name vor Klammer-Suffix; 0 NB-Namen mit mehreren SNB (verifiziert).
+- Verifikation: Avacon = 5.184 Anlagen; Avacon + LK Celle = 35; „Keine Angabe" (alle Status) = 3.401 ✓; Reset räumt nb mit auf ✓.
+
+### WP2: Statistik-Tab „Typ" (nach Hersteller)
+- Neuer Tab `data-tab="typ"` mit Tabelle: **Hersteller; Typ; Leistung (MW); Anzahl; Anteil; Summe MW** — strikt 6 Spalten (User-Entscheid).
+- Basis: alle Wind-Einheiten im Export (**42.006**, alle Status — Karten-Datenbestand). 4.950 (Hersteller, Typ)-Kombinationen; „Keine Angabe" für fehlende herst/typ.
+- Default-Sortierung: **Leistung absteigend** (User-Anforderung); alle Header sortierbar; Top-N (10/50/100/Alle) + Textfilter (Typ oder Hersteller).
+- Klick auf Zeile → `selectTyp(herst, typ)`: renderMarkers + fitBounds + Suchfeld-Label „Typ: … — … (N Anlagen)" + Stats-Panel schließt.
+- Verifikation: Default erste Zeile Vestas V236-15MW (15 MW, 51 Anlagen); Σ Anzahl über „Alle" = 42.006 ✓; E-70 E4/ENERCON = 931 Anlagen = Klick-Marker ✓; 0 JS-Errors ✓.
+
+### Files
+- `src/index.html` (+HTML-Select/Section, +CSS #typ-table, +populateFilterNb/renderTyp/selectTyp, _statsState.typTop/typFilter/typSortKey/typSortDir)
+- `iterations/V31_NetzbetreiberTyp.html` + human-share-Kopie (42.425.978 Bytes)
+- Plan: `.hermes/plans/2026-09-08_V31_NetzbetreiberTyp_30-Punkte-Plan.md`
+
+## V32.1 (09.09.2026) — Hotfix Singlefile-TDZ
+
+- **Bug:** Singlefile zeigte keine Anlagen beim Öffnen (erst nach Filter-Toggle); Statistik-Button tot.
+- **Root-Cause:** TDZ — `init()` läuft im Singlefile synchron (eingebettete Daten); `renderMarkers`
+  las `_bffShowActive` vor dessen Deklaration → ReferenceError → catch → Abbruch vor
+  `renderMarkers`/`initStats`. Multi-File nicht betroffen (await maskiert).
+- **Fix:** BFF-State-Deklarationen vor `init()` verschoben. Vorgänger (08.09., nach User-Meldung):
+  Topbar z-index 1700 + Statistik-Button-Toggle.
+- **Verifikation (Singlefile, Browser):** Marker sofort (46 Cluster), 0 JS-Fehler, Stats-Panel
+  öffnet/schließt via Button, NAP-Klick „SP WINI" → 8 Marker clustering-frei, NB-Filter Avacon
+  5.184/53.413, NAP-Ranking 27.130, Historie-Δ +251 MW ok.

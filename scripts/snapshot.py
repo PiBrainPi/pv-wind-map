@@ -161,12 +161,30 @@ def _row_to_asset_dict(r: tuple) -> dict:
 
 
 def save_snapshot(db: sqlite3.Connection, datum: str = None) -> int:
-    """Speichert den aktuellen DB-Stand als Snapshot. Gibt die snapshot_id zurück."""
+    """Speichert den aktuellen DB-Stand als Snapshot. Gibt die snapshot_id zurück.
+
+    V30 F03 (08.09.2026): Dedup — existiert bereits ein Snapshot am selben Tag mit
+    IDENTISCHEN Kennzahlen (Wind/PV/Gesamt Anzahl+MW), wird dessen ID zurückgegeben,
+    statt ein Duplikat anzuhängen. Ursache der 5×-Duplikate am 06.09.: mehrfache
+    Pipeline-Läufe am selben Tag erzeugten jedes Mal einen neuen Snapshot
+    (fix_snapshots.py hatte die Altduplikate nur manuell bereinigt).
+    """
     ensure_schema(db)
     if datum is None:
         datum = datetime.now().strftime("%Y-%m-%d")
 
     stats = _db_stats(db)
+
+    # Dedup-Check: gleicher Tag + identische Zahlen → bestehenden Snapshot wiederverwenden
+    existing = db.execute(
+        "SELECT id FROM snapshots WHERE datum = ? AND wind_anzahl = ? AND pv_anzahl = ? "
+        "AND gesamt_anzahl = ? AND wind_mw = ? AND pv_mw = ? AND gesamt_mw = ?",
+        (datum, stats["wind_anzahl"], stats["pv_anzahl"], stats["gesamt_anzahl"],
+         stats["wind_mw"], stats["pv_mw"], stats["gesamt_mw"]),
+    ).fetchone()
+    if existing:
+        print(f"Snapshot-Dedup: #{existing[0]} ({datum}) identisch — wiederverwendet")
+        return existing[0]
     bl_map = _bundeslaender_map(db)
 
     cur = db.execute(

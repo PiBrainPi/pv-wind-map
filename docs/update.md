@@ -1,6 +1,6 @@
 # Update — PV & Wind Karte (MaStR)
 
-> Manuell auslösbar, cronjob-fähig. Stand: 2026-09-06 (Pipeline 2.0 inkl. NAP + V22-Cluster-Statistik + V23-Geo-Ebene).
+> Manuell auslösbar, cronjob-fähig. Stand: 2026-09-09 (V32.1; inkl. Snapshot-MW-Migration V32).
 
 ## Update ausführen (DE)
 
@@ -98,10 +98,11 @@ gegen die Konsolenausgabe von `export_app.py` prüfen (Zähler + Wind max/PV max
 
 Das Skript ist nicht-interaktiv, d. h. es kann direkt als Cronjob laufen.
 **Wichtig (Pi5):** In einem Cron-Kontext kein `execute_code` nutzen — nur reine
-Shell/Python. Beispiel-Crontab (**1. & 15. des Monats, 03:00 Uhr**):
+Shell/Python. **Aktives Intervall (User-Entscheid 06.09.): sonntags 18:00 Uhr**
+(Hermes-Cronjob `79229dc1690d`):
 
 ```cron
-0 3 1,15 * * cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map && \
+0 18 * * 0 cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map && \
   bash scripts/build.sh >> /tmp/pvwind_update.log 2>&1
 ```
 
@@ -118,6 +119,8 @@ Austauschordner `~/hermes_human-share/`).
   (`snapshot.py` → `snapshots` + `snapshot_einheiten` mit 26 Asset-Feldern). Nach dem Import
   wird der neue Stand als weiterer Snapshot gespeichert und das Delta berechnet
   (neue/entfernte Anlagen, Bundesländer-Veränderung).
+  **V30 (08.09.):** Dedup — existiert bereits ein Snapshot am selben Tag mit identischen
+  Kennzahlen, wird er wiederverwendet statt doppelt angefügt (vorher: 5× 06.09. in historie.json).
 - `export_app.py`: schreibt `dist/assets/einheiten.json` + `meta.json` + **`statistiken.json`**
   (Betreiber, Größenklassen **+ seit V22 `groessen_cluster`**: Park-Cluster-Verteilung nach
   Schlüssel (Energieträger, Betreiber, Parkname) — bei jedem Update automatisch frisch berechnet;
@@ -145,8 +148,9 @@ Austauschordner `~/hermes_human-share/`).
 > und den `gh-pages`-Push ausführt.
 
 > **Hinweis `data/` (Ist-Stand):** `data/raw/` und `data/mastr.db` sind **gitignored** und im
-> Working-Tree aktuell (2026-09-01) **vorhanden** (Stand 01.09.2026, 53.500 georeferenzierte
-> Anlagen). Sie werden vom `fetch_mastr.py` automatisch neu angelegt/überschrieben.
+> Working-Tree aktuell **vorhanden** (Datenstand 06.09.2026; V30-Export 08.09.: 53.413
+> georeferenzierte In-Betrieb-Anlagen, Karte 65.663). Sie werden vom `fetch_mastr.py`
+> automatisch neu angelegt/überschrieben.
 > Die zuletzt exportierten Karten-Daten liegen fertig in `dist/assets/*.json` bzw. in der
 > Single-File; für eine reine UI-/Code-Revision (ohne Daten-Refresh) genügt Schritt 4
 > (`cp` + bundle). Für den Revisions-Tracker (Update-Historie) muss mindestens `import_mastr.py`
@@ -157,6 +161,16 @@ Austauschordner `~/hermes_human-share/`).
 1. `python3 scripts/export_app.py` zeigt die Zähler (Wind/PV, Geolokation).
 2. App öffnen und prüfen, dass „Stand:" oben rechts in der Suchleiste neu ist (auf den Tag gekürzt).
 3. Optional: ein paar bekannte Anlagen (MaStR-Nr.) in der Karte gegenprüfen.
+
+### Snapshot-MW-Migration (V32, 08.09.2026)
+
+Die Snapshots 7 (2026-08-29) und 8 (2026-09-01) enthielten Wind-Leistungen vor dem
+V27b-Physik-Check (120 kW/MW-Falschangaben je Snapshot, 8.545 MW zu viel).
+`scripts/fix_snapshot_mw.py` korrigiert snapshot_einheiten, snapshots-Kennzahlen und
+bundeslaender_json via to_mw-Heuristik nach; anschließend Deltas mit compute_delta neu
+berechnen und historie.json re-exportieren. Das Skript ist idempotent (nur Einträge >15 MW
+werden geändert; nach Korrektur: 0). Referenzliste der Typenleistungen:
+`docs/wind_typen_leistungen.md`.
 
 ### ⚠️ Snapshot-Regel (unveränderlich)
 

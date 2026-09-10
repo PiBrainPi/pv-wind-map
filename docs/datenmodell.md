@@ -1,6 +1,6 @@
 # Datenmodell — PV & Wind Karte (MaStR)
 
-> Stand: 2026-09-06 (V23) · Zweisprachig (DE / EN)
+> Stand: 2026-09-09 (V32.1; inkl. Wind-Typen-Referenz) · Zweisprachig (DE / EN)
 
 ## Datenbasis (DE)
 
@@ -88,22 +88,36 @@ kW-Kleinstanlagen (≈ 0.1 MW) und werden korrekt als kW behandelt; Anlagen <100
 - **PV**: ≥ 0,5 MWp (Bruttoleistung ≥ 500 kWp), Status „In Betrieb".
 - **Karte**: nur Anlagen mit vorhandener Geolokation (`geolokation=1`). Kein Geocoding.
 
+
+## Referenz: Wind-Typen-Leistungen (V32)
+
+`docs/wind_typen_leistungen.md` listet alle 3.922 Wind-Anlagentypen im Datensatz mit
+konsolidierter Anlagenleistung in MW (Hersteller; Typ; MW; Anzahl). Die Liste dient als
+Referenz zur Ableitung korrekter Leistungen bei kW/MW-Verwechslungen (V27b-Physik-Check,
+V32-Snapshot-Migration `scripts/fix_snapshot_mw.py`).
+
+
 ## Aktuelle Datenkennzahlen
 
 **Pipeline 2.0 (einheiten_raw, alle 4 Status, Stand 04.09. — verifiziert 06.09.):**
 
 | Kategorie | Georef (alle Status) | 35 In Betrieb | 31 In Planung | 37 vorüb. stillg. | 38 endg. stillg. |
 |-----------|---------------------|---------------|---------------|-------------------|------------------|
-| Wind (≥100 kW) | 42.167 | 31.134 | 8.088 | 58 | 2.887 |
-| PV (≥0,5 MWp) | 23.652 | 22.399 | 1.187 | 14 | 52 |
-| **Summe** | **65.819** | 53.533 | 9.275 | 72 | 2.939 |
+| Wind (≥100 kW) | 42.006 | 31.011 | — | — | — |
+| PV (≥0.5 MWp) | 23.657 | 22.402 | — | — | — |
+| **Summe** | **65.663** | **53.413** | 9264 | 65 | 2921 |
 
-Die Karte (Infobar „31.116 Wind · 22.384 PV") zählt die **exportierten** Einheiten
-(einheiten.json: georef In-Betrieb nach ≥100-kW-Normalisierung; Differenz zu 31.134/22.399
-= Einheiten unter der Schwelle bzw. Export-Konsolidierung).
-Die **Statistik-DB-Tabelle `einheiten`** (V1-Schema) umfasst 31.116 Wind + 22.384 PV =
-53.500 georef Einheiten (alle Status) — Basis der Betreiber-/Größenstatistik
-(inkl. `groessen_cluster` seit V22).
+*(Stand V30. 08.09.2026 — Export 06.09.-Daten mit strikter Abgrenzung `ge~500` / Export-
+Sicherheitsnetz. Vorher: 42.167/31.134/23.652/22.399 = 65.819 (historisch. enthielt 11
+PV-Grenzfälle à 499.92 kWp).)*
+
+Die Karte (Infobar „31.011 Wind · 22.402 PV") zählt die **exportierten** In-Betrieb-Einheiten
+(einheiten.json: georef bs35; V30: `meta.counts` wird aus dem Export selbst berechnet.
+nicht mehr aus der Legacy-V1-Tabelle — Drift ausgeschlossen).
+Die **Statistik-DB-Tabelle `einheiten`** (V1-Schema) ist seit V30 nur noch sekundär —
+`meta.counts` und die Statistiken bauen auf dem Export (`build_units`-Ausgabe) auf;
+die Legacy-Tabelle wird beim nächsten vollständigen Re-Import mit der strikten
+Abgrenzung neu aufgebaut.
 
 **V23-Zusätze im Export (updatefähig, in jedem build.sh neu berechnet):**
 - `einheiten.json` je Einheit: `pk` (Park-Cluster-Hash) + `pkmw` (Park-Gesamtleistung MW,
@@ -150,16 +164,16 @@ Values 81–99 mislabeled as “MW” (≈ 0.1 MW micro-turbines) are treated as
 - **PV**: ≥ 0.5 MWp (≥ 500 kWp), status "In Betrieb".
 - **Map**: only geolocated units (`geolokation=1`). No geocoding.
 
-### Current figures (einheiten_raw, all 4 statuses, import 2026-09-04 — verified 2026-09-06)
+### Current figures (V30 export 2026-09-08, strict threshold ge~500 — data import 2026-09-04)
 | Category | Georef (all statuses) | 35 In operation | 31 Planned | 37 temp. shut down | 38 perm. shut down |
 |----------|-----------------------|-----------------|------------|--------------------|--------------------|
-| Wind (≥100 kW) | 42,167 | 31,134 | 8,088 | 58 | 2,887 |
-| PV (≥0.5 MWp) | 23,652 | 22,399 | 1,187 | 14 | 52 |
-| **Total** | **65,819** | 53,533 | 9,275 | 72 | 2,939 |
+| Wind (≥100 kW) | 42.006 | 31.011 | 8.075 | 51 | 2.869 |
+| PV (≥0.5 MWp) | 23.657 | 22.402 | 1.189 | 14 | 52 |
+| **Total** | **65.663** | **53.413** | 9.264 | 65 | 2.921 |
 
-Map infobar (“31.116 Wind · 22.384 PV”) counts exported units (georef, in operation,
-after ≥100 kW normalisation). The V1 statistics table `einheiten` holds 31,116 wind +
-22,384 PV = 53,500 georef units (all statuses) — basis of the operator/size statistics
+Map infobar (“31.011 Wind · 22.402 PV”) counts exported in-operation units (georef;
+V30: `meta.counts` computed from the export itself — legacy drift excluded). The V1 statistics table `einheiten`
+was re-synced in V30 (53413 georef in-operation units) — basis of the operator/size statistics
 (incl. `groessen_cluster` since V22).
 
 **V23 export additions (update-capable, recomputed on every build.sh run):**
@@ -172,7 +186,7 @@ after ≥100 kW normalisation). The V1 statistics table `einheiten` holds 31,116
   not the SEL string) and `gemeinden` (6,499 municipalities with BL/LK context,
   pivoted by district because of name duplicates across federal states).
 
-> Stand 04.09.2026 (V19-Live-Datenstand): infobar „31.116 Wind · 22.384 PV".
+> Historisch (04.09.2026, V19-Live-Datenstand, inzwischen überholt): Infobar „31.116 Wind · 22.384 PV" — aktuell: 31.011 · 22.402 (V30).
 > Historie inkl. Updates (NEU/ENTFERNT) → `assets/historie.json`; NAP-Index
 > 27.078 → 27.870 NAPs (`assets/nap_index.json`). Import-Sektion oben dokumentiert
 > den ersten Stand vom 29.08. — die Live-Zahlen folgen dem jeweils aktuellen Export.

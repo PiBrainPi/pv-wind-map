@@ -48,7 +48,16 @@ def main() -> None:
     except (FileNotFoundError, json.JSONDecodeError):
         nap_js = "window.__PVWIND_NAP__ = null;"
 
-    injection = f"<script>\n{data_js}\n{meta_js}\n{stats_js}\n{hist_js}\n{nap_js}\n</script>\n"
+    # V32 (WP1): NAP-Ranking einbetten (falls vorhanden) — NAP-Tab-Tabelle im Singlefile.
+    # Bug 08.09.: nap_ranking.json wurde NICHT eingebettet → fetch('assets/nap_ranking.json')
+    # schlug im Singlefile fehl (kein assets/-Ordner) → "NAP-Ranking nicht geladen".
+    try:
+        naprank = json.loads((DIST / "assets" / "nap_ranking.json").read_text(encoding="utf-8"))
+        naprank_js = "window.__PVWIND_NAP_RANKING__ = " + json.dumps(naprank, ensure_ascii=False, separators=(",", ":")) + ";"
+    except (FileNotFoundError, json.JSONDecodeError):
+        naprank_js = "window.__PVWIND_NAP_RANKING__ = null;"
+
+    injection = f"<script>\n{data_js}\n{meta_js}\n{stats_js}\n{hist_js}\n{nap_js}\n{naprank_js}\n</script>\n"
     # Daten-Skript VOR dem Haupt-App-Script einfügen (sonst ist window.__PVWIND_DATA__
     # beim init()-Aufruf noch nicht definiert). Anker: CSS-Block der App.
     anchor = "<style>\n* { margin:0;"

@@ -1,6 +1,6 @@
 # Architektur — PV & Wind Karte (MaStR)
 
-> Stand: 2026-09-06 (V23) · Zweisprachig (DE / EN unten)
+> Stand: 2026-09-09 (V32.1) · Zweisprachig (DE / EN unten)
 
 ## Überblick (DE)
 
@@ -47,7 +47,7 @@ kompakte JSON-Dateien für die Karte (inkl. Statistik) exportiert.
 | **Import** | `scripts/import_mastr.py` | SQLite-Schema, Einheiten-Normalisierung, ≥100-kW-Wind / ≥0,5-MWp-PV-Filter, `data/mastr.db`. **V4:** Sichert alten Stand als Snapshot vor Rebuild, berechnet Delta nach Import. |
 | **Export** | `scripts/export_app.py` | SQLite → kompaktes JSON für Karte (`dist/assets/*.json`) + Statistik (`statistiken.json`) + Historie (`historie.json`), nur Anlagen mit Geolokation. |
 | **Snapshot** | `scripts/snapshot.py` | **V4 (neu):** SQLite-Schema für `snapshots` + `snapshot_einheiten` (26 Asset-Felder), `save_snapshot()`, `compute_delta()`, `build_historie()`. Grundlage für den Update-Historie-Tab. |
-| **App** | `src/index.html` | Leaflet-Karte + MarkerCluster (beide **lokal in `src/vendor/`, inline eingebettet** seit 2026-08-31 / DSGVO — kein unpkg-CDN) + Filter + Detail-Popups + **Statistik-Panel (9 Tabs, seit V23 inkl. „Landkreis")** + **2-Klick-Consent für OSM-Kacheln** + **V8i: Disclaimer-Panel (Hover/Tap, position:fixed, z-index 1200/1201, Trigger unter Zoom-Control seit V8j: Desktop top:86px/Mobile 96px)**. **V5:** Responsive Design (3 Breakpoints). **V6:** Art-Verteilungs-Pie unter Größenklassen. **V7/V7b/V7c:** Registrierungs-Filter (Jahr/Monat), Alle-Anlagen-Tabelle mit sortierbaren Headern. **V8c:** Inbetriebnahme-Filter (Jahr/Monat, 1988–2026). **V8h: to_mw() mehrstufige kW/MW-Korrektur.** **V8e:** Zubau-Tab mit Sub-Tabs (Registrierung/Inbetriebnahme), 6 Charts pro Sub-Tab. **V8f/V8g:** Senkrechte X-Achsen-Labels, Werte außerhalb der Balken, volle MW-Zahlen. **V11–V21:** NAP-Suche/Gruppenansicht, Spannungsebenen-Filter, Status-Filter, Betroffenheits-Tab, Betreiber-Live-Suggest mit Gruppen/Portfolios, Popup TT.MM.JJJJ + NAP-Klick. **V22:** Größenklassen-Basis-Umschalter „Einzelanlagen / Parks aggregiert" (Splittungs-bereinigte Kritis-Sichtbarkeit, Döllen-Problem). **V23:** Geo-Ebene — Suche/Filter nach Bundesland/Landkreis/Gemeinde (kontextuell, kombinierbar), Stats-Tab „Landkreis" (Assets P/W + NAPs, 9 Spalten), Größenklassen-Balken-Klick → Karte, Leistungsfilter-Basis „Park (aggregiert)" (`pk`/`pkmw`, Default). |
+| **App** | `src/index.html` | Leaflet-Karte + MarkerCluster (beide **lokal in `src/vendor/`, inline eingebettet** seit 2026-08-31 / DSGVO — kein unpkg-CDN) + Filter + Detail-Popups + **Statistik-Panel (11 Tabs, V28 + „NAP-Ranking")** + **2-Klick-Consent für OSM-Kacheln** + **V8i: Disclaimer-Panel (Hover/Tap, position:fixed, z-index 1200/1201, Trigger unter Zoom-Control seit V8j: Desktop top:86px/Mobile 96px)**. **V5:** Responsive Design (3 Breakpoints). **V6:** Art-Verteilungs-Pie unter Größenklassen. **V7/V7b/V7c:** Registrierungs-Filter (Jahr/Monat), Alle-Anlagen-Tabelle mit sortierbaren Headern. **V8c:** Inbetriebnahme-Filter (Jahr/Monat, 1988–2026). **V8h: to_mw() mehrstufige kW/MW-Korrektur.** **V8e:** Zubau-Tab mit Sub-Tabs (Registrierung/Inbetriebnahme), 6 Charts pro Sub-Tab. **V8f/V8g:** Senkrechte X-Achsen-Labels, Werte außerhalb der Balken, volle MW-Zahlen. **V11–V21:** NAP-Suche/Gruppenansicht, Spannungsebenen-Filter, Status-Filter, Betroffenheits-Tab, Betreiber-Live-Suggest mit Gruppen/Portfolios, Popup TT.MM.JJJJ + NAP-Klick. **V22:** Größenklassen-Basis-Umschalter „Einzelanlagen / Parks aggregiert" (Splittungs-bereinigte Kritis-Sichtbarkeit, Döllen-Problem). **V23:** Geo-Ebene — Suche/Filter nach Bundesland/Landkreis/Gemeinde (kontextuell, kombinierbar), Stats-Tab „Landkreis" (Assets P/W + NAPs, 9 Spalten), Größenklassen-Balken-Klick → Karte, Leistungsfilter-Basis „Park (aggregiert)" (`pk`/`pkmw`, Default). |
 | **Bundle** | `scripts/bundle_singlefile.py` | Erzeugt `dist/index_singlefile.html` (Daten eingebettet, direkt klickbar). |
 | **Build** | `scripts/build.sh` | Ein-Befehl-Build (Export + Kopieren). |
 
@@ -55,7 +55,7 @@ kompakte JSON-Dateien für die Karte (inkl. Statistik) exportiert.
 
 1. **fetch_mastr.py** fragt die MaStR-API mit Filter ab:
    - Wind: `Energieträger~eq~2497~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~0.1` (≥ 100 kW)
-   - PV:   `Energieträger~eq~2495~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~499.9` (≥ 0,5 MWp)
+   - PV:   `Energieträger~eq~2495~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~ge~500` (≥ 0,5 MWp, V30: strikt)
    - Pagination mit `page`/`pageSize`, `chunkedLoading`-freundlich.
 2. **import_mastr.py** normalisiert und speichert in SQLite.
 3. **export_app.py** wählt nur Anlagen mit `geolokation=1`, schreibt die schlanken Karten-Datensätze
@@ -73,7 +73,10 @@ kompakte JSON-Dateien für die Karte (inkl. Statistik) exportiert.
 ### Warum zwei Ausgabeformen?
 
 - **dist/index.html + assets/**: hostbar (GitHub Pages, eigener Server) — Daten per `fetch()`.
-- **dist/index_singlefile.html**: eine einzige Datei mit eingebetteten Daten — doppelklick-fähig ab `file://`.
+- **dist/index_singlefile.html**: eine einzige Datei mit eingebetteten Daten — doppelklick-fähig ab `file://`. Der Singlefile-Synchronlauf (`init()` ohne await vor `renderMarkers`) ist
+  TDZ-empfindlich: in `renderMarkers`/`applyFilters` referenzierte `let/const`-Variablen müssen
+  VOR `init()` deklariert sein (V32.1-Fix). **Verifikationspflicht:** Builds immer in beiden
+  Varianten (Multi-File UND Singlefile) browser-testen.
   (Hinweis: fetch() ab `file://` ist wegen CORS gesperrt, daher werden die Daten für die
   Single-File direkt eingebettet.)
 
@@ -105,4 +108,4 @@ local SQLite database, and exports it as compact JSON for the map.
 ### Two output forms
 
 - `dist/index.html` + `assets/` → hostable (GitHub Pages, own server).
-- `dist/index_singlefile.html` → single file with embedded data, opens from `file://`.
+- `dist/index_singlefile.html` → single file with embedded data, opens from `file://`. Verification must cover BOTH variants (multi-file AND single-file) — the synchronous single-file init path exposes TDZ errors that await masks in multi-file. Tile provider since V33: online = OpenStreetMap (referer required by OSMF policy 03/2026); locally opened single-file (`file://`) automatically falls back to CARTO basemaps (OSM data, referer not required) with a dynamic consent text.

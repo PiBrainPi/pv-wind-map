@@ -105,7 +105,10 @@ SELECT
         AND nap.spannungsebene IS NOT NULL
      )) AS spannungsebene,
     -- F1 (Punkt 1): lokation_id für NAP-Suche (Klick auf NAP-Treffer → alle Anlagen der Lokation)
-    er.lokation_id
+    er.lokation_id,
+    -- V35 (AP1): EEG-Registrierung — EegInbetriebnahmeDatum vorhanden = „unter EEG registriert“.
+    -- Definition laut User-Freigabe 10.09.: Mit/Ohne EEG-Registrierung (PV ~95 %, Wind ~81 %).
+    CASE WHEN json_extract(er.raw_json,'$.EegInbetriebnahmeDatum') IS NOT NULL THEN 1 ELSE 0 END AS eeg_reg
 FROM einheiten_raw er
 WHERE json_extract(raw_json,'$.Breitengrad') IS NOT NULL
   AND json_extract(raw_json,'$.Breitengrad') != ''
@@ -192,6 +195,8 @@ def build_units(rows) -> list[dict]:
     # 21 nabenhoehe, 22 rotordurchmesser, 23 lichte, 24 typ, 25 hersteller,
     # 26 windpark, 27 land_oder_see, 28 registrierungsdatum
     # (nur bei F5-Raw-Extra-Rows:) 29 bs_id (BetriebsStatusId), 30 brutto_raw (kW/kWp-Original)
+    # 31 spannungsebene (Pipe-getrennt), 32 lokation_id,
+    # V35 (AP1): 33 eeg_reg (1 = EEG-Anlage registriert, EegInbetriebnahmeDatum vorhanden)
     units = []
     for r in rows:
         is_pv = (r[2] == 2495)
@@ -219,6 +224,9 @@ def build_units(rows) -> list[dict]:
         # F1 (Punkt 1): lokation_id — Spalte 32, für NAP-Suche (Klick → alle Anlagen der Lokation)
         if len(r) > 32 and r[32] is not None:
             u["lid"] = int(r[32])
+        # V35 (AP1): EEG-Registrierung — Spalte 33, nur wenn vorhanden (komprimiert Dateigröße)
+        if len(r) > 33 and r[33]:
+            u["eeg"] = 1
         # F5: Betriebs-Status-ID nur bei Raw-Extra-Rows (31/37/38) — V1-Rows (35) bekommen kein bs
         if len(r) > 29 and r[29] is not None:
             u["bs"] = int(r[29])
@@ -551,6 +559,15 @@ def main() -> None:
     # Status-35-Rows bekommen das bs-Feld ebenfalls (uniform: bs=35)
     for u in units_raw:
         u.setdefault("bs", 35)
+    # V30 F04 (Variante B, 08.09.2026): Abgrenzung strikt durchsetzen — PV >= 0.5 MWp,
+    # Wind >= 0.1 MW (nach to_mw-Normalisierung). Fängt API-Grenzfälle (499.9x kWp > fetch-
+    # Filter 499.9) ab, selbst wenn ein künftiger Fetch-Filter wieder laxer wäre.
+    _before = len(units_raw)
+    units_raw = [u for u in units_raw
+                 if (u["t"] == "pv" and (u["mw"] or 0) >= 0.5)
+                 or (u["t"] == "wind" and (u["mw"] or 0) >= 0.1)]
+    if _before != len(units_raw):
+        print(f"  V30 F04 Abgrenzungs-Filter: {_before - len(units_raw)} Einheiten < Schwelle verworfen")
     units = units_raw
 
     # V23 (Paket 8): unit→Park-Mapping für den park-aggregierten Leistungsfilter.
@@ -577,8 +594,15 @@ def main() -> None:
     # Metadaten + Zähler
     db = sqlite3.connect(DB_PATH)
     stand = (db.execute("SELECT value FROM metadaten WHERE key='stand'").fetchone() or (None,))[0]
-    counts = {name: cnt for name, cnt in db.execute(
-        "SELECT energietraeger_name, COUNT(*) FROM einheiten WHERE geolokation=1 GROUP BY energietraeger_name").fetchall()}
+    # V30 F04 (Variante B): counts aus dem EXPORT selbst zählen (identische Basis wie
+    # einheiten.json) statt aus der Legacy-V1-Tabelle — eliminates Drift F-04 dauerhaft.
+    # Infobar-Semantik: NUR In-Betrieb (bs 35) — Planung/Stillegungen zählen nicht.
+    counts = {}
+    for u in units:
+        if (u.get("bs") or 35) != 35:
+            continue
+        et_name = "Wind" if u["t"] == "wind" else "Solare Strahlungsenergie"
+        counts[et_name] = counts.get(et_name, 0) + 1
     db.close()
 
     meta = {
@@ -601,7 +625,6 @@ def main() -> None:
     # Statistik-Panel
     db = sqlite3.connect(DB_PATH)
     statistiken = build_statistiken(db)
-    db.close()
 
     with open(DIST / "einheiten.json", "w", encoding="utf-8") as f:
         json.dump(units, f, ensure_ascii=False)
@@ -635,7 +658,11 @@ def main() -> None:
             print("Historie: keine Snapshots vorhanden (erst nach Update mit import_mastr.py)")
     except Exception as e:
         print(f"Historie: übersprungen ({e})")
-    db.close()
+    finally:
+        try:
+            db.close()
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":

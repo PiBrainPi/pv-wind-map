@@ -1,12 +1,12 @@
 # Statistik-Panel — Betreiber & Größenklassen (PV & Wind Karte)
 
-> Stand: 2026-09-06 (V25) · Zweisprachig (DE / EN)
+> Stand: 2026-09-09 (V32.1: NAP-Klick → Kartenfokus) · Zweisprachig (DE / EN)
 
 ## Überblick (DE)
 
 Das Statistik-Panel ist ein Seiten-Overlay (Sidebar rechts, 820 px, PC) in der Karten-App.
-Es umfasst **9 Tabs** (Stand V23): Betreiber, Hersteller, **Größenklassen**,
-Bundesländer, **Landkreis** (V23), Spannungsebenen, Update-Historie, Zubau,
+Es umfasst **11 Tabs** (V28 + V31 Typ-Tab; Prüfung 08.09.2026 DOM-verifiziert): Betreiber, Hersteller, **Typ (V31)**, **Größenklassen**,
+Bundesländer, **Landkreis** (V23), **NAP-Ranking** (V28), Spannungsebenen, Update-Historie, Zubau,
 **⚠ Betroffenheit**.
 Kernfragen:
 1. **Betreiber-Statistik:** welcher im MaStR hinterlegte Betreiber wie viele Anlagen
@@ -41,14 +41,14 @@ Klick auf eine **Zeile** → die Karte zeigt nur die Anlagen dieses Betreibers
 |--------|--------------|
 | **Hersteller** | Name aus dem MaStR (`HerstellerWindenergieanlageBezeichnung`) |
 | **Anzahl** | Zahl der Windanlagen dieses Herstellers |
-| **Anteil** | %-Anteil an allen Windanlagen mit Herstellerangabe (Basis 30.947) |
+| **Anteil** | %-Anteil an allen Windanlagen mit Herstellerangabe (Basis 30.847, V30) |
 | **Summe MW / Ø MW** | wie bei Betreibern |
 
 - **Nur Windkraftanlagen** — das MaStR enthält **keine** Herstellerangaben für PV
-  (verifiziert: 0 von 22.384 PV-Anlagen). Hinweis-Feld im Tab erklärt das.
-- **63 Hersteller** über 30.947 Windanlagen (99,5 % mit Angabe). Top: ENERCON (~12.354 = 39,9 %),
-  Vestas (~6.404 = 20,7 %), Nordex (~2.091 = 6,8 %), Siemens Wind Power (~1.465 = 4,7 %),
-  Senvion (~1.413 = 4,6 %).
+  (verifiziert: 0 von 22.402 PV-Anlagen, V30). Hinweis-Feld im Tab erklärt das.
+- **61 Hersteller** über 30.847 Windanlagen (99,5 % mit Angabe, V30-Export). Top:
+  ENERCON (~12.316 = 39,9 %), Vestas, Nordex, Siemens Wind Power, Senvion (Reihenfolge
+  wie V27 — Details live im Tab).
 - Bedienelemente wie bei Betreibern (Top-N, Textfilter mit ✕-Button, Spaltensortierung inkl. Anteil, Standard Summe MW).
 - **Formatierung wie Betreiber-Tabelle (identisches CSS):** Schriftgröße 13px, Zellpadding 7px 8px,
   Kopfzeilen-Hintergrund `#f7f9fc` + Klick-Cursor, rechtbündige Zahlen, Sortier-Pfeile ▲▼ (blau, bei Klick),
@@ -60,11 +60,11 @@ Klick auf eine **Zeile** → die Karte zeigt nur die Anlagen dieses Betreibers
 **Pie-Chart „Verteilung nach Hersteller"** (unter der Tabelle, beim Scrollen sichtbar):
 - Interaktives **Donut-Diagramm** (Canvas, keine Chart-Bibliothek, offline-fähig).
 - Zeigt die **Top-10 Hersteller einzeln** + Rest als „Übrige Hersteller" zusammengefasst; jedes Segment
-  ist farbcodiert, die **zentrale Ziffer** im Loch zeigt die Gesamtzahl (30.947).
+  ist farbcodiert, die **zentrale Ziffer** im Loch zeigt die Gesamtzahl (30.847).
 - **Hover** auf ein Segment (oder Legenden-Zeile) → Segment hebt sich hervor, Legende markiert.
 - **Klick** auf Segment/Legende → Karte filtert auf die Anlagen genau dieses Herstellers (außer „Übrige").
 - Legende rechts: Farbfeld + Name + Anlagenzahl + %-Anteil je Hersteller.
-- Notiz unter dem Chart: „Anteil jedes Herstellers an allen 30.947 Windanlagen mit Herstellerangabe ·
+- Notiz unter dem Chart: „Anteil jedes Herstellers an allen 30.847 Windanlagen mit Herstellerangabe ·
   Top 10 einzeln, Rest zusammengefasst · Hover oder Legenden-Klick für Details."
 
 ### Größenklassen-Diagramm
@@ -110,8 +110,8 @@ Neuer Tab (zwischen Bundesländer und Spannungsebenen), Design analog Hersteller
 | **NAP Anzahl / Gesamtleistung NAP (MW)** | Netzanschlusspunkte im LK (Join über numerische LokationId) |
 
 Header sortierbar (Default: MW gesamt absteigend), **Gesamt**-Summenzeile unten,
-Zähler-Zeile („377 Landkreise · …"). Datenbasis: 377 LKs · 51.722 Assets · 133.875,3 MW ·
-27.313 NAPs · 260.481.655,5 NAP-MW (verifiziert 06.09.). **Seit V24:** `table-layout:fixed`
+Zähler-Zeile („377 Landkreise · …"). Datenbasis (V30-Export, 08.09.): 377 LKs ·
+51.634 Assets · 125.552,1 MW · 27.338 NAPs · 260.567.403,7 NAP-MW. **Seit V24:** `table-layout:fixed`
 mit festen Spaltenverhältnissen — die 9 Spalten passen ohne horizontales Scrollen in die
 805-px-Panel-Breite (V24-Paket 2, alle 9 Tabs browser-verifiziert overflow-frei).
 **Mobile (V25):** Bei ≤767 px wird die Tabelle über `#landkreis-scroll` horizontal
@@ -119,13 +119,21 @@ mit festen Spaltenverhältnissen — die 9 Spalten passen ohne horizontales Scro
  die Header bleiben vollständig lesbar, ein Hinweis „← seitlich wischen →" erscheint
  unter der Tabelle. PC-Ansicht unverändert (kein Scroll).
 
-Datenbasis (Import 2026-09-04, Wind ≥100 kW / PV ≥0,5 MWp, alle Status, geolokation=1):
+Datenbasis (V30-Export 2026-09-08, In-Betrieb-Kern 31.011 Wind · 22.402 PV = 53.413, geolokation=1):
 | | Wind | PV |
 |---|---|---|
-| Einheiten | 31.116 | 22.384 |
-| Parks (V22-Cluster) | 13.248 | 20.844 |
-| Max Einheit | 80 MW | 162 MW |
-| Max Park | 959 MW | 198 MW |
+| Einheiten | 31.011 | 22.402 |
+| Max Einheit | 15 MW | 162 MW |
+| Max Park (Cluster) | 959 MW | 198 MW |
+
+### NAP-Ranking-Tabelle (V28, V32-Klick-Verhalten)
+
+Alle 27.130 Netzanschlusspunkte mit angeschlossener Leistung, Gesellschaften, Bundesland.
+Klick auf den **NAP-Namen** (V32): Karte zeigt **ausschließlich die Anlagen dieses NAPs**
+(selectHersteller-Muster: `renderMarkers(grp.units)` + fitBounds + Suchfeld-Label
+"NAP: <name> (N Anlagen)") und das NAP-Gruppen-Panel öffnet sich. Klick auf das
+**Bundesland** filtert die Karte auf alle NAPs dieses Bundeslandes (wie bisher).
+Suche mit Live-Suggest (Bundesländer zuerst, dann NAP-Namen).
 
 ### Datenfluss & Implementierung
 - `scripts/export_app.py` → `build_statistiken(db)` aggregiert aus SQLite: Betreiber
@@ -147,7 +155,7 @@ Datenbasis (Import 2026-09-04, Wind ≥100 kW / PV ≥0,5 MWp, alle Status, geol
 - **`gesamt.wind_anzahl`/`pv_anzahl` waren falsch** (26.768/10.437 statt 26.586/9.589): die Summe
   lief über alle Betreiber-Einträge mit `tech[wind]`, womit Mehrfach-Technologie-Betreiber doppelt
   in die Wind-Zahl zählten. Fix: **Direktzählung** aus SQLite (`COUNT(*) WHERE geolokation=1 AND …`).
-  Aktueller Wert (≥100-kW-Schwelle): `herstellbar_wind` = **30.947** (= Summe der Hersteller, konsistent).
+  Aktueller Wert (≥100-kW-Schwelle, V30): `herstellbar_wind` = **30.847** (= Summe der Hersteller, konsistent).
 - **Doppeltes „Anlagen" im Größenklassen-Sublabel** („Anlagen: 5.014 Anlagen" im Leistungs-Modus):
   Label-Text wurde aus einem bereits mit „Anlagen" suffizierten Wert erzeugt.
 - **Pie-Canvas:** `#hersteller-pie` muss ein `<canvas>`-Element sein (nicht `<div>`), sonst
@@ -175,14 +183,14 @@ columns (default: Sum MW desc). Clicking a row filters the map to that operator�
 
 ### Manufacturer table (wind only) + share pie-chart
 Columns **Manufacturer / Count / Share / Sum MW / Avg MW** and the same controls (Top-N, text filter with ✕,
-sorting incl. share). Share = % of all wind plants with a manufacturer entry (base 30,947).
-**Wind only** — MaStR carries no manufacturer data for PV (verified: 0 of 22,368 PV plants).
-63 manufacturers over 30,947 wind turbines (99.5% with an entry). Clicking a row filters the map
+sorting incl. share). Share = % of all wind plants with a manufacturer entry (base 30,847, V30).
+**Wind only** — MaStR carries no manufacturer data for PV (verified: 0 of 22,402 PV plants).
+61 manufacturers over 30,847 wind turbines (99.5% with an entry). Clicking a row filters the map
 to that manufacturer’s turbines.
 
 **“Distribution by manufacturer” donut chart** below the table (visible when scrolling):
 interactive Canvas donut (no chart library, offline-capable). Top-10 manufacturers shown individually,
-remainder aggregated as “Übrige Hersteller”; central figure in the hole shows the total (30,947).
+remainder aggregated as “Übrige Hersteller”; central figure in the hole shows the total (30.847).
 Hover highlights the segment + legend row; clicking a segment/legend row filters the map to that
 manufacturer. Right-side legend shows color swatch, name, plant count and % share per manufacturer.
 
@@ -206,8 +214,16 @@ clicking “150+” shows all 13 Döllen units.
 Nine sortable columns (design identical to the manufacturer table): district, plants combined
 (count + MW), PV (count + MW), wind (count + MW), NAP count, NAP total MW. Default sort:
 combined MW descending; **Gesamt** sum row at the bottom; clicking a row filters the map to
-that district (same behavior as the geo search). Data basis: 377 districts · 51,722 units ·
+that district (same behavior as the geo search). Data basis (V30, Sep 8): 377 districts · 51,634 units ·
 133,875 MW · 27,313 NAPs (NAP join via numeric LokationId).
+
+### NAP ranking table (V28, V32 click behaviour)
+
+All 27,130 grid connection points with connected capacity, companies, federal state.
+Clicking the **NAP name** (V32): the map shows **only the assets of this NAP**
+(selectHersteller pattern: `renderMarkers(grp.units)` + fitBounds + search label
+"NAP: <name> (N assets)") and the NAP group panel opens. Clicking the **federal state**
+filters the map to all NAPs of that state (as before). Search with live suggest.
 
 ### Implementation
 `export_app.py::build_statistiken()` aggregates from SQLite → `dist/assets/statistiken.json`
@@ -221,6 +237,6 @@ the map). Older exports without `groessen_cluster` make the UI fall back to the 
 ### Bugfixes (2026-08-29)
 - `gesamt.wind_anzahl` / `pv_anzahl` were wrong (26,768 / 10,437 instead of 26,586 / 9,589) because the
   sum ran over all operator entries with a wind tech badge, double-counting multi-tech operators.
-  Fixed by **direct COUNT(*) from SQLite**. Current value (≥100 kW threshold): `herstellbar_wind` = 30,947.
+  Fixed by **direct COUNT(*) from SQLite**. Current value (≥100 kW threshold, V30): `herstellbar_wind` = 30,847.
 - Duplicate “Anlagen” in the size-class sublabel (Leistung mode).
 - `#hersteller-pie` must be a `<canvas>` element (not `<div>`), else `getContext is not a function`.

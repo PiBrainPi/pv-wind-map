@@ -40,9 +40,10 @@ mit allen relevanten Stammdaten pro Anlage.
   → Import normalisiert auf **MW** (Heuristik: PV /1000; Wind >80 → /1000).
 - Selektionsfilter (final):
   - Wind: `Energieträger~eq~2497~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~0.1` (≥ 100 kW)
-  - PV:   `Energieträger~eq~2495~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~gt~499.9` (≥ 0,5 MWp)
-- **Anzahl (Import 2026-09-01):** Wind ≥100 kW = 32.155 (31.116 mit Geolokation);
-  PV ≥0,5 MWp = 22.389 (22.384 mit Geolokation). Gesamt darstellbar = 53.500 Anlagen.
+  - PV:   `Energieträger~eq~2495~and~Betriebs-Status~eq~35~and~Bruttoleistung der Einheit~ge~500` (≥ 0,5 MWp; V30 strikt)
+- **Anzahl (V30-Export 2026-09-08, In-Betrieb-Kern):** Wind ≥100 kW = 31.011 georef;
+  PV ≥0,5 MWp (strikt ge~500) = 22.402 georef. Gesamt darstellbar (Karte) = 65.663 Anlagen
+  aller Status, In-Betrieb-Kern 53.413. (Historisch 01.09.: 53.500.)
 - Viele PV-Dachanlagen (klein) haben keine Koordinaten — bewusst nur ≥0,5 MWp betrachtet.
 - Filter-Operatoren der API: `~eq~`, `~and~`, `~gt~` (nur `gt` für Zahlen funktioniert zuverlässig);
   Feld-/Filter-Namen sind lokalisiert (mit Umlauten, z. B. „Energieträger").

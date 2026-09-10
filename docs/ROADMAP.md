@@ -1311,3 +1311,40 @@ Riffgrund 3 = 83 EH/958,7 MW, EnBW He Dreiht = 51 EH/765 MW …).
 - F5-Regression: einheiten-Basis Werte identisch zu V21 (53.500/144.894 MW, 254/466 MW),
   Döllen-Suggest-Bündelung OK („2 Betreiber · 21 Anlagen"), 12 Kombis ohne JS-Fehler ✅
 - Revision: iterations/V22_GroessenCluster.html. Nicht gepusht/deployed (Regel 4).
+
+---
+
+## Status-Update V32 (08.09.2026, spät)
+
+Bugfixrunde abgeschlossen (50-Punkte-Plan): NAP-Ranking im Singlefile, NAP-Klick →
+Nur-NAP-Anlagen auf Karte, LK-Tabelle horizontal scrollbar (sticky Name-Spalte),
+Snapshot-7/8-MW-Migration (+ Typ-Referenzliste `wind_typen_leistungen.md`),
+BFF-Anzeigen-Modus clustering-frei, NB-Filter-Listener. Details: `docs/PROJEKTSTAND.md`
+(V32-Block) und `docs/fehlerbehebung.md` (F-V32-1…4).
+
+## Status-Update V32.1 (09.09.2026)
+
+Hotfix Singlefile-TDZ abgeschlossen (20-Punkte-Prüfplan, autonom gepatcht):
+- **Bug:** Singlefile ohne Marker beim Öffnen (erst nach Filter-Toggle) + Statistik-Button tot.
+- **Root-Cause:** TDZ — synchroner `init()`-Lauf im Singlefile las `_bffShowActive` vor Deklaration.
+- **Fix:** BFF-State-Deklarationen vor `init()` verschoben. Details: `docs/fehlerbehebung.md` F-V32.1-1.
+- **Neue Verifikationsregel:** Builds immer in Multi-File UND Singlefile browser-testen.
+Revision: `iterations/V32-1_Singlefile_Hotfix.html`. Deploy weiterhin pending (V30+V31+V32+V32.1 gesammelt).
+
+## Status-Update V33 (09.09.2026)
+
+UX-Runde (20-Punkte-Plan, 4 Arbeitspakete User) abgeschlossen:
+- **WP1** LK-Tab: Scrollbalken 14 px, kontraststark, sticky Name-Spalte (Verifikation 769/1.024 px).
+- **WP2** Statistik-Panel z-index 1800 über Topbar; ESC schließt mit.
+- **WP3** Betroffenheit: Ringe grün/rot nach Treffer-Art + Legende + rote removed-Marker im
+  Anzeigen-Modus. Root-Cause „leere Ringe" = korrekte ENTFERNT-Treffer (nicht sichtbar).
+- **WP4** Singlefile ab `file://`: CARTO basemaps statt OSM (OSMF-Referer-Pflicht → 403r).
+Revision: `iterations/V33_UX_Runde.html`. Deploy pending (V30…V33 gesammelt).
+
+## Status-Update V34 (09.09.2026)
+
+UX-Runde 2 (20-Punkte-Plan, 3 Arbeitspakete User + Doku):
+- **WP1** LK-Tab: Scrollbalken oberhalb der Tabelle (synthetisch, JS-Sync).
+- **WP2** Popup-Re-Open-Bug (Doppel-Dispatch `bindPopup`/`_lazyPopup`) behoben.
+- **WP3** Statistik-Panel 984 px (+20 %).
+Revision: `iterations/V34_UX_Runde2.html`. Deploy pending (V30…V34 gesammelt).

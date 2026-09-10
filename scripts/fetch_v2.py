@@ -63,7 +63,7 @@ def build_filter(energietraeger: int, status_id: int | None = None) -> str:
     if energietraeger == 2497:
         conds.append("Bruttoleistung der Einheit~gt~0.1")
     else:
-        conds.append("Bruttoleistung der Einheit~gt~499.9")
+        conds.append("Bruttoleistung der Einheit~ge~500")  # V30 F04 (Variante B): strikt >= 0.5 MWp
     return "~and~".join(conds)
 
 

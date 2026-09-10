@@ -7,7 +7,9 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
 (Portal: [https://ingenieur-tools.de/](https://ingenieur-tools.de/))
 
 **Lokale Live-Ansicht (Single-File):** `dist/index_singlefile.html` — einfach im Browser öffnen
-(Internet für die Kartenkacheln von OpenStreetMap nötig). Hosting-Details: `docs/DEPLOYMENT.md`.
+(Internet für die Kartenkacheln von OpenStreetMap nötig; seit V32.1 mit stabilisiertem
+Synchron-Init und eingebettetem NAP-Ranking). Hosting-Details: `docs/DEPLOYMENT.md`;
+Build-/Verify-Hinweise: `docs/architektur.md`.
 
 ## Funktionen
 
@@ -22,11 +24,11 @@ Interaktive Karte aller **Wind- und Photovoltaikanlagen** in Deutschland aus dem
 - 🎯 Klick auf Anlage → Detail-Popup mit allen MaStR-Daten (MaStR-Nr., Leistung, Standort, Netzbetreiber,
   Betreiber, **Inbetriebnahme TT.MM.JJJJ, Spannungsebene, NAP-Nummer klickbar → alle Anlagen am selben
   Netzanschlusspunkt auf der Karte**, wind-/PV-spezifische Felder)
-- 🔍 **Filter (6):** Typ (Wind/PV), Bundesland (inkl. Offshore), **Landkreis** (seit V23, Optionen folgen dem Bundesland), **Gemeinde** (seit V23, Optionen folgen dem Landkreis; Mehrfachnamen über LK unterschieden), **Art des Assets** (Freiflächen-/Gebäude-/Sonstige Solaranlage, Windkraft an Land/auf See) und **Leistung (MW)** in festen Größenklassen `[von, bis)`:
+- 🔍 **Filter (7, V31 um Netzbetreiber erweitert):** Typ (Wind/PV), Bundesland (inkl. Offshore), **Landkreis** (seit V23, Optionen folgen dem Bundesland), **Gemeinde** (seit V23, Optionen folgen dem Landkreis; Mehrfachnamen über LK unterschieden), **Netzbetreiber** (seit V31, zwischen Gemeinde und Art; 698 Netzanschlussbetreiber + „Keine Angabe" für 3.401 Anlagen ohne NB-Angabe), **Art des Assets** (Freiflächen-/Gebäude-/Sonstige Solaranlage, Windkraft an Land/auf See) und **Leistung (MW)** in festen Größenklassen `[von, bis)`:
   `0.1–0.5 · 0.5–1 · 1–2 · 2–5 · 5–10 · 10–30 · 30–60 · 60–100 · 100–104 · 104–150 · 150+`
   (Wind ≈ Nennleistung/MW, PV = MWp — das MaStR unterscheidet nicht zwischen AC/DC; **Kritis-Schwelle: erst ab 104 MW** nach BSI-KritisV → nur `104–150` und `150+` sind Kritis). **Seit V23:** Leistungs-Basis-Umschalter **„Park (aggregiert)"** (Default) ⇄ „Einzelanlage" — zersplitterte Parks werden über ihre Park-Gesamtleistung geprüft (Solarpark Döllen: 13 Einheiten à 7,4–31,4 MW → Park 154,8 MW → erscheint bei „150+"). Sobald ein Filter gesetzt ist, zeigt ein Badge neben dem Leistungs-Dropdown die **Anzahl der aktuell sichtbaren Anlagen** (`Anzahl: n` — zählt **alle** gesetzten Filter inkl. Wind/PV, konsistent mit den Marker-Clustern).
 - 🔎 **Geo-Suche (V23):** Die Suche findet neben Anlagen, Betreibern/Portfolios und NAPs jetzt auch **Bundesländer 🗺️, Landkreise 🏙️ und Gemeinden ⛪** (unter dem Betreiber-Block, mit Kontextzeile und Anlagenzahl; Klick → alle Anlagen der Region auf der Karte).
-- 📊 **Statistik-Panel** (9 Tabs): Betreiber-Tabelle (Live-Suggest-Filter mit Betreibergruppen 👥 /
+- 📊 **Statistik-Panel** (11 Tabs, V31 um Typ-Tab erweitert): Betreiber-Tabelle (Live-Suggest-Filter mit Betreibergruppen 👥 /
   Portfolios 📁 — Gruppen zuerst, 250 ms Debounce ab 2 Zeichen; Zahlformat 1 Nachkommastelle;
   Klick auf Zeile/Name → alle Anlagen des Betreibers/der Gruppe auf der Karte),
   Hersteller-Tab (nur Wind, + %-Anteil + interaktiver Donut), **Größenklassen-Diagramme** (Toggles
@@ -113,14 +115,15 @@ bash scripts/build.sh   # fetch + import + export + bundle in einem Schritt
 
 ## Datenbasis & Abgrenzung
 
-| Kategorie | Umfang | Georef (alle Status) | „In Betrieb" |
+| Kategorie | Umfang | Georef (alle Status) | „In Betrieb" (Karte/Infobar) |
 |-----------|--------|----------------------|--------------|
-| **Wind** | ≥ 100 kW (nach Einheiten-Normalisierung MW) | 42.167 | 31.134 (Export/Karte: 31.116) |
-| **Photovoltaik** | ≥ 0,5 MWp (Bruttoleistung ≥ 500 kWp) | 23.652 | 22.399 (Export/Karte: 22.384) |
-| **Gesamt** | | **65.819** | **53.533 (Karte: 53.500)** |
+| **Wind** | ≥ 100 kW (nach Einheiten-Normalisierung MW) | 42.006 | **31.011** |
+| **Photovoltaik** | ≥ 0,5 MWp (Bruttoleistung ≥ 500 kWp, V30: strikt `ge~500`) | 23.657 | **22.402** |
+| **Gesamt** | | **65.663** | **53.413** |
 
 Die Karte filtert per Default auf „In Betrieb" (Status-Checkboxen können 31/37/38 zuschalten).
-Stand: Import 04.09.2026 (V21-Datenstand), verifiziert 06.09. (Details: `docs/datenmodell.md`).
+Stand: Import 04.09.2026, V30-Export (08.09.2026) mit strikter Abgrenzung — vorher 65.819/53.533
+(enthielt 11 PV-Grenzfälle à 499,92 kWp, Details: `docs/datenmodell.md`).
 
 - **Geolokation**: nur Anlagen MIT vorhandenen Koordinaten im MaStR (kein Geocoding)
 - **Einheiten-Hinweis**: MaStR liefert PV in kWp und Wind gemischt (kW/MW) — der Import normalisiert auf MW (Details: docs/datenmodell.md)
