@@ -922,7 +922,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #topbar {
   position:absolute; top:10px; right:10px;
   width:320px; max-width:calc(100vw - 30px);
-  z-index:1000;
+  z-index:1700;  /* V32-Fix: über stats-panel (1600) — btn-stats blieb sonst unkenntlich */
 }
 #topbar-inner {
   background:#fff; border-radius:10px;
@@ -1077,8 +1077,12 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 /* V20 (User-Feedback 04.09.): 700→820 px, damit alle 8 Tabs (Betreiber … Betroffenheit)
    ohne horizontales Scrollen sichtbar sind */
 #stats-panel {
-  position:fixed; top:0; right:-860px; width:820px; max-width:94vw; height:100%;
-  background:#fff; z-index:1600; box-shadow:-4px 0 24px rgba(0,0,0,.3);
+  /* V34 (WP3, User-Wunsch): Panel 20 % breiter (820 → 984 px); Off-Canvas-Offset mitgezogen. */
+  position:fixed; top:0; right:-1024px; width:984px; max-width:94vw; height:100%;
+  background:#fff; z-index:1800; box-shadow:-4px 0 24px rgba(0,0,0,.3);
+  /* V33 (WP2): Panel überdeckt jetzt die Topbar (NAP/Statistik-Buttons) — User-Wunsch:
+     das geöffnete Fenster muss komplett sichtbar sein. btn-stats bleibt als Toggle
+     bedienbar (öffnet/schließt), ✕ und ESC schließen ebenfalls. */
   display:flex; flex-direction:column;
   transition:right .25s ease; border-radius:12px 0 0 12px;
 }
@@ -1213,10 +1217,31 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #hersteller-table td.name { max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #hersteller-count { margin-top:8px; font-size:12px; color:#888; }
 
+  /* V31 (WP2): Typ-Tabelle — identische Formatierung wie #hersteller-table */
+  #typ-table { width:100%; border-collapse:collapse; font-size:13px; }
+  #typ-table th, #typ-table td { padding:7px 8px; border-bottom:1px solid #eee; text-align:left; }
+  #typ-table th { background:#f7f9fc; color:#333; cursor:pointer; user-select:none; }
+  #typ-table th.num, #typ-table td.num { text-align:right; white-space:nowrap; }
+  #typ-table th.sorted-asc::after { content:" \25B2"; color:#2563eb; font-size:10px; }
+  #typ-table th.sorted-desc::after { content:" \25BC"; color:#2563eb; font-size:10px; }
+  #typ-table tbody tr { cursor:pointer; }
+  #typ-table tbody tr:hover { background:#eef3ff; }
+  #typ-table td.name { max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #typ-table td.pct { font-weight:600; color:#2563eb; }
+  #typ-count { margin-top:8px; font-size:12px; color:#888; }
+  #typ-hint { font-size:11px; color:#9ca3af; margin-bottom:6px; }
+
 /* V23 (Paket 4): Landkreis-Tabelle — identische Formatierung wie Hersteller-Tabelle */
 /* V26: table-layout:fixed (V24) ersetzt durch auto + min-width im V26-Block unten —
    die 9 Spalten passen real nicht in 805 px; Header müssen vollständig lesbar sein. */
 #landkreis-table { width:max-content; min-width:900px; border-collapse:collapse; font-size:13px; table-layout:auto; }
+/* V32 (WP2): Name-Spalte sticky — bleibt beim horizontalen Scrollen sichtbar */
+#landkreis-table th:first-child, #landkreis-table td:first-child {
+  position:sticky; left:0; background:#fff; z-index:2;
+  box-shadow:2px 0 0 #e5e7eb;
+}
+#landkreis-table th:first-child { background:#f7f9fc; z-index:3; }
+#landkreis-table tr.lk-sum td:first-child { background:#f7f9fc; }
 #landkreis-table th, #landkreis-table td { padding:7px 6px; border-bottom:1px solid #eee; text-align:left; white-space:nowrap; }
 #landkreis-table th { background:#f7f9fc; color:#333; cursor:pointer; user-select:none; }
 #landkreis-table th.num, #landkreis-table td.num { text-align:right; font-variant-numeric:tabular-nums; }
@@ -1230,15 +1255,33 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 #landkreis-count { margin-top:8px; font-size:12px; color:#888; }
 /* V26 (Paket 1): Scroll-Container gilt jetzt für PC UND mobil (V25 war mobil-only). */
 #landkreis-scroll {
-  overflow-x:auto; -webkit-overflow-scrolling:touch; max-width:100%;
-  padding-bottom:6px;
+  /* V32 (WP2): horizontale Scrollbarkeit garantiert — overflow-x:scroll erzwingt den
+     Balken auch dann, wenn der Browser bei max-width:100% nur auto auflöst und die
+     Tabelle (width:max-content, 9 Spalten nowrap > 784px Panelbreite) abschneidet.
+     V33 (WP1, User-Feedback): Balken mit stärkerem Kontrast + größerer Fläche, damit er
+     im 820-px-Panel nicht übersehen wird; Container braucht keine min-height — der
+     Balken sitzt direkt unter der Tabelle (padding-bottom:12px Reserveraum). */
+  overflow-x:scroll; -webkit-overflow-scrolling:touch; max-width:100%;
+  padding-bottom:12px;
   scrollbar-width:auto;
-  scrollbar-color:#94a3b8 #e5e7eb;
+  scrollbar-color:#475569 #cbd5e1;
 }
-#landkreis-scroll::-webkit-scrollbar { height:12px; }
-#landkreis-scroll::-webkit-scrollbar-track { background:#e5e7eb; border-radius:6px; }
-#landkreis-scroll::-webkit-scrollbar-thumb { background:#94a3b8; border-radius:6px; }
-#landkreis-scroll::-webkit-scrollbar-thumb:hover { background:#64748b; } /* V28: Scroll-Container auf Panelbreite begrenzt */
+/* V34 (WP1): Balken oberhalb der Tabelle (User-Wunsch) — synthetischer Scrollbalken
+   (#landkreis-scroll-bar), per JS mit der Tabelle synchronisiert. Die Tabelle selbst
+   hat keinen sichtbaren Balken mehr. */
+#landkreis-scroll-bar {
+  height:16px; overflow-x:scroll; overflow-y:hidden; margin-bottom:8px;
+  scrollbar-width:auto; scrollbar-color:#475569 #cbd5e1;
+}
+#landkreis-scroll-bar::-webkit-scrollbar { height:16px; }
+#landkreis-scroll-bar::-webkit-scrollbar-track { background:#cbd5e1; border-radius:8px; }
+#landkreis-scroll-bar::-webkit-scrollbar-thumb { background:#475569; border-radius:8px; border:2px solid #cbd5e1; }
+#landkreis-scroll-bar::-webkit-scrollbar-thumb:hover { background:#334155; }
+#landkreis-scroll-bar > div { height:1px; }
+/* Tabelle: eigener Balken unsichtbar (Sync läuft über den oberen Balken) */
+#landkreis-scroll { scrollbar-width:none; -ms-overflow-style:none; }
+#landkreis-scroll::-webkit-scrollbar { display:none; }
+/* V33: Webkit-Scrollbar-Styles oben konsolidiert (14 px, stärkerer Kontrast) */ /* V28: Scroll-Container auf Panelbreite begrenzt */
 @media (max-width:767px) {
   #tab-landkreis { padding:14px 10px; }
   #landkreis-table th, #landkreis-table td { padding:6px 7px; }
@@ -1601,7 +1644,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 <!-- DSGVO: OSM-Kachel-Consent (2-Klick) — keine Kacheln ohne Einwilligung -->
 <div id="tile-consent" role="dialog" aria-label="Kartendaten laden">
   <h3>Kartendaten erst nach Freigabe</h3>
-  <p>Für die Kartendarstellung werden Kartenkacheln von OpenStreetMap geladen. Dabei werden Ihre IP-Adresse, der sichtbare Kartenausschnitt und technische Browserdaten an die OpenStreetMap Foundation (UK) übertragen.</p>
+  <p id="tc-text">Für die Kartendarstellung werden Kartenkacheln von OpenStreetMap geladen. Dabei werden Ihre IP-Adresse, der sichtbare Kartenausschnitt und technische Browserdaten an die OpenStreetMap Foundation (UK) übertragen.</p>
   <div class="tc-btns">
     <button type="button" id="tc-later" class="tc-btn">Später</button>
     <button type="button" id="tc-accept" class="tc-btn primary">Karte aktivieren</button>
@@ -1696,6 +1739,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     <div id="stats-tabs">
       <button class="tab active" data-tab="betreiber">Betreiber</button>
       <button class="tab" data-tab="hersteller">Hersteller</button>
+      <button class="tab" data-tab="typ">Typ</button>
       <button class="tab" data-tab="groesse">Größenklassen</button>
       <button class="tab" data-tab="bundesland">Bundesländer</button>
       <button class="tab" data-tab="landkreis">Landkreis</button>
@@ -1726,6 +1770,34 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
           <!-- V21: Live-Suggest (wie Betroffenheits-Tab) — Gruppen zuerst, ab 2 Zeichen -->
           <div id="betreiber-suggest" style="display:none; position:absolute; top:100%; left:0; right:0; z-index:50; background:#fff; border:1px solid #d1d5db; border-radius:0 0 8px 8px; box-shadow:0 8px 24px rgba(0,0,0,.15); max-height:320px; overflow-y:auto;"></div>
         </div>
+        <!-- V35 (AP1): Diagramme für den gefilterten Betreiber / die Gruppe / das Portfolio -->
+        <button type="button" id="betreiber-charts-btn" title="Diagramme für den gefilterten Betreiber / die Gruppe anzeigen" style="display:none; font-size:12px; padding:4px 10px; border:1px solid #2563eb; background:#eff6ff; color:#2563eb; border-radius:6px; cursor:pointer; font-weight:600; white-space:nowrap;">📈 Diagramme</button>
+      </div>
+      <!-- V35 (AP1): Chart-Block (klappt unter der Tabelle auf) -->
+      <div id="betreiber-charts" style="display:none; margin:10px 0; padding:10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">
+        <div id="betreiber-charts-summary" style="font-size:12px; color:#374151; display:flex; flex-wrap:wrap; gap:10px; margin-bottom:8px;"></div>
+        <div style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;">
+          <button type="button" class="mbtn active" data-bcmeasure="anzahl" style="font-size:11px;padding:3px 9px;border:1px solid #d1d5db;background:#fff;border-radius:6px;cursor:pointer;">Anlagen</button>
+          <button type="button" class="mbtn" data-bcmeasure="mw" style="font-size:11px;padding:3px 9px;border:1px solid #d1d5db;background:#fff;border-radius:6px;cursor:pointer;">Leistung (MW)</button>
+        </div>
+        <div class="zubau-chart-block">
+          <h3 style="font-size:13px;margin:0 0 2px;">Wachstum nach Inbetriebnahmejahr</h3>
+          <div class="zc-sub" style="font-size:11px;color:#9ca3af;margin-bottom:6px;">Gestapelte Balken — Wind (blau) / PV (orange) · Werte je Jahr</div>
+          <div class="zubau-canvas-wrap"><canvas id="bc-wachstum"></canvas></div>
+        </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start;">
+          <div class="zubau-chart-block" style="flex:1 1 240px;">
+            <h3 style="font-size:13px;margin:0 0 2px;">Technologie-Verteilung</h3>
+            <div class="zc-sub" id="bc-tech-sub" style="font-size:11px;color:#9ca3af;margin-bottom:6px;">Anteil Wind / PV (Anlagen)</div>
+            <div class="zubau-canvas-wrap"><canvas id="bc-tech"></canvas></div>
+          </div>
+          <div class="zubau-chart-block" style="flex:1 1 240px;">
+            <h3 style="font-size:13px;margin:0 0 2px;">EEG-Registrierung</h3>
+            <div class="zc-sub" id="bc-eeg-sub" style="font-size:11px;color:#9ca3af;margin-bottom:6px;">Mit / ohne EEG-Anlagen-Registrierung (MaStR-Feld EegInbetriebnahmeDatum; kein direkter Vergütungs-Status)</div>
+            <div class="zubau-canvas-wrap"><canvas id="bc-eeg"></canvas></div>
+          </div>
+        </div>
+        <div id="betreiber-charts-note" style="font-size:11px;color:#9ca3af;margin-top:8px;"></div>
       </div>
       <table id="stats-table">
         <thead>
@@ -1776,6 +1848,37 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         </div>
         <div id="hersteller-pie-note"></div>
       </div>
+    </section>
+
+    <!-- V31 (WP2): Typ-Ansicht (nur Wind) -->
+    <section id="tab-typ" class="stats-tab">
+      <div id="typ-hint">Nur Windkraftanlagen (Karten-Basis, In-Betrieb georef). Klick auf eine Zeile → alle Anlagen dieses Typs auf der Karte.</div>
+      <div class="stats-controls">
+        <select id="typ-top">
+          <option value="10">Top 10</option>
+          <option value="50" selected>Top 50</option>
+          <option value="100">Top 100</option>
+          <option value="all">Alle</option>
+        </select>
+        <div class="filter-wrap">
+          <input type="text" id="typ-filter" placeholder="Typ oder Hersteller filtern…">
+          <button type="button" id="typ-filter-clear" class="filter-x-clear" title="Filter löschen" aria-label="Filter löschen" style="display:none">✕</button>
+        </div>
+      </div>
+      <table id="typ-table">
+        <thead>
+          <tr>
+            <th data-key="herst">Hersteller</th>
+            <th data-key="typ">Typ</th>
+            <th data-key="mw" class="num">Leistung</th>
+            <th data-key="anzahl" class="num">Anzahl</th>
+            <th data-key="pct" class="num">Anteil</th>
+            <th data-key="sum_mw" class="num">Summe MW</th>
+          </tr>
+        </thead>
+        <tbody id="typ-tbody"></tbody>
+      </table>
+      <div id="typ-count"></div>
     </section>
 
     <!-- Größenklassen-Ansicht -->
@@ -1832,6 +1935,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         NAP-MW = Nettoengpassleistung der zugeordneten NAPs (Anschlusskapazität, nicht Anlagenleistung) ·
         Klick auf eine Zeile zeigt alle Anlagen des Landkreises auf der Karte
       </div>
+      <div id="landkreis-scroll-bar" aria-hidden="true"><div></div></div>
       <div id="landkreis-scroll">
       <table id="landkreis-table">
         <thead>
@@ -1892,7 +1996,7 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
     <!-- Update-Historie-Tab (V4: Revisions-Tracker) -->
     <section id="tab-historie" class="stats-tab">
-      <div id="historie-empty">Noch keine Update-Historie vorhanden. Beim nächsten Daten-Update (1. & 15. des Monats) wird hier die Veränderung angezeigt.</div>
+      <div id="historie-empty">Noch keine Update-Historie vorhanden. Beim nächsten Daten-Update (sonntags 18:00) wird hier die Veränderung angezeigt.</div>
       <div id="historie-content" style="display:none;">
         <!-- Summary-Karten: letztes Delta -->
         <div id="historie-last-delta"></div>
@@ -1959,6 +2063,18 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
           2. <b>Umkreis</b> — die Luftlinie (Haversine-Formel) zwischen Neuanlage und Bestandsanlage liegt innerhalb des gewählten Radius (2–50 km). Der orangefarbene Ring auf der Karte zeigt genau dieses Suchfeld um jede betroffene Bestandsanlage; die auslösende Neuanlage liegt dann innerhalb der Fläche.</p>
           <p style="margin:0 0 6px;"><b>Wichtig zu geplanten Anlagen:</b> Im Update hinzugefügte Anlagen befinden sich häufig noch <b>in Planung und haben noch keinen Netzanschlusspunkt</b> — registriert wird erst bei Netzbetreiber-Meldung. Für diese ist die Prüfung der <b>Geolokation</b> (Abstand zum Bestands-Asset) der verlässliche Weg; der NAP-Match greift für sie später nach erfolgtem Anschluss.</p>
           <p style="margin:0 0 6px;"><b>Grenzen der Prüfung:</b> Der Radius ist eine <b>Luftlinie</b>, keine Netztopologie — ohne Leiterweg, Transformatorstationen oder Auslastung des Knotens. Ein Match ist damit eine räumliche Indikation für mögliche Betroffenheit (z. B. bei Netzausbau, Pacht oder Nachbarschaftsrechten), kein Nachweis einer technischen Beeinträchtigung. Falsch-Positive (Anlagen in der Fläche ohne Bezug) sind bei großen Radien möglich — prüfen Sie die Treffer deshalb in der Ergebnistabelle und auf der Karte.</p>
+          <!-- V35 (AP3): Legende — alle Karten-Symbole der Betroffenheitsprüfung -->
+          <p style="margin:6px 0 4px;"><b>Karten-Symbole &amp; Farben (was zeigt die Karte?):</b></p>
+          <div style="display:flex;flex-direction:column;gap:5px;font-size:11.5px;color:#374151;">
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#16a34a;border:2px dashed #16a34a;box-sizing:border-box;vertical-align:middle;"></span> <b>Grüner gestrichelter Ring</b> — Referenz-Anlage mit mind. einem <b>Neubau</b>-Treffer (neue Anlage am selben NAP oder im Radius). Ring-Radius = gewählter Umkreis.</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#dc2626;border:2px dashed #dc2626;box-sizing:border-box;vertical-align:middle;"></span> <b>Roter gestrichelter Ring</b> — Treffer nur durch <b>entfernte Anlagen</b> (Abmeldung im Update) — am Standort kommt kein Zubau hinzu, Bestand ist betroffen.</span>
+            <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#ef4444;border:1px solid #b91c1c;vertical-align:middle;"></span> <b>Roter gefüllter Punkt</b> — im Update <b>entfernte Anlage</b> (nicht mehr im Bestand, nur im Anzeigen-Modus sichtbar; Popup zeigt Details).</span>
+            <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#2563eb;border:1px solid #fff;vertical-align:middle;"></span> <b>Blauer Punkt</b> — Wind-Anlage, <b>orange Punkt</b> — PV-Anlage (Bestands-/Neu-Marker, gefüllt = In Betrieb).</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:transparent;border:2px dashed #2563eb;box-sizing:border-box;vertical-align:middle;"></span> <b>Gestrichelter Umriss</b> — Wind/PV-Anlage <b>in Planung</b> (noch nicht in Betrieb; typisch für Neu-Registrierungen).</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#9ca3af;border:1px solid #fff;vertical-align:middle;"></span> <b>Grauer Punkt</b> — endgültig stillgelegt · <b>Kreuz-Punkt</b> — vorübergehend stillgelegt.</span>
+            <span><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:rgba(37,99,235,.12);border:2px solid #2563eb;vertical-align:middle;"></span> <b>Blauer Kreis (dünn)</b> — NAP-Fokus: Karte zeigt ausschließlich die Anlagen eines Netzanschlusspunkts (Klick im NAP-Tab/NAP-Suche).</span>
+          </div>
+          <p style="margin:6px 0 0;font-size:11px;color:#9ca3af;">Hinweis: Im Anzeigen-Modus ist Clustering ausgeschaltet, damit jedes betroffene Asset einzeln sichtbar ist. „🗑️ Filter löschen" (unten links) setzt die Karte in den Ursprungszustand zurück.</p>
         </div>
       </details>
       <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px;">1 · Referenz (Anlage, Betreiber oder NAP aus der Suche)</label>
@@ -2006,7 +2122,14 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
             Karte dargestellt — die Neuanlage muss sich dann innerhalb mindestens eines
             Kreises befinden.<br>
             Die Kriterien sind ODER-verknüpft; NAP-Matches werden vor Umkreis-Matches
-            sortiert. Gleicher Knoten ≠ geteiltes Netz (s. Hinweis oben).
+            sortiert. Gleicher Knoten ≠ geteiltes Netz (s. Hinweis oben).<br>
+            <b>Karten-Symbole:</b> <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#16a34a;border:1px dashed #166534;vertical-align:middle;"></span> grüner Ring = Neubau-Treffer ·
+            <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#dc2626;border:1px dashed #991b1b;vertical-align:middle;"></span> roter Ring = nur entfernte Anlagen ·
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;border:1px solid #b91c1c;vertical-align:middle;"></span> roter Punkt = entfernte Anlage ·
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2563eb;border:1px solid #fff;vertical-align:middle;"></span> blau = Wind ·
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d97706;border:1px solid #fff;vertical-align:middle;"></span> orange = PV ·
+            <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:transparent;border:1px dashed #2563eb;vertical-align:middle;"></span> gestrichelt = in Planung.
+            „Filter löschen" setzt die Karte auf den Ursprungszustand zurück (AP2, V35).
           </div>
         </details>
       </div>
@@ -2052,6 +2175,8 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   <select id="filter-lk" title="V23: Landkreis-Filter (kombinierbar mit allen anderen Filtern)"><option value="">Alle</option></select>
   <label>Gemeinde</label>
   <select id="filter-g" title="V23: Gemeinde-Filter — Optionen folgen dem gewählten Landkreis (kombinierbar)"><option value="">Alle</option></select>
+  <label>Netzbetreiber</label>
+  <select id="filter-nb" title="V31: Netzbetreiber-Filter (Netzanschlussbetreiber, kombinierbar mit allen anderen Filtern)"><option value="">Alle</option></select>
   <label>Art</label>
   <select id="filter-art"><option value="">Alle</option></select>
   <label>Leistung (MW)</label>
@@ -2238,6 +2363,14 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 let map, allUnits = [], markers = {};
 let clusterGroup, currentLayer;
 
+/* V32.1-Fix (TDZ): Diese State-Variablen werden von renderMarkers/applyFilters gelesen,
+   die init() im Singlefile SYNCHRON aufruft (eingebettete Daten, kein await davor).
+   Standen sie NACH dem init()-Aufruf, flog "Cannot access before initialization" →
+   keine Marker + Statistik-Button tot (initStats nie erreicht). */
+let _bffShowActive = false, _bffShowSet = null;
+let _bffLastMatchedLids = null;
+let _bffLastBestand = [];
+
 async function init() {
   map = L.map('map', { zoomControl: true, maxZoom: 18 }).setView([51.5, 10.0], 6);
 
@@ -2246,9 +2379,24 @@ async function init() {
   function enableTiles() {
     if (tilesOn) return;
     tilesOn = true;
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>',
-      maxZoom: 18,
+    // V33 (WP4): OSMF verlangt seit 03/2026 einen HTTP-Referer (osm.wiki/Blocked).
+    // Ab file:// sendet kein Browser einen Referer → „403r Access blocked"-Kacheln.
+    // Lokal geöffnete Singlefile weicht daher auf CARTO basemaps aus (OSM-Daten,
+    // CC-BY 3.0, Referer nicht erforderlich). Online bleibt OSM direkt.
+    var isFile = false;
+    try { isFile = (location.protocol === 'file:'); } catch (e) {}
+    var tileUrl, tileAttrib, tileMax = 18;
+    if (isFile) {
+      tileUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+      tileAttrib = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>';
+    } else {
+      tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      tileAttrib = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>';
+    }
+    L.tileLayer(tileUrl, {
+      attribution: tileAttrib,
+      maxZoom: tileMax,
+      subdomains: isFile ? 'abcd' : 'abc',
     }).addTo(map);
     var el = document.getElementById('tile-consent');
     if (el) el.classList.remove('show');
@@ -2259,6 +2407,18 @@ async function init() {
   function showConsent() {
     var el = document.getElementById('tile-consent');
     if (el) el.classList.add('show');
+    // V33 (WP4): Bei lokal geöffneter Datei (file://) liefert OSM wegen fehlendem
+    // Referer nur „403r Access blocked"-Kacheln — stattdessen CARTO basemaps.
+    var txt = document.getElementById('tc-text');
+    var isFile = false;
+    try { isFile = (location.protocol === 'file:'); } catch (e) {}
+    if (txt && isFile) {
+      txt.innerHTML = 'Für die Kartendarstellung werden Kartenkacheln geladen. ' +
+        'Da die Datei lokal geöffnet wird (kein HTTP-Referer möglich, OpenStreetMap blockiert solche Anfragen mit „403r"), ' +
+        'werden Kacheln des alternativen Dienstes <b>CARTO basemaps</b> verwendet (Kartendaten: OpenStreetMap-Mitwirkende). ' +
+        'Dabei werden Ihre IP-Adresse, der sichtbare Kartenausschnitt und technische Browserdaten an CARTO (USA) übertragen. ' +
+        'Details: <a href="https://carto.com/legal/" target="_blank" rel="noopener noreferrer">carto.com/legal</a>.';
+    }
   }
   var acceptBtn = document.getElementById('tc-accept');
   var laterBtn = document.getElementById('tc-later');
@@ -2376,6 +2536,7 @@ async function init() {
     populateFilterArt();
     populateFilterLk();   // V23 (Paket 6)
     populateFilterG();    // V23 (Paket 7)
+    populateFilterNb();   // V31 (WP1): Netzbetreiber
     renderMarkers(einheiten);
     if (typeof initStats === 'function') initStats();
     // V4: Historie laden (nach Datenladen, da renderHistorie im openStats gerufen wird)
@@ -2403,6 +2564,9 @@ async function init() {
     applyFilters();
   });
   document.getElementById('filter-g').addEventListener('change', applyFilters);
+  // V32 (WP5): NB-Filter-Listener fehlte (V31) — echte User-Auswahl löste applyFilters
+  // nie aus (nur programmatische dispatchEvent funktionierte im Test).
+  document.getElementById('filter-nb').addEventListener('change', applyFilters);
   document.getElementById('filter-art').addEventListener('change', applyFilters);
   document.getElementById('filter-gr').addEventListener('change', applyFilters);
   document.getElementById('filter-gr-basis').addEventListener('change', applyFilters);  // V23 (Paket 8)
@@ -2444,7 +2608,8 @@ async function init() {
   document.getElementById('impressum-close').addEventListener('click', closeModal);
   modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { closeModal(); closeDS(); closeHistDetail(); }
+    // V33 (WP2): ESC schließt auch das Statistik-Panel
+    if (e.key === 'Escape') { closeModal(); closeDS(); closeHistDetail(); closeStats(); }
   });
 
   // Datenschutz-Modal
@@ -2539,6 +2704,35 @@ function populateFilterArt() {
   });
 }
 
+function populateFilterNb() {
+  // V31 (WP1): Netzbetreiber-Filter. NB-Feld: "Name (SNB…)" — Name ohne Klammer-Suffix
+  // als Optionslabel (SNB-Nr bleibt im title). Kein BL/LK-Kontext (NB sind bundesweit).
+  const nameMap = new Map();   // Anzeigename -> Set voller nb-Strings (für exaktes Matching)
+  for (const u of allUnits) {
+    const nb = (u.nb || '').trim();
+    if (!nb) continue;
+    const name = nb.replace(/\s*\([^)]*\)\s*$/, '').trim() || nb;
+    if (!nameMap.has(name)) nameMap.set(name, new Set());
+    nameMap.get(name).add(nb);
+  }
+  const sel = document.getElementById('filter-nb');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Alle</option>';
+  [...nameMap.keys()].sort((a, b) => a.localeCompare(b, 'de')).forEach(name => {
+    const o = document.createElement('option');
+    o.value = name;
+    o.textContent = name;
+    o.title = [...nameMap.get(name)].join(' | ');
+    sel.appendChild(o);
+  });
+  // „Keine Angabe": Anlagen ohne nb-Feld (v. a. PV ohne NAP-Daten)
+  const oOhne = document.createElement('option');
+  oOhne.value = '__ohne__';
+  oOhne.textContent = 'Keine Angabe';
+  sel.appendChild(oOhne);
+  if (cur) sel.value = cur;
+}
+
 /* V7b: Alle gefilterten Anlagen in Tabelle anzeigen */
 let _filteredUnits = [];
 let _sortState = { key: null, dir: 'asc' };
@@ -2593,16 +2787,8 @@ function _renderTableRows(filtered) {
       const typ = u.t === 'wind' ? 'Wind' : 'PV';
       const mwClass = u.t === 'wind' ? 'mw-wind' : 'mw-pv';
       const mwStr = (u.mw || 0).toLocaleString('de-DE', {maximumFractionDigits:2});
-      let regStr = u.reg || '\u2014';
-      if (regStr.startsWith('/Date(')) {
-        const m = regStr.match(/\d+/);
-        if (m) regStr = new Date(parseInt(m[0])).toISOString().substring(0,10);
-      }
-      let inbStr = u.inb || '\u2014';
-      if (inbStr.startsWith('/Date(')) {
-        const m = inbStr.match(/\d+/);
-        if (m) inbStr = new Date(parseInt(m[0])).toISOString().substring(0,10);
-      }
+      let regStr = dateFullFmt(u.reg) || '\u2014'; // V30 F05: TT.MM.JJJJ (war ISO)
+      let inbStr = dateFullFmt(u.inb) || '\u2014'; // V30 F05: TT.MM.JJJJ (war ISO)
       // F5b: Betreiber + Geo als Deep-Links
       // Betreiber: extern -> NorthData-Firmenprofil (neuer Tab), wie im Popup (F5c)
       const abCell = u.ab
@@ -2687,11 +2873,14 @@ function _renderTableRows(filtered) {
 
 function showAllUnits() {
   // V15: „Anzeigen"-Modus der Betroffenheitsanalyse verlassen
+  // V32 (WP1): auch NAP-Fokus-Modus verlassen
   const warAnzeigenModus = _bffShowActive;
-  _bffShowActive = false; _bffShowSet = null;
+  _bffShowActive = false; _bffShowSet = null; _napFocusActive = false;
   const type   = document.getElementById('filter-type').value;
   const bl     = document.getElementById('filter-bl').value;
   const art    = document.getElementById('filter-art').value;
+  // V31 (WP1): Netzbetreiber-Filter auch im Overlay (F-01-Muster: Overlay == Karte)
+  const nb     = document.getElementById('filter-nb') ? document.getElementById('filter-nb').value : '';
   const gr     = document.getElementById('filter-gr').value;
   const jahr   = document.getElementById('filter-jahr').value;
   const monat  = document.getElementById('filter-monat').value;
@@ -2702,6 +2891,8 @@ function showAllUnits() {
   // Overlay öffnete nie. LK + Gemeinde jetzt einlesen und filtern.
   const lk       = document.getElementById('filter-lk') ? document.getElementById('filter-lk').value : '';
   const gemeinde = document.getElementById('filter-g') ? document.getElementById('filter-g').value : '';
+  // V30 F01: Spannungsebenen-Filter auch im Overlay anwenden (war zuvor nur in applyFilters)
+  const se = document.getElementById('filter-se') ? document.getElementById('filter-se').value : '';
   // F5-Fix: Status-Filter auch in der Tabellen-Ansicht anwenden (war zuvor nur in applyFilters)
   const statusSel = [...document.querySelectorAll('#filter-status input[type=checkbox]:checked')]
     .map(cb => Number(cb.value));
@@ -2714,10 +2905,34 @@ function showAllUnits() {
   if (lk)   filtered = filtered.filter(u => u.lk === lk);
   if (gemeinde) filtered = filtered.filter(u => (u.g || '') === gemeinde);
   if (art)  filtered = filtered.filter(u => (u.art || '') === art);
+  // V31 (WP1): NB-Klausel im Overlay, identisch zu applyFilters()
+  if (nb === '__ohne__') {
+    filtered = filtered.filter(u => !(u.nb || '').trim());
+  } else if (nb) {
+    filtered = filtered.filter(u => {
+      const s = (u.nb || '').trim();
+      if (!s) return false;
+      return s === nb || s.replace(/\s*\([^)]*\)\s*$/, '').trim() === nb;
+    });
+  }
+  if (se === '__ohne__') {
+    filtered = filtered.filter(u => !u.se);
+  } else if (se) {
+    filtered = filtered.filter(u => (u.se || '').split('|').includes(se));
+  }
   if (gr) {
     const [von, bis] = gr.split(',').map(Number.parseFloat);
-    if (!Number.isNaN(von) && !Number.isNaN(bis))
-      filtered = filtered.filter(u => u.mw != null && u.mw >= von && u.mw < bis);
+    if (!Number.isNaN(von) && !Number.isNaN(bis)) {
+      // V30 F01: Leistungs-Prüfbasis im Overlay == applyFilters (V23 Paket 8):
+      // „park" = u.pkmw ?? u.mw, „einzel" = u.mw — Overlay und Karte zeigen identische Mengen.
+      const grBasis = document.getElementById('filter-gr-basis')
+        ? document.getElementById('filter-gr-basis').value : 'park';
+      const usePark = grBasis === 'park';
+      filtered = filtered.filter(u => {
+        const v = usePark ? (u.pkmw ?? u.mw) : u.mw;
+        return v != null && v >= von && v < bis;
+      });
+    }
   }
   if (jahr) filtered = filtered.filter(u => dateYear(u.reg) === jahr);
   if (monat) {
@@ -2781,10 +2996,11 @@ function showAllUnits() {
   if (warAnzeigenModus) applyFilters();
 }
 
-function renderMarkers(units) {
-  clusterGroup.clearLayers();
-  _unitMarkers = {};  // F5b: MaStR-Nr -> Marker (für Tabellen-Deep-Link)
-  const markers = units.map(u => {
+let _plainLayer = null;  // V32 (WP4): Marker ohne Clustering (BFF-Anzeigen-Modus)
+let _napFocusActive = false;  // V32 (WP1): NAP-Fokus-Modus (Klick im NAP-Tab)
+// V32 (WP4): Marker-Bau extrahiert — von renderMarkers UND dem clustering-freien
+// BFF-Anzeigen-Modus (Plain-Layer) gemeinsam genutzt.
+function _buildUnitMarker(u) {
     // F5: Marker-Stil je Betriebs-Status
     // 35 In Betrieb: gefüllt (Wind blau / PV orange) — wie bisher
     // 31 In Planung: gestrichelter Umriss in Technologiefarbe
@@ -2810,16 +3026,34 @@ function renderMarkers(units) {
     const m = L.marker([u.lat, u.lon], { icon });
     m._u = u;  // F5b: Unit-Referenz für Tabellen-Deep-Link (Popup-Auslösung)
     _unitMarkers[u.m] = m;
-    // PERFORMANCE-FIX (User-Feedback 03.09.): buildPopup NICHT für alle 53k Marker
-    // vorgenerieren (17,7 s pro applyFilters!) — lazy beim ersten Öffnen erzeugen.
-    m._popupBuilt = false;
+    // PERFORMANCE-FIX (User-Feedback 03.09.): buildPopup NICHT vorgenerieren —
+    // lazy beim ersten Öffnen erzeugen (V34: eigenes L.popup statt bindPopup, s. _bindLazyPopup).
+    m._popup = null;
+    return m;
+}
+
+// V32 (WP4): Lazy-Popup-Bindung (aus _buildUnitMarker extrahiert, aufrufend in renderMarkers)
+function _bindLazyPopup(m, u) {
+    // ═══ V34 (WP2): Popup-Re-Open-Bug ═══
+    // Root-Cause (Browser-Forensik 09.09.): m.bindPopup() registriert Leaflets
+    // _openPopup als Toggle am selben 'click'-Event wie unser _lazyPopup — bei jedem
+    // Klick feuerten BEIDE; Leaflet sah das von _lazyPopup geöffnete Popup als „offen"
+    // und schloss es sofort wieder (Popup toter Klick nach Kartenklick-Close).
+    // FIX: EIN einziger Handler, KEIN m.bindPopup() mehr:
+    //  - Erst-Klick: eigenes L.popup bauen (Content = buildPopup(u)) + openOn(map)
+    //  - Weitere Klicks: Toggle im eigenen Handler (offen → close, zu → open)
+    //  - Kartenklick schließt weiter via Leaflet autoClose (preclick) — Re-Open immer
+    //    möglich, weil der Zustand am Popup (_map) geprüft wird.
+    // Cluster-Quirk (V21.4/V32) bleibt gelöst: KEIN marker.openPopup() (leeres Popup),
+    // sondern popup.openOn(map) — gleiches Verhalten wie map.openPopup().
     m._lazyPopup = () => {
-      if (!m._popupBuilt) {
-        m.bindPopup(buildPopup(u));
-        m._popupBuilt = true;
+      if (!m._popup) {
+        m._popup = L.popup({ maxWidth: 420, autoClose: true, closeButton: true })
+          .setLatLng(m.getLatLng())
+          .setContent(buildPopup(u));
         // V21.4: NAP-Link im Popup — delegierter Handler (Popup-DOM ist flüchtig).
         // Klick → alle Anlagen am selben NAP (via selectNAP, gleiches Verhalten wie NAP-Suche).
-        m.getPopup().on('contentupdate', function() {
+        m._popup.on('contentupdate', function() {
           const node = this.getElement()?.querySelector('[data-nap-lid]');
           if (node) node.onclick = (ev) => {
             ev.preventDefault();
@@ -2829,17 +3063,48 @@ function renderMarkers(units) {
             if (napEntry) selectNAP(napEntry);
           };
         });
-        // Cluster-Quirk: marker.openPopup() zeigt bei cluster-verwalteten Markern ein
-        // LEERES Popup (Pfad läuft über map._popup ohne Content-Update) — deshalb
-        // bewusst map.openPopup() mit dem Marker-Popup. WICHTIG: setLatLng zuerst,
-        // sonst hat das frische Popup keine Position (Leaflet-Exception).
-        m.getPopup().setLatLng(m.getLatLng());
-        map.openPopup(m.getPopup());
+        m._popup.openOn(map);
         return;
       }
-      map.openPopup(m.getPopup());
+      // Toggle: offen (inkl. nach Kartenklick-Close) → erneut öffnen ist jederzeit möglich,
+      // weil Leaflet bei autoClose nur map.removeLayer() macht — das Popup-Objekt bleibt.
+      if (m._popup._map === map) { map.closePopup(m._popup); }
+      else { m._popup.setLatLng(m.getLatLng()); m._popup.openOn(map); }
     };
     m.on('click', m._lazyPopup);
+}
+
+function renderMarkers(units) {
+  // V32 (WP4): Im BFF-Anzeigen-Modus clustering-frei rendern (Plain-Layer) —
+  // sonst verschmelzen Bestand+NEU am selben NAP in einem Cluster-Bubble und das
+  // neue Asset bleibt unsichtbar (User-Befund 08.09.).
+  if (_bffShowActive && _bffShowSet) {
+    if (_plainLayer) { map.removeLayer(_plainLayer); _plainLayer = null; }
+    if (currentLayer === clusterGroup && typeof map !== 'undefined') { /* cluster bleibt künftig ungenutzt */ }
+    _plainLayer = L.layerGroup();
+    // V33.1-Fix: _bindLazyPopup fehlte hier (V32-WP4-Reparatur-Lücke) — Marker im
+    // BFF-Anzeigen-Modus hatten keinen Klick-Handler → kein Anlagen-Popup.
+    const markers = units.map(u => { const m = _buildUnitMarker(u); _bindLazyPopup(m, u); return m; });
+    _plainLayer.addLayer(L.layerGroup(markers));
+    if (currentLayer && currentLayer !== clusterGroup) map.removeLayer(currentLayer);
+    if (currentLayer === clusterGroup) map.removeLayer(clusterGroup);
+    _plainLayer.addTo(map);
+    currentLayer = _plainLayer;
+    _unitMarkers = {};
+    markers.forEach(m => { _unitMarkers[m._u.m] = m; });
+    return;
+  }
+  // Rückkehr aus Anzeigen-Modus: Plain-Layer entfernen, Cluster zurück
+  if (_plainLayer) { map.removeLayer(_plainLayer); _plainLayer = null; }
+  if (currentLayer !== clusterGroup && typeof map !== 'undefined' && map && !map.hasLayer(clusterGroup)) {
+    clusterGroup.addTo(map);
+  }
+  currentLayer = clusterGroup;
+  clusterGroup.clearLayers();
+  _unitMarkers = {};  // F5b: MaStR-Nr -> Marker (für Tabellen-Deep-Link)
+  const markers = units.map(u => {
+    const m = _buildUnitMarker(u);
+    _bindLazyPopup(m, u);
     return m;
   });
   clusterGroup.addLayers(markers);
@@ -2883,9 +3148,66 @@ function dateFullFmt(v) {
 }
 
 
+// ═══ V34 (WP1): Synthetischer Scrollbalken oberhalb der LK-Tabelle ═══
+// Der Balken (#landkreis-scroll-bar) ist ein leerer 16-px-Scroller, dessen Innenbreite
+// auf die Tabellen-Breite gestreckt wird. scrollLeft wird bidirektional synchronisiert
+// (Loop-Schutz via _lkSyncing-Flag).
+let _lkSyncing = false;
+function _initLandkreisScrollbar() {
+  const bar = document.getElementById('landkreis-scroll-bar');
+  const sc  = document.getElementById('landkreis-scroll');
+  const tbl = document.getElementById('landkreis-table');
+  if (!bar || !sc || !tbl) return;
+  function stretch() {
+    // Innenfläche des Balkens = scrollbare Breite der Tabelle (damit die Proportionen stimmen)
+    const vis = sc.clientWidth;
+    const full = tbl.scrollWidth;
+    if (!full || full <= vis) { bar.style.display = 'none'; return; }
+    bar.style.display = '';
+    const inner = bar.firstElementChild;
+    if (inner) inner.style.width = Math.round(vis * (full / vis)) + 'px';
+  }
+  bar.addEventListener('scroll', () => {
+    if (_lkSyncing) return; _lkSyncing = true;
+    sc.scrollLeft = bar.scrollLeft * (sc.scrollWidth > sc.clientWidth ? (sc.scrollWidth - sc.clientWidth) / Math.max(1, bar.scrollWidth - bar.clientWidth) : 1);
+    _lkSyncing = false;
+  });
+  sc.addEventListener('scroll', () => {
+    if (_lkSyncing) return; _lkSyncing = true;
+    const ratio = sc.scrollWidth > sc.clientWidth ? (sc.scrollWidth - sc.clientWidth) / Math.max(1, bar.scrollWidth - bar.clientWidth) : 1;
+    bar.scrollLeft = sc.scrollLeft / ratio;
+    _lkSyncing = false;
+  });
+  window.addEventListener('resize', stretch);
+  // Nach jedem Render der Tabelle (Inhalt ändert Breite) strecken:
+  new MutationObserver(stretch).observe(sc, { childList: true, subtree: true });
+  stretch();
+}
+document.addEventListener('DOMContentLoaded', _initLandkreisScrollbar);
+
 // ═══ V28 (Paket 4): Alle Filter zurücksetzen ═══
+// V35 (AP2): „Filter löschen" versetzt die Karte jetzt in den URSPRUNGS-LADEZUSTAND —
+// so wie ein Seiten-Refresh: (1) BFF-Anzeigen-Modus beenden, (2) Analyse-Layer
+// (Ringe/rote Marker) entfernen, (3) NAP-Fokus verlassen, (4) Statistik-Panel schließen,
+// (5) Suchfeld/Popup leeren, (6) Karte auf Default-View zoomen, (7) alle Filter auf Default.
 function resetFilters() {
-  const ids = ['filter-type', 'filter-bl', 'filter-lk', 'filter-g', 'filter-art',
+  // (1)+(2) BFF-Anzeigen-Modus + Analyse-Layer sauber beenden (nutzt bestehende V16-Routine)
+  if (typeof _bffResetAnalysis === 'function') _bffResetAnalysis();
+  // (3) NAP-Fokus-Modus verlassen + blauer NAP-Fokus-Kreis entfernen (V32 WP1)
+  _napFocusActive = false;
+  if (window.__napFocusCircle) { map.removeLayer(window.__napFocusCircle); window.__napFocusCircle = null; }
+  // (4) Statistik-Panel + NAP-Panel schließen (Ursprungszustand: Panel zu)
+  if (typeof closeStats === 'function') closeStats();
+  if (typeof closeNapPanel === 'function') closeNapPanel();
+  // (5) Suchfeld + offenes Popup leeren (ohne clearSearch-applyFilters-Doppel)
+  const siV35 = document.getElementById('search-input');
+  if (siV35 && siV35.value) {
+    siV35.value = '';
+    if (typeof closeSuggest === 'function') closeSuggest();
+    document.getElementById('search-clear').style.display = 'none';
+  }
+  if (map) map.closePopup();
+  const ids = ['filter-type', 'filter-bl', 'filter-lk', 'filter-g', 'filter-nb', 'filter-art',
                'filter-gr', 'filter-jahr', 'filter-monat', 'filter-inb-jahr',
                'filter-inb-monat', 'filter-se'];
   ids.forEach(id => {
@@ -2913,6 +3235,8 @@ function resetFilters() {
   // art-count Badge verstecken (V26-Verhalten nach Filterwechsel)
   const ac = document.getElementById('art-count');
   if (ac) ac.hidden = true;
+  // (6) Karte auf Ursprungs-View (identisch zu init(): Deutschland, Zoom 6)
+  if (typeof map !== 'undefined' && map) map.setView([51.5, 10.0], 6);
   // Marker/Tabelle neu anwenden
   applyFilters();
 }
@@ -2924,6 +3248,8 @@ function applyFilters() {
   const lk     = document.getElementById('filter-lk') ? document.getElementById('filter-lk').value : '';
   const gemeinde = document.getElementById('filter-g') ? document.getElementById('filter-g').value : '';
   const art    = document.getElementById('filter-art').value;
+  // V31 (WP1): Netzbetreiber-Filter („__ohne__" = Anlagen ohne NB-Angabe)
+  const nb     = document.getElementById('filter-nb') ? document.getElementById('filter-nb').value : '';
   const gr     = document.getElementById('filter-gr').value;
   const jahr   = document.getElementById('filter-jahr').value;
   const monat  = document.getElementById('filter-monat').value;
@@ -2949,6 +3275,17 @@ function applyFilters() {
   if (lk)   filtered = filtered.filter(u => u.lk === lk);
   if (gemeinde) filtered = filtered.filter(u => u.g === gemeinde);
   if (art)  filtered = filtered.filter(u => (u.art || '') === art);
+  // V31 (WP1): NB-Match — Anzeigename (vor Klammer) ODER voller nb-String; mehrere
+  // SNB je Name sind in den Daten nicht vorhanden (verifiziert), Name-Match genügt.
+  if (nb === '__ohne__') {
+    filtered = filtered.filter(u => !(u.nb || '').trim());
+  } else if (nb) {
+    filtered = filtered.filter(u => {
+      const s = (u.nb || '').trim();
+      if (!s) return false;
+      return s === nb || s.replace(/\s*\([^)]*\)\s*$/, '').trim() === nb;
+    });
+  }
   if (gr) {
     const [von, bis] = gr.split(',').map(Number.parseFloat);
     if (!Number.isNaN(von) && !Number.isNaN(bis)) {
@@ -3611,6 +3948,10 @@ let _statsState = {         // UI-Zustand
   herstellerFilter: '',
   herstellerSortKey: 'anzahl',
   herstellerSortDir: 'desc',
+  typTop: '50',
+  typFilter: '',
+  typSortKey: 'mw',
+  typSortDir: 'desc',   // V31 (WP2): Default absteigend nach Leistung
   bundeslandTech: 'wind',       // V4: 'wind' | 'pv' | 'gesamt'
   bundeslandMeasure: 'anzahl',  // V4: 'anzahl' | 'leistung'
 };
@@ -3618,7 +3959,11 @@ let _statsState = {         // UI-Zustand
 function initStats() {
   _stats = window.__STATS__;
   // Buttons
-  document.getElementById('btn-stats').addEventListener('click', openStats);
+  // V32-Fix: Toggle — Klick auf Statistik-Button bei offenem Panel schließt es
+  document.getElementById('btn-stats').addEventListener('click', function () {
+    if (document.getElementById('stats-panel').classList.contains('open')) closeStats();
+    else openStats();
+  });
   document.getElementById('stats-close').addEventListener('click', closeStats);
   document.getElementById('stats-overlay').addEventListener('click', closeStats);
   // Tabs
@@ -3629,6 +3974,7 @@ function initStats() {
       _statsState.tab = btn.dataset.tab;
       if (btn.dataset.tab === 'betreiber') renderBetreiber();
       if (btn.dataset.tab === 'hersteller') renderHersteller();
+      if (btn.dataset.tab === 'typ') renderTyp();              // V31 (WP2)
       if (btn.dataset.tab === 'groesse') renderGroesse();
       if (btn.dataset.tab === 'bundesland') renderBundesland();
       if (btn.dataset.tab === 'landkreis') renderLandkreise();   // V23 (Paket 4)
@@ -3676,6 +4022,24 @@ function initStats() {
       renderHersteller();
     });
   });
+  // V31 (WP2): Typ-Tab-Controls
+  document.getElementById('typ-top').addEventListener('change', e => { _statsState.typTop = e.target.value; renderTyp(); });
+  document.getElementById('typ-filter').addEventListener('input', function(e) { _statsState.typFilter = e.target.value; this.nextElementSibling.style.display = this.value ? 'block' : 'none'; renderTyp(); });
+  document.getElementById('typ-filter-clear').addEventListener('click', function() {
+    const f = document.getElementById('typ-filter'); f.value = ''; _statsState.typFilter = ''; this.style.display = 'none'; renderTyp(); f.focus();
+  });
+  document.querySelectorAll('#typ-table th').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.key;
+      if (_statsState.typSortKey === key) {
+        _statsState.typSortDir = _statsState.typSortDir === 'desc' ? 'asc' : 'desc';
+      } else {
+        _statsState.typSortKey = key;
+        _statsState.typSortDir = 'desc';
+      }
+      renderTyp();
+    });
+  });
   // V23 (Paket 4): Landkreis-Tabellen-Sortierung (Default mw desc, Klick toggelt)
   document.querySelectorAll('#landkreis-table th').forEach(th => {
     th.addEventListener('click', () => {
@@ -3692,7 +4056,14 @@ function initStats() {
   // Betreiber-Controls
   document.getElementById('stats-tech').addEventListener('change', e => { _statsState.tech = e.target.value; renderBetreiber(); });
   document.getElementById('stats-top').addEventListener('change', e => { _statsState.top = e.target.value; renderBetreiber(); });
-  document.getElementById('stats-filter').addEventListener('input', function(e) { _statsState.filter = e.target.value; this.nextElementSibling.style.display = this.value ? 'block' : 'none'; renderBetreiber(); _statsSuggest(e.target.value); });
+  document.getElementById('stats-filter').addEventListener('input', function(e) { _statsState.filter = e.target.value; this.nextElementSibling.style.display = this.value ? 'block' : 'none'; renderBetreiber(); _statsSuggest(e.target.value);
+    // V35 (AP1): offene Diagramme auf neuen Suchtext aktualisieren (oder schließen bei <2 Zeichen)
+    const bc = document.getElementById('betreiber-charts');
+    if (bc && bc.style.display !== 'none') {
+      if ((_statsState.filter || '').trim().length >= 2) renderBetreiberDiagramme();
+      else { bc.style.display = 'none'; document.getElementById('betreiber-charts-btn').textContent = '📈 Diagramme'; }
+    }
+  });
   // V21: Live-Suggest für den Betreiber-Filter (User-Wunsch 3) — wie Betroffenheits-Tab:
   // ab 2 Zeichen, 250 ms Debounce, Gruppen (Brand/Kern) zuerst, dann Einzel-Betreiber.
   // Klick auf Vorschlag = Filter setzen + Tabelle springt (Gruppe ganz oben).
@@ -3768,6 +4139,26 @@ function initStats() {
   });
   document.getElementById('stats-filter-clear').addEventListener('click', function() {
     const f = document.getElementById('stats-filter'); f.value = ''; _statsState.filter = ''; this.style.display = 'none'; renderBetreiber(); f.focus();
+    // V35 (AP1): Diagramme ausblenden wenn Suchtext leer
+    const cb = document.getElementById('betreiber-charts-btn');
+    if (cb) { cb.style.display = 'none'; }
+    const bc = document.getElementById('betreiber-charts');
+    if (bc) bc.style.display = 'none';
+  });
+  // V35 (AP1): Diagramm-Button — nur sichtbar mit Suchtext; Toggle Chart-Block
+  document.getElementById('betreiber-charts-btn').addEventListener('click', function() {
+    const bc = document.getElementById('betreiber-charts');
+    const isOpen = bc.style.display !== 'none';
+    bc.style.display = isOpen ? 'none' : 'block';
+    this.textContent = isOpen ? '📈 Diagramme' : '📉 Diagramme schließen';
+    if (!isOpen) renderBetreiberDiagramme();
+  });
+  // V35 (AP1): Measure-Toggle für Betreiber-Diagramme
+  document.querySelectorAll('#betreiber-charts .mbtn').forEach(b => {
+    b.addEventListener('click', function() {
+      document.querySelectorAll('#betreiber-charts .mbtn').forEach(x => x.classList.toggle('active', x === this));
+      renderBetreiberDiagramme();
+    });
   });
   // Sortierung (Th-Klick)
   document.querySelectorAll('#stats-table th').forEach(th => {
@@ -3947,6 +4338,174 @@ function renderBetreiber() {
   });
   document.getElementById('stats-count').textContent =
     `${rows.length} angezeigt von ${total} Betreibern`;
+  // V35 (AP1): Diagramm-Button ein-/ausblenden (nur mit Suchtext)
+  const cb = document.getElementById('betreiber-charts-btn');
+  if (cb) cb.style.display = _statsState.filter && _statsState.filter.trim().length >= 2 ? 'inline-block' : 'none';
+}
+
+/* ═══ V35 (AP1): Betreiber-Diagramme — Wachstum, Technologie, EEG ═══
+   Scope: gefilterter Suchtext → Einzelbetreiber (norm-Match) ODER Gruppe/Portfolio
+   (Brand/Kern-Gesellschaften, gleiche Logik wie renderBetreiber/selectBetreiberGruppe). */
+function _betreiberScopeUnits() {
+  const nf = norm(_statsState.filter || '');
+  if (nf.length < 2) return [];
+  // Gruppen zuerst (Brand > Kern), dann Einzel-Treffer — dedupe via Set
+  let ges = null;                     // Set von Betreiber-Namen (Gruppen-Scope)
+  if (!_bffGrpCache) bffPortfolioGroups(nf);
+  const scored = [];
+  _bffGrpCache.brandGroups.forEach(g => {
+    const kn = norm(g.kern);
+    if (kn.startsWith(nf) || kn.includes(nf)) scored.push({ g, sc: kn.startsWith(nf) ? 0 : 1 });
+  });
+  _bffGrpCache.kernGroups.forEach(g => {
+    const kn = norm(g.kern);
+    if (kn.startsWith(nf) || kn.includes(nf)) scored.push({ g, sc: kn.startsWith(nf) ? 0 : 1 });
+  });
+  if (scored.length) {
+    scored.sort((a, b) => a.sc - b.sc || b.g.ges.size - a.g.ges.size);
+    ges = new Set(scored[0].g.ges);   // beste Gruppe (größte bei Gleichstand)
+  }
+  const seen = new Set(), units = [];
+  for (const u of allUnits) {
+    if (!u.ab) continue;
+    const match = ges ? ges.has(u.ab) : norm(u.ab).includes(nf);
+    if (!match || seen.has(u.m)) continue;
+    seen.add(u.m); units.push(u);
+  }
+  return units;
+}
+
+function renderBetreiberDiagramme() {
+  const units = _betreiberScopeUnits();
+  const summary = document.getElementById('betreiber-charts-summary');
+  const note = document.getElementById('betreiber-charts-note');
+  if (!units.length) {
+    summary.innerHTML = '<span>Keine Treffer für den Suchtext.</span>';
+    return;
+  }
+  const isMW = document.querySelector('#betreiber-charts .mbtn.active')?.dataset.bcmeasure === 'mw';
+  const measure = isMW ? 'mw' : 'anzahl';
+  const unitLabel = isMW ? 'MW' : 'Anlagen';
+  // --- Aggregation ---
+  const years = [], yearData = {};
+  let windN = 0, pvN = 0, windMW = 0, pvMW = 0;
+  let eegW = 0, eegP = 0, noEegW = 0, noEegP = 0;
+  // V35.1: MW-Akkus für die EEG-Gruppen (Donuts measure-steuerbar)
+  let eegW_mw = 0, eegP_mw = 0, noEegW_mw = 0, noEegP_mw = 0;
+  units.forEach(u => {
+    const yr = dateYear(u.inb);
+    const mw = u.mw || 0;
+    if (u.t === 'wind') {
+      windN++; windMW += mw;
+      if (u.eeg) { eegW++; eegW_mw += mw; } else { noEegW++; noEegW_mw += mw; }
+    } else {
+      pvN++; pvMW += mw;
+      if (u.eeg) { eegP++; eegP_mw += mw; } else { noEegP++; noEegP_mw += mw; }
+    }
+    if (!yr) return;
+    if (!yearData[yr]) { yearData[yr] = { wind: 0, pv: 0, wind_mw: 0, pv_mw: 0 }; years.push(yr); }
+    if (u.t === 'wind') { yearData[yr].wind++; yearData[yr].wind_mw += mw; }
+    else { yearData[yr].pv++; yearData[yr].pv_mw += mw; }
+  });
+  years.sort();
+  const totalMW = windMW + pvMW, totalN = windN + pvN;
+  summary.innerHTML =
+    '<span>Anlagen: <b>' + totalN.toLocaleString('de-DE') + '</b></span>' +
+    '<span>Leistung: <b>' + totalMW.toLocaleString('de-DE', {maximumFractionDigits:1}) + ' MW</b></span>' +
+    '<span>Wind: <b style="color:#2563eb">' + windN.toLocaleString('de-DE') + ' / ' + windMW.toLocaleString('de-DE', {maximumFractionDigits:1}) + ' MW</b></span>' +
+    '<span>PV: <b style="color:#d97706">' + pvN.toLocaleString('de-DE') + ' / ' + pvMW.toLocaleString('de-DE', {maximumFractionDigits:1}) + ' MWp</b></span>' +
+    (years.length ? '<span>Zeitraum Inb.: <b>' + years[0] + '–' + years[years.length-1] + '</b></span>' : '');
+  // --- Chart 1: Wachstum (gestapelt, Wind/PV je Jahr) ---
+  const W = 640, H = 300, PAD_L = 50, PAD_B = 44, PAD_T = 40, PAD_R = 16;
+  const windVals = years.map(y => isMW ? yearData[y].wind_mw : yearData[y].wind);
+  const pvVals = years.map(y => isMW ? yearData[y].pv_mw : yearData[y].pv);
+  drawStackedBar('bc-wachstum', windVals, pvVals, years, W, H, PAD_L, PAD_B, PAD_T, PAD_R, (canvas, w, h) => {
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return ctx;
+  });
+  // --- Chart 2+3: Donuts (Technologie / EEG) — V35.1: measure-steuerbar (Anlagen ⇄ MW) ---
+  document.getElementById('bc-tech-sub').textContent = isMW ? 'Anteil Wind / PV (Leistung MW/MWp)' : 'Anteil Wind / PV (Anlagen)';
+  document.getElementById('bc-eeg-sub').textContent = isMW
+    ? 'Mit / ohne EEG-Anlagen-Registrierung — Basis Leistung (MW/MWp)'
+    : 'Mit / ohne EEG-Anlagen-Registrierung (MaStR-Feld EegInbetriebnahmeDatum; kein direkter Vergütungs-Status)';
+  _bcDrawDonut('bc-tech', isMW ? [
+    { label: 'Wind (MW)', val: windMW, color: '#2563eb' },
+    { label: 'PV (MWp)', val: pvMW, color: '#d97706' },
+  ] : [
+    { label: 'Wind', val: windN, color: '#2563eb' },
+    { label: 'PV', val: pvN, color: '#d97706' },
+  ], totalN);
+  _bcDrawDonut('bc-eeg', isMW ? [
+    { label: 'Wind mit EEG (MW)', val: eegW_mw, color: '#1d4ed8' },
+    { label: 'Wind ohne EEG (MW)', val: noEegW_mw, color: '#93c5fd' },
+    { label: 'PV mit EEG (MWp)', val: eegP_mw, color: '#b45309' },
+    { label: 'PV ohne EEG (MWp)', val: noEegP_mw, color: '#fcd34d' },
+  ] : [
+    { label: 'Wind mit EEG', val: eegW, color: '#1d4ed8' },
+    { label: 'Wind ohne EEG', val: noEegW, color: '#93c5fd' },
+    { label: 'PV mit EEG', val: eegP, color: '#b45309' },
+    { label: 'PV ohne EEG', val: noEegP, color: '#fcd34d' },
+  ], totalN);
+  note.textContent =
+    'Basis: alle gefilterten Anlagen (' + totalN.toLocaleString('de-DE') + ', alle Betriebs-Status im Karten-Bestand). ' +
+    '„Mit EEG" = im MaStR eine EEG-Anlage registriert (EegInbetriebnahmeDatum vorhanden) — das MaStR führt keinen direkten Vergütungs-Status; ' +
+    'Anlagen außerhalb EEG sind meist vor-EEG-Bestand oder Direktvermarktung ohne EEG-Registrierung. Wachstums-Basis: Inbetriebnahmejahr.';
+}
+
+// Donut-Helfer (V35): Canvas-Donut mit Prozent-Labels im Segment + Legende daneben
+function _bcDrawDonut(canvasId, segs, total) {
+  const canvas = document.getElementById(canvasId);
+  const side = canvas.parentElement.nextElementSibling; // Legende-Container (nach dem canvas-Wrap)
+  const size = 200, cx = size/2, cy = size/2, R = size/2 - 4;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = size * dpr; canvas.height = size * dpr;
+  canvas.style.width = size + 'px'; canvas.style.height = size + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, size, size);
+  const sum = segs.reduce((s, x) => s + x.val, 0);
+  const wrap = canvas.closest('.zubau-canvas-wrap');
+  // Legende unter dem Donut bauen
+  let leg = wrap.querySelector('.bc-legend');
+  if (!leg) { leg = document.createElement('div'); leg.className = 'bc-legend'; wrap.appendChild(leg); }
+  leg.style.cssText = 'display:flex;flex-direction:column;gap:3px;font-size:11px;color:#374151;margin-top:6px;';
+  if (!sum) {
+    ctx.fillStyle = '#9ca3af'; ctx.font = '12px system-ui'; ctx.textAlign = 'center';
+    ctx.fillText('Keine Daten', cx, cy);
+    leg.innerHTML = '';
+    return;
+  }
+  const rIn = R * 0.55;
+  let start = -Math.PI / 2;
+  let legend = '';
+  segs.forEach(s => {
+    if (!s.val) return;
+    const sweep = 2 * Math.PI * s.val / sum;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, start, start + sweep);
+    ctx.arc(cx, cy, rIn, start + sweep, start, true);
+    ctx.closePath();
+    ctx.fillStyle = s.color; ctx.fill();
+    // V35-Kosmetik: weiße Trennlinie nur bei >1 Segment (bei 100 % gibt es keinen Nachbar)
+    const activeCount = segs.filter(x => x.val > 0).length;
+    if (activeCount > 1) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke(); }
+    // Prozent-Label im Segment (nur wenn groß genug)
+    const pct = 100 * s.val / sum;
+    if (sweep > 0.5) {
+      const mid = start + sweep / 2;
+      const mr = (rIn + R) / 2;
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(Math.round(pct) + '%', cx + mr * Math.cos(mid), cy + mr * Math.sin(mid));
+    }
+    legend += `<span><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${s.color};margin-right:4px;vertical-align:middle;"></span>` +
+      `${esc(s.label)}: ${s.val.toLocaleString('de-DE')} (${pct.toLocaleString('de-DE', {maximumFractionDigits:1})} %)</span>`;
+    start += sweep;
+  });
+  leg.innerHTML = legend;
 }
 
 // Betreiber auf der Karte filtern (B7)
@@ -4091,6 +4650,82 @@ function selectHersteller(name) {
   renderMarkers(matching);
   map.fitBounds(matching.map(u => [u.lat, u.lon]), { padding: [30, 30] });
   document.getElementById('search-input').value = `Hersteller: ${name} (${matching.length} Anlagen)`;
+  document.getElementById('search-clear').style.display = 'block';
+  closeStats();
+}
+
+// ═══ V31 (WP2): Typ-Tab — Aggregation aller Windanlagen nach (Hersteller, Typ) ═══
+function renderTyp() {
+  const tbody = document.getElementById('typ-tbody');
+  if (!tbody) return;
+  // Basis: alle Wind-Einheiten im Export (Karten-Datenbestand; Default-Ansicht der
+  // Karte zeigt bs35 — Tab-Konsistenz mit Hersteller-Tab: selbe Einheitenmenge).
+  const wind = allUnits.filter(u => u.t === 'wind');
+  const basis = wind.length || 1;
+  // Aggregation nach (herst, typ); fehlende Angaben → „Keine Angabe"
+  const groups = new Map();   // key -> {herst, typ, mw, anzahl, sum_mw}
+  for (const u of wind) {
+    const herst = (u.herst || '').trim() || 'Keine Angabe';
+    const typ = (u.typ || '').trim() || 'Keine Angabe';
+    const key = herst + '\u0000' + typ;
+    let e = groups.get(key);
+    if (!e) { e = { herst, typ, mw: (u.mw || 0), anzahl: 0, sum_mw: 0 }; groups.set(key, e); }
+    e.anzahl++;
+    e.sum_mw += (u.mw || 0);
+  }
+  let rows = [...groups.values()];
+  rows.forEach(r => { r.pct = basis ? Math.round(1000 * r.anzahl / basis) / 10 : 0; });
+  // Textfilter (Typ oder Hersteller, akzent-/case-unabhängig)
+  const nf = norm(_statsState.typFilter);
+  if (nf) rows = rows.filter(r => norm(r.typ).includes(nf) || norm(r.herst).includes(nf));
+  // Sortierung (Default: mw desc)
+  const key = _statsState.typSortKey;
+  rows.sort((a, b) => {
+    let va = a[key], vb = b[key];
+    if (key === 'herst' || key === 'typ') va = (va||'').toLowerCase(), vb = (vb||'').toLowerCase();
+    if (typeof va === 'string') return _statsState.typSortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+    va = va ?? 0; vb = vb ?? 0;
+    return _statsState.typSortDir === 'asc' ? va - vb : vb - va;
+  });
+  const total = rows.length;
+  if (_statsState.typTop !== 'all') rows = rows.slice(0, parseInt(_statsState.typTop, 10));
+  // Render („Leistung" = Nennleistung MW der Einzelanlagen dieses Typs; Summe MW = kumuliert)
+  tbody.innerHTML = rows.map(r => `
+    <tr data-herst="${esc(r.herst)}" data-typ="${esc(r.typ)}">
+      <td class="name" title="${esc(r.herst)}">${esc(r.herst)}</td>
+      <td class="name" title="${esc(r.typ)}">${esc(r.typ)}</td>
+      <td class="num">${r.mw.toLocaleString('de-DE', {maximumFractionDigits:2})}</td>
+      <td class="num">${r.anzahl.toLocaleString('de-DE')}</td>
+      <td class="num pct">${r.pct.toLocaleString('de-DE', {maximumFractionDigits:1})}%</td>
+      <td class="num">${r.sum_mw.toLocaleString('de-DE', {maximumFractionDigits:1})}</td>
+    </tr>`).join('') || '<tr><td colspan="6">Keine Treffer</td></tr>';
+  // Klick auf Zeile → Karte zeigt alle Anlagen dieses (Hersteller, Typ)
+  tbody.querySelectorAll('tr[data-typ]').forEach(tr => {
+    tr.addEventListener('click', () => selectTyp(tr.dataset.herst, tr.dataset.typ));
+  });
+  // Sortier-Indikatoren
+  document.querySelectorAll('#typ-table th').forEach(th => {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    if (th.dataset.key === _statsState.typSortKey) th.classList.add(_statsState.typSortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+  });
+  const sumAnzahl = rows.reduce((s, r) => s + r.anzahl, 0);
+  const sumMW = rows.reduce((s, r) => s + r.sum_mw, 0);
+  document.getElementById('typ-count').textContent =
+    `${rows.length} angezeigt von ${total} Typen · ${sumAnzahl.toLocaleString('de-DE')} Anlagen / ${sumMW.toLocaleString('de-DE', {maximumFractionDigits:0})} MW · Basis ${basis.toLocaleString('de-DE')} Windanlagen`;
+}
+
+// Typ auf der Karte filtern (nur Windanlagen)
+function selectTyp(herst, typ) {
+  const matching = allUnits.filter(u => {
+    if (u.t !== 'wind') return false;
+    const h = (u.herst || '').trim() || 'Keine Angabe';
+    const t = (u.typ || '').trim() || 'Keine Angabe';
+    return h === herst && t === typ;
+  });
+  if (!matching.length) return;
+  renderMarkers(matching);
+  map.fitBounds(matching.map(u => [u.lat, u.lon]), { padding: [30, 30] });
+  document.getElementById('search-input').value = `Typ: ${typ} — ${herst} (${matching.length} Anlagen)`;
   document.getElementById('search-clear').style.display = 'block';
   closeStats();
 }
@@ -4716,13 +5351,16 @@ function focusNAPOnMap(r) {
   if (targetLid != null && typeof openNapPanel === 'function') {
     const grp = (typeof _buildNapGroups === 'function') ? _buildNapGroups().get(targetLid) : null;
     if (grp && grp.units.length) {
-      // Karte zur Gruppe fliegen (Mittelpunkt der Einheiten)
-      const lats = grp.units.map(u => u.lat).filter(v => v != null);
-      const lons = grp.units.map(u => u.lon).filter(v => v != null);
-      if (lats.length && typeof map !== 'undefined' && map) {
-        map.flyTo([lats.reduce((s, v) => s + v, 0) / lats.length, lons.reduce((s, v) => s + v, 0) / lons.length],
-          Math.min(map.getMaxZoom(), 13), { duration: 1.0 });
-      }
+      // V32 (WP1): Analogie zum Hersteller-Tab — Karte zeigt NUR die Anlagen dieses NAPs.
+      // Über _bffShowSet-Mechanik (V32/WP4): renderMarkers schaltet dann auf den
+      // clustering-freien Plain-Layer (kein Cluster-Bubble versteckt Einzel-Marker).
+      const units = grp.units;
+      const inp = document.getElementById('search-input');
+      if (inp) inp.value = 'NAP: ' + (r.nm || r.m) + ' (' + units.length + ' Anlagen)';
+      _napFocusActive = true;
+      _bffShowActive = true;
+      _bffShowSet = new Set(units.map(u => u.m));
+      applyFilters();
       openNapPanel(targetLid);
       return;
     }
@@ -5767,6 +6405,8 @@ function initBetroffen() {
 function _bffResetAnalysis() {
   _bffLastEvents = null; _bffLastRef = null; _bffLastRadius = 0; _bffLastRefPoints = [];
   if (_bffRadiusLayer) { map.removeLayer(_bffRadiusLayer); _bffRadiusLayer = null; }
+  // V33 (WP3): rote removed-Marker miträumen
+  if (_bffRemovedLayer) { map.removeLayer(_bffRemovedLayer); _bffRemovedLayer = null; }
   _bffShowActive = false; _bffShowSet = null;
   const showBtn = document.getElementById('bff-show');
   if (showBtn) showBtn.disabled = true;
@@ -5775,10 +6415,26 @@ function _bffResetAnalysis() {
 let _bffLastEvents = null, _bffLastRef = null, _bffLastRadius = 0, _bffLastRefPoints = [];
 let _bffLastMatchedKeys = null; // V16: Keys der REFERENZ-Punkte, die tatsächlich getroffen wurden
 let _bffRadiusLayer = null;
+// V33 (WP3): Ring-Klassifikation — welche Referenz-Punkte haben einen NEU-Treffer
+// (grüner Ring) und welche NUR entfernte Assets (roter Ring, „kein Zubau am Standort")?
+// Fixes das User-Problem „Ring ohne sichtbare neue Assets": entfernt-Assets sind nicht
+// in allUnits und werden daher nicht als Marker gerendert — der Ring war korrekt, aber
+// ohne Erklärung und ohne sichtbaren Inhalt.
+function _bffRingKindByKey() {
+  const kind = new Map(); // refKey -> 'neu' | 'nur-entfernt'
+  (_bffLastEvents || []).forEach(e => {
+    if (e.matchTyp !== 'RADIUS' || !e.refKey) return;
+    const prev = kind.get(e.refKey);
+    if (e.typ === 'NEU') kind.set(e.refKey, 'neu');
+    else if (!prev) kind.set(e.refKey, 'nur-entfernt');
+  });
+  return kind;
+}
 function _bffDrawRings() {
   if (_bffRadiusLayer) { map.removeLayer(_bffRadiusLayer); _bffRadiusLayer = null; }
   // V16: Ringe NUR um tatsächlich betroffene Referenz-Anlagen (nicht alle)
   if (!_bffLastRadius || !_bffLastMatchedKeys || !_bffLastMatchedKeys.size) return;
+  const kindBy = _bffRingKindByKey();
   const seen = new Set();
   const pts = [];
   for (const p of _bffLastRefPoints) {
@@ -5789,14 +6445,18 @@ function _bffDrawRings() {
   if (!pts.length) return;
   _bffRadiusLayer = L.layerGroup();
   pts.forEach(([lat, lon]) => {
+    // V33: Farbe nach Treffer-Art — grün (Neubau) / rotgrau (nur Abmeldung)
+    const kind = kindBy.get(lat.toFixed(4) + ',' + lon.toFixed(4)) || 'neu';
+    const col = kind === 'neu' ? '#16a34a' : '#dc2626';
     L.circle([lat, lon], {
-      radius: _bffLastRadius * 1000, color: '#f59e0b', weight: 2, dashArray: '6 4',
-      fillColor: '#f59e0b', fillOpacity: 0.08,
+      radius: _bffLastRadius * 1000, color: col, weight: 2, dashArray: '6 4',
+      fillColor: col, fillOpacity: 0.08,
       interactive: false  // V18: Ring fängt keine Klicks/Hover mehr ab (Bug: „Suchradius"-Popup statt Asset-Popup)
     }).addTo(_bffRadiusLayer);
   });
   _bffRadiusLayer.addTo(map);
 }
+let _bffRemovedLayer = null;  // V33 (WP3): rote Marker für entfernte Assets
 function bffShowOnMap() {
   if (!_bffLastEvents || !_bffLastEvents.length) return;
   closeStats();
@@ -5810,6 +6470,23 @@ function bffShowOnMap() {
   _bffShowActive = true;
   _bffShowSet = mSet;
   applyFilters();
+  // V33 (WP3): entfernte Assets als rote Marker darstellen — sie sind nicht in allUnits
+  // (aus dem Bestand entfernt) und würden sonst nie erscheinen → Ring wirkte „leer".
+  if (_bffRemovedLayer) { map.removeLayer(_bffRemovedLayer); _bffRemovedLayer = null; }
+  const removed = _bffLastEvents.filter(e => e.typ === 'ENTFERNT' && e.asset.lat != null);
+  if (removed.length) {
+    _bffRemovedLayer = L.layerGroup();
+    removed.forEach(e => {
+      L.circleMarker([e.asset.lat, e.asset.lon], {
+        radius: 6, color: '#b91c1c', weight: 2, fillColor: '#ef4444', fillOpacity: 0.85
+      }).bindPopup(
+        `<b>🗑️ Entfernt (Update)</b><br>${esc(e.asset.n || e.asset.m)}<br>` +
+        `${esc(e.asset.art || '')} · ${(e.asset.mw || 0).toLocaleString('de-DE', {maximumFractionDigits: 3})} MW<br>` +
+        `${esc(e.asset.g || '')} (${esc(e.asset.lk || '')})<br>Inbetrieb: ${esc(e.asset.inb || '?')}`
+      ).addTo(_bffRemovedLayer);
+    });
+    _bffRemovedLayer.addTo(map);
+  }
   // Auf Referenz/Treffer zoomen
   const pts = [];
   _bffLastEvents.forEach(e => { if (e.asset.lat != null) pts.push([e.asset.lat, e.asset.lon]); });
@@ -5818,9 +6495,7 @@ function bffShowOnMap() {
   else if (pts.length > 1) map.fitBounds(L.latLngBounds(pts).pad(0.25));
   _bffDrawRings();
 }
-let _bffShowActive = false, _bffShowSet = null;
-let _bffLastMatchedLids = null;
-let _bffLastBestand = [];
+// V32.1-Fix: Deklaration an den Scriptanfang verschoben (TDZ im Singlefile-Synchronlauf)
 
 // Referenz-Suche (Punkt 3): Anlage (Name/MaStR-Nr) > Betreiber > NAP — nutzt bestehende Daten
 
@@ -6107,6 +6782,13 @@ function runBetroffenheitsanalyse() {
     gesBoxHtml +
     `</div>` +
     gesListeHtml +
+    // V33 (WP3): Ring-Legende — erklärt „leere" Ringe (nur entfernte Assets, korrekt!)
+    `<div style="font-size:11.5px;color:#6b7280;margin-top:8px;padding:6px 10px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;">
+       <b>Ring-Legende:</b>
+       <span style="color:#16a34a;font-weight:600">⬤ grün</span> = Neubau im Umkreis/NAP ·
+       <span style="color:#dc2626;font-weight:600">⬤ rot</span> = nur Abmeldungen im Umkreis (kein Zubau am Standort — kein Fehler) ·
+       entfernte Anlagen werden beim „Anzeigen" als rote Marker gezeigt
+     </div>` +
     (napCtx ? `<div style="font-size:11.5px;color:#6b7280;margin-top:6px;">NAP-Kontext: ${esc(napCtx.nap)} · ${esc(napCtx.nb || '')} · ${esc(napCtx.se || '')} · Regelzone ${esc(napCtx.rz || '')}</div>` : '');
   // V16/V19: Tabellarische Gegenüberstellung Bestand ↔ Neu (Betreiber + Asset, mit Deeplinks).
   // V19-Fix: bestandNachOrt ebenfalls mit Koordinaten-Toleranz (wie _bffLastBestand).

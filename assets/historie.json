@@ -4,15 +4,57 @@
     "wind_anzahl": 31114,
     "pv_anzahl": 22368,
     "gesamt_anzahl": 53482,
-    "wind_mw": 90151.85,
+    "wind_mw": 81615.46,
     "pv_mw": 54633.09,
-    "gesamt_mw": 144784.94,
+    "gesamt_mw": 136248.55,
     "bundeslaender": {
-      "Nordrhein-Westfalen": {
-        "wind": 3953,
-        "pv": 2059,
-        "wind_mw": 13024.97,
-        "pv_mw": 2862.05
+      "Unbekannt": {
+        "wind": 0,
+        "pv": 5,
+        "wind_mw": 0.0,
+        "pv_mw": 49.68
+      },
+      "Ausschließliche Wirtschaftszone": {
+        "wind": 1677,
+        "pv": 0,
+        "wind_mw": 10439.17,
+        "pv_mw": 0.0
+      },
+      "Baden-Württemberg": {
+        "wind": 854,
+        "pv": 1974,
+        "wind_mw": 2247.77,
+        "pv_mw": 3815.97
+      },
+      "Bayern": {
+        "wind": 1192,
+        "pv": 5850,
+        "wind_mw": 2885.08,
+        "pv_mw": 15552.62
+      },
+      "Berlin": {
+        "wind": 6,
+        "pv": 36,
+        "wind_mw": 16.57,
+        "pv_mw": 33.87
+      },
+      "Brandenburg": {
+        "wind": 4130,
+        "pv": 2114,
+        "wind_mw": 9659.74,
+        "pv_mw": 7948.33
+      },
+      "Bremen": {
+        "wind": 81,
+        "pv": 35,
+        "wind_mw": 187.24,
+        "pv_mw": 51.41
+      },
+      "Hamburg": {
+        "wind": 61,
+        "pv": 35,
+        "wind_mw": 121.69,
+        "pv_mw": 31.94
       },
       "Hessen": {
         "wind": 1206,
@@ -20,23 +62,23 @@
         "wind_mw": 2955.4,
         "pv_mw": 1473.49
       },
-      "Bayern": {
-        "wind": 1192,
-        "pv": 5850,
-        "wind_mw": 3120.84,
-        "pv_mw": 15552.62
-      },
-      "Baden-Württemberg": {
-        "wind": 854,
-        "pv": 1974,
-        "wind_mw": 2327.69,
-        "pv_mw": 3815.97
-      },
       "Mecklenburg-Vorpommern": {
         "wind": 1922,
         "pv": 1384,
-        "wind_mw": 4557.07,
+        "wind_mw": 4557.06,
         "pv_mw": 4096.73
+      },
+      "Niedersachsen": {
+        "wind": 6301,
+        "pv": 1655,
+        "wind_mw": 14644.21,
+        "pv_mw": 2978.82
+      },
+      "Nordrhein-Westfalen": {
+        "wind": 3953,
+        "pv": 2059,
+        "wind_mw": 9733.26,
+        "pv_mw": 2862.05
       },
       "Rheinland-Pfalz": {
         "wind": 1793,
@@ -44,16 +86,16 @@
         "wind_mw": 4443.82,
         "pv_mw": 2486.96
       },
-      "Schleswig-Holstein": {
-        "wind": 3375,
-        "pv": 629,
-        "wind_mw": 11007.31,
-        "pv_mw": 2779.22
+      "Saarland": {
+        "wind": 219,
+        "pv": 189,
+        "wind_mw": 572.63,
+        "pv_mw": 552.49
       },
       "Sachsen": {
         "wind": 853,
         "pv": 1449,
-        "wind_mw": 1572.61,
+        "wind_mw": 1460.99,
         "pv_mw": 3623.42
       },
       "Sachsen-Anhalt": {
@@ -62,53 +104,17 @@
         "wind_mw": 5708.1,
         "pv_mw": 4411.8
       },
-      "Niedersachsen": {
-        "wind": 6301,
-        "pv": 1655,
-        "wind_mw": 18162.69,
-        "pv_mw": 2978.82
+      "Schleswig-Holstein": {
+        "wind": 3375,
+        "pv": 629,
+        "wind_mw": 10073.05,
+        "pv_mw": 2779.22
       },
       "Thüringen": {
         "wind": 853,
         "pv": 1254,
-        "wind_mw": 1984.61,
+        "wind_mw": 1909.68,
         "pv_mw": 1884.27
-      },
-      "Brandenburg": {
-        "wind": 4130,
-        "pv": 2114,
-        "wind_mw": 9849.55,
-        "pv_mw": 7948.33
-      },
-      "Hamburg": {
-        "wind": 61,
-        "pv": 35,
-        "wind_mw": 121.69,
-        "pv_mw": 31.94
-      },
-      "Saarland": {
-        "wind": 219,
-        "pv": 189,
-        "wind_mw": 572.63,
-        "pv_mw": 552.49
-      },
-      "Bremen": {
-        "wind": 81,
-        "pv": 35,
-        "wind_mw": 287.14,
-        "pv_mw": 51.41
-      },
-      "Berlin": {
-        "wind": 6,
-        "pv": 36,
-        "wind_mw": 16.57,
-        "pv_mw": 33.87
-      },
-      "Ausschließliche Wirtschaftszone": {
-        "wind": 1677,
-        "pv": 0,
-        "wind_mw": 10439.17,
-        "pv_mw": 0.0
       }
     },
     "delta": null
@@ -118,10 +124,16 @@
     "wind_anzahl": 31116,
     "pv_anzahl": 22384,
     "gesamt_anzahl": 53500,
-    "wind_mw": 90164.71,
+    "wind_mw": 81628.32,
     "pv_mw": 54729.37,
-    "gesamt_mw": 144894.08,
+    "gesamt_mw": 136357.7,
     "bundeslaender": {
+      "Unbekannt": {
+        "wind": 0,
+        "pv": 5,
+        "wind_mw": 0.0,
+        "pv_mw": 49.68
+      },
       "Ausschließliche Wirtschaftszone": {
         "wind": 1677,
         "pv": 0,
@@ -131,13 +143,13 @@
       "Baden-Württemberg": {
         "wind": 854,
         "pv": 1974,
-        "wind_mw": 2327.69,
+        "wind_mw": 2247.77,
         "pv_mw": 3815.97
       },
       "Bayern": {
         "wind": 1192,
         "pv": 5854,
-        "wind_mw": 3120.84,
+        "wind_mw": 2885.08,
         "pv_mw": 15575.82
       },
       "Berlin": {
@@ -149,13 +161,13 @@
       "Brandenburg": {
         "wind": 4130,
         "pv": 2116,
-        "wind_mw": 9849.55,
+        "wind_mw": 9659.74,
         "pv_mw": 7954.34
       },
       "Bremen": {
         "wind": 81,
         "pv": 35,
-        "wind_mw": 287.14,
+        "wind_mw": 187.24,
         "pv_mw": 51.41
       },
       "Hamburg": {
@@ -179,13 +191,13 @@
       "Niedersachsen": {
         "wind": 6301,
         "pv": 1656,
-        "wind_mw": 18162.69,
+        "wind_mw": 14644.21,
         "pv_mw": 2989.04
       },
       "Nordrhein-Westfalen": {
         "wind": 3954,
         "pv": 2062,
-        "wind_mw": 13030.53,
+        "wind_mw": 9738.82,
         "pv_mw": 2884.35
       },
       "Rheinland-Pfalz": {
@@ -203,7 +215,7 @@
       "Sachsen": {
         "wind": 853,
         "pv": 1449,
-        "wind_mw": 1572.61,
+        "wind_mw": 1460.99,
         "pv_mw": 3623.42
       },
       "Sachsen-Anhalt": {
@@ -215,13 +227,13 @@
       "Schleswig-Holstein": {
         "wind": 3375,
         "pv": 634,
-        "wind_mw": 11007.31,
+        "wind_mw": 10073.05,
         "pv_mw": 2808.19
       },
       "Thüringen": {
         "wind": 853,
         "pv": 1255,
-        "wind_mw": 1984.61,
+        "wind_mw": 1909.68,
         "pv_mw": 1889.87
       }
     },
@@ -239,7 +251,7 @@
       "gesamt_diff_anzahl": 18,
       "wind_diff_mw": 12.86,
       "pv_diff_mw": 96.28,
-      "gesamt_diff_mw": 109.14,
+      "gesamt_diff_mw": 109.15,
       "removed_anzahl": 1,
       "bundeslaender_delta": {
         "Bayern": {
@@ -257,7 +269,7 @@
         "Mecklenburg-Vorpommern": {
           "wind": 1,
           "pv": 0,
-          "wind_mw": 7.29,
+          "wind_mw": 7.3,
           "pv_mw": 0.0
         },
         "Niedersachsen": {
@@ -708,139 +720,6 @@
     }
   },
   {
-    "datum": "2026-09-01",
-    "wind_anzahl": 31116,
-    "pv_anzahl": 22384,
-    "gesamt_anzahl": 53500,
-    "wind_mw": 90164.71,
-    "pv_mw": 54729.37,
-    "gesamt_mw": 144894.08,
-    "bundeslaender": {
-      "Ausschließliche Wirtschaftszone": {
-        "wind": 1677,
-        "pv": 0,
-        "wind_mw": 10439.17,
-        "pv_mw": 0.0
-      },
-      "Baden-Württemberg": {
-        "wind": 854,
-        "pv": 1974,
-        "wind_mw": 2327.69,
-        "pv_mw": 3815.97
-      },
-      "Bayern": {
-        "wind": 1192,
-        "pv": 5854,
-        "wind_mw": 3120.84,
-        "pv_mw": 15575.82
-      },
-      "Berlin": {
-        "wind": 6,
-        "pv": 36,
-        "wind_mw": 16.57,
-        "pv_mw": 33.87
-      },
-      "Brandenburg": {
-        "wind": 4130,
-        "pv": 2116,
-        "wind_mw": 9849.55,
-        "pv_mw": 7954.34
-      },
-      "Bremen": {
-        "wind": 81,
-        "pv": 35,
-        "wind_mw": 287.14,
-        "pv_mw": 51.41
-      },
-      "Hamburg": {
-        "wind": 61,
-        "pv": 35,
-        "wind_mw": 121.69,
-        "pv_mw": 31.94
-      },
-      "Hessen": {
-        "wind": 1206,
-        "pv": 751,
-        "wind_mw": 2955.4,
-        "pv_mw": 1473.49
-      },
-      "Mecklenburg-Vorpommern": {
-        "wind": 1923,
-        "pv": 1384,
-        "wind_mw": 4564.36,
-        "pv_mw": 4096.73
-      },
-      "Niedersachsen": {
-        "wind": 6301,
-        "pv": 1656,
-        "wind_mw": 18162.69,
-        "pv_mw": 2989.04
-      },
-      "Nordrhein-Westfalen": {
-        "wind": 3954,
-        "pv": 2062,
-        "wind_mw": 13030.53,
-        "pv_mw": 2884.35
-      },
-      "Rheinland-Pfalz": {
-        "wind": 1793,
-        "pv": 939,
-        "wind_mw": 4443.82,
-        "pv_mw": 2486.96
-      },
-      "Saarland": {
-        "wind": 219,
-        "pv": 189,
-        "wind_mw": 572.63,
-        "pv_mw": 552.49
-      },
-      "Sachsen": {
-        "wind": 853,
-        "pv": 1449,
-        "wind_mw": 1572.61,
-        "pv_mw": 3623.42
-      },
-      "Sachsen-Anhalt": {
-        "wind": 2638,
-        "pv": 2010,
-        "wind_mw": 5708.1,
-        "pv_mw": 4411.8
-      },
-      "Schleswig-Holstein": {
-        "wind": 3375,
-        "pv": 634,
-        "wind_mw": 11007.31,
-        "pv_mw": 2808.19
-      },
-      "Thüringen": {
-        "wind": 853,
-        "pv": 1255,
-        "wind_mw": 1984.61,
-        "pv_mw": 1889.87
-      }
-    },
-    "delta": {
-      "old_datum": "2026-09-01",
-      "new_datum": "2026-09-01",
-      "wind_neu": 0,
-      "pv_neu": 0,
-      "gesamt_neu": 0,
-      "wind_mw_neu": 0,
-      "pv_mw_neu": 0,
-      "gesamt_mw_neu": 0,
-      "wind_diff_anzahl": 0,
-      "pv_diff_anzahl": 0,
-      "gesamt_diff_anzahl": 0,
-      "wind_diff_mw": 0.0,
-      "pv_diff_mw": 0.0,
-      "gesamt_diff_mw": 0.0,
-      "removed_anzahl": 0,
-      "bundeslaender_delta": {},
-      "added_assets": [],
-      "removed_assets": []
-    }
-  },
-  {
     "datum": "2026-09-06",
     "wind_anzahl": 31010,
     "pv_anzahl": 22409,
@@ -964,9 +843,9 @@
       "wind_diff_anzahl": -106,
       "pv_diff_anzahl": 25,
       "gesamt_diff_anzahl": -81,
-      "wind_diff_mw": -8410.85,
+      "wind_diff_mw": 125.54,
       "pv_diff_mw": 89.34,
-      "gesamt_diff_mw": -8321.51,
+      "gesamt_diff_mw": 214.87,
       "removed_anzahl": 133,
       "bundeslaender_delta": {
         "Ausschließliche Wirtschaftszone": {
@@ -978,25 +857,25 @@
         "Baden-Württemberg": {
           "wind": 2,
           "pv": 1,
-          "wind_mw": -62.9,
+          "wind_mw": 17.02,
           "pv_mw": 2.55
         },
         "Bayern": {
           "wind": -4,
           "pv": 9,
-          "wind_mw": -236.0,
+          "wind_mw": -0.24,
           "pv_mw": 18.59
         },
         "Brandenburg": {
           "wind": -2,
           "pv": 2,
-          "wind_mw": -178.88,
+          "wind_mw": 10.93,
           "pv_mw": 1.55
         },
         "Bremen": {
           "wind": -2,
           "pv": 0,
-          "wind_mw": -100.0,
+          "wind_mw": -0.1,
           "pv_mw": 0.0
         },
         "Hamburg": {
@@ -1020,13 +899,13 @@
         "Niedersachsen": {
           "wind": -48,
           "pv": 5,
-          "wind_mw": -3522.3,
+          "wind_mw": -3.82,
           "pv_mw": 14.5
         },
         "Nordrhein-Westfalen": {
           "wind": -41,
           "pv": 0,
-          "wind_mw": -3263.84,
+          "wind_mw": 27.87,
           "pv_mw": -3.65
         },
         "Rheinland-Pfalz": {
@@ -1038,20 +917,26 @@
         "Sachsen": {
           "wind": -1,
           "pv": 1,
-          "wind_mw": -105.53,
+          "wind_mw": 6.09,
           "pv_mw": 0.75
         },
         "Schleswig-Holstein": {
           "wind": -13,
           "pv": 3,
-          "wind_mw": -917.6,
+          "wind_mw": 16.66,
           "pv_mw": 49.76
         },
         "Thüringen": {
           "wind": 2,
           "pv": 1,
-          "wind_mw": -56.4,
+          "wind_mw": 18.53,
           "pv_mw": 2.17
+        },
+        "Unbekannt": {
+          "wind": 0,
+          "pv": -5,
+          "wind_mw": 0.0,
+          "pv_mw": -49.68
         }
       },
       "added_assets": [
@@ -2194,7 +2079,7 @@
           "n": "Hans Günter N.",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Emsland",
           "g": "Vrees",
@@ -2218,7 +2103,7 @@
           "n": "Quint Druckerei",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Schleswig-Holstein",
           "lk": "Segeberg",
           "g": "Pronstorf",
@@ -2242,7 +2127,7 @@
           "n": "Windkraft Nord-Süd",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Emsland",
           "g": "Rastdorf",
@@ -2290,7 +2175,7 @@
           "n": "Tacke TW 80",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Emsland",
           "g": "Wippingen",
@@ -2314,7 +2199,7 @@
           "n": "TW80 80kW",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Cloppenburg",
           "g": "Lindern (Oldenburg)",
@@ -2338,7 +2223,7 @@
           "n": "Windrad",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Schleswig-Holstein",
           "lk": "Stormarn",
           "g": "Barnitz",
@@ -2362,7 +2247,7 @@
           "n": "Windrad 50xws",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 50.0,
+          "mw": 0.05,
           "b": "Niedersachsen",
           "lk": "Schaumburg",
           "g": "Bückeburg",
@@ -2386,7 +2271,7 @@
           "n": "Windenergieanlage",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 60.0,
+          "mw": 0.06,
           "b": "Nordrhein-Westfalen",
           "lk": "Steinfurt",
           "g": "Saerbeck",
@@ -2430,7 +2315,7 @@
           "n": "Hofstelle Nienhaus",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Borken",
           "g": "Rhede",
@@ -2454,7 +2339,7 @@
           "n": "Windkraftanlage",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 75.0,
+          "mw": 0.075,
           "b": "Schleswig-Holstein",
           "lk": "Kiel",
           "g": "Kiel",
@@ -2478,7 +2363,7 @@
           "n": "LOS 3",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 37.0,
+          "mw": 0.037,
           "b": "Brandenburg",
           "lk": "Oder-Spree",
           "g": "Gosen-Neu Zittau",
@@ -2502,7 +2387,7 @@
           "n": "WEA Mundersum",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Emsland",
           "g": "Lingen (Ems)",
@@ -2526,7 +2411,7 @@
           "n": "Suedwind Wulfswarfe",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 37.0,
+          "mw": 0.037,
           "b": "Niedersachsen",
           "lk": "Friesland",
           "g": "Schortens",
@@ -2550,7 +2435,7 @@
           "n": "LOS2",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 37.0,
+          "mw": 0.037,
           "b": "Brandenburg",
           "lk": "Oder-Spree",
           "g": "Gosen-Neu Zittau",
@@ -2574,7 +2459,7 @@
           "n": "WEA Krogmann 15/50",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 50.0,
+          "mw": 0.05,
           "b": "Bremen",
           "lk": "Bremerhaven",
           "g": "Bremerhaven",
@@ -2598,7 +2483,7 @@
           "n": "WKA Vinter Str.",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Osnabrück",
           "g": "Neuenkirchen",
@@ -2622,7 +2507,7 @@
           "n": "kleine Enercon",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Emsland",
           "g": "Rastdorf",
@@ -2670,7 +2555,7 @@
           "n": "Tacke TW80",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Cloppenburg",
           "g": "Friesoythe",
@@ -2694,7 +2579,7 @@
           "n": "Windrad2",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 61.73,
+          "mw": 0.0617,
           "b": "Sachsen",
           "lk": "Nordsachsen",
           "g": "Krostitz",
@@ -2718,7 +2603,7 @@
           "n": "Vestas V17",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 75.0,
+          "mw": 0.075,
           "b": "Thüringen",
           "lk": "Sömmerda",
           "g": "Sömmerda",
@@ -2742,7 +2627,7 @@
           "n": "Lely",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 30.4,
+          "mw": 0.0304,
           "b": "Schleswig-Holstein",
           "lk": "Nordfriesland",
           "g": "Pellworm",
@@ -2766,7 +2651,7 @@
           "n": "Windenergieanlage",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 50.0,
+          "mw": 0.05,
           "b": "Niedersachsen",
           "lk": "Diepholz",
           "g": "Wagenfeld",
@@ -2790,7 +2675,7 @@
           "n": "ABR973904011703",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 79.8,
+          "mw": 0.0798,
           "b": "Schleswig-Holstein",
           "lk": "Nordfriesland",
           "g": "Witsum",
@@ -2814,7 +2699,7 @@
           "n": "Windkraftanlage Kamp-Lintfort",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 50.0,
+          "mw": 0.05,
           "b": "Nordrhein-Westfalen",
           "lk": "Wesel",
           "g": "Kamp-Lintfort",
@@ -2838,7 +2723,7 @@
           "n": "WKA Hermann",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 75.0,
+          "mw": 0.075,
           "b": "Nordrhein-Westfalen",
           "lk": "Minden-Lübbecke",
           "g": "Petershagen",
@@ -2862,7 +2747,7 @@
           "n": "TW80",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Borken",
           "g": "Legden",
@@ -2910,7 +2795,7 @@
           "n": "Josef Spelmink",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Borken",
           "g": "Gronau (Westf.)",
@@ -2934,7 +2819,7 @@
           "n": "Wehr 249",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 50.0,
+          "mw": 0.05,
           "b": "Nordrhein-Westfalen",
           "lk": "Borken",
           "g": "Legden",
@@ -2958,7 +2843,7 @@
           "n": "e17",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Aurich",
           "g": "Norden",
@@ -2982,7 +2867,7 @@
           "n": "WKA Lagerwey",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 75.0,
+          "mw": 0.075,
           "b": "Niedersachsen",
           "lk": "Friesland",
           "g": "Wangerland",
@@ -3006,7 +2891,7 @@
           "n": "Windkraftanlage Immergrün",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 50.0,
+          "mw": 0.05,
           "b": "Nordrhein-Westfalen",
           "lk": "Märkischer Kreis",
           "g": "Hemer",
@@ -3050,7 +2935,7 @@
           "n": "Windkraft TW80",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Emsland",
           "g": "Meppen",
@@ -3074,7 +2959,7 @@
           "n": "WKA",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Unna",
           "g": "Lünen",
@@ -3098,7 +2983,7 @@
           "n": "Tacke TW80",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Borken",
           "g": "Rhede",
@@ -3122,7 +3007,7 @@
           "n": "Windkraft",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Cloppenburg",
           "g": "Molbergen",
@@ -3146,7 +3031,7 @@
           "n": "Lagerwey 18/80",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Minden-Lübbecke",
           "g": "Stemwede",
@@ -3170,7 +3055,7 @@
           "n": "TW 80",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Borken",
           "g": "Ahaus",
@@ -3194,7 +3079,7 @@
           "n": "Lagerwey LW 10/35",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 35.0,
+          "mw": 0.035,
           "b": "Nordrhein-Westfalen",
           "lk": "Minden-Lübbecke",
           "g": "Petershagen",
@@ -3218,7 +3103,7 @@
           "n": "Windmühle E-18",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Osnabrück",
           "g": "Kettenkamp",
@@ -3242,7 +3127,7 @@
           "n": "Nord Tank 65",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 65.0,
+          "mw": 0.065,
           "b": "Schleswig-Holstein",
           "lk": "Schleswig-Flensburg",
           "g": "Nübel",
@@ -3266,7 +3151,7 @@
           "n": "Enercon E 18 Geseke EA-4665",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Soest",
           "g": "Geseke",
@@ -3290,7 +3175,7 @@
           "n": "Lagerwey WEA Pievens",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Friesland",
           "g": "Wangerland",
@@ -3314,7 +3199,7 @@
           "n": "Tacke TW 80",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Steinfurt",
           "g": "Rheine",
@@ -3338,7 +3223,7 @@
           "n": "LOS 1",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 36.0,
+          "mw": 0.036,
           "b": "Brandenburg",
           "lk": "Oder-Spree",
           "g": "Gosen-Neu Zittau",
@@ -3362,7 +3247,7 @@
           "n": "Windkraft 1",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 36.0,
+          "mw": 0.036,
           "b": "Bayern",
           "lk": "Regen",
           "g": "Regen",
@@ -3386,7 +3271,7 @@
           "n": "ENERCON-17",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Ennepe-Ruhr-Kreis",
           "g": "Hattingen",
@@ -3410,7 +3295,7 @@
           "n": "LN-E18",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Emsland",
           "g": "Vrees",
@@ -3434,7 +3319,7 @@
           "n": "Klein-WKA Mischenberg",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 75.0,
+          "mw": 0.075,
           "b": "Nordrhein-Westfalen",
           "lk": "Lippe",
           "g": "Extertal",
@@ -3458,7 +3343,7 @@
           "n": "Windrad",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 40.0,
+          "mw": 0.04,
           "b": "Bayern",
           "lk": "Starnberg",
           "g": "Berg",
@@ -3482,7 +3367,7 @@
           "n": "Meemken 80 KW   2",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Cloppenburg",
           "g": "Friesoythe",
@@ -3506,7 +3391,7 @@
           "n": "E17/36",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Borken",
           "g": "Ahaus",
@@ -3530,7 +3415,7 @@
           "n": "WKA 1028",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Bayern",
           "lk": "Tirschenreuth",
           "g": "Erbendorf",
@@ -3554,7 +3439,7 @@
           "n": "Windkraftanlage_WEA_17155_E18",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Cloppenburg",
           "g": "Friesoythe",
@@ -3578,7 +3463,7 @@
           "n": "Windkraftanlage Zwillbrock 12 z, 48691 Vreden",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Borken",
           "g": "Vreden",
@@ -3626,7 +3511,7 @@
           "n": "WKA Enercon E 17",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Emsland",
           "g": "Lingen (Ems)",
@@ -3650,7 +3535,7 @@
           "n": "WK-Anlage",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Emsland",
           "g": "Dohren",
@@ -3674,7 +3559,7 @@
           "n": "Enercon",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Mettmann",
           "g": "Mettmann",
@@ -3722,7 +3607,7 @@
           "n": "WKA",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Borken",
           "g": "Gescher",
@@ -3746,7 +3631,7 @@
           "n": "ENERCON E-18",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Salzgitter",
           "g": "Salzgitter",
@@ -3770,7 +3655,7 @@
           "n": "Windkraft Lagerwey",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Heinsberg",
           "g": "Wassenberg",
@@ -3794,7 +3679,7 @@
           "n": "Enercon 18",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Schleswig-Holstein",
           "lk": "Schleswig-Flensburg",
           "g": "Groß Rheide",
@@ -3818,7 +3703,7 @@
           "n": "Pönnighaus-Grenzweg",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Minden-Lübbecke",
           "g": "Bad Oeynhausen",
@@ -3842,7 +3727,7 @@
           "n": "WKA Wasserwerk",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Osnabrück",
           "g": "Bersenbrück",
@@ -3866,7 +3751,7 @@
           "n": "WEA Schashagen",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 50.0,
+          "mw": 0.05,
           "b": "Schleswig-Holstein",
           "lk": "Ostholstein",
           "g": "Neustadt in Holstein",
@@ -3914,7 +3799,7 @@
           "n": "Windrad TW 80",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Gütersloh",
           "g": "Halle (Westf.)",
@@ -3938,7 +3823,7 @@
           "n": "Golfclub",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 60.0,
+          "mw": 0.06,
           "b": "Nordrhein-Westfalen",
           "lk": "Warendorf",
           "g": "Warendorf",
@@ -3962,7 +3847,7 @@
           "n": "Reckfort 1 TW 80",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Steinfurt",
           "g": "Nordwalde",
@@ -3986,7 +3871,7 @@
           "n": "Schulstraße 4",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Osnabrück",
           "g": "Hasbergen",
@@ -4010,7 +3895,7 @@
           "n": "Krogmann-15/50-G30",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 50.0,
+          "mw": 0.05,
           "b": "Bremen",
           "lk": "Bremen",
           "g": "Bremen",
@@ -4034,7 +3919,7 @@
           "n": "WKA klein",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Cloppenburg",
           "g": "Lastrup",
@@ -4058,7 +3943,7 @@
           "n": "OBS Luisenhof -3",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Wesermarsch",
           "g": "Nordenham",
@@ -4082,7 +3967,7 @@
           "n": "Lagerwey WKA",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Viersen",
           "g": "Niederkrüchten",
@@ -4126,7 +4011,7 @@
           "n": "Wind",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 60.0,
+          "mw": 0.06,
           "b": "Nordrhein-Westfalen",
           "lk": "Steinfurt",
           "g": "Neuenkirchen",
@@ -4150,7 +4035,7 @@
           "n": "Windhof",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Steinfurt",
           "g": "Ibbenbüren",
@@ -4174,7 +4059,7 @@
           "n": "Enercon E-18",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Schleswig-Holstein",
           "lk": "Rendsburg-Eckernförde",
           "g": "Wasbek",
@@ -4198,7 +4083,7 @@
           "n": "Tacke",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 60.0,
+          "mw": 0.06,
           "b": "Niedersachsen",
           "lk": "Emsland",
           "g": "Rastdorf",
@@ -4246,7 +4131,7 @@
           "n": "Lagerwey",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 50.0,
+          "mw": 0.05,
           "b": "Niedersachsen",
           "lk": "Osnabrück",
           "g": "Georgsmarienhütte",
@@ -4270,7 +4155,7 @@
           "n": "WKA Seller Esch",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Steinfurt",
           "g": "Steinfurt",
@@ -4294,7 +4179,7 @@
           "n": "Meemken 80 KW",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Cloppenburg",
           "g": "Friesoythe",
@@ -4318,7 +4203,7 @@
           "n": "Hofwiese",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 55.0,
+          "mw": 0.055,
           "b": "Nordrhein-Westfalen",
           "lk": "Minden-Lübbecke",
           "g": "Stemwede",
@@ -4342,7 +4227,7 @@
           "n": "1994 Wind",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Cloppenburg",
           "g": "Friesoythe",
@@ -4366,7 +4251,7 @@
           "n": "LW 15/50",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 50.0,
+          "mw": 0.05,
           "b": "Niedersachsen",
           "lk": "Schaumburg",
           "g": "Rinteln",
@@ -4390,7 +4275,7 @@
           "n": "Windrad2005",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Baden-Württemberg",
           "lk": "Biberach",
           "g": "Ochsenhausen",
@@ -4414,7 +4299,7 @@
           "n": "WKA Enercon 18 Vrees 27.12.1993",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Emsland",
           "g": "Vrees",
@@ -4438,7 +4323,7 @@
           "n": "WEA E17",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Herford",
           "g": "Bünde",
@@ -4462,7 +4347,7 @@
           "n": "TW 80",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Osnabrück",
           "g": "Menslage",
@@ -4486,7 +4371,7 @@
           "n": "Windkraftanlage/Einspeisung",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 55.0,
+          "mw": 0.055,
           "b": "Schleswig-Holstein",
           "lk": "Nordfriesland",
           "g": "Reußenköge",
@@ -4530,7 +4415,7 @@
           "n": "ENERCON E18",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Cloppenburg",
           "g": "Friesoythe",
@@ -4554,7 +4439,7 @@
           "n": "WKA2",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 55.0,
+          "mw": 0.055,
           "b": "Schleswig-Holstein",
           "lk": "Ostholstein",
           "g": "Fehmarn",
@@ -4578,7 +4463,7 @@
           "n": "Lagerwey 18/80 Frechen",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Rhein-Erft-Kreis",
           "g": "Frechen",
@@ -4626,7 +4511,7 @@
           "n": "WKA",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Ennepe-Ruhr-Kreis",
           "g": "Wetter (Ruhr)",
@@ -4650,7 +4535,7 @@
           "n": "Tacke TW 80",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Soest",
           "g": "Ense",
@@ -4674,7 +4559,7 @@
           "n": "Kehr",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 75.0,
+          "mw": 0.075,
           "b": "Nordrhein-Westfalen",
           "lk": "Euskirchen",
           "g": "Dahlem",
@@ -4698,7 +4583,7 @@
           "n": "Butz GbR",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Grafschaft Bentheim",
           "g": "Ohne",
@@ -4722,7 +4607,7 @@
           "n": "Windkraftanlage",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 75.0,
+          "mw": 0.075,
           "b": "Niedersachsen",
           "lk": "Goslar",
           "g": "Goslar",
@@ -4746,7 +4631,7 @@
           "n": "WKA Steimelage",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Osnabrück",
           "g": "Quakenbrück",
@@ -4770,7 +4655,7 @@
           "n": "WKA 1993",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 55.0,
+          "mw": 0.055,
           "b": "Nordrhein-Westfalen",
           "lk": "Borken",
           "g": "Heiden",
@@ -4794,7 +4679,7 @@
           "n": "VESTAS V17 mit 23,5m Nabenhöhe (Stahlrohrturm)",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 75.0,
+          "mw": 0.075,
           "b": "Schleswig-Holstein",
           "lk": "Nordfriesland",
           "g": "Husum",
@@ -4818,7 +4703,7 @@
           "n": "Werne-Wessel E18",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Unna",
           "g": "Werne",
@@ -4866,7 +4751,7 @@
           "n": "Tacke TW80",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Cloppenburg",
           "g": "Molbergen",
@@ -4890,7 +4775,7 @@
           "n": "Windkraftanlage",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Schleswig-Holstein",
           "lk": "Dithmarschen",
           "g": "Friedrichskoog",
@@ -4914,7 +4799,7 @@
           "n": "WKA 80 kw",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Steinfurt",
           "g": "Saerbeck",
@@ -4938,7 +4823,7 @@
           "n": "TW60",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 60.0,
+          "mw": 0.06,
           "b": "Nordrhein-Westfalen",
           "lk": "Steinfurt",
           "g": "Ochtrup",
@@ -4962,7 +4847,7 @@
           "n": "Schepershof Windenergieanlage",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 55.0,
+          "mw": 0.055,
           "b": "Nordrhein-Westfalen",
           "lk": "Mettmann",
           "g": "Velbert",
@@ -4986,7 +4871,7 @@
           "n": "Windrad",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Ennepe-Ruhr-Kreis",
           "g": "Breckerfeld",
@@ -5010,7 +4895,7 @@
           "n": "WEA T1 (TW80 Kienberg)",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Bayern",
           "lk": "Neuburg-Schrobenhausen",
           "g": "Rennertshofen",
@@ -5034,7 +4919,7 @@
           "n": "Hofanlage",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Borken",
           "g": "Borken",
@@ -5058,7 +4943,7 @@
           "n": "Windkraft-Anlage Löwe",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 50.0,
+          "mw": 0.05,
           "b": "Schleswig-Holstein",
           "lk": "Ostholstein",
           "g": "Grömitz",
@@ -5082,7 +4967,7 @@
           "n": "TW 80",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Emsland",
           "g": "Geeste",
@@ -5106,7 +4991,7 @@
           "n": "Windrad1",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 50.0,
+          "mw": 0.05,
           "b": "Sachsen",
           "lk": "Nordsachsen",
           "g": "Krostitz",
@@ -5130,7 +5015,7 @@
           "n": "WEA",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Aurich",
           "g": "Krummhörn",
@@ -5154,7 +5039,7 @@
           "n": "Windmühle",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Emsland",
           "g": "Neulehe",
@@ -5178,7 +5063,7 @@
           "n": "Enercon E-18",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Warendorf",
           "g": "Ostbevern",
@@ -5202,7 +5087,7 @@
           "n": "Lagerwey",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Nordrhein-Westfalen",
           "lk": "Minden-Lübbecke",
           "g": "Petershagen",
@@ -5226,7 +5111,7 @@
           "n": "Enercon E-16 Manslagt",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 55.0,
+          "mw": 0.055,
           "b": "Niedersachsen",
           "lk": "Aurich",
           "g": "Krummhörn",
@@ -5250,7 +5135,7 @@
           "n": "WKA PBK Rinderzucht GmbH",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Brandenburg",
           "lk": "Prignitz",
           "g": "Pritzwalk",
@@ -5274,7 +5159,7 @@
           "n": "Wind",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Cloppenburg",
           "g": "Molbergen",
@@ -5298,7 +5183,7 @@
           "n": "WKA",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Cloppenburg",
           "g": "Barßel",
@@ -5322,7 +5207,7 @@
           "n": "Enercon E-18",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 80.0,
+          "mw": 0.08,
           "b": "Niedersachsen",
           "lk": "Osnabrück",
           "g": "Merzen",
@@ -5346,7 +5231,7 @@
           "n": "Neelen Wind",
           "t": "wind",
           "art": "Windkraft an Land",
-          "mw": 60.0,
+          "mw": 0.06,
           "b": "Niedersachsen",
           "lk": "Aurich",
           "g": "Ihlow",
@@ -5366,538 +5251,6 @@
           "los": "Windkraft an Land"
         }
       ]
-    }
-  },
-  {
-    "datum": "2026-09-06",
-    "wind_anzahl": 31010,
-    "pv_anzahl": 22409,
-    "gesamt_anzahl": 53419,
-    "wind_mw": 81753.86,
-    "pv_mw": 54818.71,
-    "gesamt_mw": 136572.57,
-    "bundeslaender": {
-      "Ausschließliche Wirtschaftszone": {
-        "wind": 1678,
-        "pv": 0,
-        "wind_mw": 10454.17,
-        "pv_mw": 0.0
-      },
-      "Baden-Württemberg": {
-        "wind": 856,
-        "pv": 1975,
-        "wind_mw": 2264.79,
-        "pv_mw": 3818.52
-      },
-      "Bayern": {
-        "wind": 1188,
-        "pv": 5863,
-        "wind_mw": 2884.84,
-        "pv_mw": 15594.41
-      },
-      "Berlin": {
-        "wind": 6,
-        "pv": 36,
-        "wind_mw": 16.57,
-        "pv_mw": 33.87
-      },
-      "Brandenburg": {
-        "wind": 4128,
-        "pv": 2118,
-        "wind_mw": 9670.67,
-        "pv_mw": 7955.89
-      },
-      "Bremen": {
-        "wind": 79,
-        "pv": 35,
-        "wind_mw": 187.14,
-        "pv_mw": 51.41
-      },
-      "Hamburg": {
-        "wind": 61,
-        "pv": 36,
-        "wind_mw": 121.69,
-        "pv_mw": 34.02
-      },
-      "Hessen": {
-        "wind": 1203,
-        "pv": 752,
-        "wind_mw": 2953.84,
-        "pv_mw": 1474.06
-      },
-      "Mecklenburg-Vorpommern": {
-        "wind": 1925,
-        "pv": 1384,
-        "wind_mw": 4577.97,
-        "pv_mw": 4096.73
-      },
-      "Niedersachsen": {
-        "wind": 6253,
-        "pv": 1661,
-        "wind_mw": 14640.39,
-        "pv_mw": 3003.54
-      },
-      "Nordrhein-Westfalen": {
-        "wind": 3913,
-        "pv": 2062,
-        "wind_mw": 9766.69,
-        "pv_mw": 2880.7
-      },
-      "Rheinland-Pfalz": {
-        "wind": 1794,
-        "pv": 940,
-        "wind_mw": 4449.38,
-        "pv_mw": 2487.44
-      },
-      "Saarland": {
-        "wind": 219,
-        "pv": 189,
-        "wind_mw": 572.63,
-        "pv_mw": 552.49
-      },
-      "Sachsen": {
-        "wind": 852,
-        "pv": 1450,
-        "wind_mw": 1467.08,
-        "pv_mw": 3624.17
-      },
-      "Sachsen-Anhalt": {
-        "wind": 2638,
-        "pv": 2010,
-        "wind_mw": 5708.1,
-        "pv_mw": 4411.8
-      },
-      "Schleswig-Holstein": {
-        "wind": 3362,
-        "pv": 637,
-        "wind_mw": 10089.71,
-        "pv_mw": 2857.95
-      },
-      "Thüringen": {
-        "wind": 855,
-        "pv": 1256,
-        "wind_mw": 1928.21,
-        "pv_mw": 1892.04
-      }
-    },
-    "delta": {
-      "old_datum": "2026-09-06",
-      "new_datum": "2026-09-06",
-      "wind_neu": 0,
-      "pv_neu": 0,
-      "gesamt_neu": 0,
-      "wind_mw_neu": 0,
-      "pv_mw_neu": 0,
-      "gesamt_mw_neu": 0,
-      "wind_diff_anzahl": 0,
-      "pv_diff_anzahl": 0,
-      "gesamt_diff_anzahl": 0,
-      "wind_diff_mw": 0.0,
-      "pv_diff_mw": 0.0,
-      "gesamt_diff_mw": 0.0,
-      "removed_anzahl": 0,
-      "bundeslaender_delta": {},
-      "added_assets": [],
-      "removed_assets": []
-    }
-  },
-  {
-    "datum": "2026-09-06",
-    "wind_anzahl": 31010,
-    "pv_anzahl": 22409,
-    "gesamt_anzahl": 53419,
-    "wind_mw": 81753.86,
-    "pv_mw": 54818.71,
-    "gesamt_mw": 136572.57,
-    "bundeslaender": {
-      "Ausschließliche Wirtschaftszone": {
-        "wind": 1678,
-        "pv": 0,
-        "wind_mw": 10454.17,
-        "pv_mw": 0.0
-      },
-      "Baden-Württemberg": {
-        "wind": 856,
-        "pv": 1975,
-        "wind_mw": 2264.79,
-        "pv_mw": 3818.52
-      },
-      "Bayern": {
-        "wind": 1188,
-        "pv": 5863,
-        "wind_mw": 2884.84,
-        "pv_mw": 15594.41
-      },
-      "Berlin": {
-        "wind": 6,
-        "pv": 36,
-        "wind_mw": 16.57,
-        "pv_mw": 33.87
-      },
-      "Brandenburg": {
-        "wind": 4128,
-        "pv": 2118,
-        "wind_mw": 9670.67,
-        "pv_mw": 7955.89
-      },
-      "Bremen": {
-        "wind": 79,
-        "pv": 35,
-        "wind_mw": 187.14,
-        "pv_mw": 51.41
-      },
-      "Hamburg": {
-        "wind": 61,
-        "pv": 36,
-        "wind_mw": 121.69,
-        "pv_mw": 34.02
-      },
-      "Hessen": {
-        "wind": 1203,
-        "pv": 752,
-        "wind_mw": 2953.84,
-        "pv_mw": 1474.06
-      },
-      "Mecklenburg-Vorpommern": {
-        "wind": 1925,
-        "pv": 1384,
-        "wind_mw": 4577.97,
-        "pv_mw": 4096.73
-      },
-      "Niedersachsen": {
-        "wind": 6253,
-        "pv": 1661,
-        "wind_mw": 14640.39,
-        "pv_mw": 3003.54
-      },
-      "Nordrhein-Westfalen": {
-        "wind": 3913,
-        "pv": 2062,
-        "wind_mw": 9766.69,
-        "pv_mw": 2880.7
-      },
-      "Rheinland-Pfalz": {
-        "wind": 1794,
-        "pv": 940,
-        "wind_mw": 4449.38,
-        "pv_mw": 2487.44
-      },
-      "Saarland": {
-        "wind": 219,
-        "pv": 189,
-        "wind_mw": 572.63,
-        "pv_mw": 552.49
-      },
-      "Sachsen": {
-        "wind": 852,
-        "pv": 1450,
-        "wind_mw": 1467.08,
-        "pv_mw": 3624.17
-      },
-      "Sachsen-Anhalt": {
-        "wind": 2638,
-        "pv": 2010,
-        "wind_mw": 5708.1,
-        "pv_mw": 4411.8
-      },
-      "Schleswig-Holstein": {
-        "wind": 3362,
-        "pv": 637,
-        "wind_mw": 10089.71,
-        "pv_mw": 2857.95
-      },
-      "Thüringen": {
-        "wind": 855,
-        "pv": 1256,
-        "wind_mw": 1928.21,
-        "pv_mw": 1892.04
-      }
-    },
-    "delta": {
-      "old_datum": "2026-09-06",
-      "new_datum": "2026-09-06",
-      "wind_neu": 0,
-      "pv_neu": 0,
-      "gesamt_neu": 0,
-      "wind_mw_neu": 0,
-      "pv_mw_neu": 0,
-      "gesamt_mw_neu": 0,
-      "wind_diff_anzahl": 0,
-      "pv_diff_anzahl": 0,
-      "gesamt_diff_anzahl": 0,
-      "wind_diff_mw": 0.0,
-      "pv_diff_mw": 0.0,
-      "gesamt_diff_mw": 0.0,
-      "removed_anzahl": 0,
-      "bundeslaender_delta": {},
-      "added_assets": [],
-      "removed_assets": []
-    }
-  },
-  {
-    "datum": "2026-09-06",
-    "wind_anzahl": 31010,
-    "pv_anzahl": 22409,
-    "gesamt_anzahl": 53419,
-    "wind_mw": 81753.86,
-    "pv_mw": 54818.71,
-    "gesamt_mw": 136572.57,
-    "bundeslaender": {
-      "Ausschließliche Wirtschaftszone": {
-        "wind": 1678,
-        "pv": 0,
-        "wind_mw": 10454.17,
-        "pv_mw": 0.0
-      },
-      "Baden-Württemberg": {
-        "wind": 856,
-        "pv": 1975,
-        "wind_mw": 2264.79,
-        "pv_mw": 3818.52
-      },
-      "Bayern": {
-        "wind": 1188,
-        "pv": 5863,
-        "wind_mw": 2884.84,
-        "pv_mw": 15594.41
-      },
-      "Berlin": {
-        "wind": 6,
-        "pv": 36,
-        "wind_mw": 16.57,
-        "pv_mw": 33.87
-      },
-      "Brandenburg": {
-        "wind": 4128,
-        "pv": 2118,
-        "wind_mw": 9670.67,
-        "pv_mw": 7955.89
-      },
-      "Bremen": {
-        "wind": 79,
-        "pv": 35,
-        "wind_mw": 187.14,
-        "pv_mw": 51.41
-      },
-      "Hamburg": {
-        "wind": 61,
-        "pv": 36,
-        "wind_mw": 121.69,
-        "pv_mw": 34.02
-      },
-      "Hessen": {
-        "wind": 1203,
-        "pv": 752,
-        "wind_mw": 2953.84,
-        "pv_mw": 1474.06
-      },
-      "Mecklenburg-Vorpommern": {
-        "wind": 1925,
-        "pv": 1384,
-        "wind_mw": 4577.97,
-        "pv_mw": 4096.73
-      },
-      "Niedersachsen": {
-        "wind": 6253,
-        "pv": 1661,
-        "wind_mw": 14640.39,
-        "pv_mw": 3003.54
-      },
-      "Nordrhein-Westfalen": {
-        "wind": 3913,
-        "pv": 2062,
-        "wind_mw": 9766.69,
-        "pv_mw": 2880.7
-      },
-      "Rheinland-Pfalz": {
-        "wind": 1794,
-        "pv": 940,
-        "wind_mw": 4449.38,
-        "pv_mw": 2487.44
-      },
-      "Saarland": {
-        "wind": 219,
-        "pv": 189,
-        "wind_mw": 572.63,
-        "pv_mw": 552.49
-      },
-      "Sachsen": {
-        "wind": 852,
-        "pv": 1450,
-        "wind_mw": 1467.08,
-        "pv_mw": 3624.17
-      },
-      "Sachsen-Anhalt": {
-        "wind": 2638,
-        "pv": 2010,
-        "wind_mw": 5708.1,
-        "pv_mw": 4411.8
-      },
-      "Schleswig-Holstein": {
-        "wind": 3362,
-        "pv": 637,
-        "wind_mw": 10089.71,
-        "pv_mw": 2857.95
-      },
-      "Thüringen": {
-        "wind": 855,
-        "pv": 1256,
-        "wind_mw": 1928.21,
-        "pv_mw": 1892.04
-      }
-    },
-    "delta": {
-      "old_datum": "2026-09-06",
-      "new_datum": "2026-09-06",
-      "wind_neu": 0,
-      "pv_neu": 0,
-      "gesamt_neu": 0,
-      "wind_mw_neu": 0,
-      "pv_mw_neu": 0,
-      "gesamt_mw_neu": 0,
-      "wind_diff_anzahl": 0,
-      "pv_diff_anzahl": 0,
-      "gesamt_diff_anzahl": 0,
-      "wind_diff_mw": 0.0,
-      "pv_diff_mw": 0.0,
-      "gesamt_diff_mw": 0.0,
-      "removed_anzahl": 0,
-      "bundeslaender_delta": {},
-      "added_assets": [],
-      "removed_assets": []
-    }
-  },
-  {
-    "datum": "2026-09-06",
-    "wind_anzahl": 31010,
-    "pv_anzahl": 22409,
-    "gesamt_anzahl": 53419,
-    "wind_mw": 81753.86,
-    "pv_mw": 54818.71,
-    "gesamt_mw": 136572.57,
-    "bundeslaender": {
-      "Ausschließliche Wirtschaftszone": {
-        "wind": 1678,
-        "pv": 0,
-        "wind_mw": 10454.17,
-        "pv_mw": 0.0
-      },
-      "Baden-Württemberg": {
-        "wind": 856,
-        "pv": 1975,
-        "wind_mw": 2264.79,
-        "pv_mw": 3818.52
-      },
-      "Bayern": {
-        "wind": 1188,
-        "pv": 5863,
-        "wind_mw": 2884.84,
-        "pv_mw": 15594.41
-      },
-      "Berlin": {
-        "wind": 6,
-        "pv": 36,
-        "wind_mw": 16.57,
-        "pv_mw": 33.87
-      },
-      "Brandenburg": {
-        "wind": 4128,
-        "pv": 2118,
-        "wind_mw": 9670.67,
-        "pv_mw": 7955.89
-      },
-      "Bremen": {
-        "wind": 79,
-        "pv": 35,
-        "wind_mw": 187.14,
-        "pv_mw": 51.41
-      },
-      "Hamburg": {
-        "wind": 61,
-        "pv": 36,
-        "wind_mw": 121.69,
-        "pv_mw": 34.02
-      },
-      "Hessen": {
-        "wind": 1203,
-        "pv": 752,
-        "wind_mw": 2953.84,
-        "pv_mw": 1474.06
-      },
-      "Mecklenburg-Vorpommern": {
-        "wind": 1925,
-        "pv": 1384,
-        "wind_mw": 4577.97,
-        "pv_mw": 4096.73
-      },
-      "Niedersachsen": {
-        "wind": 6253,
-        "pv": 1661,
-        "wind_mw": 14640.39,
-        "pv_mw": 3003.54
-      },
-      "Nordrhein-Westfalen": {
-        "wind": 3913,
-        "pv": 2062,
-        "wind_mw": 9766.69,
-        "pv_mw": 2880.7
-      },
-      "Rheinland-Pfalz": {
-        "wind": 1794,
-        "pv": 940,
-        "wind_mw": 4449.38,
-        "pv_mw": 2487.44
-      },
-      "Saarland": {
-        "wind": 219,
-        "pv": 189,
-        "wind_mw": 572.63,
-        "pv_mw": 552.49
-      },
-      "Sachsen": {
-        "wind": 852,
-        "pv": 1450,
-        "wind_mw": 1467.08,
-        "pv_mw": 3624.17
-      },
-      "Sachsen-Anhalt": {
-        "wind": 2638,
-        "pv": 2010,
-        "wind_mw": 5708.1,
-        "pv_mw": 4411.8
-      },
-      "Schleswig-Holstein": {
-        "wind": 3362,
-        "pv": 637,
-        "wind_mw": 10089.71,
-        "pv_mw": 2857.95
-      },
-      "Thüringen": {
-        "wind": 855,
-        "pv": 1256,
-        "wind_mw": 1928.21,
-        "pv_mw": 1892.04
-      }
-    },
-    "delta": {
-      "old_datum": "2026-09-06",
-      "new_datum": "2026-09-06",
-      "wind_neu": 0,
-      "pv_neu": 0,
-      "gesamt_neu": 0,
-      "wind_mw_neu": 0,
-      "pv_mw_neu": 0,
-      "gesamt_mw_neu": 0,
-      "wind_diff_anzahl": 0,
-      "pv_diff_anzahl": 0,
-      "gesamt_diff_anzahl": 0,
-      "wind_diff_mw": 0.0,
-      "pv_diff_mw": 0.0,
-      "gesamt_diff_mw": 0.0,
-      "removed_anzahl": 0,
-      "bundeslaender_delta": {},
-      "added_assets": [],
-      "removed_assets": []
     }
   }
 ]
