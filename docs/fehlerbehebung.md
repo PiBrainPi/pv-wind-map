@@ -1,8 +1,32 @@
 # Fehlerbehebung (Troubleshooting) — PV & Wind Karte
 
-> Stand: 2026-09-09 (V32.1)
+> Stand: 2026-09-10 (Pipeline: F-Fetch-1 Umlaut + Delta-Modus)
 
 ## Bekannte Fehlerbilder & Lösungen
+
+### F-Fetch-1. MaStR-API ignoriert Filternamen ohne Umlaut (BEHOBEN 10.09.2026)
+**Fehlerbild:** `fetch_v2.py` meldete beim Probe-Request Total = 9.435.237 (Gesamtbestand
+aller Erzeugungseinheiten) statt ~32k Wind-Anlagen. Ein Voll-Lauf hätte zigtausend Seiten
+gezogen. Die API meldet KEINEN Fehler — der Filter wird still ignoriert.
+**Ursache:** MaStR hat den JSON-Endpoint umbenannt/verhalten geändert: Der Filter-Column
+heißt jetzt **`Energieträger`** (mit Umlaut). Die bisherige Schreibweise `Energietraeger`
+(ohne Umlaut) wirkte nicht mehr. Letzter korrekter Lauf mit alter Schreibweise: 06.09.2026.
+**Diagnose:** Offizielle Filter-Column-Namen via
+`GET /MaStR/Einheit/EinheitJson/GetFilterColumnsErweiterteOeffentlicheEinheitStromerzeugung`
+(85 Columns, Liste ist die Wahrheit). Probe-Request mit pageSize=1: `Total` muss plausibel
+klein sein (~32k Wind / ~23k PV) — 9.435.237 = Filter wirkungslos.
+**Lösung:** `build_filter()` nutzt jetzt `Energieträger~eq~<id>`. Zusätzlich geändert:
+PV-Leistungsklausel `~ge~500` → `~gt~499.9` (`ge` in Kombination mit weiteren Klauseln
+lieferte Error=true; `gt` ist verifiziert ok).
+**Lektion:** Nach jedem MaStR-Endpoint-Kontakt die Totals gegen die lokalen Counts
+prüfen (Sicherheitsnetz macht das je Lauf automatisch).
+
+### F-Fetch-2. Delta-Fetch: Datum-Filter-Syntax (ERARBEITET 10.09.2026)
+Der Column **`Letzte Aktualisierung`** (Type date) erlaubt Delta-Abfragen:
+`~and~Letzte Aktualisierung~gt~TT.MM.JJJJ` (de-DE-Datum!). Verifiziert:
+- `gt~06.09.2026` → ok (Total ändert sich korrekt)
+- `ge~…` / `gte~…` / ISO-Datum (2026-09-07) → **Error=true**
+Delta-Lauf 06.09.→10.09.: Wind 105, PV 160 Records (statt 32k/23k = ~0,5 % Volumen).
 
 ### 0. „Alle Anlagen anzeigen"-Klick tut nichts (BEHOBEN in V25)
 **Fehlerbild:** Filter aktiv, Button erscheint, Klick → sichtbar keine Reaktion.

@@ -18,11 +18,35 @@ Seit 2026-09-03 werden zusätzlich zu den Kernfeldern **alle 118 API-Felder** un
 
 ```bash
 cd ~/Projects/pv-wind-map
-python3 scripts/fetch_v2.py --extended-status   # 1. Alle 118 Felder → data/raw_v2/ + F5-Status 31/37/38 (separate Dateien; alte raw/ unangetastet)
-python3 scripts/import_v2.py       # 2. Schema 2.0: einheiten_raw (UPSERT inkrementell) + Backup nach ~/backups/
-python3 scripts/fetch_nap.py       # 3. NAP je Lokation (Cache: nur neue/geänderte, resumable)
-python3 scripts/import_v2.py       # 4. NAP-JSONL in netzanschlusspunkte-Tabelle importieren
+bash scripts/pipeline2_update.sh   # Cron-Identisch: Delta-Fetch → Merge → Import → NAP
 ```
+
+Einzelne Schritte (manuell):
+
+```bash
+cd ~/Projects/pv-wind-map
+python3 scripts/fetch_v2.py --extended-status --delta   # 1. DELTA: nur neue/geänderte Records seit letztem Lauf → data/raw_v2/delta/
+#                              (ohne --delta: Vollabruf wie bis 09.09.)
+python3 scripts/merge_delta.py    # 2. Delta in Basis-JSONs mergen (UPSERT je MaStR-Nummer, Statuswechsel-Bereinigung)
+python3 scripts/import_v2.py      # 3. Schema 2.0: einheiten_raw (UPSERT inkrementell) + Backup nach ~/backups/
+python3 scripts/fetch_nap.py      # 4. NAP je Lokation (Cache: nur neue/geänderte, resumable)
+python3 scripts/import_v2.py      # 5. NAP-JSONL in netzanschlusspunkte-Tabelle importieren
+```
+
+> **✅ Delta-Modus (seit 10.09., 30-Punkte-Plan):** Der Fetch holt standardmäßig nur noch
+> Records mit `Letzte Aktualisierung > letzter Lauf` (State: `data/raw_v2/fetch_state.json`).
+> Erstlauf 06.09.→10.09.: 105 Wind + 160 PV Delta-Records statt 55k Vollabruf (~0,5 %).
+> **Sicherheitsnetz:** je Strang wird das API-Gesamttotal gegen `Basis + Delta` verglichen
+> (Toleranz 5 %) — bei Abweichung automatischer Vollabruf-Fallback mit Log-Zeile
+> „SICHERHEITSNETZ … FALLBACK". Gelöschte Register-Einträge (extrem selten) werden nur
+> vom Vollabgleich gefunden → quartalsweise einmal `--delta` weglassen (Vollabruf) empfohlen.
+> **Statuswechsel** (z. B. In Betrieb → Endgültig stillgelegt) erscheinen im Delta des
+> NEUEN Status-Strangs; `merge_delta.py` entfernt die Nummer automatisch aus dem alten
+> Strang (1:1-Regel, verifiziert: 0 Duplikate/0 Status-Mismatches).
+> **⚠️ F-Fetch-1:** Filter-Columns MIT Umlaut (`Energieträger`, nicht `Energietraeger`) —
+> siehe fehlerbehebung.md. Datum-Operator nur `~gt~` mit TT.MM.JJJJ (F-Fetch-2).
+> **Perf-Fix merge_delta.py (10.09.):** Statuswechsel-Bereinigung läuft jetzt in O(n)
+> (EIN Laden/Schreiben je Strang statt je Duplikat) — 2,5 h → 21 s.
 
 > **⚠️ F5-Pflicht-Flag `--extended-status` (seit 03.09., nicht optional):**
 > Ohne das Flag werden die 6 Status-Dateien `{wind,pv}_status{31,37,38}.json`

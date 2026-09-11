@@ -3,6 +3,30 @@
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
 > Stand: 2026-09-10 (**V35 — Betreiber-Diagramme + Filter-Reset + Legende**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
 
+## Aktueller Stand (2026-09-10 Abend, **Pipeline: Delta-Fetch + Umlaut-Fix F-Fetch-1**)
+
+**⚠️ KRITISCHER API-BEFUND (10.09., live verifiziert):** MaStR hat den JSON-Endpoint geändert —
+der Filter-Column heißt jetzt `Energieträger` (MIT Umlaut); die alte Schreibweise
+`Energietraeger` wird STILL ignoriert (Total = 9.435.237 Gesamtbestand statt ~32k Wind).
+Letzter korrekter Lauf mit alter Syntax: 06.09. → **der ursprüngliche Sonntags-Cron (13.09.)
+wäre ausgerudert.** Fix in `fetch_v2.py` (F-Fetch-1, Details fehlerbehebung.md).
+
+**Pipeline 2.0 = Delta-Modus (10.09., 30-Punkte-Plan `2026-09-10_Pipeline2_UmlautFix_DeltaFetch_30-Punkte-Plan.md`):**
+- `fetch_v2.py --delta`: nur Records mit `Letzte Aktualisierung > letzter Lauf` (Operator
+  `~gt~`, Datum TT.MM.JJJJ; State `data/raw_v2/fetch_state.json`). Erstlauf 06.09.→10.09.:
+  **Wind 105 + PV 160 Delta-Records statt 55k Vollabruf (~0,5 %)**; ohne `--delta` = Vollabruf (Rückfalloption).
+- `scripts/merge_delta.py` (NEU): Delta-Dateien (`data/raw_v2/delta/`) per UPSERT je
+  MaStR-Nummer in die Basis-JSONs mergen + Statuswechsel-Bereinigung (Nummer nur im
+  Strang des aktuellen Status). Perf-Fix: O(n) statt O(n²) — 2,5 h → 21 s.
+- Sicherheitsnetz: je Strang API-Gesamttotal vs. Basis+Delta (Toleranz 5 %) → bei
+  Abweichung automatischer Vollabruf-Fallback. Quartalsweise 1× Vollabruf empfohlen
+  (findet gelöschte Register-Einträge).
+- `pipeline2_update.sh` nutzt jetzt: fetch `--delta` → merge → import → NAP → import.
+- Verifikation: Konsistenz nach Merge 0 Duplikate / 0 Status-Mismatches (67.176 Records);
+  2. Delta-Lauf direkt danach = 0 Records (idempotent); import_v2 mit Backup
+  (mastr_20260910_225009.db, 546,7 MB): einheiten_raw 67.183, georef 53.413 unverändert.
+- DB-Backups VOR allen lokalen DB-Schreibvorgängen (Deploy-Regel) eingehalten.
+
 ## Aktueller Stand (2026-09-10, **V35/V35.1 — Betreiber-Diagramme, Filter-Reset-Ursprungszustand, Betroffenheits-Legende**)
 
 **Code-Stand:** V35 (lokal, **noch nicht gepusht**; online/Basis: main `d8dd8e4`, gh-pages `15c2058` = V29.1-Deploy)

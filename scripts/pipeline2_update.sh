@@ -8,12 +8,13 @@ cd /home/claw_01_rasbpi5_1/Projects/pv-wind-map
 
 echo "=== Pipeline 2.0 Lauf: $(date '+%Y-%m-%d %H:%M:%S') ==="
 
-# 1+2. Wind & PV: alle 118 Felder holen + inkrementell importieren (mit DB-Backup)
-# F5 (--extended-status, verpflichtend!): Holt ZUSÄTZLICH Status 31/37/38 in
-# separate Dateien {wind,pv}_status{31,37,38}.json. Ohne das Flag würden die
-# Status-Dateien NICHT aktualisiert, import_v2.py ließe alte Daten ein — der
-# Status-Filter der Karte (F5) friere auf altem Stand ein.
-python3 scripts/fetch_v2.py --extended-status
+# 1+2. Wind & PV: DELTA-Abruf (seit letztem Lauf, F-Fetch-1-Fix: Umlaut-Filternamen!)
+# F5 (--extended-status, verpflichtend!): Holt ZUSÄTZLICH Status 31/37/38 im Delta.
+# Sicherheitsnetz: Total-Abgleich je Strang → bei Abweichung >5% automatischer
+# Vollabruf-Fallback (Meldung im Log). Danach Merge der Delta-Dateien in die
+# Basis-JSONs (UPSERT je MaStR-Nummer) + Statuswechsel-Bereinigung.
+python3 scripts/fetch_v2.py --extended-status --delta
+python3 scripts/merge_delta.py
 python3 scripts/import_v2.py
 
 # 3. NAP: nur neue/veränderte Lokationen (Cache nap_fetch_log), resumable
