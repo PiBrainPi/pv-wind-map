@@ -1077,8 +1077,9 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 /* V20 (User-Feedback 04.09.): 700→820 px, damit alle 8 Tabs (Betreiber … Betroffenheit)
    ohne horizontales Scrollen sichtbar sind */
 #stats-panel {
-  /* V34 (WP3, User-Wunsch): Panel 20 % breiter (820 → 984 px); Off-Canvas-Offset mitgezogen. */
-  position:fixed; top:0; right:-1024px; width:984px; max-width:94vw; height:100%;
+  /* V34 (WP3, User-Wunsch): Panel 20 % breiter (820 → 984 px); Off-Canvas-Offset mitgezogen.
+     V38 (AP2, User-Wunsch): weitere +8 % (984 → 1063 px); Offset -1024 → -1103. */
+  position:fixed; top:0; right:-1103px; width:1063px; max-width:94vw; height:100%;
   background:#fff; z-index:1800; box-shadow:-4px 0 24px rgba(0,0,0,.3);
   /* V33 (WP2): Panel überdeckt jetzt die Topbar (NAP/Statistik-Buttons) — User-Wunsch:
      das geöffnete Fenster muss komplett sichtbar sein. btn-stats bleibt als Toggle
@@ -1776,25 +1777,25 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
       <!-- V35 (AP1): Chart-Block (klappt unter der Tabelle auf) -->
       <div id="betreiber-charts" style="display:none; margin:10px 0; padding:10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">
         <div id="betreiber-charts-summary" style="font-size:12px; color:#374151; display:flex; flex-wrap:wrap; gap:10px; margin-bottom:8px;"></div>
-        <div style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;">
+        <div style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; align-items:center;">
           <button type="button" class="mbtn active" data-bcmeasure="anzahl" style="font-size:11px;padding:3px 9px;border:1px solid #d1d5db;background:#fff;border-radius:6px;cursor:pointer;">Anlagen</button>
           <button type="button" class="mbtn" data-bcmeasure="mw" style="font-size:11px;padding:3px 9px;border:1px solid #d1d5db;background:#fff;border-radius:6px;cursor:pointer;">Leistung (MW)</button>
+          <span style="font-size:11px;color:#6b7280;margin:0 2px 0 8px;">Technologie:</span>
+          <button type="button" class="mbtn active" data-bctech="alle" title="Wind- und PV-Anlagen zusammen (kombinierte Ansicht)" style="font-size:11px;padding:3px 9px;border:1px solid #d1d5db;background:#fff;border-radius:6px;cursor:pointer;">Alle</button>
+          <button type="button" class="mbtn" data-bctech="wind" title="Nur Windkraftanlagen" style="font-size:11px;padding:3px 9px;border:1px solid #d1d5db;background:#fff;border-radius:6px;cursor:pointer;">🌬️ Wind</button>
+          <button type="button" class="mbtn" data-bctech="pv" title="Nur PV-Anlagen" style="font-size:11px;padding:3px 9px;border:1px solid #d1d5db;background:#fff;border-radius:6px;cursor:pointer;">☀️ PV</button>
         </div>
-        <div class="zubau-chart-block">
-          <h3 style="font-size:13px;margin:0 0 2px;">Wachstum nach Inbetriebnahmejahr</h3>
-          <div class="zc-sub" style="font-size:11px;color:#9ca3af;margin-bottom:6px;">Gestapelte Balken — Wind (blau) / PV (orange) · Werte je Jahr</div>
-          <div class="zubau-canvas-wrap"><canvas id="bc-wachstum"></canvas></div>
-        </div>
+        <!-- V40 (AP1): EEG-Donut entfernt; Wachstum + Technologie-Verteilung nebeneinander -->
         <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start;">
+          <div class="zubau-chart-block" style="flex:1 1 480px;">
+            <h3 style="font-size:13px;margin:0 0 2px;">Wachstum nach Inbetriebnahmejahr</h3>
+            <div class="zc-sub" style="font-size:11px;color:#9ca3af;margin-bottom:6px;">Gestapelte Balken — Wind (blau) / PV (orange) · Werte je Jahr</div>
+            <div class="zubau-canvas-wrap"><canvas id="bc-wachstum"></canvas></div>
+          </div>
           <div class="zubau-chart-block" style="flex:1 1 240px;">
             <h3 style="font-size:13px;margin:0 0 2px;">Technologie-Verteilung</h3>
             <div class="zc-sub" id="bc-tech-sub" style="font-size:11px;color:#9ca3af;margin-bottom:6px;">Anteil Wind / PV (Anlagen)</div>
             <div class="zubau-canvas-wrap"><canvas id="bc-tech"></canvas></div>
-          </div>
-          <div class="zubau-chart-block" style="flex:1 1 240px;">
-            <h3 style="font-size:13px;margin:0 0 2px;">EEG-Registrierung</h3>
-            <div class="zc-sub" id="bc-eeg-sub" style="font-size:11px;color:#9ca3af;margin-bottom:6px;">Mit / ohne EEG-Anlagen-Registrierung (MaStR-Feld EegInbetriebnahmeDatum; kein direkter Vergütungs-Status)</div>
-            <div class="zubau-canvas-wrap"><canvas id="bc-eeg"></canvas></div>
           </div>
         </div>
         <div id="betreiber-charts-note" style="font-size:11px;color:#9ca3af;margin-top:8px;"></div>
@@ -2093,8 +2094,14 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
             <select id="bff-fenster" style="font-size:12px;padding:3px 6px;margin-left:4px;">
               <option value="last">letztes Update</option>
               <option value="all">alle Updates</option>
+              <option value="range">Zeitraum (von–bis)</option>
             </select>
           </label>
+          <span id="bff-range-row" style="display:none;margin-left:8px;white-space:nowrap;">
+            <input type="date" id="bff-von" style="font-size:12px;padding:2px 4px;border:1px solid #d1d5db;border-radius:5px;">
+            –
+            <input type="date" id="bff-bis" style="font-size:12px;padding:2px 4px;border:1px solid #d1d5db;border-radius:5px;">
+          </span>
           <label style="margin-left:12px;">Modus:
             <select id="bff-modus" style="font-size:12px;padding:3px 6px;margin-left:4px;">
               <option value="both">neu registriert + neu in Betrieb</option>
@@ -2123,6 +2130,13 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
             Kreises befinden.<br>
             Die Kriterien sind ODER-verknüpft; NAP-Matches werden vor Umkreis-Matches
             sortiert. Gleicher Knoten ≠ geteiltes Netz (s. Hinweis oben).<br>
+            <b>3 · Zeitraum-Modus (V36):</b> Wird bei „Zeitfenster“ die Option
+            „Zeitraum (von–bis)“ gewählt, vergleicht die Analyse die Referenz gegen
+            <b>alle Anlagen der Datenbasis</b>, deren Inbetriebnahme- bzw. Registrierungsdatum
+            in den gewählten Zeitraum fällt (Modus-Feld regelt, welches Datum zählt).
+            Der Zeitraum ist damit historisch bis 1988 auswertbar — Updates selbst erfassen
+            nur die Zeit seit 01.09.2026. Entfernte Anlagen sind im Zeitraum-Modus nicht
+            Teil der Prüfung (sie erscheinen nur in den Update-Modi).<br>
             <b>Karten-Symbole:</b> <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#16a34a;border:1px dashed #166534;vertical-align:middle;"></span> grüner Ring = Neubau-Treffer ·
             <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#dc2626;border:1px dashed #991b1b;vertical-align:middle;"></span> roter Ring = nur entfernte Anlagen ·
             <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;border:1px solid #b91c1c;vertical-align:middle;"></span> roter Punkt = entfernte Anlage ·
@@ -4154,9 +4168,16 @@ function initStats() {
     if (!isOpen) renderBetreiberDiagramme();
   });
   // V35 (AP1): Measure-Toggle für Betreiber-Diagramme
-  document.querySelectorAll('#betreiber-charts .mbtn').forEach(b => {
+  document.querySelectorAll('#betreiber-charts .mbtn[data-bcmeasure]').forEach(b => {
     b.addEventListener('click', function() {
-      document.querySelectorAll('#betreiber-charts .mbtn').forEach(x => x.classList.toggle('active', x === this));
+      document.querySelectorAll('#betreiber-charts .mbtn[data-bcmeasure]').forEach(x => x.classList.toggle('active', x === this));
+      renderBetreiberDiagramme();
+    });
+  });
+  // V38 (AP1): Technologie-Filter-Toggle (alle | wind | pv) für Betreiber-Diagramme
+  document.querySelectorAll('#betreiber-charts .mbtn[data-bctech]').forEach(b => {
+    b.addEventListener('click', function() {
+      document.querySelectorAll('#betreiber-charts .mbtn[data-bctech]').forEach(x => x.classList.toggle('active', x === this));
       renderBetreiberDiagramme();
     });
   });
@@ -4386,21 +4407,21 @@ function renderBetreiberDiagramme() {
   const isMW = document.querySelector('#betreiber-charts .mbtn.active')?.dataset.bcmeasure === 'mw';
   const measure = isMW ? 'mw' : 'anzahl';
   const unitLabel = isMW ? 'MW' : 'Anlagen';
+  // V38 (AP1): Technologie-Filter (alle | wind | pv)
+  const techMode = document.querySelector('#betreiber-charts .mbtn.active[data-bctech]')?.dataset.bctech || 'alle';
   // --- Aggregation ---
   const years = [], yearData = {};
   let windN = 0, pvN = 0, windMW = 0, pvMW = 0;
-  let eegW = 0, eegP = 0, noEegW = 0, noEegP = 0;
-  // V35.1: MW-Akkus für die EEG-Gruppen (Donuts measure-steuerbar)
-  let eegW_mw = 0, eegP_mw = 0, noEegW_mw = 0, noEegP_mw = 0;
   units.forEach(u => {
+    // V38: Tech-Filter — im wind/pv-Modus fließen nur Anlagen der gewählten Technologie ein
+    if (techMode === 'wind' && u.t !== 'wind') return;
+    if (techMode === 'pv' && u.t === 'wind') return;
     const yr = dateYear(u.inb);
     const mw = u.mw || 0;
     if (u.t === 'wind') {
       windN++; windMW += mw;
-      if (u.eeg) { eegW++; eegW_mw += mw; } else { noEegW++; noEegW_mw += mw; }
     } else {
       pvN++; pvMW += mw;
-      if (u.eeg) { eegP++; eegP_mw += mw; } else { noEegP++; noEegP_mw += mw; }
     }
     if (!yr) return;
     if (!yearData[yr]) { yearData[yr] = { wind: 0, pv: 0, wind_mw: 0, pv_mw: 0 }; years.push(yr); }
@@ -4427,11 +4448,12 @@ function renderBetreiberDiagramme() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     return ctx;
   });
-  // --- Chart 2+3: Donuts (Technologie / EEG) — V35.1: measure-steuerbar (Anlagen ⇄ MW) ---
-  document.getElementById('bc-tech-sub').textContent = isMW ? 'Anteil Wind / PV (Leistung MW/MWp)' : 'Anteil Wind / PV (Anlagen)';
-  document.getElementById('bc-eeg-sub').textContent = isMW
-    ? 'Mit / ohne EEG-Anlagen-Registrierung — Basis Leistung (MW/MWp)'
-    : 'Mit / ohne EEG-Anlagen-Registrierung (MaStR-Feld EegInbetriebnahmeDatum; kein direkter Vergütungs-Status)';
+  // --- Chart 2: Donut Technologie-Verteilung — V35.1 measure-steuerbar, V38 tech-gefiltert ---
+  const techLabel = techMode === 'wind' ? ' — nur Windanlagen 🌬️'
+                  : techMode === 'pv' ? ' — nur PV-Anlagen ☀️' : ' — beide Technologien';
+  document.getElementById('bc-tech-sub').textContent =
+    (isMW ? 'Anteil Wind / PV (Leistung MW/MWp)' : 'Anteil Wind / PV (Anlagen)')
+    + (techMode === 'alle' ? '' : techLabel);
   _bcDrawDonut('bc-tech', isMW ? [
     { label: 'Wind (MW)', val: windMW, color: '#2563eb' },
     { label: 'PV (MWp)', val: pvMW, color: '#d97706' },
@@ -4439,21 +4461,14 @@ function renderBetreiberDiagramme() {
     { label: 'Wind', val: windN, color: '#2563eb' },
     { label: 'PV', val: pvN, color: '#d97706' },
   ], totalN);
-  _bcDrawDonut('bc-eeg', isMW ? [
-    { label: 'Wind mit EEG (MW)', val: eegW_mw, color: '#1d4ed8' },
-    { label: 'Wind ohne EEG (MW)', val: noEegW_mw, color: '#93c5fd' },
-    { label: 'PV mit EEG (MWp)', val: eegP_mw, color: '#b45309' },
-    { label: 'PV ohne EEG (MWp)', val: noEegP_mw, color: '#fcd34d' },
-  ] : [
-    { label: 'Wind mit EEG', val: eegW, color: '#1d4ed8' },
-    { label: 'Wind ohne EEG', val: noEegW, color: '#93c5fd' },
-    { label: 'PV mit EEG', val: eegP, color: '#b45309' },
-    { label: 'PV ohne EEG', val: noEegP, color: '#fcd34d' },
-  ], totalN);
+  // V40 (AP1): EEG-Donut komplett entfernt (Semantik-Falle: MaStR bildet Vergütungsweg
+  // nicht ab; Details docs/fehlerbehebung.md F-EEG-1). Nur noch Wachstum + Technologie.
   note.textContent =
     'Basis: alle gefilterten Anlagen (' + totalN.toLocaleString('de-DE') + ', alle Betriebs-Status im Karten-Bestand). ' +
-    '„Mit EEG" = im MaStR eine EEG-Anlage registriert (EegInbetriebnahmeDatum vorhanden) — das MaStR führt keinen direkten Vergütungs-Status; ' +
-    'Anlagen außerhalb EEG sind meist vor-EEG-Bestand oder Direktvermarktung ohne EEG-Registrierung. Wachstums-Basis: Inbetriebnahmejahr.';
+    (techMode === 'wind' ? ' TECHNOLOGIE-FILTER: nur Windkraftanlagen 🌬️ — ' :
+     techMode === 'pv' ? ' TECHNOLOGIE-FILTER: nur PV-Anlagen ☀️ — ' :
+     ' TECHNOLOGIE-FILTER: beide Technologien (kombiniert) — ') +
+    'Wachstums-Basis: Inbetriebnahmejahr.';
 }
 
 // Donut-Helfer (V35): Canvas-Donut mit Prozent-Labels im Segment + Legende daneben
@@ -6382,6 +6397,12 @@ function initBetroffen() {
   radEl.oninput = () => {
     document.getElementById('bff-radius-label').textContent = radEl.value + ' km';
   };
+  // V36: Zeitraum-Zeile nur zeigen, wenn Zeitfenster = 'range'
+  const fensterEl = document.getElementById('bff-fenster');
+  fensterEl.onchange = () => {
+    document.getElementById('bff-range-row').style.display =
+      fensterEl.value === 'range' ? 'inline-block' : 'none';
+  };
   document.getElementById('bff-ref-search').onclick = () => bffSearchRef(inp.value.trim());
   // V16: ✕ leert Suchfeld + Trefferliste (nicht die Analyse-Ergebnisse)
   document.getElementById('bff-ref-clear').onclick = () => {
@@ -6652,9 +6673,45 @@ function runBetroffenheitsanalyse() {
   }
 
   // Deltas sammeln
+  // V36: Modus 'range' = User-Zeitraum gegen Inbetriebnahmedatum/Registrierungsdatum
+  // der BESTANDS-Anlagen (historisch ab 1988; Update-Deltas reichen nur bis 01.09.2026,
+  // User-Entscheid 10.09.: Zeitraum-Semantik = inb). Kandidaten kommen hier NICHT aus
+  // den Update-Deltas, sondern direkt aus allUnits — Match-/Render-Pfad bleibt identisch.
+  let candidates = null; // nur im range-Modus gesetzt: [{typ:'NEU', asset, datumISO}]
+  if (fenster === 'range') {
+    const von = document.getElementById('bff-von').value;   // ISO yyyy-mm-dd
+    const bis = document.getElementById('bff-bis').value;   // ISO yyyy-mm-dd
+    if (!von || !bis) {
+      status.textContent = '⚠ Zeitraum unvollständig — bitte „von“ und „bis“ angeben.';
+      _bffResetAnalysis();
+      return;
+    }
+    if (von > bis) {
+      status.textContent = '⚠ „von“ liegt nach „bis“ — bitte Zeitraum korrigieren.';
+      _bffResetAnalysis();
+      return;
+    }
+    const iso = t => (t || '').replace('/Date(', '').replace(')/', '');
+    const msISO = t => {
+      const n = Number(iso(t));
+      return (iso(t) && !isNaN(n)) ? new Date(n).toISOString().slice(0, 10) : null;
+    };
+    candidates = [];
+    allUnits.forEach(u => {
+      const dInb = msISO(u.inb);   // Inbetriebnahmedatum (f5-Feld, 86 % befüllt)
+      const dReg = msISO(u.reg);   // Registrierungsdatum (100 % befüllt)
+      const hitInb = dInb && dInb >= von && dInb <= bis;
+      const hitReg = dReg && dReg >= von && dReg <= bis;
+      if (modus === 'inb' && !hitInb) return;
+      if (modus === 'reg' && !hitReg) return;
+      if (modus === 'both' && !hitInb && !hitReg) return;
+      candidates.push({ typ: 'NEU', asset: { m: u.m, mw: u.mw, lat: u.lat, lon: u.lon,
+        inb: dInb, reg: dReg, name: u.n, t: u.t, ab: u.ab }, datum: hitInb ? dInb : dReg });
+    });
+  }
   const deltas = (_historie || []).filter(h => h.delta).map(h => ({ datum: h.datum, d: h.delta }));
   const relevant = fenster === 'last' ? deltas.slice(-1) : deltas;
-  if (!relevant.length) { status.textContent = 'Noch keine Update-Deltas vorhanden.'; return; }
+  if (fenster !== 'range' && !relevant.length) { status.textContent = 'Noch keine Update-Deltas vorhanden.'; return; }
 
   // lid → NAP-Index (für Kontext) + m → lid Lookup
   const lidByM = new Map();
@@ -6668,36 +6725,43 @@ function runBetroffenheitsanalyse() {
   const matchedLids = new Set();  // V16: betroffene Referenz-NAPs (NAP-Match)
   let scanned = 0, lastDatum = null;
   const t0 = performance.now();
-  for (const { datum, d } of relevant) {
+  // V36: Einheitliche Asset-Quelle — im range-Modus die Zeitraum-Kandidaten,
+  // sonst die Update-Deltas (add = NEU, removed = ENTFERNT).
+  const scanItems = fenster === 'range'
+    ? candidates.map(c => ({ typ: 'NEU', a: c.asset, datum: c.datum }))
+    : relevant.flatMap(({ datum, d }) => [
+        ...((d.added_assets || []).map(a => ({ typ: 'NEU', a, datum }))),
+        ...((d.removed_assets || []).map(a => ({ typ: 'ENTFERNT', a, datum }))),
+      ]);
+  for (const { typ, a, datum } of scanItems) {
     lastDatum = datum;
-    const assets = [
-      ...((d.added_assets || []).map(a => ({ typ: 'NEU', a }))),
-      ...((d.removed_assets || []).map(a => ({ typ: 'ENTFERNT', a }))),
-    ];
-    for (const { typ, a } of assets) {
+    if (fenster === 'range') {
+      // Modus-Filter ist schon in der Kandidaten-Auswahl passiert — zählen genügt
+      scanned++;
+    } else {
       if (modus === 'reg' && typ === 'NEU' && !(a.inb)) { /* reg = alles ohne inb-Restriktion, fällt durch */ }
       if (modus === 'inb' && typ === 'NEU' && !a.inb) continue;
       scanned++;
-      const uLid = lidByM.get(a.m);
-      // a) NAP-Match
-      if (uLid && refLids.has(uLid)) {
-        events.push({ typ, asset: a, matchTyp: 'NAP', distKm: 0, datum, refLid: uLid });
-        matchedLids.add(uLid);
-        continue;
-      }
-      // b) Radius-Match (BBox-Vorfilter)
-      if (radiusKm > 0 && a.lat != null && refPoints.length) {
-        const dLat = radiusKm / 111.32, dLon = radiusKm / (111.32 * Math.cos(Math.PI * a.lat / 180) || 1);
-        for (let ri = 0; ri < refPoints.length; ri++) {
-          const [rlat, rlon] = refPoints[ri];
-          if (Math.abs(rlat - a.lat) > dLat + 0.5 || Math.abs(rlon - a.lon) > dLon + 0.5) continue;
-          const dist = _haversine(rlat, rlon, a.lat, a.lon);
-          if (dist <= radiusKm) {
-            const rKey = rlat.toFixed(4) + ',' + rlon.toFixed(4);
-            events.push({ typ, asset: a, matchTyp: 'RADIUS', distKm: Math.round(dist * 10) / 10, datum, refKey: rKey });
-            matchedKeys.add(rKey);
-            break;
-          }
+    }
+    const uLid = lidByM.get(a.m);
+    // a) NAP-Match
+    if (uLid && refLids.has(uLid)) {
+      events.push({ typ, asset: a, matchTyp: 'NAP', distKm: 0, datum, refLid: uLid });
+      matchedLids.add(uLid);
+      continue;
+    }
+    // b) Radius-Match (BBox-Vorfilter)
+    if (radiusKm > 0 && a.lat != null && refPoints.length) {
+      const dLat = radiusKm / 111.32, dLon = radiusKm / (111.32 * Math.cos(Math.PI * a.lat / 180) || 1);
+      for (let ri = 0; ri < refPoints.length; ri++) {
+        const [rlat, rlon] = refPoints[ri];
+        if (Math.abs(rlat - a.lat) > dLat + 0.5 || Math.abs(rlon - a.lon) > dLon + 0.5) continue;
+        const dist = _haversine(rlat, rlon, a.lat, a.lon);
+        if (dist <= radiusKm) {
+          const rKey = rlat.toFixed(4) + ',' + rlon.toFixed(4);
+          events.push({ typ, asset: a, matchTyp: 'RADIUS', distKm: Math.round(dist * 10) / 10, datum, refKey: rKey });
+          matchedKeys.add(rKey);
+          break;
         }
       }
     }
@@ -6706,7 +6770,10 @@ function runBetroffenheitsanalyse() {
 
   // Render
   if (!events.length) {
-    status.textContent = `Keine Treffer (${relevant.length} Update(s), ${scanned} Assets geprüft, ${dt} ms). Tipp: Radius erhöhen (aktuell ${radiusKm || 'aus'} km).`;
+    const scanInfo = fenster === 'range'
+      ? `${scanned} Kandidaten im Zeitraum geprüft`
+      : `${relevant.length} Update(s), ${scanned} Assets geprüft`;
+    status.textContent = `Keine Treffer (${scanInfo}, ${dt} ms). Tipp: Radius erhöhen (aktuell ${radiusKm || 'aus'} km).`;
     sumEl.innerHTML = ''; resEl.innerHTML = '';
     _bffResetAnalysis();  // V16: alte Ringe/Filter der Vor-Suche weg (fixt Vermischung)
     return;
@@ -6733,7 +6800,9 @@ function runBetroffenheitsanalyse() {
   // HINWEIS: _bffLastBestand wird erst WEITER UNTEN (nach matchedKeys) befüllt —
   // die Box wird deshalb nach der Bestands-Berechnung gerendert (gesellschaftenHtml).
   const gesAbsSet = _bffRef.kind === 'portfolio' ? new Set(_bffRef.abs) : null;
-  status.textContent = `${events.length} Treffer · ${scanned} Assets geprüft · ${dt} ms`;
+  status.textContent = fenster === 'range'
+    ? `${events.length} Treffer · ${scanned} Kandidaten im Zeitraum geprüft · ${dt} ms`
+    : `${events.length} Treffer · ${scanned} Assets geprüft · ${dt} ms`;
   // V15/V16: letzte Analyse für „Anzeigen"-Button merken + Ringe um Betroffene zeichnen
   _bffLastEvents = events;
   _bffLastRef = _bffRef;
