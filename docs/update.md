@@ -38,8 +38,9 @@ python3 scripts/import_v2.py      # 5. NAP-JSONL in netzanschlusspunkte-Tabelle 
 > Erstlauf 06.09.→10.09.: 105 Wind + 160 PV Delta-Records statt 55k Vollabruf (~0,5 %).
 > **Sicherheitsnetz:** je Strang wird das API-Gesamttotal gegen `Basis + Delta` verglichen
 > (Toleranz 5 %) — bei Abweichung automatischer Vollabruf-Fallback mit Log-Zeile
-> „SICHERHEITSNETZ … FALLBACK". Gelöschte Register-Einträge (extrem selten) werden nur
-> vom Vollabgleich gefunden → quartalsweise einmal `--delta` weglassen (Vollabruf) empfohlen.
+> „SICHERHEITSNETZ … FALLBACK". **Quartalsweise 1× Vollabruf PFLICHT** (User-Freigabe
+> 10.09.): nur der Vollabgleich findet gelöschte Register-Einträge — nächster Termin
+> ~Anfang Dezember 2026, siehe PROJEKTSTAND. **Cron-Schedule: SAMSTAGS 06:10** (10.09.).
 > **Statuswechsel** (z. B. In Betrieb → Endgültig stillgelegt) erscheinen im Delta des
 > NEUEN Status-Strangs; `merge_delta.py` entfernt die Nummer automatisch aus dem alten
 > Strang (1:1-Regel, verifiziert: 0 Duplikate/0 Status-Mismatches).

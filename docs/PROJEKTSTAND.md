@@ -19,9 +19,13 @@ wäre ausgerudert.** Fix in `fetch_v2.py` (F-Fetch-1, Details fehlerbehebung.md)
   MaStR-Nummer in die Basis-JSONs mergen + Statuswechsel-Bereinigung (Nummer nur im
   Strang des aktuellen Status). Perf-Fix: O(n) statt O(n²) — 2,5 h → 21 s.
 - Sicherheitsnetz: je Strang API-Gesamttotal vs. Basis+Delta (Toleranz 5 %) → bei
-  Abweichung automatischer Vollabruf-Fallback. Quartalsweise 1× Vollabruf empfohlen
-  (findet gelöschte Register-Einträge).
+  Abweichung automatischer Vollabruf-Fallback. **Quartalsweise 1× Vollabruf PFLICHT**
+  (Merkposten User-Freigabe 10.09.): einmal pro Quartal `pipeline2_update.sh` manuell mit
+  Vollabruf laufen lassen (`python3 scripts/fetch_v2.py --extended-status` OHNE `--delta`,
+  dann merge/import wie gehabt) — nur der Vollabgleich findet gelöschte Register-Einträge,
+  die in keinem Delta erscheinen. Nächster Quartals-Vollabruf: ~Anfang Dezember 2026.
 - `pipeline2_update.sh` nutzt jetzt: fetch `--delta` → merge → import → NAP → import.
+  **Cron-Schedule seit 10.09. (User-Freigabe): SAMSTAGS 06:10** (vorher sonntags 18:00).
 - Verifikation: Konsistenz nach Merge 0 Duplikate / 0 Status-Mismatches (67.176 Records);
   2. Delta-Lauf direkt danach = 0 Records (idempotent); import_v2 mit Backup
   (mastr_20260910_225009.db, 546,7 MB): einheiten_raw 67.183, georef 53.413 unverändert.
