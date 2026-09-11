@@ -172,9 +172,17 @@ Achsen-gestütztes Balkendiagramm (rein CSS/HTML, keine externe Chart-Bibliothek
   Cluster-Basis wird die **Park-MW** (`pkmw`) geprüft — Klick auf „150+" zeigt z. B. alle
   13 Döllen-Einheiten.
 
-### Landkreis-Tabelle (V23)
+### Landkreis-Tabelle (V23, **V43 erweitert: Suche**)
 
-Neuer Tab (zwischen Bundesländer und Spannungsebenen), Design analog Hersteller-Tabelle:
+Neuer Tab (zwischen Bundesländern und Spannungsebenen), Design analog Hersteller-Tabelle:
+
+**V43 (11.09.): Suchfeld oberhalb der Tabelle** (#lk-search) — Autocomplete ab dem
+**ersten Zeichen**: Vorschlagsliste #lk-suggest (max 8 Treffer, sortiert nach MW,
+mit Assets/MW-Angabe je Treffer). Klick auf Vorschlag übernimmt den Namen und filtert
+die Tabelle; „Escape"/Fokusverlust schließt die Liste; der Zähler zeigt den aktiven
+Filter an („… · Filter: „Börde“"). Filter arbeitet case-insensitive per includes und
+kombiniert mit der Header-Sortierung.Suchen nach Teilbegriffen möglich (z. B. „b“
+→ alle 134 LKs mit b).
 
 | Spalte | Beschreibung |
 |--------|--------------|

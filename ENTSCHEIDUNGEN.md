@@ -236,3 +236,16 @@ Remote-Feldliste) sind alle in den Entscheidungen 4–7 bzw. in docs/ dokumentie
 - **AP5:** Betroffenheit/Umkreis-Match-Verhalten erklärt (NAP-Match IMMER aktiv +
   optionaler Radius-Match, ODER-verknüpft; kein Bug).
 - **Status:** Verifiziert Multi + Singlefile (0 JS-Errors, Typ-Tab konsolidiert).
+
+## 2026-09-11 · V43 — Landkreis-Suche + Historie-Liniendiagramme + Deploy
+
+- **AP1 Landkreis-Suche:** Suchfeld mit Autocomplete ab 1. Zeichen (Muster NAP-Suggest),
+  max 8 Vorschläge nach MW, Klick übernimmt + filtert, Zähler zeigt Filter an.
+- **AP2 Historie:** „Bundesländer-Veränderung" + „Anlagen-Entwicklung über Zeit" entfernt
+  (wird bei monatlichen Updates unübersichtlich). Neu: 3 SVG-Liniendiagramme —
+  (1) Gesamt Wind&PV mit Delta/Zubau auf separater rechter Achse (gestrichelt),
+  (2) Wind, (3) PV; x = Snapshot-Daten; Werte-Labels oberhalb der Punkte,
+  Y-Achsen-Titel 90° gedreht. Verlauf-Tabelle inkl. Klick-Detail bleibt unverändert.
+- **AP3:** Deploy auf User-Freigabe (erteilt in dieser Runde).
+- **Status:** Verifiziert Multi + Singlefile (0 JS-Errors; Suche „b" → 134 LKs,
+  „Börde"-Klick → 600 Assets; Charts 3× mit rotierten Achsen-Labels).

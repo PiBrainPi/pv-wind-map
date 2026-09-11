@@ -1,25 +1,24 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-09-11 (**V42 — Typen-Bereinigung Runde 2 + Build-Stempel entfernt + DEPLOY; zuvor V41/V40/…**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+> Stand: 2026-09-11 (**V43 — Landkreis-Suche + Historie-Liniendiagramme + DEPLOY; zuvor V42/V41/V40/…**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
 
-## Aktueller Stand (2026-09-11, **V42 — live auf wind-pv-map.ingenieur-tools.de**)
+## Aktueller Stand (2026-09-11, **V43 — live auf wind-pv-map.ingenieur-tools.de**)
 
-**Code-Stand:** V42 (lokal UND live; Deploy via `scripts/deploy_ghpages.sh` am 11.09.)
-**V42 (50-Punkte-Plan `2026-09-11_V42_TypenBereinigung_R2_50-Punkte-Plan.md`):**
-- **AP1 Typen-Bereinigung Runde 2:** Hersteller-Präfixe entfernt — 'Enercon E-82' → 'E-82',
-  'Vestas V112' → 'V112', 'Nordex N117' → 'N117', 'Repower MD77' → 'MD77' etc.
-  **376 neue Mappings** (Mapping gesamt 2.378), **DB: 5.415 Records korrigiert**
-  (3.640 Präfix-Hauptlauf + 1.705 E2E + 70 Verfeinerung; Legacy 2.236+1.286+43).
-  Regel: Präfix nur entfernen, wenn Rest aussagekräftig (mind. 1 Buchstabe) —
-  'Vensys 77'/'Tacke 600a' bleiben (Rest wäre nichtssagende Zahl). Majority-Vote
-  innerhalb der Ziel-Gruppe wählt die häufigste existierende Schreibweise.
-  Ziel-Existenz/keine erfundenen Typen: Rest ohne existierende Gruppe wird als
-  neue Gruppe angelegt (valider Typname). Details `references/v42-typ-praefix.md`.
-- **AP2:** Build-Stempel „· Build V41 (11.09.2026)" aus Infobar ENTFERNT (User-Wunsch —
-  zukünftig keine Build-Angabe mehr in der Infobar; V41-Konvention damit zurückgenommen).
-- **AP3:** Deploy auf User-Freigabe (in dieser Runde erteilt).
-- **AP5:** Betroffenheit/Umkreis-Match erklärt (kein Bug; Erklärung im Chat 11.09.).
+**Code-Stand:** V43 (lokal UND live; Deploy via `scripts/deploy_ghpages.sh` am 11.09.)
+**V43 (50-Punkte-Plan `2026-09-11_V43_LandkreisSuche_HistorieCharts_50-Punkte-Plan.md`):**
+- **AP1 Landkreis-Suche:** Suchfeld oberhalb der Tabelle mit Autocomplete ab **1. Zeichen**
+  (Muster NAP-Suggest: #lk-search + #lk-suggest, max 8 Treffer nach MW sortiert,
+  Klick übernimmt + filtert, Escape/Blur schließt; Zähler zeigt aktiven Filter an).
+  State: `_lkState.query`, Filter in `renderLandkreise()` vor Sortierung, case-insensitive
+  includes. `initLandkreisTab()` wird beim Statistik-Init gebunden (data.bound-Guard).
+- **AP2 Update-Historie Redesign:** Sektionen „Bundesländer-Veränderung" (Tabelle) und
+  „Anlagen-Entwicklung über Zeit" (Balken) **entfernt** (HTML + JS + CSS). Neu: **3
+  SVG-Liniendiagramme untereinander** (`renderHistorieCharts()`, #historie-charts):
+  1. y-links Gesamtleistung Wind&PV (MW), y-rechts Delta/Zubau zum Vor-Update (separate
+  Skala, gestrichelte Linie); 2. Wind MW; 3. PV MW; x = Snapshot-Daten.
+  Werte-Labels **oberhalb** der Punkte; Y-Achsen-Titel **90° gedreht** (rotate ±90).
+  Verlauf-Tabelle bleibt klickbar (Asset-Detail-Overlay V4b unverändert).
 **V40 (20-Punkte-Plan `2026-09-11_V40_EEGDonut_Entfernt_Deploy_20-Punkte-Plan.md`):**
 - **User-AP1:** Chart „EEG-Registrierung" **komplett entfernt** (Semantik-Falle V39:
   MaStR bildet Vergütungsweg nicht ab — Details `fehlerbehebung.md` F-EEG-1).
