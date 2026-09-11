@@ -2544,7 +2544,7 @@ async function init() {
       pvCount = einheiten.filter(u => u.t === 'pv').length;
     }
     const ib = document.getElementById('infobar');
-    if (ib) ib.textContent = `PV & Wind Karte – ${windCount} Wind · ${pvCount} PV · Build V41 (11.09.2026)`;
+    if (ib) ib.textContent = `PV & Wind Karte – ${windCount} Wind · ${pvCount} PV`;
 
     populateFilterBl();
     populateFilterArt();

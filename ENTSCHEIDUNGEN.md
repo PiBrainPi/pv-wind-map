@@ -221,3 +221,18 @@ Remote-Feldliste) sind alle in den Entscheidungen 4–7 bzw. in docs/ dokumentie
   sichtbarer Indikator, welche Version der Browser tatsächlich geladen hat.
   Prozessregel dokumentiert: nach Deploy hart neuladen.
 - Kein Funktions-/Datenbug. Deploy V41 auf User-Freigabe (AP2).
+
+## 2026-09-11 · V42 — Typen-Bereinigung Runde 2 (Hersteller-Präfixe) + Build-Stempel raus + Deploy
+
+- **AP1:** Hersteller-Präfixe aus Typenbezeichnung entfernt ('Enercon E-82' → 'E-82',
+  'Vestas V112' → 'V112', 'Nordex N117' → 'N117' …). 376 neue Mappings, Mapping gesamt
+  2.378; DB: 5.415 raw_json + 3.565 Legacy-Records korrigiert. Regel: Präfix nur
+  entfernen wenn Rest aussagekräftig (mind. 1 Buchstabe) — 'Vensys 77'/'Tacke 600a'
+  bleiben bewusst (Rest wäre nichtssagende Zahl). Ziel = Majority-Vote der Ziel-Gruppe;
+  keine erfundenen Typen ohne Semantik (GE/BARD/Haliade/eno bleiben Modellnamen).
+  Details: references/v42-typ-praefix.md.
+- **AP2:** Build-Stempel aus Infobar entfernt (User-Wunsch; V41-Konvention zurückgenommen).
+- **AP3:** Deploy auf User-Freigabe (erteilt in dieser Runde).
+- **AP5:** Betroffenheit/Umkreis-Match-Verhalten erklärt (NAP-Match IMMER aktiv +
+  optionaler Radius-Match, ODER-verknüpft; kein Bug).
+- **Status:** Verifiziert Multi + Singlefile (0 JS-Errors, Typ-Tab konsolidiert).

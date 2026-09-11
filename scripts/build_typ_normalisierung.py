@@ -113,6 +113,74 @@ def main() -> None:
             }
         )
 
+    # ------------------------------------------------------------------
+    # V42 (11.09.2026, User-AP1): Hersteller-Präfix-Regel (Post-Schritt)
+    #
+    # 'Enercon E-82' → 'E-82', 'Vestas V112' → 'V112', 'Nordex N117' → 'N117' …
+    # Regel: Wenn ein Typ mit einem HERSTELLER-WORT beginnt und der Rest-Typ
+    # BEREITS als eigene Gruppe in den Daten existiert, wird das Präfix entfernt.
+    # Sicherheit: Es werden NUR Ziele gemappt, die es wirklich gibt — es werden
+    # keine Typen erfunden. Bewusst NICHT als Präfix behandelt (Modellnamen!):
+    #   GE (GE 1.5sl ist der volle Modellname), BARD (BARD 5.0), Haliade,
+    #   eno (eno 82), AN Bonus (AN = Herstellerkürzel + zweiter Herstellername).
+    # ------------------------------------------------------------------
+    HER_PREFIXES = [
+        "Enercon", "ENERCON", "Vestas", "Nordex", "Nordex Acciona", "Acciona",
+        "Siemens", "Siemens Gamesa", "Gamesa", "SGRE", "Senvion", "REpower",
+        "REpower Systems", "Fuhrlaender", "Fuhrländer", "Fuhrlander", "DeWind",
+        "Goldwind", "Envision", "VENSYS", "Vensys", "WinWind", "Made",
+        "Pfleiderer", "Jacobs", "Tacke", "Bonus", "Micon", "Wind World",
+        "Nordex Energy", "Vestas Wind Systems", "General Electric",
+        "GE Wind Energy", "Nordex-Acciona", "W2E", "Eozen",
+    ]
+    ziel_exists = None  # (entfernt — Canon-Formen werden direkt unten gesammelt)
+    # Erst alle Kanon-Formen sammeln (nach Majority-Vote), dann Präfixe auflösen.
+    canon: Counter = Counter()
+    canon_mw: Counter = Counter()  # Werte sind kW-Summen (MaStR Nettonennleistung)
+    for mnr, rj in rows:
+        d = json.loads(rj)
+        if not ALL_BESTAND:
+            mw = to_mw(
+                {
+                    "Bruttoleistung": d.get("Bruttoleistung"),
+                    "Typenbezeichnung": d.get("Typenbezeichnung"),
+                    "RotordurchmesserWindenergieanlage": d.get("RotordurchmesserWindenergieanlage"),
+                },
+                2497,
+            )
+            if mw is None or mw < 0.1:
+                continue
+        typ = (d.get("Typenbezeichnung") or "").strip()
+        if not typ:
+            continue
+        canon[mapping.get(typ, typ)] += 1
+        brutto = d.get("Bruttoleistung")
+        if brutto:
+            canon_mw[mapping.get(typ, typ)] += float(brutto)
+
+    prefix_added = 0
+    prefix_rows = []
+    for typ in sorted(canon):
+        tl = typ.strip()
+        for her in sorted(HER_PREFIXES, key=len, reverse=True):
+            m = re.match(re.escape(her) + r"[\s\-_]+(\S.*)$", tl, re.IGNORECASE)
+            if m:
+                rest = m.group(1).strip()
+                if re.search(r"\d", rest) and rest in canon:
+                    mapping[typ] = rest
+                    prefix_added += 1
+                    prefix_rows.append({
+                        "norm_key": norm_key(typ),
+                        "ziel": rest,
+                        "anzahl_records": canon[typ],
+                        "korrigierte_records": canon[typ],
+                        "varianten": f"PRÄFIX {her} | {typ}:{canon[typ]} -> {rest} (Ziel hat {canon[rest]})",
+                    })
+                break
+
+    csv_rows.extend(prefix_rows)
+    total_fix += sum(r["korrigierte_records"] for r in prefix_rows)
+
     OUT_JSON.write_text(json.dumps(mapping, ensure_ascii=False, indent=2), encoding="utf-8")
     with open(OUT_CSV, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=["norm_key", "ziel", "anzahl_records", "korrigierte_records", "varianten"])
