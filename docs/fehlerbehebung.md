@@ -33,6 +33,32 @@ abgebildet ist. **Fazit: Kein Bug in der Datenverarbeitung — das MaStR kann di
 „EEG-vergütet ja/nein?" strukturell nicht beantworten.** Für echte Vergütungswege wären
 Netzbetreiber-Abrechnungsdaten oder Marktstammdaten+Netzentgelt-Daten nötig.
 
+### F-CACHE-1. Online-Version wirkt älter als lokal — Browser-Cache (KLARGESTELLT 11.09.2026, V41)
+**Fehlerbild:** User meldet: Tab „⚠ Betroffenheit" in der **online** Version enthält die
+Zeitraum-Erweiterung (V36) nicht — lokal jedoch schon.
+**Analyse (11.09., V41):**
+- `https://wind-pv-map.ingenieur-tools.de/` und `https://pibrainpi.github.io/pv-wind-map/`
+  lieferten **byte-identisch** diesel HTML wie lokal (md5 `4c952ab0df`, 514.105 Bytes,
+  gleicher ETag `6aa3dd09-7df89`, Last-Modified 11.09. 10:50 GMT). Die Zeitraum-Option
+  (`<option value="range">`) war **live vorhanden** — es gab technisch keinen Stand-Unterschied.
+- **Root Cause 1 — Browser-Cache:** GitHub Pages sendet `Cache-Control: max-age=600`
+  (10 min CDN-Cache), aber der Browser des Users hatte die Seite evtl. aus einer älteren
+  Session noch im Cache (Tab-Wiederherstellung, Heuristik-Cache ohne beachtetes
+  Cache-Control bei Rückkehr zur offenen Seite). → Der User sah eine alte Version,
+  ohne dass der Server sie auslieferte. Lösung: **Hartes Neuladen** (Strg+Umschalt+R /
+  Cmd+Shift+R) bzw. Cache leeren.
+- **Root Cause 2 — Verwirrung um URL:** Die Karte lebt auf der **Subdomain**
+  `https://wind-pv-map.ingenieur-tools.de/`. Pfade wie `ingenieur-tools.de/pv-wind-map`
+  liefern **404**; `ingenieur-tools.de` **ohne www** zeigt das bekannte
+  SSL-Fallback-Zertifikat (Hostname-Mismatch, altes LE-Rate-Limit-Thema). Wer über
+  falsche Pfade oder ohne www zugreift, sieht garantiert nicht die aktuelle Version.
+**Lösung (V41):**
+1. **Build-Stempel in der Infobar** — „PV & Wind Karte – … · Build V41 (11.09.2026)".
+   Der User sieht SOFORT, welche Version geladen ist (Cache-Indikator).
+2. Prozessregel: Nach jedem Deploy hart neuladen; bei Versions-Diskrepanz zuerst
+   Build-Stempel prüfen, dann Cache leeren.
+3. Doku: HANDOVER/README verweisen ausdrücklich auf die Subdomain-URL.
+
 ### F-TYP-1. Typ-Tab zersplittert durch inkonsistente Typenbezeichnungen (BEHOBEN 11.09.2026, V37)
 **Fehlerbild:** Im Statistik-Tab „Typ" tauchen dieselben Anlagentypen mehrfach auf
 (z. B. „E-40" 290×, „E40" 215×, „E 40" 122×) — die Kumulation (Anzahl/MW) ist dadurch

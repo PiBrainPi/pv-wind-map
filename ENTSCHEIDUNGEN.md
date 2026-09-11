@@ -208,3 +208,16 @@ Remote-Feldliste) sind alle in den Entscheidungen 4–7 bzw. in docs/ dokumentie
 - **AP3:** User-Freigabe erteilt → Deploy über scripts/deploy_ghpages.sh (main + gh-pages).
 - **Status:** Verifiziert Multi + Singlefile (0 JS-Errors, 2 Charts, Layout nebeneinander,
   Measure×Tech-Regression ok).
+
+## 2026-09-11 · V41 — „Online ≠ lokal" war Browser-Cache + URL-Verwirrung (User-AP1)
+
+- **Meldung:** Online fehle die V36-Zeitraum-Option im Betroffenheit-Tab.
+- **Analyse:** Live-HTML (Subdomain + github.io) byte-identisch mit lokal (md5
+  4c952ab0df, ETag 6aa3dd09-7df89) — Option WAR live. Root Causes: (1) Browser-Cache
+  (Pages: max-age=600; alte Session-Tabs heuristisch gecacht), (2) URL-Verwirrung
+  (Karte lebt auf wind-pv-map.ingenieur-tools.de; /pv-wind-map → 404; apex ohne www →
+  SSL-Fallback-Zert). 
+- **Fix (V41):** Build-Stempel in der Infobar („Build V41 (11.09.2026)") — sofort
+  sichtbarer Indikator, welche Version der Browser tatsächlich geladen hat.
+  Prozessregel dokumentiert: nach Deploy hart neuladen.
+- Kein Funktions-/Datenbug. Deploy V41 auf User-Freigabe (AP2).

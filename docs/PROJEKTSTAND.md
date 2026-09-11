@@ -1,11 +1,19 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-09-11 (**V40 — EEG-Donut entfernt + 2-Spalten-Diagramme + DEPLOY; zuvor V39/V38/V37/V36**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+> Stand: 2026-09-11 (**V41 — Build-Stempel + Cache-Klarstellung + DEPLOY; zuvor V40/V39/V38/V37/V36**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
 
-## Aktueller Stand (2026-09-11, **V40 — deployt auf GitHub Pages (User-Freigabe erteilt)**)
+## Aktueller Stand (2026-09-11, **V41 — live auf wind-pv-map.ingenieur-tools.de**)
 
-**Code-Stand:** V40 (lokal UND live; V35.1→V40 Deploy am 11.09. via `scripts/deploy_ghpages.sh`)
+**Code-Stand:** V41 (lokal UND live; Deploy V40 10:50 + V41 via `scripts/deploy_ghpages.sh`)
+**V41 (20-Punkte-Plan `2026-09-11_V41_Betroffenheit_Cache_Deploy_20-Punkte-Plan.md`):**
+- **User-Meldung:** Online-Version fehle die V36-Zeitraum-Option im Tab Betroffenheit.
+- **Analyse:** LIVE = LOKAL byte-identisch (md5 `4c952ab0df`) — die Option WAR live
+  enthalten. Root Cause: Browser-Cache des Users + URL-Verwirrung (Karte lebt auf
+  Subdomain `wind-pv-map.ingenieur-tools.de`; Pfad `/pv-wind-map` → 404; ohne www →
+  SSL-Fallback-Zert). Details: `fehlerbehebung.md` F-CACHE-1.
+- **Fix:** Build-Stempel in der Infobar („… · Build V41 (11.09.2026)") als sofort
+  sichtbarer Cache-Indikator. Deploy auf User-Freigabe (AP2).
 **V40 (20-Punkte-Plan `2026-09-11_V40_EEGDonut_Entfernt_Deploy_20-Punkte-Plan.md`):**
 - **User-AP1:** Chart „EEG-Registrierung" **komplett entfernt** (Semantik-Falle V39:
   MaStR bildet Vergütungsweg nicht ab — Details `fehlerbehebung.md` F-EEG-1).
