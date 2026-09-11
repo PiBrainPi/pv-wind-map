@@ -123,3 +123,88 @@ Remote-Feldliste) sind alle in den Entscheidungen 4–7 bzw. in docs/ dokumentie
   — jeder Daten-Update-Lauf erzeugt `groessen_cluster` automatisch frisch. Keine manuellen Schritte.
 - **Status:** Umgesetzt + browser-verifiziert (12 Kombi-Stufen, F5-Regression ok).
   Revision `iterations/V22_GroessenCluster.html`. Commit/Deploy nach User-Freigabe (Regel 4).
+
+## 2026-09-11 · V36 — Betroffenheit: Zeitraum-Option (Semantik „Inbetriebnahme")
+
+- **Entscheidung:** Die 3. Zeitfenster-Option „Zeitraum (von–bis)" im Betroffenheits-Tab
+  gleicht die Referenz mit Anlagen ab, deren **Inbetriebnahme- bzw. Registrierungsdatum**
+  (je Modus-Feld: inb/reg/both) in den gewählten Zeitraum fällt — NICHT mit den
+  Update-Deltas.
+- **Begründung:** Update-Deltas existieren erst seit 01.09.2026 (Snapshot-Historie);
+  User-Beispiel „01.01.2023 – 01.03.2023" wäre dort leer. Die Inbetriebnahme-Daten sind
+  historisch bis 1988 vollständig in der Datenbasis (56.399/65.663 Anlagen, live
+  verifiziert). User-Entscheid per clarify() (Option A, 10.09.).
+- **Konsequenz:** Entfernte Anlagen sind im Zeitraum-Modus bewusst nicht Teil der
+  Prüfung (nur Update-Deltas enthalten sie). Modus-Feld (reg/inb/both) wird im
+  Zeitraum-Modus als Datumswahl interpretiert — Dokumentation im Erklärtext (Tab) +
+  statistik.md.
+- **Status:** Umgesetzt + browser-verifiziert (Multi-File + Singlefile, je 0 JS-Errors;
+  beide User-Beispiele geprüft, Kandidaten-Counts gegen unabhängige JS-Gegenrechnung
+  identisch). Revision `iterations/V36_Zeitraum_Betroffenheit.html`. Kein Commit/Push
+  ohne User-Freigabe (Regel 4).
+
+## 2026-09-11 · V37 — Typen-Normalisierung Wind (Majority-Vote, User-AP1)
+
+- **Entscheidung:** Inkonsistente MaStR-Typenbezeichnungen (E40/E-40/E 40/e40 …, 752
+  Dubletten-Gruppen, 9.741 Karten-Basis-Records) werden per **Majority-Vote** normalisiert:
+  häufigste Schreibweise = korrekt (User-Vorgabe; Beispiele E40→E-40, E80→E-80 bestätigen
+  die Regel). Tie-Break: kürzeste, dann alphabetische Schreibweise. Scope: nur Wind
+  (User-Entscheid per clarify(); PV hat kein Typ-Tab).
+- **Umsetzung als Pipeline-Regel** (Grundsatzentscheidung „Fehler als Regel, nicht als
+  Daten-Flick"): `data/typ_normalisierung.json` (1.547 Mappings) via
+  `build_typ_normalisierung.py`; Anwendung in `import_mastr.py::normalize_typ()` und
+  `export_app.py` (jeweils vor to_mw — 15-MW-Ausnahme bleibt intakt, to_mw-Diff 0/43.478).
+  Einmalige DB-Bereinigung via `fix_typenbezeichnung.py` (10.000 raw_json + 7.405 Legacy,
+  Backup vorher, idempotent, Rescan 0 Dubletten).
+- **Konsequenz:** Typ-Tab kumuliert jetzt korrekt (E-40 = 1 Zeile/628 Anlagen);
+  Klick-Filter trifft alle Varianten; künftige Delta-UPSERTS mit falscher Schreibweise
+  werden beim Export automatisch normalisiert.
+- **Status:** Umgesetzt + browser-verifiziert (Multi + Singlefile, 0 JS-Errors, Regression
+  ok). Revision `iterations/V37_TypenNormalisierung.html`. Kein Commit/Push ohne
+  User-Freigabe (Regel 4).
+
+## 2026-09-11 · V38 — Betreiber-Diagramme: Technologie-Filter + Panel +8 % (User-AP1/2)
+
+- **AP1 (Technologie-Filter):** Zweiter Toggle „Alle / Wind / PV" über den Betreiber-Diagrammen.
+  Im Wind-/PV-Modus filtert er ALLE Charts (Wachstum, Tech-Donut, EEG-Donut, Summary); der
+  EEG-Donut zeigt dann nur 2 Segmente (mit/ohne EEG) der gewählten Technologie. Motivation
+  (User): der kombinierte 4-Segment-Donut „EEG-Registrierung" trennte Wind/PV nicht eindeutig
+  auf den ersten Blick. „Alle" = kombinierte Ansicht, Verhalten unverändert.
+- **AP2 (Panel-Breite):** `#stats-panel` Desktop 984 → 1063 px (+8 %), Off-Canvas-Offset
+  −1024 → −1103; Tablet/Mobil-Breakpoints unverändert.
+- **Status:** Umgesetzt + browser-verifiziert (Multi + Singlefile, 0 JS-Errors, 6 Kombi-Stufen
+  Measure×Tech geprüft, Breite via getBoundingClientRect bestätigt). Revision
+  `iterations/V38_BetreiberDiagramme_TechFilter_PanelBreite.html`. Kein Commit/Push ohne
+  User-Freigabe (Regel 4).
+
+## 2026-09-11 · V39 — EEG-Donut: Semantik klargestellt (User-Meldung „CEE-Bug")
+
+- **Meldung:** User (CEE-Mitarbeiter) vermutete Bug: PV-Assets nach Leistung überwiegend
+  nicht EEG-vergütet, Diagramm zeigte 100 % „mit EEG".
+- **Audit (hart, DB + MaStR-Doku):** Kein Daten-Bug. Das Feld `EegInbetriebnahmeDatum`
+  bedeutet „EEG-Anlage registriert" — MaStR-Registrierung ist für ALLE ortsfesten Anlagen
+  Pflicht, unabhängig vom Zahlungsanspruch (MaStR-Webhilfe, abgerufen 11.09.). Das MaStR
+  hat KEIN Feld für Vermarktungsweg/PPA/Direktvermarktungsart. CEE-Audit: 184 Anlagen/
+  827 MW, 100 % EEG-registriert (Datum+MaStR-Nr. je Einheit) — die Daten stimmen; nur die
+  Frage „wird vergütet?" beantwortet das MaStR strukturell nicht. PPA-/Strompreisgeschäfte
+  laufen i. d. R. ÜBER registrierte EEG-Anlagen → zwingend „mit EEG" im Diagramm.
+- **Fix (UI-Präzisierung):** Chart-Untertitel „EEG-Anlage registriert: ja/nein
+  (MaStR-Feld EegInbetriebnahmeDatum)" statt „Mit/ohne EEG-Anlagen-Registrierung";
+  Erklärtext nennt explizit, dass PPA unter „mit EEG" läuft und der Vergütungsweg im
+  MaStR nicht abgebildet ist. Nur belastbarer Zusatzhinweis: `EegZuschlag`
+  (Ausschreibung) — bewusst NICHT als Segment gemischt (deckt nur 26,5 % Wind-/40 % PV-
+  Leistung ab und ist kein Vermarktungsweg).
+- **Status:** Umgesetzt + verifiziert (Multi + Singlefile, 0 JS-Errors). Details:
+  `docs/fehlerbehebung.md` F-EEG-1. Kein Commit/Push ohne User-Freigabe.
+
+## 2026-09-11 · V40 — EEG-Donut entfernt + 2-Spalten-Layout + DEPLOY (User-AP1–3)
+
+- **AP1:** Chart „EEG-Registrierung" komplett entfernt (Nachwirkung V39: das MaStR kann
+  den Vergütungsweg nicht abbilden — Chart führte zu Fehlinterpretation). Wachstum +
+  Technologie-Verteilung jetzt nebeneinander (flex; Wachstum flex-basis 480px, Donut 240px;
+  Stack bei schmalem Viewport). Measure-Toggle + Tech-Filter wirken auf beide Charts.
+- **AP2:** Doku as-built (PROJEKTSTAND, statistik.md, fehlerbehebung.md F-EEG-1,
+  ENTSCHEIDUNGEN, Hosting HANDOVER/README).
+- **AP3:** User-Freigabe erteilt → Deploy über scripts/deploy_ghpages.sh (main + gh-pages).
+- **Status:** Verifiziert Multi + Singlefile (0 JS-Errors, 2 Charts, Layout nebeneinander,
+  Measure×Tech-Regression ok).

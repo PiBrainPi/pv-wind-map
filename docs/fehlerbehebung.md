@@ -1,8 +1,59 @@
 # Fehlerbehebung (Troubleshooting) — PV & Wind Karte
 
-> Stand: 2026-09-10 (Pipeline: F-Fetch-1 Umlaut + Delta-Modus)
+> Stand: 2026-09-11 (V39: F-EEG-1 EEG-Semantik · V37: F-TYP-1 Typen-Dubletten)
 
 ## Bekannte Fehlerbilder & Lösungen
+
+### F-EEG-1. EEG-Donut wurde als „Vergütungsstatus" missverstanden (KLARGESTELLT 11.09.2026, V39)
+**Fehlerbild:** User (Betreiber-Mitarbeiter, CEE) meldete: „PV-Assets sind nach Leistung
+überwiegend NICHT EEG-vergütet, aber das Diagramm zeigt 100 % mit EEG — da muss ein Bug sein."
+**Ursache (kein Daten-Bug, sondern Semantik):** Das Diagramm wertet das MaStR-Feld
+`EegInbetriebnahmeDatum` aus = **„ist eine EEG-Anlage registriert?"** — nicht „erhält die
+Anlage EEG-Vergütung?". Fasst man beides zusammen, entsteht der falsche Eindruck.
+**Harte Prüfung (11.09., DB-Audit):**
+- MaStR-Registrierung ist für ALLE ortsfesten Erzeugungsanlagen Pflicht — **unabhängig
+  davon, ob ein Zahlungsanspruch nach EEG/KWKG besteht** (MaStR-Webhilfe,
+  marktstammdatenregister.de, abgerufen 11.09.2026).
+- Die Datenbasis enthält 6 EEG-Felder: `EegInbetriebnahmeDatum`, `EegInstallierteLeistung`,
+  `EegAnlageMastrNummer`, `EegAnlageRegistrierungsdatum`, `EegAnlagenschluessel`,
+  `EegZuschlag`. **Kein einziges Feld bildet den Vermarktungs-/Vergütungsweg ab**
+  (kein PPA-Feld, keine Direktvermarktungsart, kein „freier Strommarkt"-Flag).
+- CEE-Audit: 184 Anlagen / 827 MW (33 PV / 356 MW + 151 Wind / 471 MW) — **100 % mit
+  registrierter EEG-Anlage** (Datum + EegMastrNummer je Einheit). Das MaStR bestätigt also
+  korrekt, was drinsteht; es kann nur nicht sagen, wie vermarktet wird.
+- PPA-/Strompreisgeschäfte laufen i. d. R. **über** eine registrierte EEG-Anlage
+  (Direktvermarktung statt Einspeisevergütung) → erscheinen zwingend unter „mit EEG".
+- Einziger verwertbarer Hinweis: `EegZuschlag` (Ausschreibungs-ID) — bundesweit nur bei
+  26,5 % Wind-/40,0 % PV-Leistung gesetzt; Ausschreibungsanlagen vermarkten i. d. R.
+  anders als Fixed-EEG, aber das Feld sagt nichts über den aktuellen Vergütungsweg.
+**Lösung (V39):** UI präzisiert — Chart-Untertitel „**EEG-Anlage registriert: ja/nein**
+(MaStR-Feld EegInbetriebnahmeDatum)", Erklärtext im Diagramm weist ausdrücklich darauf hin,
+dass PPA-/Strompreisgeschäfte unter „mit EEG" laufen und der Vergütungsweg im MaStR NICHT
+abgebildet ist. **Fazit: Kein Bug in der Datenverarbeitung — das MaStR kann die Frage
+„EEG-vergütet ja/nein?" strukturell nicht beantworten.** Für echte Vergütungswege wären
+Netzbetreiber-Abrechnungsdaten oder Marktstammdaten+Netzentgelt-Daten nötig.
+
+### F-TYP-1. Typ-Tab zersplittert durch inkonsistente Typenbezeichnungen (BEHOBEN 11.09.2026, V37)
+**Fehlerbild:** Im Statistik-Tab „Typ" tauchen dieselben Anlagentypen mehrfach auf
+(z. B. „E-40" 290×, „E40" 215×, „E 40" 122×) — die Kumulation (Anzahl/MW) ist dadurch
+falsch aufgeteilt. User-Meldung 11.09. (Beispiele E-40/E40, E-80/E80).
+**Ursache:** Das MaStR liefert `Typenbezeichnung` frei-textlich; Varianten mit/ohne
+Bindestrich/Leerzeichen/Großkleinabwandlungen werden als verschiedene Typen gezählt.
+**Umfang (recherchiert 11.09.):** 752 Typ-Gruppen mit mehreren Schreibweisen auf
+Karten-Basis (1.547 Varianten-Mappings, 9.741 betroffene Records); inkl. Ganz-Bestand
+(Kleinwind ohne Geolokation) +258 Records in 82 weiteren Gruppen.
+**Lösung (als Pipeline-Regel, nicht Daten-Flick):**
+1. `scripts/build_typ_normalisierung.py` erzeugt per **Majority-Vote** (häufigste
+   Schreibweise = korrekt, Tie-Break kürzeste/dann alphabetisch) die Tabelle
+   `data/typ_normalisierung.json` + Report-CSV. Wichtig: `--all-bestand`-Lauf
+   überschreibt die JSON nur mit Rest-Mappings — Merge beachten (s. Docstring).
+2. Regel in `import_mastr.py::normalize_typ()` (Legacy-Import) und `export_app.py`
+   (Wind-only, vor to_mw) — künftige Delta-UPSERTS werden automatisch normalisiert.
+   to_mw bleibt unverändert (0 Differenzen, 15-MW-Ausnahme intakt).
+3. Einmalige DB-Bereinigung: `scripts/fix_typenbezeichnung.py` (idempotent, DB-Backup
+   automatisch in `data/backups/`, Rescan-Check eingebaut).
+**Abgrenzung:** Normale Daten-Korrekturen (Anlagenwerte) übernimmt MaStR via Delta-UPSERT;
+die Typ-Normalisierung ist eine PRAESENTATIONS-Regel und läuft in jedem Export mit.
 
 ### F-Fetch-1. MaStR-API ignoriert Filternamen ohne Umlaut (BEHOBEN 10.09.2026)
 **Fehlerbild:** `fetch_v2.py` meldete beim Probe-Request Total = 9.435.237 (Gesamtbestand

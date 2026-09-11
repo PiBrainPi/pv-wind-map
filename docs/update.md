@@ -1,6 +1,6 @@
 # Update — PV & Wind Karte (MaStR)
 
-> Manuell auslösbar, cronjob-fähig. Stand: 2026-09-10 (V35; inkl. eeg-Exportfeld, Historie-DB-Fix F-V35-1).
+> Manuell auslösbar, cronjob-fähig. Stand: 2026-09-11 (V37: Typen-Normalisierung in Pipeline + Export; V36 Zeitraum-Option; Delta-Modus F-Fetch-1).
 
 ## Update ausführen (DE)
 
@@ -10,6 +10,14 @@ Die komplette Pipeline ist nicht-interaktiv und kann als ein Befehl laufen:
 cd ~/Projects/pv-wind-map
 bash scripts/build.sh   # fetch → import → export → bundle (ein Schritt, erzeugt auch Single-File)
 ```
+
+Seit V37 (11.09.) normalisieren `import_mastr.py` (Legacy-Pfad) und `export_app.py`
+(Karten-Pfad, Wind-only) die Typenbezeichnung automatisch via
+`data/typ_normalisierung.json` (Majority-Vote, F-TYP-1) — kein manueller Schritt.
+Neue Dubletten-Gruppen (falls MaStR neue Schreibweisen liefert):
+`python3 scripts/build_typ_normalisierung.py` erneut laufen lassen, dann
+`python3 scripts/fix_typenbezeichnung.py` für die DB (beide idempotent; Details s.
+fehlerbehebung.md F-TYP-1).
 
 ### Pipeline 2.0 — vollständige Datenhaltung (Regel 2 der Grundsatzentscheidung)
 

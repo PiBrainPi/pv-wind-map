@@ -1,7 +1,59 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-09-10 (**V35 — Betreiber-Diagramme + Filter-Reset + Legende**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+> Stand: 2026-09-11 (**V40 — EEG-Donut entfernt + 2-Spalten-Diagramme + DEPLOY; zuvor V39/V38/V37/V36**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+
+## Aktueller Stand (2026-09-11, **V40 — deployt auf GitHub Pages (User-Freigabe erteilt)**)
+
+**Code-Stand:** V40 (lokal UND live; V35.1→V40 Deploy am 11.09. via `scripts/deploy_ghpages.sh`)
+**V40 (20-Punkte-Plan `2026-09-11_V40_EEGDonut_Entfernt_Deploy_20-Punkte-Plan.md`):**
+- **User-AP1:** Chart „EEG-Registrierung" **komplett entfernt** (Semantik-Falle V39:
+  MaStR bildet Vergütungsweg nicht ab — Details `fehlerbehebung.md` F-EEG-1).
+  „Wachstum nach Inbetriebnahmejahr" + „Technologie-Verteilung" jetzt **nebeneinander**
+  (flex, Wachstum flex-basis 480px, Stack bei schmalem Viewport). Measure-Toggle
+  (Anlagen/MW) + Tech-Filter (Alle/Wind/PV) wirken auf beide verbleibenden Charts.
+- **User-AP3:** Explizite Freigabe erteilt → Commit + Push main + Deploy gh-pages live.
+**V39 (20-Punkte-Plan `2026-09-11_V39_EEGSemantik_Fix_20-Punkte-Plan.md`):**
+- **User-Meldung:** CEE-Mitarbeiter: PV-Assets nach Leistung überwiegend NICHT EEG-vergütet,
+  Diagramm zeige aber 100 % „mit EEG" → Bug-Verdacht.
+- **Audit-Ergebnis (kein Daten-Bug, Semantik):** Diagramm wertet `EegInbetriebnahmeDatum`
+  = „EEG-Anlage registriert?" aus. MaStR-Registrierung ist für alle ortsfesten Anlagen
+  Pflicht — unabhängig vom Zahlungsanspruch (MaStR-Webhilfe). Kein Feld im MaStR bildet
+  Vermarktungsweg/PPA ab. CEE: 184 Anlagen/827 MW, 100 % EEG-registriert (korrekt).
+  PPA-Geschäfte laufen ÜBER registrierte EEG-Anlagen → erscheinen unter „mit EEG".
+- **Fix (UI):** Chart-Untertitel „EEG-Anlage registriert: ja/nein", Erklärtext weist auf
+  PPA-Direktvermarktung + nicht abgebildeten Vergütungsweg hin. Details: `fehlerbehebung.md`
+  F-EEG-1. Revision `iterations/V39_EEGSemantik_Praezisierung.html`.
+**V38 (20-Punkte-Plan `2026-09-11_V38_BetreiberDiagramme_TechFilter_PanelBreite_20-Punkte-Plan.md`):**
+- **User-AP1:** Tab „Betreiber" → Diagramme: neben dem Measure-Toggle (Anlagen/MW) jetzt ein
+  **Technologie-Umschalter Alle / Wind / PV**. Im Wind-/PV-Modus fließen nur Anlagen der gewählten
+  Technologie in alle Charts ein; der EEG-Donut zeigt dann nur 2 Segmente (mit/ohne EEG) der
+  gewählten Technologie — eindeutig erkennbar (Sub-Labels „— nur Windanlagen 🌬️" / „— nur PV-Anlagen ☀️",
+  Note mit „TECHNOLOGIE-FILTER: …"). Kombinierte Ansicht („Alle") = bisheriges Verhalten (4 Segmente).
+  Hintergrund: 4-Segment-Donut trennte Wind/PV×EEG für User nicht sauber auf den ersten Blick.
+- **User-AP2:** `#stats-panel` Desktop 984 → **1063 px** (+8 %, Off-Canvas-Offset −1024 → −1103);
+  Tablet (560) + Mobil (100vw) unverändert.
+- Revision `iterations/V38_BetreiberDiagramme_TechFilter_PanelBreite.html` + human-share-Kopie.
+
+**V37 (50-Punkte-Plan `2026-09-11_V37_TypenNormalisierung_Doku_50-Punkte-Plan.md`):**
+- **User-AP1:** MaStR-Typenbezeichnungen sind inkonsistent (E40/E-40/E 40/e40 …). Recherche: 752 Typ-Gruppen mit mehreren Schreibweisen auf Karten-Basis, 9.741 betroffene Records.
+- **Regel (Majority-Vote, User-Vorgabe):** häufigste Schreibweise = korrekt; Tie-Break kürzeste/dann alphabetisch. Mapping: `scripts/build_typ_normalisierung.py` → `data/typ_normalisierung.json` (1.547 Mappings inkl. Ganz-Bestand-Nachlauf, Report-CSV nebenbei).
+- **Pipeline-Regel:** `import_mastr.py::normalize_typ()` (Legacy-Import, vor to_mw — 15-MW-Ausnahme sieht normalisierten Typ) + `export_app.py` (Wind-only, vor to_mw). to_mw-Diff durch Normalisierung: 0 von 43.478 (verifiziert).
+- **Einmalige DB-Bereinigung:** `scripts/fix_typenbezeichnung.py` — raw_json 9.742 + 258 = **10.000 Records**, Legacy `einheiten` 7.368 + 37 = **7.405**; Backup `data/backups/mastr.db.backup_20260911_110745`; Rescan danach 0 Dubletten-Gruppen. **Idempotent.**
+- **Pitfall (dokumentiert in fix-Skript-Docstring):** Karten-Basis-Scan (Geolok+≥0,1 MW) übersieht Kleinwind ohne Geolok → 1. Lauf ließ 82 Rest-Gruppen; `--all-bestand`-Nachlauf schloss sie (258 Records); Mapping-Datei dann mit Karten-Basis-Mappings gemerged (Rekonstruktion aus Backup, 0 Konflikte). ⚠️ Mapping-JSON enthält jetzt 1.547 Einträge (Karten-Basis ∪ Ganz-Bestand) — NICHT erneut mit `--all-bestand` überschreiben, sonst sind nur noch die Rest-Mappings drin.
+- **Neuer Datenstand im Export:** 65.708 Anlagen (31.005 Wind / 22.421 PV) — Delta-Import von Samstag 06:10 ist eingeflossen; Infobar entsprechend.
+- **Typ-Tab-Effekt:** E-40 jetzt 628 Anlagen als EINE Zeile (vorher 290+215+122+1 getrennt); Klick-Filter (selectTyp) trifft alle Varianten.
+- **Revision:** `iterations/V37_TypenNormalisierung.html` (+ human-share). Kein Commit/Push ohne User-Freigabe.
+
+## Aktueller Stand (2026-09-11 vormittag, **V36 — Betroffenheit: Zeitraum-Option**)
+
+**Code-Stand:** V36 (lokal, **noch nicht gepusht/committed**; online/Basis: main `da9dc9f`, gh-pages `4d1a17c` = V35.1-Deploy)
+**V36 (50-Punkte-Plan `2026-09-11_V36_Zeitraum_Betroffenheit_50-Punkte-Plan.md`):**
+- **AP1 Zeitraum-Option im Betroffenheits-Tab:** „2 · Optionen" → Zeitfenster bekommt 3. Option **„Zeitraum (von–bis)"** (`#bff-fenster` value `range`) + Datums-Zeile `#bff-von`/`#bff-bis` (nur bei range sichtbar, Toggle in initBetroffen onchange).
+- **Semantik (User-Entscheid 10.09., clarify):** Zeitraum = Inbetriebnahmedatum (`inb`)/Registrierungsdatum (`reg`) der Bestands-Anlagen — NICHT die Update-Deltas (die reichen nur bis 01.09.2026; User-Beispiel 01.01.2023 wäre dort leer). Modus-Feld (both/reg/inb) regelt, welches Datum zählt. Kandidaten direkt aus `allUnits` (Match-/Render-Pfad NAP/Radius unverändert wiederverwendet); ENTFERNT-Events entfallen im range-Modus bewusst (dokumentiert im Erklärtext „3 · Zeitraum-Modus").
+- **Validierung:** leere Felder / von>bis → Statuszeilen-Warnung, kein Scan; Statuszeile: „N Treffer · X Kandidaten im Zeitraum geprüft · Y ms".
+- **Verifikation (Multi-File 8805 + Singlefile file://, je 0 JS-Errors):** Toggle ✓, Validierung ✓; User-Beispiel 1 (01.01.–01.03.2023, Ref. Solarpark Döllen GmbH): 467 Kandidaten (JS-Gegenrechnung nBoth=467 identisch), 1 Treffer (SEE996415574024, PV 15,87 MW, NAP-Match, inb 01.03.2023) == unabhängiger Gegencheck; Popup per echtem Klick ✓ (V33.1-Regel, Plain-Layer-Pfad); Anzeigen-Modus ✓. Beispiel 2 (01.01.–05.09.2026): 5.027 Kandidaten, 14 Treffer/236,1 MW. Modus-Filter: inb 9/2.255, reg 14/4.987. Regression: last (1 Treffer/185 Assets) + all (1/205) unverändert, 11 Tabs ok, AP2-Reset + Idempotenz ✓, Infobar 31011/22402 ✓. Visuelle Bestätigung Dropdown+Datumsfelder ✓.
+- Revision: `iterations/V36_Zeitraum_Betroffenheit.html` (+ human-share). **Kein Commit/Push ohne User-Freigabe.**
 
 ## Aktueller Stand (2026-09-10 Abend, **Pipeline: Delta-Fetch + Umlaut-Fix F-Fetch-1**)
 

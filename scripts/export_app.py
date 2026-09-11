@@ -535,13 +535,18 @@ def main() -> None:
     # F5: Zusatz-Status aus einheiten_raw anhängen (bruttoleistung_mw via to_mw-Logik
     # hier normalisiert: Wind kW/MW-Heuristik, PV /1000 — identisch zu import_mastr.to_mw)
     sys.path.insert(0, str(ROOT / "scripts"))
-    from import_mastr import to_mw
+    from import_mastr import to_mw, normalize_typ  # V37: Typen-Normalisierung (User-AP1)
     raw_rows = db.execute(SELECT_RAW_EXTRA).fetchall()
     db.close()
     extra_rows = []
     for r in raw_rows:
         r_list = list(r)
         et_id = r_list[2]
+        # V37 (11.09.2026, User-AP1): Typenbezeichnung via Majority-Vote-Mapping
+        # normalisieren (E40→E-40 etc.) — WIND-only (User-Entscheid). Vor to_mw,
+        # damit die 15-MW-Ausnahme ('15mw' im Typ) den normalisierten Typ sieht.
+        if et_id == 2497:
+            r_list[24] = normalize_typ(r_list[24])
         # V27-Fix (06.09.2026): Rotordurchmesser MITGEBEN — to_mw-Physik-Check (RD<60 & >=1,5 MW
         # => kW-Falschangabe) braucht das Feld, sonst bleiben Kleinwindräder als "1,5 MW" … "80 MW".
         brutto = to_mw({

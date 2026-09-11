@@ -1,6 +1,6 @@
 # Statistik-Panel — Betreiber & Größenklassen (PV & Wind Karte)
 
-> Stand: 2026-09-10 (V35.1: Betreiber-Diagramme, Donuts measure-steuerbar) · Zweisprachig (DE / EN)
+> Stand: 2026-09-11 (V37: Typ-Tab mit normalisierten Typenbezeichnungen) · Zweisprachig (DE / EN)
 
 ## Überblick (DE)
 
@@ -16,6 +16,24 @@ Kernfragen:
    **wahlweise pro Einheit oder pro Park (aggregiert, V22)**.
 
 Öffnen: Klick auf **„📊 Statistik"** in der oberen Leiste.
+
+### ⚠ Betroffenheit — Zeitfenster-Optionen (V36)
+
+Der Betroffenheits-Tab prüft eine Referenz (Anlage/Betreiber/NAP) gegen neu hinzugekommene
+Anlagen (Match: NAP-Gleichheit oder Umkreis 2–50 km). Drei Zeitfenster-Optionen:
+
+| Option | Kandidaten-Quelle | Zeitraum |
+|---|---|---|
+| **letztes Update** | Delta des letzten Pipeline-Laufs (added/removed) | nur letzter Lauf |
+| **alle Updates** | alle Update-Deltas seit 01.09.2026 | ab 01.09.2026 |
+| **Zeitraum (von–bis)** (V36) | **Bestands-Anlagen mit Inbetriebnahme-/Registrierungsdatum im gewählten Zeitraum** | historisch bis 1988 |
+
+Semantik V36 (User-Entscheid 10.09.): „Im Zeitraum hinzugefügt" = Datum der
+**Inbetriebnahme** (Modus „nur neu in Betrieb") bzw. der **Registrierung** („nur neu
+registriert"); both = ODER. Das Modus-Feld (reg/inb/both) gilt damit im Zeitraum-Modus
+als Datumswahl. Entfernte Anlagen sind im Zeitraum-Modus nicht Teil der Prüfung
+( sie sind nur in den Update-Deltas vorhanden). Statuszeile: „N Treffer · X Kandidaten
+im Zeitraum geprüft · Y ms".
 
 ### Betreiber-Tabelle
 
@@ -35,21 +53,26 @@ Bedienelemente (oberhalb der Tabelle):
 Klick auf eine **Zeile** → die Karte zeigt nur die Anlagen dieses Betreibers
 (bei 1 Anlage Fly-to + Popup, sonst Fit-Bounds). Panel schließt sich dabei.
 
-### Betreiber-Diagramme (V35/V35.1)
+### Betreiber-Diagramme (V40: 2 Charts nebeneinander)
 
 Oberhalb der Betreiber-Tabelle: Textfilter setzen (ab 2 Zeichen) → Button **„📈 Diagramme"**
-erscheint. Der Chart-Block zeigt **3 Charts, alle gesteuert vom gemeinsamen Toggle
-„Anlagen ⇄ Leistung (MW)"**:
+erscheint. Der Chart-Block zeigt **2 Charts nebeneinander** (Wachstum links, flex-basis
+480px; Technologie-Donut rechts; bei schmalem Viewport untereinander):
+
+- **Measure-Toggle „Anlagen ⇄ Leistung (MW)"** (V35.1)
+- **Technologie-Filter „Alle / 🌬️ Wind / ☀️ PV" (V38):** im Wind-/PV-Modus fließen nur
+  Anlagen der gewählten Technologie in beide Charts ein (Summary, Sub-Label
+  „— nur Windanlagen 🌬️" / „— nur PV-Anlagen ☀️", Note „TECHNOLOGIE-FILTER: …").
 
 1. **Wachstum nach Inbetriebnahmejahr** — gestapeltes Balkendiagramm (Wind blau / PV orange),
-   Umschalter Anlagen/MW; X-Achse = Inbetriebnahmejahr (`InbetriebnahmeDatum`).
+   X-Achse = Inbetriebnahmejahr (`InbetriebnahmeDatum`).
 2. **Technologie-Verteilung** — Donut Wind/PV; Anlagen-Modus: Stückzahl, MW-Modus:
    Wind (MW) / PV (MWp).
-3. **EEG-Registrierung** — Donut mit 4 Segmenten (Wind mit/ohne EEG, PV mit/ohne EEG);
-   Basis je Modus: Anzahl bzw. Leistung. **Definition „mit EEG":** Feld
-   `EegInbetriebnahmeDatum` vorhanden (registrierte EEG-Anlage). Das MaStR führt **keinen
-   direkten Vergütungs-Status** — der Erklärsatz im Diagramm weist darauf hin.
-   Datenbasis (V35-Export): PV 95,1 % / Wind 80,8 % mit EEG-Registrierung.
+
+**V40 entfernt:** Chart „EEG-Registrierung" (Semantik-Falle — das MaStR-Feld
+`EegInbetriebnahmeDatum` bedeutet „EEG-Anlage registriert", nicht „wird EEG-vergütet";
+PPA-/Strompreisgeschäfte laufen über registrierte EEG-Anlagen → hätten das Chart
+unbrauchbar gemacht). Details: `fehlerbehebung.md` F-EEG-1.
 
 **Scope:** Der Textfilter wählt Einzelbetreiber ODER Betreibergruppe/Portfolio
 (gleiches Brand/Kern-Matching wie die Tabelle). „Filter löschen" auf der Karte setzt
@@ -86,6 +109,38 @@ auch den Diagramm-Block zurück (V35: Ursprungszustand).
 - Legende rechts: Farbfeld + Name + Anlagenzahl + %-Anteil je Hersteller.
 - Notiz unter dem Chart: „Anteil jedes Herstellers an allen 30.847 Windanlagen mit Herstellerangabe ·
   Top 10 einzeln, Rest zusammengefasst · Hover oder Legenden-Klick für Details."
+
+### Typ-Tabelle (nur Wind, V31; V37 normalisiert)
+
+| Spalte | Beschreibung |
+|--------|--------------|
+| **Hersteller** | Name aus dem MaStR |
+| **Typ** | Typenbezeichnung (`Typenbezeichnung`) — **seit V37 per Majority-Vote normalisiert** |
+| **MW** | Nennleistung (typische Einzelanlagenleistung dieses Typs) |
+| **Anzahl** | Zahl der Anlagen dieses (Hersteller, Typ) |
+| **Anteil** | %-Anteil an allen Windanlagen |
+| **Summe MW** | kumulierte Leistung |
+
+**V37 Typen-Normalisierung (11.09., User-AP1):** Das MaStR schreibt Typen inkonsistent
+(`E40`/`E-40`/`E 40`/`e40`, `E70 E4`/`E70E4`/`E-70-E4`, …) — das zersplittert die
+Kumulation. Bereinigung per **Majority-Vote**: innerhalb jeder Typ-Gruppe (Key = uppercase
+ohne Leerzeichen/Bindestriche/Unterstriche) gilt die häufigste Schreibweise als korrekt
+(Tie-Break: kürzeste, dann alphabetisch) — User-Vorgabe und Beispiele (E40→E-40, E80→E-80)
+bestätigt. **Bewusst NICHT zusammengeführt:** unterschiedliche Zahlenformate
+(`V236-15MW` vs. `V236-15.0 MW`) bleiben getrennt — Over-Matching-Gefahr (E-66/18.70 vs.
+E-66/18.7 wären sonst fälschlich identisch).
+- **Pipeline-Regel:** `scripts/build_typ_normalisierung.py` erzeugt `data/typ_normalisierung.json`
+  (1.547 Mappings) + Report-CSV; angewandt in `import_mastr.py::normalize_typ()` (Legacy-Import,
+  vor to_mw) und `export_app.py` (Wind-only, vor to_mw). to_mw-Ergebnis ändert sich nicht
+  (0 von 43.478 diff, verifiziert).
+- **DB-Bereinigung (11.09., einmalig):** `scripts/fix_typenbezeichnung.py` — 10.000 raw_json- +
+  7.405 Legacy-Records korrigiert; idempotent; Backup in `data/backups/`.
+- **Effekt:** z. B. E-40 = 628 Anlagen in EINER Zeile (vorher 4 Zeilen). Zeilen-Klick (selectTyp)
+  filtert jetzt alle Varianten gemeinsam.
+- **Updates:** neue/künftige falsche Schreibweisen aus Delta-UPSERTs werden beim nächsten
+  Export automatisch normalisiert. Neue Dubletten-Gruppen: `build_typ_normalisierung.py`
+  erneut laufen lassen (erzeugt frisches Mapping; ⚠️ Ausgabe überschreibt die JSON — bei
+  `--all-bestand` Merge beachten, s. Skript-Docstring).
 
 ### Größenklassen-Diagramm
 

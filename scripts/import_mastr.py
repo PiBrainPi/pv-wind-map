@@ -27,6 +27,30 @@ ROOT = Path(__file__).resolve().parent.parent
 RAW_DIR = ROOT / "data" / "raw"
 DB_PATH = ROOT / "data" / "mastr.db"
 
+
+# --- V37 (11.09.2026): Typen-Normalisierung (User-AP1) ---------------------------
+# MaStR-Typenbezeichnungen sind inkonsistent (E40 / E-40 / E 40 / e-40 ...). Die
+# Mapping-Tabelle data/typ_normalisierung.json wird von build_typ_normalisierung.py
+# erzeugt (Majority-Vote pro Typ-Gruppe auf Karten-Basis). Anwendung VOR to_mw:
+# die 15-MW-Ausnahme ('15mw' im Typ) muss den normalisierten Typ sehen.
+def _load_typ_mapping() -> dict[str, str]:
+    p = ROOT / "data" / "typ_normalisierung.json"
+    if not p.exists():
+        return {}
+    with open(p, encoding="utf-8") as f:
+        return json.load(f)
+
+
+_TYP_MAP: dict[str, str] = _load_typ_mapping()
+
+
+def normalize_typ(typ: str | None) -> str | None:
+    """V37: Typenbezeichnung via Majority-Vote-Mapping normalisieren (Wind-Pipeline-Regel)."""
+    if typ is None:
+        return None
+    return _TYP_MAP.get(typ, typ)
+# ---------------------------------------------------------------------------------
+
 # Snapshot- & Delta-Logik (V4: Update-Historie-Tracker)
 sys.path.insert(0, str(ROOT / "scripts"))
 from snapshot import ensure_schema, save_snapshot, compute_delta, build_historie
@@ -204,7 +228,7 @@ def make_row(r: dict, et_id: int, et_name: str):
         as_float(r, "NabenhoeheWindenergieanlage"),
         as_float(r, "RotordurchmesserWindenergieanlage"),
         as_float(r, "LichteHoehe"),
-        r.get("Typenbezeichnung"),
+        normalize_typ(r.get("Typenbezeichnung")),  # V37: Majority-Vote-Normalisierung
         r.get("HerstellerWindenergieanlageBezeichnung"),
         r.get("WindparkName"),
         r.get("WindAnLandOderSeeBezeichnung"),
