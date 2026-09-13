@@ -20,6 +20,18 @@
 
 ---
 
+## V44 (2026-09-12) — Historie-Charts 2.0 + mobil Filter-Toggle + kombinierte Tab-Suche + Snapshot-Merge
+
+| # | Paket | Umsetzung | Verifikation |
+|---|---|---|---|
+| 1 | Historie-Charts | Titel ohne „N ·"; Y-Ticks aller Achsen 90° gedreht; Charts 2/3 mit Delta-Kurve (cur−prev je Technologie, gestrichelt, rechte Achse); minLeft 80k/55k dynamisch | SVG-DOM (12 rotierte Ticks/SVG, 3 SVGs, 2 Legenden je Chart) + Vision |
+| 2 | Mobil-Toggle | #toolbar-toggle ≤767px, Panel default zu, localStorage pvw_toolbar_hidden; Desktop unverändert | Toggle-Logik + CSS display + localStorage im Browser |
+| 3 | Combo-Suche | parseComboQuery (+ ODER / & UND, & bindet stärker) in Betreiber/Hersteller/Typ/Landkreis; Erklärsätze; Umlaut-Fix (norm()) | börde+havelland→2 LKs; enercon+vestas→3; wind&park→UND-Match; 0 JS-Errors |
+| 4 | Snap-Merge | fix_snapshot_merge_0906.py: #10 gelöscht, #15 = DER 06.09-Eintrag; Deltas neu | Verlauf-Tabelle 4 Zeilen, 06.09 einfach; Klick-Detail ok |
+| 5 | Doku | PROJEKTSTAND/statistik/fehlerbehebung/ROADMAP/ENTSCHEIDUNGEN/iterations + HANDOVER/README | Stale-Grep |
+
+---
+
 ## V25 (2026-09-06) — Bugfix „Alle Anlagen anzeigen" + Mobile Landkreis-Tab (LIVE)
 
 | # | Paket | Umsetzung | Verifikation |

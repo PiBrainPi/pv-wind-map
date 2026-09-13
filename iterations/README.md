@@ -55,3 +55,11 @@ einzelbare HTML-App (Single-File mit eingebetteten Daten, ~25 MB).
 | V33/V33.1 | 2026-09-09 | UX-Runde (Ringe grün/rot, CARTO-Backup, Popup-Hotfix) |
 | V34 | 2026-09-09 | UX-Runde 2 (LK-Scroller oben, Popup-Re-Open, Panel 984 px) |
 | V35 | 2026-09-10 | Betreiber-Diagramme (Wachstum/Technologie/EEG) + Filter-Reset-Ursprungszustand + Betroffenheits-Legende (aktuelle Version) |
+| V43.1 | 2026-09-12 | Datenstand-Update nach Pipeline-Cron (kein Code-Change) |
+| V43.2 | 2026-09-12 | Pipeline komplettiert (sync_legacy + lokaler Build im Cron) |
+| V44 | 2026-09-12 | Historie-Charts 2.0 (Delta-Kurven, gedrehte Y-Ticks), mobil Filter-Toggle, kombinierte Tab-Suche (+/&), Snapshot-Merge 06.09 |
+| V45 | 2026-09-12 | Chart-Feinschliff (Skalen ab 120k/80k/50k, X-Datum + Labels gedreht, Delta=Linienfarbe), mobil Filter-Overlay (Toggle fixiert), ODER-Operator „/", Suggest kontextbezogen + neu für Hersteller/Typ |
+| V46 | 2026-09-12 | Achsen-Ticks gerade (links+rechts, alle 3 Charts), Wert-Labels entzerrt (Leistung über/Delta unter dem Punkt), Mobil-Toggle-Kaskaden-Fix (body-Präfixe im Media-Block), Betreiber-Erklärsatz gekürzt |
+| V47 | 2026-09-12 | Historie-Charts: Ticks ganzzahlig (kein k) + 5.000-MW-Schritte links + Wert-Labels entfernt; NAP-Combo-Suche (/ &) mit Suggest; Zubau-Canvas panelbreit; Sticky-Header Betreiber/Hersteller/Typ/Landkreis (NAP-Stil) |
+| V48 | 2026-09-13 | Historie: Chart-1-Note entfernt; Zubau: Legende unter Titel, 2 Ratio-Heatmaps (MW/km², MW/1.000 Ew., Destatis-Daten), Outlier-robuste Y-Skalierung (1990/2004 geclippt); 5 Stats-Tabs: 🗺️ Combo-Ergebnisse auf Karte zeigen |
+| V49 | 2026-09-13 | 🗺️-Buttons über die Tabellen (4 Tabs); Landkreis-Eckzelle vertikal sticky (TH-Ebenen-Sticky); Größenklassen-Default „Parks aggregiert" |

@@ -323,3 +323,69 @@ the map). Older exports without `groessen_cluster` make the UI fall back to the 
   Fixed by **direct COUNT(*) from SQLite**. Current value (≥100 kW threshold, V30): `herstellbar_wind` = 30,847.
 - Duplicate “Anlagen” in the size-class sublabel (Leistung mode).
 - `#hersteller-pie` must be a `<canvas>` element (not `<div>`), else `getContext is not a function`.
+
+### Update history charts (V44 redesign)
+
+The "Update-Historie" tab shows **3 line charts** (SVG, no chart library):
+1. "Gesamtleistung Wind & PV über Updateintervalle" — total MW (left axis) + delta/zubau
+   dashed orange line on a separate right axis.
+2. "Gesamtleistung Wind über Updateintervalle" — Wind MW line + Wind delta (right axis).
+3. "Gesamtleistung PV über Updateintervalle" — PV MW + PV delta (right axis).
+
+V44 changes (user request 2026-09-12): chart titles dropped the "1 ·/2 ·/3 ·" prefix;
+ALL y-axis tick labels AND axis titles are rotated 90° for readability; charts 2 and 3 got a
+delta curve (cur − prev of that technology's MW sum, dashed, own right axis) next to the
+existing output line; the left-axis scale has a dynamic lower bound (`minLeft`: Wind 80,000 MW,
+PV 55,000 MW — niceMax scales beyond it). Chart 1 keeps its existing delta line.
+
+The clickable history table below the charts lists each snapshot ONCE per date — the duplicate
+"2026-09-06" entries were merged in the DB (V44/AP4: snapshot #15 kept as THE corrected 06.09
+state, snapshot #10 deleted incl. its asset references; deltas recomputed automatically by
+`build_historie()`).
+
+
+### Update history charts (V45 refinements)
+
+User follow-up (2026-09-12, after V44): y-axis scale now STARTS at a label value and steps
+in fixed increments (chart 1: 120,000 MW / 20,000 steps; chart 2: 80,000 / 10,000;
+chart 3: 50,000 / 10,000), scaling dynamically upward — the mapping is `[minLeft..maxL]`,
+NOT zero-based. X date labels are rotated 90° (leftward) below the axis; value labels of
+BOTH lines are rotated 90° and sit above their point. The right delta axis uses the same
+label format as the left axis. The dashed delta line uses the SAME color as its output
+line (blue/green/orange per chart) — legend updates automatically. Operator "ODER" in the
+combined tab search switched from "+" to "/" (strict; "+" is now a literal, user decision).
+
+
+## V47 (12.09.2026, Nacht)
+
+- **Update-Historie-Charts:** Y-Ticks beider Achsen ganzzahlig mit Tausenderpunkt (kein „k"),
+  linke Achse in 5.000-MW-Schritten, Wert-Labels an den Datenpunkten entfernt (Ablesen über die Achsen).
+- **NAP-Tab:** kombinierte Suche mit / (ODER) und & (UND), kontextbezogene Suggest mit
+  Prefix-Anhang, Hinweissatz unter der Suchleiste.
+- **Zubau-Tab:** Canvas-Breite folgt der Panelbreite (dynamisch, Resize-Debounce 200 ms).
+- **Tabellen-Header:** Betreiber/Hersteller/Typ/Landkreis sticky (NAP-Stil); Landkreis-Container
+  mit eigener vertikaler Scroll-Höhe (Stickiness braucht Scroll-Context).
+
+
+## V48 (13.09.2026)
+
+- **Update-Historie:** Chart-1-Note entfernt (Charts 2+3 behalten Notes).
+- **Zubau:** Chart-1-Legende als HTML unter dem Titel (Canvas-Legende entfernt).
+- **Zubau — 2 neue Ratio-Heatmaps** (nur MW-Modus): Leistungsdichte (MW/km², kumulierte
+  Wind+PV-Leistung ÷ Bundeslandfläche) und Leistung pro Einwohner (MW je 1.000 Ew.).
+  Datenbasis: ZUBAU_BL_STATS (Destatis Fläche/Bevölkerung 31.12.2024); AWZ-Zeile „—".
+- **Zubau — Outlier-Skalierung:** Zubauraten + Kumuliert-Wachstum skalieren ohne Ausreißerjahre
+  (1990/2004); Outlier-Punkte geclippt ohne Label (outlierAwareBounds, p90-Quantil).
+- **Stats-Tabs (Betreiber/Hersteller/Typ/Landkreis/NAP):** 🗺️-Button „Treffer auf Karte zeigen"
+  bei aktiver (Combo-)Suche — zeigt alle gefilterten Anlagen auf der Karte.
+
+
+## V49 (13.09.2026)
+
+- **Stats-Tabs (Betreiber/Hersteller/Typ/Landkreis):** 🗺️-Button „Treffer auf Karte zeigen"
+  steht jetzt DIREKT ÜBER dem Tabellen-Header (vorher unter der Tabelle) — bei langen
+  Ergebnislisten kein Runterscrollen mehr. NAP unverändert (schon oben).
+- **Landkreis-Tab:** Erste Spalte „Landkreis" bleibt jetzt auch beim VERTIKALEN Scrollen
+  fixiert (Sticky von der tr-Ebene auf die th-Ebene verlagert; Eckzelle kombiniert top+left).
+- **Größenklassen-Tab:** Default-Ansicht ist jetzt „Parks aggregiert" (Betreiber-Perspektive),
+  vorher „Einzelanlagen". Umschalter unverändert.

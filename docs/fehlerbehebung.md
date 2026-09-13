@@ -286,3 +286,89 @@ Statistik-Build — das Historie-Schreiben kam danach und lief in den geschlosse
 jetzt in `finally` mit Exception-Guard.
 **Verifikation:** Export-Run schreibt Historie wieder (3 Snapshots, Δ 06.09. +125,54 MW
 korrekt in `dist/assets/historie.json`).
+
+
+## F-HIST-SNAP-MERGE (12.09.2026, V44/AP4) — doppelter Snapshot 06.09 in der Daten-Verlauf
+
+**Symptom:** Tabelle "Daten-Verlauf" zeigte 06.09. zweimal (unterschiedliche Zahlen: 53.419 vs 53.413).
+**Ursache:** Snapshot #10 entstand vormittags am 06.09. (Legacy-Import, vor V37/V42-Korrektur);
+#15 wurde am 12.09. von sync_legacy.py als "Alter Stand"-Sicherung mit Datum 06.09 angelegt (korrigiert).
+**Fix:** `scripts/fix_snapshot_merge_0906.py` — #15 bleibt als DER 06.09-Eintrag, #10 + Referenzen
+gelöscht (User-Entscheid). Idempotent; Backup-Pflicht; build_historie rechnet Deltas neu.
+**Prävention:** sync_legacy.py nutzt save_snapshot() mit V30-Dedup (identische Zahlen → kein Duplikat);
+bei unterschiedlichen Zahlen am selben Tag greift der Dedup bewusst NICHT (echte Kennzahlen-Änderung).
+
+## F-COMBO-UMLAUT (12.09.2026, V44/AP3) — Combo-Suche: Umlaut-Terme matchen nicht
+
+**Symptom:** Landkreis-Suche „börde+havelland" fand nur Havelland (stummer 0-Treffer für Börde).
+**Ursache:** matchesCombo erhielt `r.lk.toLowerCase()` statt `norm(r.lk)` — parseComboQuery normiert
+Terme via norm() (ä→a), aber rohe toLowerCase()-Namen behalten Umlaute → 'börde' enthält 'borde' NICHT.
+**Fix:** In renderLandkreise() wird jetzt `norm(r.lk)` übergeben. Regel: Combo-Match-Input IMMER
+normiert übergeben (die 3 anderen Tabs nutzten bereits norm()).
+
+
+## F-HIST-NICEMAX (12.09.2026, V45) — ReferenceError: niceMax is not defined
+
+**Symptom:** renderHistorieCharts warf ReferenceError → Charts leer (html_len 0).
+**Ursache:** Beim V45-Refactor von buildChart (Skala minLeft+step) wurde die niceMax-Definition
+aus dem Function-Body entfernt, obwohl sie für die rechte Delta-Achse weiterhin gebraucht wird.
+**Fix:** niceMax wieder in renderHistorieCharts definieren. **Prävention:** Bei Refactor
+innerhalb einer Funktion `node --check` (fängt ReferenceError NICHT!) reicht nicht — immer
+Browser-Smoke-Test (Rendern + JS-Errors abfangen) nach jedem Build.
+
+## F-MOBIL-TOGGLE-UNSICHTBAR (12.09.2026, V44→V45) — Toggle-Button verschwand beim Einklappen
+
+**Symptom (User-Meldung):** Auf dem Smartphone war nach dem Ausblenden des Filter-Panels der
+Toggle-Button nicht mehr auffindbar — Funktion unbenutzbar.
+**Root-Cause:** #toolbar-toggle hing `position:absolute; bottom:48px` im Karten-Container;
+beim Einklappen rutschte der Kartenausschnitt/die Attribution darüber, Button außer Sichtweite.
+**Fix (V45):** `position:fixed; bottom:10px; z-index:1250` (Bottom-Bar, immer sichtbar) +
+Filter-Panel mobil als Overlay (`position:fixed; bottom:52px; max-height:62vh; scroll`).
+**Prävention:** Mobile-Fixes immer im echten Mobile-Viewport testen (nicht nur Desktop-Emulation).
+
+
+## F-MOBIL-KASKADE (12.09.2026, V46) — Mobil-Toggle auf Smartphone komplett unsichtbar (V44+V45)
+
+**Symptom (User, 2× gemeldet):** „Ich sehe gar keine Filter auf meinem Smartphone und auch keinen
+Toggle-Button." — Nach V44 (absolute-Positionierung) UND nochmal nach V45 (fixed Bottom-Bar)!
+**Root-Cause (erst V46 gefunden):** CSS-Kaskade, NICHT Positionierung. Der Mobile-Media-Block
+(≤767px) stand im Stylesheet VOR den Basis-Regeln `#toolbar-toggle { display:none }` und
+`#toolbar { position:absolute }`. Media Queries erhöhen die Spezifität NICHT (0,1,0 == 0,1,0) →
+die später im Quelltext stehende Basis-Regel gewinnt AUF ALLEN GERÄTEN. Der fixed-Button war also
+technisch da — aber auf display:none. V45s Browser-Test verpasste es: Desktop-Viewport +
+CSSOM-Regel-Existenz-Check, aber keine Kaskaden-/Spezifitäts-Prüfung.
+**Fix (V46):** Mobile-Regeln mit body-Präfix im Media-Block (`body #toolbar-toggle`,
+`body #toolbar`, `body.toolbar-hidden #toolbar`) → Spezifität 0,1,1 > 0,1,0, unabhängig von der
+Quelltext-Reihenfolge. Beweis: CSSOM-Zeiger auf die body-Präfix-Regeln im 767er-Media-Block
+(Multi UND Singlefile) + computed-style-Simulation (fixed/inline-block) + Desktop bleibt none.
+**Prävention (dauerhaft):** Bei JEDEM Media-Query-Override: Spezifität gegen die zu überschreibende
+Basis-Regel prüfen. Wenn Basis-Regel und Override denselben Selektor haben, entweder (a) body-
+Präfix im Override ODER (b) Media-Block ans ENDE des Stylesheets verschieben. Ein „Regel existiert
+im CSSOM"-Check allein reicht NICHT — die Kaskade entscheidet, nicht die Existenz.
+
+
+## F-STICKY-CONTEXT (12.09.2026, V47) — Sticky-Table-Header stickt nicht
+
+**Symptom:** Landkreis-Header blieb beim vertikalen Scrollen nicht stehen (Betreiber/Hersteller/Typ
+taten es, obwohl identisches CSS).
+**Root-Cause:** `position:sticky` wirkt nur innerhalb des NÄCHSTEN Scroll-Containers.
+`#landkreis-scroll` hatte `overflow-x:scroll` (V32 horizontal) — das macht den Container zum
+Clip-Context, aber OHNE eigene Höhe scrollt er nicht vertikal → der Header stickt ins Leere.
+Betreiber/Hersteller/Typ scrollen dagegen im #stats-body → dort funktioniert top-sticky.
+**Fix:** `#landkreis-scroll { overflow-y:auto; max-height:calc(100vh - 300px); }` (NAP-Muster
+#nap-table-wrap). first-child z-index 3→4 (link-sticky V32 + top-sticky kombinieren).
+**Prävention:** Vor sticky top:0 prüfen: WELCHER Container scrollt vertikal? Hat er eine
+begrenzte Höhe? Sticky braucht Scroll-Context mit begrenzter Höhe unmittelbar über der Tabelle.
+
+
+## F-TDZ-GLOBALS (13.09.2026, V48) — Neue globale let-Variablen VOR aller Nutzung deklarieren
+
+**Kontext:** V48/AP5 führte `_lastStatsRows` als globales `let` ein. Erste Deklaration stand in
+der Helfer-Sektion (~Zeile 5600), erste NUTZUNG aber in renderBetreiber (~4400) — die
+Renderfunktionen laufen je nach Reihenfolge/Tab VOR der Deklaration → ReferenceError (TDZ).
+Bekanntes Muster im Projekt (siehe V32.1-Fix-Kommentar bei Zeile ~2413): Der Singlefile ruft
+init() SYNCHRON mit eingebetteten Daten — alles was init/renderXXX lesen muss, muss VOR dem
+Script-Teil deklariert sein, der init() aufruft.
+**Fix:** Deklaration zu den anderen globalen States (~2417) verschoben.
+**Prävention:** Neue globale Variablen, die in Renderfunktionen gelesen werden, IMMER im
+State-Block oben (~Zeile 2410–2420) deklarieren — nie in Funktionsnähe.

@@ -1,7 +1,231 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-09-11 (**V43 — Landkreis-Suche + Historie-Liniendiagramme + DEPLOY; zuvor V42/V41/V40/…**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+> Stand: 2026-09-13 (**V49 — 🗺️-Buttons über Tabellen, LK-Eckzellen-Sticky, Parks-Default**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+
+## Aktueller Stand (2026-09-13, **V49 — 4 AP (50-Punkte-Plan `2026-09-13_V49_4AP_50-Punkte-Plan.md`)**)
+
+**Code-Stand:** V49 · **Datenstand:** 12.09. (unverändert) · **Nicht deployt** (LIVE = V43/DS 06.09)
+**AP1 — 🗺️-Buttons über die Tabellen:** Betreiber/Hersteller/Typ/Landkreis: Button steht jetzt
+DIREKT ÜBER dem Tabellen-Header (vor `<table …>`, margin-bottom statt margin-top). Bei langen
+Ergebnislisten kein Runterscrollen mehr nötig. NAP war bereits korrekt. Klick-Logik (_showMapBtn/
+showComboOnMap) unverändert; Counts wie gehabt (rwe/vestas 590, vestas/nordex 15.296,
+e-70/n117 810, börde/havelland 1.014, bertikow/barnim 220).
+**AP2 — LK-Eckzelle sticky:** Root-Cause: Chrome wendet bei einer th mit eigener position:sticky
+(left:0, V32) NICHT das top-Sticky des thead-tr an → „Landkreis"-Header scrollte vertikal weg.
+Fix: Sticky auf TH-Ebene verlagert — `#landkreis-table thead th {position:sticky;top:0;z-index:2}`
++ Eckzelle behält left:0 mit z-index:4 (kombiniert top+left). Verifiziert: Delta 1,0 px bei
+scrollTop 600; horizontales left-Sticky intakt; stats-table-Header-Regression ok.
+**AP3 — Größenklassen-Default „Parks aggregiert":** `groesseBasis: 'cluster'` im State-Init +
+`active`-Klasse am Parks-Button (vorher Einzelanlagen). Umschalter-Regression ok (Klick auf
+Einzelanlagen wechselt sauber, Zurück auf cluster ok).
+**Kein Commit/Push/Deploy ohne User-Freigabe.**
+
+## Aktueller Stand (2026-09-13, **V48 — 6 AP (50-Punkte-Plan `2026-09-13_V48_6AP_50-Punkte-Plan.md`)**)
+
+**Code-Stand:** V48 · **Datenstand:** 12.09. (unverändert) · **Nicht deployt** (LIVE = V43/DS 06.09)
+**AP1 — Historie-Chart 1:** Note-Text komplett entfernt (Charts 2+3 behalten ihre Notes).
+**AP2 — Zubau-Chart 1:** Canvas-Legende (überlappte Diagrammfeld) entfernt; HTML-Legende
+(● Wind / ● PV) unter dem Titel.
+**AP3 — 2 neue Ratio-Heatmaps** unter der Bestands-Heatmap im Zubau-Tab (nur MW-Modus):
+(1) „Leistungsdichte" = kumulierte Wind+PV-Leistung ÷ Bundeslandfläche (MW/km², 3 Dezimal),
+(2) „Leistung pro Einwohner" = ÷ Einwohner × 1.000 (MW/1.000 Ew., 2 Dezimal).
+Datenbasis: NEUE Konstante `ZUBAU_BL_STATS` (Destatis Fläche + Bevölkerung, 31.12.2024,
+17 Einträge inkl. AWZ mit 0/0 → Zeile zeigt „—"). Generische `renderZubauRatioHeatmap()`
+kumuliert Jahreszubau je BL/Jahr und nutzt dieselbe Heat-Farblogik mit EIGENEM hmMax.
+Plausibilität verifiziert: SH 1,065 MW/km², BB 9,25 MW/1.000 Ew. (Spitzenreiter), AWZ „—".
+**AP4 — Outlier-robuste Y-Skalierung:** NEUE `outlierAwareBounds()` (p90-Quantil; Aktivierung
+nur wenn max > 1,5 × limit). `drawRateChart` + `drawCumChart` skalieren NUR noch über
+Nicht-Outlier-Werte; Outlier-Punkte werden an die Grenze GECLIPPT (Linie + Punkt) und OHNE
+Label gezeichnet. Effekt: Zubauraten-Chart (INB-Modus) ±120 % statt ±300 %+; Jahre 1990/2004
+sprengen die Skala nicht mehr. Einheitstest: [.., 300] → {limit:12, hardMax:300} ✓.
+**AP5 — Combo-Ergebnisse auf Karte zeigen:** 🗺️-Buttons auf 5 Tabs (Betreiber/Hersteller/Typ/
+Landkreis/NAP), je neben dem count-div, sichtbar nur bei Query ≥ 2 Zeichen UND Treffern.
+Mechanik: Renderfunktionen sammeln ihre gefilterten Ergebnis-Units in NEUEM globalen
+`_lastStatsRows` (TDZ-sicher bei ~2417 deklariert!); zentrale `showComboOnMap(kind)` macht
+renderMarkers + fitBounds + closeStats + Suchfeld-Beschriftung. NAP-Pfad via nap_index
+(nap→lid→u.lid; Fallback u.nap). Verdrahtung je Renderfunktion am Ende (regex-gepatcht).
+Verifiziert: rwe/vestas → 590 Anlagen auf Karte; vestas/nordex → 15.296; e-70/n117 → 810;
+börde/havelland → 1.014; bertikow/barnim → 220 (Vision: Marker sichtbar, Uckermark-Zoom).
+Regressionen: Betreiber-Zeilen-Klick, LK-Zeilen-Klick, NAP-Einzel-Klick, Historie 4 Snapshots
++ 3 Charts, 0 JS-Errors in Multi UND Singlefile.
+**Kein Commit/Push/Deploy ohne User-Freigabe.**
+
+## Aktueller Stand (2026-09-12 Nacht, **V47 — 4 AP (50-Punkte-Plan `2026-09-12_V47_5AP_50-Punkte-Plan.md`)**)
+
+**Code-Stand:** V47 · **Datenstand:** 12.09. (unverändert) · **Nicht deployt** (LIVE = V43/DS 06.09)
+**AP1 — Historie-Charts Achsen (User-Clarifies beantwortet):** Y-Ticks BEIDER Achsen als GANZE
+Zahl mit Tausenderpunkt, KEIN „k" mehr (fmtInt ersetzt fmtK). Linke Achse wörtlich in
+**5.000-MW-Schritten** (120.000/125.000/…/140.000 · 80.000/85.000/90.000 · 50.000/55.000/60.000).
+**Wert-Labels an den Datenpunkten KOMPLETT ENTFERNT** (User: „Werte über die Achsen ablesen") —
+damit hinfällig auch die V46-Label-Entzerrung. Rechte Achse weiterhin dynamisch, aber ganzzahlig.
+**AP3 — NAP-Tab Combo-Suche:** Operatoren / (ODER) und & (UND) in der NAP-Suchleiste; Match über
+normiertes `nm+bl+m`; Suggest kontextbezogen (Term nach letztem Operator; direkt nach Operator
+Vorschläge für den letzten vollständigen Term); Auswahl hängt an den Prefix an; Karte-Fokus nur
+bei Einzel-Treffer (ohne Operator). Hinweissatz „Kombinieren mit / (ODER) und & (UND)." unter
+der Suchleiste (analog Betreiber-Tab).
+**AP4 — Zubau-Chart-Breite:** Canvas-Breite dynamisch aus `container.clientWidth − 26`
+(Block-Padding) statt fix 640 px — Charts füllen das Statistik-Panel wie die Heatmap.
+Resize-Listener (Debounce 200 ms) re-rendert den Zubau-Tab bei aktivem Fenster.
+**AP5 — Sticky-Header:** Betreiber/Hersteller/Typ/Landkreis-Tabellen exakt im NAP-Stil
+(thead-Zeile `position:sticky; top:0; z-index:2; background:#f7f9fc; border-bottom:2px`).
+Landkreis zusätzlich: `#landkreis-scroll` bekommt `overflow-y:auto; max-height:calc(100vh-300px)`
+(NAP-Muster) — ohne eigenen Scroll-Container stickt der Header ins Leere; first-child z-index 3→4
+(Kombination link-sticky V32 + top-sticky). Verifiziert: Header-Delta 0–1 px nach 900 px Scroll.
+**Verifikation:** 0 JS-Errors (Multi + Singlefile); Chart-1-Ticks 120.000–140.000 in 5.000er-Schritten
+ganzzahlig; NAP-ODER Bayern/Sachsen = 11.493 NAPs, UND bertikow&brandenburg = 1 / bertikow&bayern = 0,
+Suggest nach Operator + Prefix-Anhang („bertikow/UW Bertikow"); Zubau-Canvas 986 px ≈ Container 1012 px;
+Sticky-Header alle 4 Tabellen; Regression Infobar 31.006 Wind · 22.438 PV.
+**Kein Commit/Push/Deploy ohne User-Freigabe.**
+
+## Aktueller Stand (2026-09-12 Abend, **V46 — 4 Arbeitspakete (50-Punkte-Plan `2026-09-12_V46_4AP_50-Punkte-Plan.md`)**)
+
+**Code-Stand:** V46 · **Datenstand:** 12.09. (unverändert) · **Nicht deployt** (LIVE = V43/DS 06.09)
+**AP1 — Achsen-Ticks gerade + Label-Entzerrung (renderHistorieCharts):** Y-Ticks aller Achsen
+(links + rechts, alle 3 Charts) jetzt GERADE (V45-Rotation zurückgenommen; `yTickText` ohne
+transform, `dominant-baseline:middle`). Wert-Labels ENTZERRT: Leistungslinie → Label ÜBER dem
+Punkt (anchor start, y−10), Delta-Linie → Label UNTER dem Punkt (anchor end, y+10) — bei gleichem
+x vertikal getrennt, keine Überlagerung mehr. Chart-1-Note aktualisiert. Datum bleibt 90° unter
+der Achse (V45).
+**AP2 — 🚨 Mobil-Toggle ROOT-CAUSE (V44+V45-Bug, endlich wirklich gefixt):** CSS-Kaskaden-Bug —
+der Mobile-Media-Block (≤767px) stand im Stylesheet VOR den Basis-Regeln `#toolbar-toggle
+{ display:none }` und `#toolbar { position:absolute }`. Media Queries addieren KEINE Spezifität
+(0,1,0 == 0,1,0) → später im Quelltext gewinnt die Basis-Regel AUF ALLEN GERÄTEN → Button unsichtbar
++ Panel (bei toolbar-hidden) display:none = NICHTS sichtbar (exakt die User-Meldung).
+**Fix:** Mobile-Regeln mit body-Präfix (`body #toolbar-toggle`, `body #toolbar`,
+`body.toolbar-hidden #toolbar` im Media-Block) → Spezifität 0,1,1 > 0,1,0, unabhängig von der
+Reihenfolge. Desktop unverändert (Basis display:none bleibt). Verifiziert: CSSOM zeigt body-Präfix-
+Regeln im 767er-Media-Block (Multi + Singlefile), Desktop-Btn weiterhin none, Kaskaden-Simulation
+fixed/inline-block. **Lektion: bei Media-Query-Overrides IMMER Spezifität gegen die Basis-Regeln
+prüfen — Reihenfolge allein trägt nicht (CSSOM-Regel-Check + computed-style-Beweis).**
+**AP3 — Betreiber-Erklärsatz gekürzt:** „Kombinieren mit / (ODER) und & (UND)." (Beispiel-Teil
+entfernt, User-Wunsch). Die 3 anderen Tab-Hinweise behalten ihre Beispiele.
+**AP4 — Doku as-built** in beiden Projekten (PROJEKTSTAND, fehlerbehebung F-MOBIL-KASKADE,
+ENTSCHEIDUNGEN, iterations/README, Hosting README + HANDOVER).
+**Verifikation:** 0 JS-Errors (Multi + Singlefile); Chart 1 Ticks 120k/140k gerade; Charts 2/3
+80k/90k + 50k/60k; Leistung-Labels 4× start/über Punkt; Delta-Labels 3× end/unter Punkt (je Chart);
+Vision-Check bestätigt „keine Überlappungen"; Combo-Regression rwe/vestas = 50 Rows; Verlauf
+4 Zeilen + Klick-Detail ok; Infobar 31.006 Wind · 22.438 PV.
+**Kein Commit/Push/Deploy ohne User-Freigabe.**
+
+## Aktueller Stand (2026-09-12 nachmittags, **V45 — 4 Arbeitspakete (50-Punkte-Plan `2026-09-12_V45_4AP_50-Punkte-Plan.md`)**)
+
+**Code-Stand:** V45 · **Datenstand:** 12.09. (unverändert) · **Nicht deployt** (LIVE = V43/DS 06.09)
+**AP1 — Historie-Charts Feinschliff (renderHistorieCharts):** Y-Skala startet jetzt bei
+Beschriftungs-Startwert in FESTEN Schritten dynamisch nach oben (Chart 1: 120k/20k-Schritte,
+Chart 2: 80k/10k, Chart 3: 50k/10k; maxL = kleinste Schritt-Vielfache ≥ Max; yL mappt
+[minLeft..maxL], NICHT 0-basiert — niceMax nur noch für rechte Delta-Achse). X-Datum um 90°
+NACH LINKS gedreht, unterhalb der Achse (padB 42→74). Punkte-Labels beider Kurven um 90° links
+gedreht, ÜBER dem Punkt (anchor start, padT 30→40). Rechte Achse im GLEICHEN Format wie linke
+(fill #6b7280 Ticks / #374151 Titel — kein Orange mehr). Delta-Linie = Farbe der Leistungslinie
+je Chart (blau/grün/orange, gestrichelt); Legende erbt automatisch. 🚨 Fix: niceMax-Def war beim
+V45-Erstversuch versehentlich gelöscht → ReferenceError (Browser-Test fand es, wiederhergestellt).
+**AP2 — Mobil-Toggle als fixe Bottom-Bar (Overlay):** Root-Cause V44: Button hing `position:absolute`
+im Karten-Container und verschwand beim Einklappen. Jetzt: `#toolbar-toggle` position:fixed
+bottom:10px z-index:1250 (BLEIBT IMMER SICHTBAR), `#toolbar` mobil position:fixed bottom:52px
+links/rechts 8px, max-height 62vh scrollable, Overlay-Look (border+shadow). Ausgeblendet: NUR
+Toggle sichtbar. PC: Button display:none, Panel unverändert im Seitenfluss. JS-Logik unverändert
+(matchMedia 767px, localStorage `pvw_toolbar_hidden`, resize-Handler).
+**AP3 — Operator „/" statt „+" + kontextbezogene Suggest:** parseComboQuery splittet jetzt '/'
+(ODER-Gruppen), '&' bleibt UND innerhalb; & bindet stärker (a/b&c = a ODER (b UND c)); „+" ist
+JETZT LITERAL (strikt, User-Entscheid). Erklärsätze 4× umgestellt (Beispiele Börde/Havelland,
+Enercon/Vestas, E-70/N117). NEU `comboTermContext(raw)` → {prefix, term}: Suggest sucht im Term
+nach dem letzten Operator; UX: direkt nach Operator (term leer) → Vorschläge für den LETZTEN
+vollständigen Term; Klick hängt Auswahl an prefix an („rwe/" + Klick „Vestas…" → „rwe/Vestas…").
+NEU: Suggest auch für Hersteller- + Typ-Tab (`_nameSuggest(kind)`, generisch, Typ-Kandidaten live
+aus allUnits aggregiert). LK-Suggest matcht jetzt normiert (Umlaut-Fix V44 konsistent).
+**Verifikation:** 0 JS-Errors (Multi + Singlefile); Chart 1 Ticks 120k/140k; Chart 2 80k/90k;
+Chart 3 50k/60k; Delta-Strokes blau/grün/orange; X-Labels rotate(-90) anchor end; Wert-Labels
+rotate(-90) anchor start (81.615,5 …); rechte Ticks fill #6b7280; „börde/havelland" → 2 LKs;
+„rwe/vestas" → RWE-Gruppe; „enercon/vestas" → 3 Hersteller; „e-70/n117" → 104 Typen; „rwe/" →
+Suggest 12 Treffer, Klick → „rwe/<name>"; hersteller/typ-Suggest nach Operator bestätigt;
+Panel hidden → display:none, Button-Pfeil ▼/▲; Verlauf 4 Zeilen + Klick-Detail ok.
+**Kein Commit/Push/Deploy ohne User-Freigabe.**
+
+## Aktueller Stand (2026-09-12, **V44 — 5 Arbeitspakete (50-Punkte-Plan `2026-09-12_V44_5AP_50-Punkte-Plan.md`)**)
+
+**Code-Stand:** V44 (UI + Datenbasis) · **Datenstand:** 12.09. · **Nicht deployt** (LIVE = V43/DS 06.09)
+**AP4 — Snapshot-Merge 06.09 (zuerst, DB-Ebene):** Beide 06.09-Snapshots (#10 vormittags unkorrigiert,
+#15 = korrigierter Stand via sync_legacy) zu EINEM Eintrag verschmolzen — **#15 behalten, #10 gelöscht**
+(User-Entscheid per clarify; Backup `~/backups/mastr.db.2026-09-12.preV44snapmerge.bak`). Skript:
+`scripts/fix_snapshot_merge_0906.py` (idempotent, löscht NUR #10 + Referenzen). Danach 4 Snapshots
+(29.08 / 01.09 / 06.09 / 12.09); Deltas neu: 06.09 = −87 Anlagen/+228,28 MW (removed 139), 12.09 =
++31/+265,18 MW (removed 21). Tabelle „Daten-Verlauf" zeigt 06.09 EINMAL; verifiziert im Browser.
+**AP1 — Historie-Charts 2.0 (renderHistorieCharts):** Titel ohne „N ·"-Präfix; Y-Ticks JEDER Achse um
+90° gedreht (neuer Helper `yTickText`, padL/padR 64→78); Charts 2 (Wind) + 3 (PV) mit NEUER Delta-Kurve
+(cur − prev je Technologie, gestrichelt orange, eigene rechte Achse) neben der bestehenden Leistungslinie;
+Skalen-Untergrenze `minLeft` (Wind 80.000, PV 55.000 — User-Klärung; Achse skaliert dynamisch via
+niceMax darüber). Chart-1-Delta unverändert (User-Entscheid), Note-Text erklärt alle 3 Charts.
+**AP2 — Filter-Panel mobil ein-/ausblendbar:** `#toolbar-toggle` („⚙ Filter", nur ≤767px sichtbar),
+Panel mobil default ZUGEKLAPPT, Zustand in localStorage `pvw_toolbar_hidden`; Desktop unverändert
+(Panel immer sichtbar, kein Button). JS in `initStats()` (`initToolbarToggle`, data.bound-Guard).
+**AP3 — Kombinierte Tab-Suche (Betreiber/Hersteller/Typ/Landkreis):** Generischer Parser
+`parseComboQuery` (+ = ODER-Gruppen, & = UND-Begriffe innerhalb, & bindet stärker: „a+b&c" =
+a ODER (b UND c); User-Freigabe) + `matchesCombo`; eingebaut in die 4 Render-Funktionen;
+Erklärsatz unter JEDEM der 4 Suchfelder; Suggest zeigt nur bei operator-freier Query.
+🚨 **Umlaut-Falle (beim Browser-Test gefunden+gefixt):** Landkreis-Match muss `norm(r.lk)` nutzen —
+`r.lk.toLowerCase()` matcht „Börde" nicht gegen „borde" (stummer 0-Treffer).
+Verifikation: „börde+havelland" → 2 LKs/863 Assets; „enercon+vestas" → 3 Hersteller; „e-70+n117" →
+104 Typen-Filter (810 Anlagen); „wind&park" → Betreiber mit beiden Begriffen; „rwe+vestas" → RWE-Gruppe.
+**Verifikation gesamt:** Multi-File 0 JS-Errors; Anker-Greps grün; node --check alle Blöcke;
+Chart-Verifikation per SVG-DOM (rotierte Ticks 12/SVG, 3 SVGs, Legenden 2 Einträge je Chart) +
+Vision-Check (gedrehte Labels, Titel ohne Nummern, Delta-Kurven sichtbar); Verlauf-Tabelle 4 Zeilen;
+Klick-Detail-Overlay ok; Toggle-Logik inkl. localStorage getestet.
+Revision `iterations/V44_HistorieCharts_MobilToggle_ComboSuche_SnapMerge.html` + human-share.
+**Kein Commit/Push/Deploy ohne User-Freigabe.**
+
+## Aktueller Stand (2026-09-12 vormittag, **V43.2 — Pipeline komplettiert: sync_legacy + lokaler Build im Cron**)
+
+**Code-Stand:** V43 (UI unverändert) · **Pipeline:** V43.2 · **Datenstand:** 12.09. 10:15
+**V43.2 (Fortsetzung des 25-Punkte-Prüfplans; alle 4 Befunde aus V43.1 behoben):**
+- **NEU `scripts/sync_legacy.py` (Cron-Schritt 4b):** Synchronisiert Legacy-Tabelle `einheiten`
+  aus `einheiten_raw` — bewusst NUR In-Betrieb (Status 35, georef, Wind ≥ 0.1 MW / PV ≥ 0.5 MWp
+  nach to_mw + V37 normalize_typ), identische Basis wie der bisherige Legacy-Rebuild. Entfernt
+  verwaiste/Status-gewechselte Rows (Statuswechsel = „Entfernt"-Event, konsistent zur Historien-
+  Semantik). Setzt `metadaten.stand` = Laufzeit → **Datenstand-Anzeige der App zeigt jetzt den
+  echten Pipeline-Stand** (vorher 06.09-Altwert). Snapshot + Delta + historie.json inklusive.
+  Erster Lauf: Snapshot #16 (12.09.): 31.006 W / 22.438 PV / 53.444 gesamt; Delta #15→#16:
+  +15 W/+107,66 MW, +37 PV/+198,03 MW, 21 entfernt (LAB-WEA Datteln/Anzing → endg. stillgelegt,
+  verifiziert Status 38). Idempotent (Zweitlauf: Snapshot-Dedup greift, kein Duplikat).
+- **NEU `scripts/build_all.sh` (Cron-Schritt 5):** nap_index → export_app → cp src→dist → bundle.
+  Der Cron baut jetzt den kompletten lokalen Stand (`dist/` + Singlefile) — Deploy bleibt
+  bewusst manuell per `scripts/deploy_ghpages.sh` nach User-Freigabe (Grundsatzentscheidung).
+- **`pipeline2_update.sh` erweitert** (Schritte 4b + 5) und Report erweitert (Karte-In-Betrieb-
+  Zähler + Datenstand + Build-Hinweis). **Cronjob `79229dc1690d` aktualisiert** (neues Prompt mit
+  sync_legacy/build_all-Kontext, Timeout ≥ 1800 s, Alarm-Kette um sync_legacy/build_all erweitert).
+- **statistiken.json konsistent:** gesamt 53.444 == meta.counts (31.006/22.438) == bs35 == Infobar.
+  Karte (65.725) und Charts (53.444) basieren jetzt auf derselben DB-Quelle — Drift behoben
+  (V43.1-Befund 3). Verifiziert im Browser: Verlauf-Tabelle 4 Zeilen (inkl. Delta „+52/+306 MW"
+  für 12.09), 3 SVG-Charts, Infobar/Datenstand „2026-09-12", LK-Suche ok, 46 Cluster, 0 JS-Errors.
+- **Verbleibende Alt-Themen (bewusst offen):** (1) 13 PV-Records in DB, die das Register nicht
+  mehr unter dem Basisfilter liefert — Cleanup via quartalsweisem Vollabruf (Dez. 2026).
+  (2) Legacy-`build.sh`-Fluss (data/raw/ → import_mastr.py) ist DEPRECATED für Updates — der
+  Cron-Pfad (raw_v2) ist maßgeblich; build.sh nur noch für Erst-Setup sinnvoll.
+- Revision `iterations/V43.2_PipelineFixes_Datenstand.html` + human-share. **Kein Commit/Push/
+  Deploy ohne User-Freigabe.**
+
+## Aktueller Stand (2026-09-12 vormittag, **V43.1 — Datenstand-Update nach Pipeline-Cron**)
+
+**Code-Stand:** V43 (unverändert) · **Datenstand:** 12.09. 06:15 (Pipeline-Cron-Lauf eingearbeitet)
+**V43.1 (25-Punkte-Prüfplan `2026-09-12_PipelineUpdate_RevisionsPruefung_25-Punkte-Plan.md`):**
+- **Pipeline-Cron 12.09. 06:10 (erster Samstags-Lauf):** ✅ erfolgreich. Delta: Wind 66 + PV 35+8 Records;
+  PV-Strang löste das Sicherheitsnetz korrekt aus (API-Total-Abweichung 5,29 % > 5 % Toleranz) →
+  Vollabruf-Fallback 22.452 Records. DB-Diff: **+19 neue Einheiten, 154 geänderte raw_json, +9 NAPs**
+  (27.898→27.907). Backups: 06:14:24 (PRE) + 06:15:19. Cron-Report „0 neu, 0 aktualisiert" bezog sich
+  nur auf die Basis-JSONs — die DB-Änderungen waren real (Doku-Korrektur).
+- **Einarbeitung in Revision (manuell, da Cron bewusst nur DB baut):** export_nap_index.py (nap_index
+  war stale vom 03.09! 27.078→27.087 NAPs) → export_app.py → cp src→dist → bundle_singlefile.py.
+  **Neuer Datenstand im Export:** 65.725 Anlagen (31.006 Wind / 22.438 PV bs35).
+  Verifiziert im Browser (Multi-File, 0 JS-Errors): Infobar „31006 Wind · 22438 PV", alle 5 neuen
+  PV-Anlagen + 6 Statuswechsler zu In Betrieb (u. a. SEE930086471695 15 MW) auf der Karte auffindbar,
+  nap_index frisch (27.087). Revision `iterations/V43.1_Datenstand_12-09.html` + human-share.
+- **Befunde (dokumentiert, offen für User-Entscheid):** (1) 13 PV-Records in DB, die das Register
+  nicht mehr unter dem Basisfilter liefert (5 gelöscht, 8 Bruttoleistung geändert) — Cleanup via
+  quartalsweisem Vollabruf (Dez. 2026). (2) `meta.stand` hängt am Legacy-Key (06.09) statt
+  `raw_import_stand` (12.09) — Datenstand-Anzeige im Hinweise-Panel zeigt Altwert. (3) statistiken.json
+  (Charts) basiert auf Legacy-Tabelle `einheiten` (Stand 06.09) → Karte/Charts driften (bekanntes
+  F-04-Muster, architekturbedingt). (4) nap_index-Export fehlt in build.sh UND Cron-Pfad.
+- **Kein Commit/Push/Deploy ohne User-Freigabe.**
 
 ## Aktueller Stand (2026-09-11, **V43 — live auf wind-pv-map.ingenieur-tools.de**)
 

@@ -249,3 +249,91 @@ Remote-Feldliste) sind alle in den Entscheidungen 4–7 bzw. in docs/ dokumentie
 - **AP3:** Deploy auf User-Freigabe (erteilt in dieser Runde).
 - **Status:** Verifiziert Multi + Singlefile (0 JS-Errors; Suche „b" → 134 LKs,
   „Börde"-Klick → 600 Assets; Charts 3× mit rotierten Achsen-Labels).
+
+
+## 2026-09-12 · V44 — 5 Arbeitspakete (Historie-Charts 2.0, mobil Toggle, Combo-Suche, Snap-Merge, Doku)
+
+- **AP1:** Y-Achsen-Ticks + Titel aller 3 Historie-Charts um 90° gedreht; Titel ohne „N ·"-Präfix;
+  Charts 2/3 erhalten Delta-Kurve (cur − prev je Technologie, gestrichelt, rechte Achse);
+  Skalen-Untergrenze 80.000 MW (Wind) / 55.000 MW (PV) dynamisch nach oben — User-Klärung per clarify
+  (ursprünglich „80 MW/50 MW" geschrieben; Startwert = Skala-Untergrenze, nicht fixe Skala).
+  Chart-1-Delta bleibt (User-Entscheid).
+- **AP2:** Filter-Panel (Toolbar) mobil ein-/ausblendbar — Toggle-Button ≤767px, default zugeklappt,
+  localStorage `pvw_toolbar_hidden`; Desktop unverändert.
+- **AP3:** Kombinierte Suche in 4 Statistik-Tabs — „+" = ODER, „&" = UND (& bindet stärker; User-Freigabe),
+  Erklärsätze unter den Feldern. Umlaut-Falle (F-COMBO-UMLAUT) beim Browser-Test entdeckt+gefixt.
+- **AP4:** Doppelter Snapshot 06.09 durch DB-Merge behoben (#10 gelöscht, #15 bleibt; Backup davor) —
+  Delta-Kette rechnet neu (06.09: −87/+228,28 MW; 12.09: +31/+265,18 MW).
+- **AP5:** Doku as-built beide Projekte (PROJEKTSTAND, statistik.md, fehlerbehebung.md, ROADMAP,
+  ENTSCHEIDUNGEN, HANDOVER, README-Changelog).
+- **Status:** Umgesetzt + verifiziert (Multi-File 0 JS-Errors, Anker-Greps, SVG-DOM-Checks, Vision).
+  Kein Push/Deploy ohne Freigabe.
+
+
+## 2026-09-12 · V45 — Chart-Feinschliff, mobil Overlay, „/"-Suche (4 AP)
+
+- **AP1:** Y-Skala startet bei Beschriftungswert in festen Schritten (120k/20k, 80k/10k, 50k/10k),
+  yL NICHT 0-basiert; X-Datum + Punkte-Labels beider Kurven um 90° links gedreht; rechte Achse im
+  Format der linken; Delta-Linie = Farbe der Leistungslinie (blau/grün/orange). User-Clarifies:
+  Startwerte = Tausender (120.000/80.000/50.000); Ticks bleiben 90° gedreht (V44).
+- **AP2:** Mobil-Toggle als fixe Bottom-Bar (position:fixed, immer sichtbar), Panel als Overlay
+  darüber; PC ohne Toggle. Root-Cause V44 (absolute-Positionierung im Karten-Container) behoben.
+- **AP3:** ODER-Operator strikt „/" („+" = Literal), „&" bleibt UND; Suggest kontextbezogen
+  (Term nach letztem Operator; direkt nach Operator → Treffer des letzten Terms; Klick hängt an
+  prefix). Suggest NEU für Hersteller- + Typ-Tab. „+"-Abwärtskompatibilität ABGELEHNT (User).
+- **AP4:** Doku as-built beide Projekte.
+- **Status:** Umgesetzt + verifiziert (0 JS-Errors, SVG-DOM-Checks, Suggest-/Operator-Tests).
+  niceMax-Regression beim Refactor entdeckt + gefixt (F-HIST-NICEMAX). Kein Push/Deploy.
+
+
+## 2026-09-12 · V46 — Achsen-Ticks gerade + Label-Entzerrung + Mobil-Kaskaden-Fix (4 AP)
+
+- **AP1:** Y-Ticks aller Achsen GERADE (V45-Rotation für Ticks zurückgenommen — User-Wunsch;
+  Datum bleibt gedreht). Wert-Labels entzerrt: Leistung ÜBER dem Punkt, Delta UNTER dem Punkt
+  (vertikale Trennung bei gleichem x statt Overlay).
+- **AP2:** V44/V45-Mobil-Bug war KEIN Positionierungs-, sondern ein Kaskaden-Bug (Media-Block
+  vor Basis-Regel, gleiche Spezifität). Fix: body-Präfixe im Media-Block. Zwei Runden debuggt
+  (V44 absolute → V45 fixed → V46 Kaskade) — die User-Meldung „gar nichts sichtbar" war der
+  entscheidende Hinweis: nicht der Button-Ort war falsch, sondern BEIDES war display:none.
+- **AP3:** Betreiber-Erklärsatz ohne Beispiele (User-Wunsch); 3 andere Tabs behalten Beispiele.
+- **Status:** Umgesetzt + verifiziert (Multi + Singlefile, 0 JS-Errors). Kein Push/Deploy.
+
+
+## 2026-09-12 · V47 — Chart-Achsen + NAP-Combo + Zubau-Breite + Sticky-Header (4 AP)
+
+- **AP1 (User-Clarifies):** Ticks ganzzahlig ohne „k" (beide Achsen), linke Achse wörtlich
+  5.000-MW-Schritte, Wert-Labels an Punkten ENTFERNT (Ablesen über Achsen — V46-Entzerrung damit
+  obsolet).
+- **AP3:** NAP-Suche mit / (ODER) und & (UND) analog Betreiber-Tab; Suggest kontextbezogen,
+  Auswahl an Prefix angehängt; Karte-Fokus nur bei Einzel-Treffer.
+- **AP4:** Zubau-Canvas folgt Panelbreite (Heatmap als Vorbild); Resize-Handler.
+- **AP5:** Sticky-Header nach NAP-Muster; LK-Tab brauchte eigenen Scroll-Container
+  (F-STICKY-CONTEXT).
+- **Status:** Umgesetzt + verifiziert (Multi + Singlefile, 0 JS-Errors). Kein Push/Deploy.
+
+
+## 2026-09-13 · V48 — Ratio-Heatmaps + Outlier-Skalierung + Combo-Karten-Buttons (6 AP)
+
+- **AP3 (User-Clarify-frei):** Ratio-Heatmaps NUR im MW-Modus (Anzahl je km² wäre irreführend);
+  AWZ ohne Fläche/Einwohner → „—"; Destatis-Stand 31.12.2024 als statische Konstante
+  (ZUBAU_BL_STATS) — kein Nachladen, keine API.
+- **AP4:** p90-Quantil-Ansatz statt hartes Weglassen definierter Jahre — robust für künftige
+  Outlier; Clip-Grenze: Aktivierung nur wenn max > 1,5 × p90 (kein Overfitting bei normalen
+  Verteilungen).
+- **AP5:** Bewusste Entscheidung GEGEN NAP-Gruppen-Panel-Multi-Open: Combo-Karten-Button
+  zeigt alle Units via renderMarkers (Plain/Cluster-Layer) — ein Klick, eine Karte.
+  Suchfeld-Beschriftung informiert über Quelle (z. B. „NAP-Suche: …").
+- **Status:** Umgesetzt + verifiziert (Multi + Singlefile, 0 JS-Errors, Vision-Checks zu
+  Heatmap-Lesbarkeit + Karten-Fokus). Kein Push/Deploy.
+
+
+## 2026-09-13 · V49 — Button-Position, LK-Eckzellen-Sticky, Parks-Default (4 AP)
+
+- **AP1:** Buttons physisch vor `<table>` verschoben (/tmp-Skript, regex) statt CSS-Order-Trick —
+  DOM-Reihenfolge ist robust gegen künftige CSS-Refactors; IDs/Klick-Logik unverändert.
+- **AP2:** Sticky auf TH-Ebene (Chrome-Verhalten: eigene sticky-Definition an th überschreibt
+  das tr-Sticky). Eckzelle behält z-index:4 über beiden Ebenen. Als Muster dokumentiert:
+  **Kombinierte Sticky-Achsen immer auf ZELLEBENE definieren, nie auf tr-Ebene.**
+- **AP3:** Bewusster Default „Parks aggregiert" (Betreiber-Perspektive) — Register-Perspektive
+  bleibt per Klick erreichbar. Keine Persistenz (localStorage) gewünscht.
+- **Status:** Umgesetzt + verifiziert (Multi + Singlefile, 0 JS-Errors). Kein Push/Deploy.
