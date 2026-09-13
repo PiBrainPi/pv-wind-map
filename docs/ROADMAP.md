@@ -4,6 +4,9 @@
 > Jeder Wunsch wird hier erfasst, faktenbasiert bewertet und Schritt für Schritt umgesetzt.
 > Erstellt: 2026-09-03 · Quelle: User-Braindump + Agent-Recherche (verifizierte Zahlen).
 >
+> **LIVE-Stand: V49 (13.09.2026)** — main `e2c860f`, gh-pages `cbcb6f9`, Datenstand 12.09.
+> V44–V48 sind im V49-Deploy enthalten (Details je Version in `docs/PROJEKTSTAND.md`).
+>
 > ## 🔒 Arbeitsablauf je Feature (User-Vorgabe, 03.09. — BINDEND)
 > 1. Pro Feature (Einzelschritt) wird ein **20-Punkte-Plan** erstellt mit den 4 Phasen
 >    **Recherche → Planung → Umsetzung → Prüfung** (Prüfung: erfolgte Umsetzung gemäß

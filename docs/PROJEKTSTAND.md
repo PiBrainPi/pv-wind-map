@@ -5,7 +5,9 @@
 
 ## Aktueller Stand (2026-09-13, **V49 — 4 AP (50-Punkte-Plan `2026-09-13_V49_4AP_50-Punkte-Plan.md`)**)
 
-**Code-Stand:** V49 · **Datenstand:** 12.09. (unverändert) · **Nicht deployt** (LIVE = V43/DS 06.09)
+**Code-Stand:** V49 · **Datenstand:** 12.09. · **LIVE seit 13.09. 11:50** (Deploy b786e3e + Retrigger cbcb6f9; Pages-Build hing >25 min auf „building" — Leer-Commit als Remedy, verifiziert)
+**Live-Verifikation (13.09.):** served-SHA = local-SHA (`78ba4674120b2fd1…`) · V49-Marker live (ZUBAU_BL_STATS, outlierAwareBounds, show-map-nap, groesseBasis:'cluster') · einheiten.json live 65.725 Einträge · main `e2c860f` · gh-pages `cbcb6f9`.
+**DB-Backup vor Deploy:** `~/backups/mastr_20260913_1044.db` (546 MB).
 **AP1 — 🗺️-Buttons über die Tabellen:** Betreiber/Hersteller/Typ/Landkreis: Button steht jetzt
 DIREKT ÜBER dem Tabellen-Header (vor `<table …>`, margin-bottom statt margin-top). Bei langen
 Ergebnislisten kein Runterscrollen mehr nötig. NAP war bereits korrekt. Klick-Logik (_showMapBtn/
@@ -19,11 +21,11 @@ scrollTop 600; horizontales left-Sticky intakt; stats-table-Header-Regression ok
 **AP3 — Größenklassen-Default „Parks aggregiert":** `groesseBasis: 'cluster'` im State-Init +
 `active`-Klasse am Parks-Button (vorher Einzelanlagen). Umschalter-Regression ok (Klick auf
 Einzelanlagen wechselt sauber, Zurück auf cluster ok).
-**Kein Commit/Push/Deploy ohne User-Freigabe.**
+**Kein Commit/Push/Deploy ohne User-Freigabe.** *(13.09.: User-Freigabe erteilt → V49+V48 LIVE, siehe oben.)*
 
-## Aktueller Stand (2026-09-13, **V48 — 6 AP (50-Punkte-Plan `2026-09-13_V48_6AP_50-Punkte-Plan.md`)**)
+## V48-Zusatz (13.09., deployed mit V49): Ratio-Heatmaps + Outlier-Skalierung + Combo-Karten-Buttons
 
-**Code-Stand:** V48 · **Datenstand:** 12.09. (unverändert) · **Nicht deployt** (LIVE = V43/DS 06.09)
+**Code-Stand:** V48 (in V49-Deploy enthalten) · **Datenstand:** 12.09.
 **AP1 — Historie-Chart 1:** Note-Text komplett entfernt (Charts 2+3 behalten ihre Notes).
 **AP2 — Zubau-Chart 1:** Canvas-Legende (überlappte Diagrammfeld) entfernt; HTML-Legende
 (● Wind / ● PV) unter dem Titel.
@@ -53,7 +55,7 @@ Regressionen: Betreiber-Zeilen-Klick, LK-Zeilen-Klick, NAP-Einzel-Klick, Histori
 
 ## Aktueller Stand (2026-09-12 Nacht, **V47 — 4 AP (50-Punkte-Plan `2026-09-12_V47_5AP_50-Punkte-Plan.md`)**)
 
-**Code-Stand:** V47 · **Datenstand:** 12.09. (unverändert) · **Nicht deployt** (LIVE = V43/DS 06.09)
+**Code-Stand:** V47 · **Datenstand:** 12.09. · **LIVE seit 13.09. (Deploy mit V49)**
 **AP1 — Historie-Charts Achsen (User-Clarifies beantwortet):** Y-Ticks BEIDER Achsen als GANZE
 Zahl mit Tausenderpunkt, KEIN „k" mehr (fmtInt ersetzt fmtK). Linke Achse wörtlich in
 **5.000-MW-Schritten** (120.000/125.000/…/140.000 · 80.000/85.000/90.000 · 50.000/55.000/60.000).
@@ -80,7 +82,7 @@ Sticky-Header alle 4 Tabellen; Regression Infobar 31.006 Wind · 22.438 PV.
 
 ## Aktueller Stand (2026-09-12 Abend, **V46 — 4 Arbeitspakete (50-Punkte-Plan `2026-09-12_V46_4AP_50-Punkte-Plan.md`)**)
 
-**Code-Stand:** V46 · **Datenstand:** 12.09. (unverändert) · **Nicht deployt** (LIVE = V43/DS 06.09)
+**Code-Stand:** V46 · **Datenstand:** 12.09. · **LIVE seit 13.09. (Deploy mit V49)**
 **AP1 — Achsen-Ticks gerade + Label-Entzerrung (renderHistorieCharts):** Y-Ticks aller Achsen
 (links + rechts, alle 3 Charts) jetzt GERADE (V45-Rotation zurückgenommen; `yTickText` ohne
 transform, `dominant-baseline:middle`). Wert-Labels ENTZERRT: Leistungslinie → Label ÜBER dem
@@ -110,7 +112,7 @@ Vision-Check bestätigt „keine Überlappungen"; Combo-Regression rwe/vestas = 
 
 ## Aktueller Stand (2026-09-12 nachmittags, **V45 — 4 Arbeitspakete (50-Punkte-Plan `2026-09-12_V45_4AP_50-Punkte-Plan.md`)**)
 
-**Code-Stand:** V45 · **Datenstand:** 12.09. (unverändert) · **Nicht deployt** (LIVE = V43/DS 06.09)
+**Code-Stand:** V45 · **Datenstand:** 12.09. · **LIVE seit 13.09. (Deploy mit V49)**
 **AP1 — Historie-Charts Feinschliff (renderHistorieCharts):** Y-Skala startet jetzt bei
 Beschriftungs-Startwert in FESTEN Schritten dynamisch nach oben (Chart 1: 120k/20k-Schritte,
 Chart 2: 80k/10k, Chart 3: 50k/10k; maxL = kleinste Schritt-Vielfache ≥ Max; yL mappt
@@ -144,7 +146,7 @@ Panel hidden → display:none, Button-Pfeil ▼/▲; Verlauf 4 Zeilen + Klick-De
 
 ## Aktueller Stand (2026-09-12, **V44 — 5 Arbeitspakete (50-Punkte-Plan `2026-09-12_V44_5AP_50-Punkte-Plan.md`)**)
 
-**Code-Stand:** V44 (UI + Datenbasis) · **Datenstand:** 12.09. · **Nicht deployt** (LIVE = V43/DS 06.09)
+**Code-Stand:** V44 (UI + Datenbasis) · **Datenstand:** 12.09. · **LIVE seit 13.09. (Deploy mit V49)**
 **AP4 — Snapshot-Merge 06.09 (zuerst, DB-Ebene):** Beide 06.09-Snapshots (#10 vormittags unkorrigiert,
 #15 = korrigierter Stand via sync_legacy) zu EINEM Eintrag verschmolzen — **#15 behalten, #10 gelöscht**
 (User-Entscheid per clarify; Backup `~/backups/mastr.db.2026-09-12.preV44snapmerge.bak`). Skript:

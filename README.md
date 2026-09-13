@@ -30,14 +30,16 @@ Build-/Verify-Hinweise: `docs/architektur.md`.
 - 🔎 **Geo-Suche (V23):** Die Suche findet neben Anlagen, Betreibern/Portfolios und NAPs jetzt auch **Bundesländer 🗺️, Landkreise 🏙️ und Gemeinden ⛪** (unter dem Betreiber-Block, mit Kontextzeile und Anlagenzahl; Klick → alle Anlagen der Region auf der Karte).
 - 📊 **Statistik-Panel** (11 Tabs, V31 um Typ-Tab erweitert): Betreiber-Tabelle (Live-Suggest-Filter mit Betreibergruppen 👥 /
   Portfolios 📁 — Gruppen zuerst, 250 ms Debounce ab 2 Zeichen; Zahlformat 1 Nachkommastelle;
-  Klick auf Zeile/Name → alle Anlagen des Betreibers/der Gruppe auf der Karte),
+  Klick auf Zeile/Name → alle Anlagen des Betreibers/der Gruppe auf der Karte;
+  **seit V44 kombinierte Suche mit / (ODER) und & (UND)**, **seit V48/V49 🗺️-Button „Treffer auf Karte zeigen" über der Tabelle**),
   **Betreiber-Diagramme (seit V35/V35.1):** Button „📈 Diagramme" über der Tabelle —
   gestapeltes Wachstums-Balkendiagramm nach Inbetriebnahmejahr + Donut Technologie-Verteilung +
   Donut EEG-Registrierung (Definition: `EegInbetriebnahmeDatum` vorhanden), **alle 3 gesteuert
   vom gemeinsamen Umschalter Anlagen ⇄ Leistung (MW)**, Scope = Einzelbetreiber oder
   Gruppe/Portfolio),
   Hersteller-Tab (nur Wind, + %-Anteil + interaktiver Donut), **Größenklassen-Diagramme** (Toggles
-  Wind / PV / Wind + PV, Anlagen ⇄ Leistung, **seit V22: Basis „Einzelanlagen ⇄ Parks aggregiert"** —
+  Wind / PV / Wind + PV, Anlagen ⇄ Leistung, **Basis „Einzelanlagen ⇄ Parks aggregiert" (seit V49
+  Default: Parks aggregiert)** —
   zersplitterte Parks wie Solarpark Döllen (13 Einheiten) werden zu einem Park (154,8 MW) summiert,
   damit Kritis-Objekte ≥104 MW real sichtbar sind; **seit V23: Balken-Klick → alle Anlagen der Klasse
   auf der Karte**, im Wind+PV-Modus je nach Klick-Position nur Wind oder nur PV) mit fester
@@ -46,7 +48,11 @@ Build-/Verify-Hinweise: `docs/architektur.md`.
   Klick → Karten-Filter), **Landkreis-Tab (V23)** (Tabelle: Assets PV/Wind kombiniert + getrennt,
   NAP-Anzahl + NAP-Gesamtleistung je Landkreis; sortierbar, Default MW gesamt absteigend;
   Klick auf Zeile → Karte), **Update-Historie** (Revisions-Tracker mit Snapshot-Vergleich, Delta-Summary,
-  Verlauf-Tabelle, Bundesländer-Veränderung, Zeitleiste, Asset-Detail mit Deeplinks).
+  Verlauf-Tabelle, Bundesländer-Veränderung, Zeitleiste, Asset-Detail mit Deeplinks; **seit V45–V47:
+  3 Liniendiagramme mit ganzzahligen Achsen in 5.000-MW-Schritten**, Delta als gestrichelte Kurve).
+  **Seit V47/V49:** Sticky-Header auf Betreiber-/Hersteller-/Typ-/Landkreis-/NAP-Tabelle
+  (Landkreis inkl. fixierter erster Spalte); **NAP-Tab mit Combo-Suche / (ODER) + & (UND) und
+  kontextbezogenen Suggests (V47)**.
 
 - 📱 **Responsive Design:** 3 Breakpoints (PC ≥1024px: Stats-Panel 700px, Tablet 768–1023px: 560px,
   Mobile <768px: Vollbild + Topbar/Toolbar-Anpassungen). Kein horizontaler Scroll auf PC bei Statistik-Tabellen.
@@ -67,6 +73,11 @@ Build-/Verify-Hinweise: `docs/architektur.md`.
   Toggle Anlagen/Leistung (MW). Senkrechte X-Achsen-Labels, Werte horizontal oberhalb der Balken;
   in den 2 Liniencharts (Zubauraten, kumuliertes Wachstum) stehen die senkrechten y-Wert-Labels
   ÜBER dem Datenpunkt (negative Werte: darunter).
+  **Seit V48:** (1) Chart-Legende als HTML unter dem Titel, (2) **zwei Ratio-Heatmaps** —
+  Leistungsdichte (MW/km² Bundeslandfläche) und Leistung pro Einwohner (MW je 1.000 Ew.,
+  Destatis-Basisdaten 31.12.2024, nur im MW-Modus), (3) **outlier-robuste Y-Skalierung** —
+  Ausreißerjahre (1990/2004) sprengen die Skala der Liniencharts nicht mehr (p90-Quantil,
+  Punkte geclippt). **Seit V47:** Charts panelbreit dynamisch.
 - ⚡ **NAP-Gruppenansicht (V12):** Toggle zeigt Gruppen-Badges aller Anlagen am selben
   Netzanschlusspunkt; Panel listet alle Anlagen je Anschlusspunkt (Multi-NAP-Unterstützung).
 - 📉 **Spannungsebenen-Filter (V10):** Dropdown (Mittel-/Hoch-/Höchstspannung, NS, 3 Umspann-
