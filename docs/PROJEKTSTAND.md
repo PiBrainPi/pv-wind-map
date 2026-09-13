@@ -3,6 +3,37 @@
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
 > Stand: 2026-09-13 (**V49 — 🗺️-Buttons über Tabellen, LK-Eckzellen-Sticky, Parks-Default**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
 
+## Aktueller Stand (2026-09-13, **V51 — 3 AP (50-Punkte-Plan `2026-09-13_V51_3AP_50-Punkte-Plan.md`)**)
+
+**Code-Stand:** V51 · **Datenstand:** 12.09. · **Nicht deployt** (LIVE = V49/DS 12.09)
+**AP1 — Heatmap klickbar:** „Zubau nach Bundesland über Jahre": Klick auf Jahr-Spaltenkopf /
+Gesamt-Zeile → alle Anlagen des Jahres auf der Karte; Klick auf Zelle → Anlagen des
+Jahres × Bundesland. data-Attribute + Delegation auf zubau-heatmap-wrap; Hover-Rahmen
+(CSS) als Klick-Affordanz.
+**AP2 — Balkendiagramme klickbar:** „Zubau Wind + PV über Jahre" / „Zubau Photovoltaik" /
+„Zubau Windenergie": Klick auf eine Jahr-Spalte (Canvas-Hit-Test, Geometrie wie Zeichnung)
+→ Anlagen des Jahres (je Chart wind/pv/alle) auf der Karte.
+**Mechanik (beide AP):** zentraler Helfer `showZubauYearOnMap(year, bl, tech)` +
+`_zubauCtx.dateField` (von renderZubau gesetzt) — Karte-Filter nutzt dasselbe Datumsfeld
+wie der Sub-Tab (Zahlen 1:1 konsistent); Mechanik wie showComboOnMap (closeStats →
+renderMarkers → fitBounds → Suchfeld-Label mit Kontext + Anzahl).
+**AP3 — Doku as-built:** siehe unten.
+**Verifikation:** stacked 2024 → 5.289 · Zelle Bayern×2023 → 507 (= Zellwert) · th 2020 →
+19.515 · Gesamt 2019 → 18.084 · INB: 1990 → 15, PV 2009 → 595 · Singlefile 2021 → 5.449 ·
+0 JS-Errors Multi + Singlefile.
+**Kein Commit/Push/Deploy ohne User-Freigabe.**
+
+## Aktueller Stand (2026-09-13, **V50 — 2 AP (25-Punkte-Plan `2026-09-13_V50_2AP_25-Punkte-Plan.md`)**)
+
+**Code-Stand:** V50 · **Datenstand:** 12.09. · **Nicht deployt** (LIVE = V49/DS 12.09)
+**AP1 — Bugfix Betreiber-Diagramme:** 📈-Diagramme beachten jetzt Operator-Queries (/, &).
+Root-Cause: `_betreiberScopeUnits()` matchte Roh-String per includes (V35-Stand) — bei
+Combo-Queries 0 Treffer. Fix: `parseComboQuery` + `matchesCombo` (tabellenidentisch,
+V44/AP3-Semantik); Gruppen-Pfad nur bei Nicht-Combo. Verifiziert: rwe/vestas → 729 Anlagen/
+2.939,9 MW (vorher „Keine Treffer"), wind&park → 16.213, „rwe" → 516 (Regression),
+„cee" → 184 (Gruppen-Regression), 0 JS-Errors Multi+Singlefile.
+**Kein Commit/Push/Deploy ohne User-Freigabe.**
+
 ## Aktueller Stand (2026-09-13, **V49 — 4 AP (50-Punkte-Plan `2026-09-13_V49_4AP_50-Punkte-Plan.md`)**)
 
 **Code-Stand:** V49 · **Datenstand:** 12.09. · **LIVE seit 13.09. 11:50** (Deploy b786e3e + Retrigger cbcb6f9; Pages-Build hing >25 min auf „building" — Leer-Commit als Remedy, verifiziert)

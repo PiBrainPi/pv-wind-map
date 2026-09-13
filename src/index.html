@@ -913,6 +913,8 @@ html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .zubau-heatmap td.bl-name { text-align:left; font-weight:500; color:#111827; }
 .zubau-heatmap .hm-val { color:#fff; font-weight:600; }
 .zubau-heatmap tr:hover td { opacity:0.85; }
+/* V51/AP1: klickbare Heatmap-Zellen — Hover-Rahmen als Klick-Affordanz */
+.zubau-heatmap [data-year]:hover { outline:2px solid #1e40af; outline-offset:-2px; }
 @media (max-width:767px) {
   .zubau-canvas-wrap { overflow-x:scroll; }
   #zubau-charts canvas { max-width:none; }
@@ -4517,31 +4519,42 @@ function renderBetreiber() {
 }
 
 /* ═══ V35 (AP1): Betreiber-Diagramme — Wachstum, Technologie, EEG ═══
-   Scope: gefilterter Suchtext → Einzelbetreiber (norm-Match) ODER Gruppe/Portfolio
-   (Brand/Kern-Gesellschaften, gleiche Logik wie renderBetreiber/selectBetreiberGruppe). */
+   Scope: gefilterter Suchtext → Einzelbetreiber (Match analog Tabelle) ODER Gruppe/Portfolio
+   (Brand/Kern-Gesellschaften, gleiche Logik wie renderBetreiber/selectBetreiberGruppe).
+   V50/AP1 (Bugfix): Bei Operator-Queries (/, &) nutzte die Scope-Funktion weiterhin den
+   includes-Match über den ROHEN String → „rwe/vestas" fand nichts (Operatoren sind keine
+   Literalbestandteile) → Diagramme zeigten „Keine Treffer". Jetzt: parseComboQuery +
+   matchesCombo (gleiche Semantik wie die Tabelle, V44/AP3). */
 function _betreiberScopeUnits() {
-  const nf = norm(_statsState.filter || '');
+  const rawQ = (_statsState.filter || '').trim();
+  const nf = norm(rawQ);
   if (nf.length < 2) return [];
+  const combo = parseComboQuery(rawQ); // V50/AP1: Operator-Query? → tabellenidentisches Matching
   // Gruppen zuerst (Brand > Kern), dann Einzel-Treffer — dedupe via Set
+  // (bei Combo-Queries entfällt der Gruppen-Pfad sinnvoll: Operatoren sind keine Namensteile)
   let ges = null;                     // Set von Betreiber-Namen (Gruppen-Scope)
-  if (!_bffGrpCache) bffPortfolioGroups(nf);
-  const scored = [];
-  _bffGrpCache.brandGroups.forEach(g => {
-    const kn = norm(g.kern);
-    if (kn.startsWith(nf) || kn.includes(nf)) scored.push({ g, sc: kn.startsWith(nf) ? 0 : 1 });
-  });
-  _bffGrpCache.kernGroups.forEach(g => {
-    const kn = norm(g.kern);
-    if (kn.startsWith(nf) || kn.includes(nf)) scored.push({ g, sc: kn.startsWith(nf) ? 0 : 1 });
-  });
-  if (scored.length) {
-    scored.sort((a, b) => a.sc - b.sc || b.g.ges.size - a.g.ges.size);
-    ges = new Set(scored[0].g.ges);   // beste Gruppe (größte bei Gleichstand)
+  if (!combo) {
+    if (!_bffGrpCache) bffPortfolioGroups(nf);
+    const scored = [];
+    _bffGrpCache.brandGroups.forEach(g => {
+      const kn = norm(g.kern);
+      if (kn.startsWith(nf) || kn.includes(nf)) scored.push({ g, sc: kn.startsWith(nf) ? 0 : 1 });
+    });
+    _bffGrpCache.kernGroups.forEach(g => {
+      const kn = norm(g.kern);
+      if (kn.startsWith(nf) || kn.includes(nf)) scored.push({ g, sc: kn.startsWith(nf) ? 0 : 1 });
+    });
+    if (scored.length) {
+      scored.sort((a, b) => a.sc - b.sc || b.g.ges.size - a.g.ges.size);
+      ges = new Set(scored[0].g.ges);   // beste Gruppe (größte bei Gleichstand)
+    }
   }
   const seen = new Set(), units = [];
   for (const u of allUnits) {
     if (!u.ab) continue;
-    const match = ges ? ges.has(u.ab) : norm(u.ab).includes(nf);
+    // V50/AP1: Combo → Operator-Match; sonst alter Pfad (Gruppe ODER includes)
+    const match = combo ? matchesCombo(norm(u.ab), combo)
+                        : (ges ? ges.has(u.ab) : norm(u.ab).includes(nf));
     if (!match || seen.has(u.m)) continue;
     seen.add(u.m); units.push(u);
   }
@@ -5656,6 +5669,58 @@ function showComboOnMap(kind) {
 
 
 
+// V51/AP1+AP2: Zubau-Charts klickbar → Karte
+// Kontext des letzten renderZubau-Laufs (dateField 'reg'|'inb') — renderZubau setzt es
+// bei jedem Aufruf; die Klick-Handler lesen es, damit Chart-Zahl und Karte konsistent sind.
+let _zubauCtx = { dateField: 'reg' };
+
+/* Zeigt alle Anlagen eines Zubau-Jahres (optional je Bundesland und/oder Technologie)
+   auf der Karte — gleiche Mechanik wie showComboOnMap (closeStats → renderMarkers →
+   fitBounds → Suchfeld-Label). tech: null = Wind+PV, 'wind', 'pv'. */
+function showZubauYearOnMap(year, bl, tech) {
+  year = String(year);
+  const df = _zubauCtx.dateField;
+  const units = allUnits.filter(u => {
+    if (dateYear(u[df]) !== year) return false;
+    if (bl && (u.b || 'Unbekannt') !== bl) return false;
+    if (tech === 'wind' && u.t !== 'wind') return false;
+    if (tech === 'pv' && u.t === 'wind') return false;
+    return true;
+  });
+  if (!units.length) return;
+  closeStats();
+  renderMarkers(units);
+  const pts = units.filter(u => u.lat != null && u.lon != null).map(u => [u.lat, u.lon]);
+  if (pts.length === 1) map.setView(pts[0], 11);
+  else if (pts.length) map.fitBounds(pts, { padding: [30, 30] });
+  const techLbl = tech === 'wind' ? 'Wind' : tech === 'pv' ? 'PV' : 'Wind+PV';
+  const blLbl = bl ? ' · ' + bl : '';
+  const dfLbl = df === 'inb' ? 'Inbetriebnahme' : 'Registrierung';
+  const inp = document.getElementById('search-input');
+  if (inp) inp.value = 'Zubau ' + dfLbl + ' ' + year + blLbl + ' (' + techLbl + '): ' +
+    units.length.toLocaleString('de-DE') + ' Anlagen';
+  const sc = document.getElementById('search-clear');
+  if (sc) sc.style.display = 'block';
+}
+
+/* V51/AP2: Klick-Spalten-Erkennung auf den Zubau-Balkendiagrammen (Canvas).
+   Spaltengeometrie wie im Zeichnen: x = PAD_L + i*(plotW/n), Spaltenbreite plotW/n.
+   onPick(i) erhält den Spalten-Index (bzw. -1 außerhalb). */
+function bindZubauBarClicks(canvasId, years, W, PAD_L, PAD_R, onPick) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  canvas.style.cursor = 'pointer';
+  canvas.title = 'Klick auf ein Jahr → Anlagen dieses Jahres auf der Karte';
+  canvas.addEventListener('click', (ev) => {
+    const r = canvas.getBoundingClientRect();
+    const x = (ev.clientX - r.left) * (W / r.width); // CSS→Canvas-Skalierung
+    const n = years.length;
+    const plotW = W - PAD_L - PAD_R;
+    const i = Math.floor((x - PAD_L) / (plotW / n));
+    onPick(i >= 0 && i < n ? i : -1);
+  });
+}
+
 // V48/AP5: Klick-Handler der 🗺️-Buttons (einmalig)
 (function initShowMapButtons() {
   const bind = () => {
@@ -5944,6 +6009,7 @@ function loadHistorie() {
 /* ===================== V8: Zubau-Tab ===================== */
 function renderZubau() {
   const dateField = _statsState.zubauDateType || 'reg'; // 'reg' | 'inb'
+  _zubauCtx.dateField = dateField; // V51: Klick-Handler nutzen dasselbe Datumsfeld wie die Charts
   const container = document.getElementById('zubau-charts');
   const summaryEl = document.getElementById('zubau-summary');
   if (!allUnits || !allUnits.length) {
@@ -6013,7 +6079,7 @@ function renderZubau() {
   // === Chart 1: Stacked Bar (Wind + PV) ===
   html += '<div class="zubau-chart-block">';
   html += '<h3>Zubau Wind + PV über Jahre</h3>';
-  html += '<div class="zc-sub">Gestapeltes Balkendiagramm — ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + '</div>';
+  html += '<div class="zc-sub">Gestapeltes Balkendiagramm — ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + ' · <b>Klick auf ein Jahr → Anlagen auf der Karte</b></div>';
   // V48/AP2: Legende als HTML UNTER dem Titel (statt im Canvas oben rechts, wo sie das
   // Diagrammfeld überlagert hat — User-Wunsch 13.09.)
   html += '<div style="font-size:11px;color:#374151;margin:2px 0 4px 2px;">' +
@@ -6025,21 +6091,21 @@ function renderZubau() {
   // === Chart 2: PV einzeln ===
   html += '<div class="zubau-chart-block">';
   html += '<h3>Zubau Photovoltaik</h3>';
-  html += '<div class="zc-sub">Balkendiagramm — ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + '</div>';
+  html += '<div class="zc-sub">Balkendiagramm — ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + ' · <b>Klick auf ein Jahr → PV-Anlagen auf der Karte</b></div>';
   html += '<div class="zubau-canvas-wrap"><canvas id="zubau-pv"></canvas></div>';
   html += '</div>';
 
   // === Chart 3: Wind einzeln ===
   html += '<div class="zubau-chart-block">';
   html += '<h3>Zubau Windenergie</h3>';
-  html += '<div class="zc-sub">Balkendiagramm — ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + '</div>';
+  html += '<div class="zc-sub">Balkendiagramm — ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + ' · <b>Klick auf ein Jahr → Windanlagen auf der Karte</b></div>';
   html += '<div class="zubau-canvas-wrap"><canvas id="zubau-wind"></canvas></div>';
   html += '</div>';
 
   // === Chart 4: Heatmap ===
   html += '<div class="zubau-chart-block">';
   html += '<h3>Zubau nach Bundesland über Jahre</h3>';
-  html += '<div class="zc-sub">Heatmap — Farbintensität = ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + '</div>';
+  html += '<div class="zc-sub">Heatmap — Farbintensität = ' + (isMW ? 'installierte Leistung (MW)' : 'Anzahl Anlagen') + ' · ' + fieldLabel + ' · <b>Klick auf Jahr-Spalte → Anlagen auf der Karte · Klick auf Zelle → Anlagen des Jahres im Bundesland</b></div>';
   html += '<div class="zubau-canvas-wrap"><div id="zubau-heatmap-wrap"></div></div>';
   html += '</div>';
 
@@ -6100,6 +6166,11 @@ function renderZubau() {
     const maxVal = drawSingleBar(ctx, windVals, years, '#2563eb', W, H, PAD_L, PAD_B, PAD_T, PAD_R);
     // V20: gestrichelte Trendlinie entfernt (User-Wunsch — reine Balkendarstellung)
   }
+
+  // V51/AP2: Balkendiagramme klickbar → Jahr auf der Karte zeigen
+  bindZubauBarClicks('zubau-stacked', years, W, PAD_L, PAD_R, (i) => { if (i >= 0) showZubauYearOnMap(years[i], null, null); });
+  bindZubauBarClicks('zubau-pv', years, W, PAD_L, PAD_R, (i) => { if (i >= 0) showZubauYearOnMap(years[i], null, 'pv'); });
+  bindZubauBarClicks('zubau-wind', years, W, PAD_L, PAD_R, (i) => { if (i >= 0) showZubauYearOnMap(years[i], null, 'wind'); });
 
   // Zubauraten (YoY)
   {
@@ -6561,7 +6632,7 @@ function renderZubauHeatmap(blData, yearData, years, val, isMW) {
   }
 
   let hh = '<table class="zubau-heatmap"><thead><tr><th>Bundesland</th>';
-  years.forEach(y => { hh += '<th>' + y + '</th>'; });
+  years.forEach(y => { hh += '<th data-year="' + y + '" style="cursor:pointer">' + y + '</th>'; });
   hh += '<th>Gesamt</th></tr></thead><tbody>';
   blNames.forEach(bl => {
     let blTotal = 0;
@@ -6572,7 +6643,8 @@ function renderZubauHeatmap(blData, yearData, years, val, isMW) {
       blTotal += v;
       const bg = heatColor(v);
       const fg = v > hmMax * 0.35 ? '#fff' : '#374151';
-      hh += '<td style="background:' + bg + ';color:' + fg + '">' + (v > 0 ? v.toLocaleString('de-DE', {maximumFractionDigits:0}) : '—') + '</td>';
+      // V51/AP1: Zelle klickbar → Jahr × Bundesland auf der Karte
+      hh += '<td data-year="' + y + '" data-bl="' + esc(bl) + '" style="cursor:pointer;background:' + bg + ';color:' + fg + '">' + (v > 0 ? v.toLocaleString('de-DE', {maximumFractionDigits:0}) : '—') + '</td>';
     });
     hh += '<td style="font-weight:700">' + blTotal.toLocaleString('de-DE', {maximumFractionDigits:0}) + '</td>';
     hh += '</tr>';
@@ -6582,11 +6654,21 @@ function renderZubauHeatmap(blData, yearData, years, val, isMW) {
   years.forEach(y => {
     const v = val(yearData[y]);
     grandTotal += v;
-    hh += '<td style="font-weight:700">' + v.toLocaleString('de-DE', {maximumFractionDigits:0}) + '</td>';
+    // V51/AP1: Gesamt-Zeile klickbar = reiner Jahr-Klick (alle Bundesländer)
+    hh += '<td data-year="' + y + '" style="cursor:pointer;font-weight:700">' + v.toLocaleString('de-DE', {maximumFractionDigits:0}) + '</td>';
   });
   hh += '<td style="font-weight:700">' + grandTotal.toLocaleString('de-DE', {maximumFractionDigits:0}) + '</td>';
   hh += '</tr></tbody></table>';
-  document.getElementById('zubau-heatmap-wrap').innerHTML = hh;
+  const wrap = document.getElementById('zubau-heatmap-wrap');
+  wrap.innerHTML = hh;
+  // V51/AP1: Klick-Delegation — th (Jahr), td (Jahr × BL), Gesamt-Zeile (Jahr).
+  // Direkt auf wrap gebunden (wrap wird bei jedem renderZubau neu befüllt → kein Stacking).
+  wrap.onclick = (ev) => {
+    const el = ev.target.closest('[data-year]');
+    if (!el) return;
+    const bl = el.dataset.bl || null; // td → BL-Filter; th/Gesamt → null
+    showZubauYearOnMap(el.dataset.year, bl, null);
+  };
 }
 
 function renderHistorie() {

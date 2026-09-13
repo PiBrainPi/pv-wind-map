@@ -73,6 +73,9 @@ Build-/Verify-Hinweise: `docs/architektur.md`.
   Toggle Anlagen/Leistung (MW). Senkrechte X-Achsen-Labels, Werte horizontal oberhalb der Balken;
   in den 2 Liniencharts (Zubauraten, kumuliertes Wachstum) stehen die senkrechten y-Wert-Labels
   ÜBER dem Datenpunkt (negative Werte: darunter).
+  **Seit V51 klickbar → Karte:** Klick auf eine Jahr-Spalte in den 3 Balkendiagrammen oder auf
+  Jahr-Spalte/Gesamt-Zeile/Einzelzelle der Heatmap zeigt alle passenden Anlagen auf der Karte
+  (Einzelzelle = Jahr × Bundesland); der Filter nutzt dasselbe Datumsfeld wie der aktive Sub-Tab.
   **Seit V48:** (1) Chart-Legende als HTML unter dem Titel, (2) **zwei Ratio-Heatmaps** —
   Leistungsdichte (MW/km² Bundeslandfläche) und Leistung pro Einwohner (MW je 1.000 Ew.,
   Destatis-Basisdaten 31.12.2024, nur im MW-Modus), (3) **outlier-robuste Y-Skalierung** —

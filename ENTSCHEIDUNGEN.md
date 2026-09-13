@@ -337,3 +337,27 @@ Remote-Feldliste) sind alle in den Entscheidungen 4–7 bzw. in docs/ dokumentie
 - **AP3:** Bewusster Default „Parks aggregiert" (Betreiber-Perspektive) — Register-Perspektive
   bleibt per Klick erreichbar. Keine Persistenz (localStorage) gewünscht.
 - **Status:** Umgesetzt + verifiziert (Multi + Singlefile, 0 JS-Errors). Kein Push/Deploy.
+
+
+## 2026-09-13 · V50 — Bugfix Combo-Diagramme Betreiber-Tab (2 AP)
+
+- **Entscheidung:** Diagramm-Scope bei Combo-Queries OHNE Gruppen-Pfad — Operator-Queries
+  adressieren Namensteile, keine Gruppen; das „beste Gruppen"-Scoring wäre hier irreführend.
+- **Verifikation:** rwe/vestas → 729 Anlagen / 2.939,9 MW (vorher „Keine Treffer");
+  wind&park → 16.213 Anlagen (UND-Schnittmenge); einfach „rwe" → 516 (Regression ok);
+  Gruppe „cee" → 184 Anlagen (Portfolio-Pfad ok); 0 JS-Errors Multi+Singlefile.
+- **Status:** LIVE noch V49 — Deploy nach User-Freigabe.
+
+
+## 2026-09-13 · V51 — Zubau-Charts klickbar → Karte (3 AP)
+
+- **Entscheidung:** Karte-Filter aus den Charts nutzt dasselbe Datumsfeld wie der aktive
+  Sub-Tab (`_zubauCtx.dateField`) — sonst wären Chart-Wert und Karten-Anzahl inkonsistent.
+- **Canvas-Klick-Erkennung:** Spalten-Index aus Click-X (Skalierung CSS→Canvas berücksichtigt),
+  Geometrie 1:1 wie im Zeichnen (PAD_L=50, PAD_R=16, Spaltenbreite plotW/n).
+- **Heatmap-Klicks:** data-Attribute + Delegation auf dem Wrap (kein Stacking bei Re-Render);
+  Zelle = Jahr×BL, th/Gesamt-Zeile = reiner Jahr-Klick.
+- **Verifikation:** stacked 2024 → 5.289 ✓ · Zelle Bayern×2023 → 507 (= Zellwert) ✓ ·
+  th 2020 → 19.515 ✓ · Gesamt 2019 → 18.084 ✓ · INB-Modus: 1990 → 15 ✓, PV 2009 → 595 ✓ ·
+  Singlefile 2021 → 5.449 ✓ · 0 JS-Errors.
+- **Status:** LIVE noch V49 — Deploy nach User-Freigabe.

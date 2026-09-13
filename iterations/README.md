@@ -63,3 +63,5 @@ einzelbare HTML-App (Single-File mit eingebetteten Daten, ~25 MB).
 | V47 | 2026-09-12 | Historie-Charts: Ticks ganzzahlig (kein k) + 5.000-MW-Schritte links + Wert-Labels entfernt; NAP-Combo-Suche (/ &) mit Suggest; Zubau-Canvas panelbreit; Sticky-Header Betreiber/Hersteller/Typ/Landkreis (NAP-Stil) |
 | V48 | 2026-09-13 | Historie: Chart-1-Note entfernt; Zubau: Legende unter Titel, 2 Ratio-Heatmaps (MW/km², MW/1.000 Ew., Destatis-Daten), Outlier-robuste Y-Skalierung (1990/2004 geclippt); 5 Stats-Tabs: 🗺️ Combo-Ergebnisse auf Karte zeigen |
 | V49 | 2026-09-13 | 🗺️-Buttons über die Tabellen (4 Tabs); Landkreis-Eckzelle vertikal sticky (TH-Ebenen-Sticky); Größenklassen-Default „Parks aggregiert" |
+| V50 | 2026-09-13 | Bugfix: Betreiber-Diagramme beachten jetzt Operator-Queries (/, &) — Scope-Matching identisch zur Tabelle (F-COMBO-DIAGRAMME) |
+| V51 | 2026-09-13 | Zubau-Heatmap + 3 Balkendiagramme klickbar → Karte (Jahr / Jahr×BL, Datumsfeld konsistent) |

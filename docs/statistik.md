@@ -389,3 +389,20 @@ combined tab search switched from "+" to "/" (strict; "+" is now a literal, user
   fixiert (Sticky von der tr-Ebene auf die th-Ebene verlagert; Eckzelle kombiniert top+left).
 - **Größenklassen-Tab:** Default-Ansicht ist jetzt „Parks aggregiert" (Betreiber-Perspektive),
   vorher „Einzelanlagen". Umschalter unverändert.
+
+
+## V50 (13.09.2026)
+
+- **Bugfix Betreiber-Diagramme:** Die 📈-Diagramme aktualisieren jetzt korrekt bei kombinierten
+  Suchen (Operatoren / = ODER, & = UND). Vorher: Scope-Funktion matchte den Roh-String
+  per includes → Operator-Queries fanden nichts („Keine Treffer für den Suchtext").
+  Matching ist jetzt identisch zur Tabelle (parseComboQuery + matchesCombo).
+
+
+## V51 (13.09.2026)
+
+- **Zubau-Charts klickbar → Karte:** Heatmap „Zubau nach Bundesland über Jahre" (Jahr-Spalte,
+  Gesamt-Zeile und Einzelzelle) sowie die 3 Balkendiagramme (Wind+PV, PV, Wind) reagieren auf
+  Klicks — die passenden Anlagen werden auf der Karte angezeigt (Marker + fitBounds,
+  Suchfeld zeigt Kontext + Anzahl). Der Klick-Filter nutzt dasselbe Datumsfeld wie der
+  gewählte Sub-Tab (Registrierungs-/Inbetriebnahmedatum), Zahlen sind damit 1:1 konsistent.
