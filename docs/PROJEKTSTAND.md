@@ -5,7 +5,7 @@
 
 ## Aktueller Stand (2026-09-13, **V51 — 3 AP (50-Punkte-Plan `2026-09-13_V51_3AP_50-Punkte-Plan.md`)**)
 
-**Code-Stand:** V51 · **Datenstand:** 12.09. · **Nicht deployt** (LIVE = V49/DS 12.09)
+**Code-Stand:** V51 · **Datenstand:** 12.09. · **LIVE seit 13.09. 17:55** (main cde3e49, gh-pages ecbe783, Build ~1 min, Hash-Vergleich served=local ✓, V51-Marker live, Payload 65.725 Einheiten)
 **AP1 — Heatmap klickbar:** „Zubau nach Bundesland über Jahre": Klick auf Jahr-Spaltenkopf /
 Gesamt-Zeile → alle Anlagen des Jahres auf der Karte; Klick auf Zelle → Anlagen des
 Jahres × Bundesland. data-Attribute + Delegation auf zubau-heatmap-wrap; Hover-Rahmen
