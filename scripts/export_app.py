@@ -631,12 +631,30 @@ def main() -> None:
     db = sqlite3.connect(DB_PATH)
     statistiken = build_statistiken(db)
 
+    # V51.2 (19.09.): Slim-Export — Zahlen kompakt, Koordinaten auf 5 Dezimalen (~1,1 m),
+    # leere/None-Felder weglassen. Reduziert einheiten.json ~39 MB → ~30 MB
+    # (Ladezeit schwacher Anbindungen proportional kürzer; Werte unverändert nutzbar).
+    def _clean_unit(u: dict) -> dict:
+        out = {}
+        for k, v in u.items():
+            if v is None or v == "":
+                continue
+            if k in ("lat", "lon") and isinstance(v, (int, float)):
+                out[k] = round(v, 5)
+            elif k == "mw" and isinstance(v, float):
+                # MW mit 4 Dezimalen (0,1 kWp Auflösung reicht; Vorher ~7 Dezimalstellen)
+                out[k] = round(v, 4)
+            else:
+                out[k] = v
+        return out
+    units_slim = [_clean_unit(u) for u in units]
+
     with open(DIST / "einheiten.json", "w", encoding="utf-8") as f:
-        json.dump(units, f, ensure_ascii=False)
+        json.dump(units_slim, f, ensure_ascii=False, separators=(",", ":"))
     with open(DIST / "meta.json", "w", encoding="utf-8") as f:
-        json.dump(meta, f, ensure_ascii=False)
+        json.dump(meta, f, ensure_ascii=False, separators=(",", ":"))
     with open(DIST / "statistiken.json", "w", encoding="utf-8") as f:
-        json.dump(statistiken, f, ensure_ascii=False)
+        json.dump(statistiken, f, ensure_ascii=False, separators=(",", ":"))
     # V28 (Paket 2): NAP-Ranking fuer den neuen Statistik-Tab "NAP"
     nap_ranking = build_nap_ranking()
     with open(DIST / "nap_ranking.json", "w", encoding="utf-8") as f:
