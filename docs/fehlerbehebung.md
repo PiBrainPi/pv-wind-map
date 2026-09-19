@@ -372,3 +372,20 @@ Script-Teil deklariert sein, der init() aufruft.
 **Fix:** Deklaration zu den anderen globalen States (~2417) verschoben.
 **Prävention:** Neue globale Variablen, die in Renderfunktionen gelesen werden, IMMER im
 State-Block oben (~Zeile 2410–2420) deklarieren — nie in Funktionsnähe.
+
+
+## F-COMBO-DIAGRAMME (13.09.2026, V50) — Operator-Queries in abgeleiteten Auswertungen durchreichen
+
+**Symptom:** Betreiber-Tab, 📈-Diagramme zeigten bei kombinierten Suchen („rwe/vestas")
+„Keine Treffer für den Suchtext", obwohl die Tabelle korrekt filterte.
+**Root-Cause:** `_betreiberScopeUnits()` (V35) matchte mit `norm(u.ab).includes(nf)` über den
+ROHEN Suchstring — Operatoren sind keine Literalbestandteile von Betreibernamen → 0 Treffer.
+Die Tabelle nutzte seit V44/AP3 `parseComboQuery` + `matchesCombo`; der Diagramm-Scope war
+bei der V44-Combo-Einführung nicht mitgepflegt worden.
+**Fix:** V50/AP1 — Scope-Funktion prüft zuerst `parseComboQuery(rawQ)`; bei Combo-Query
+tabellenidentisches `matchesCombo(norm(u.ab), combo)`, Gruppen-Pfad entfällt sinnvollerweise
+(Operatoren sind keine Namensteile). Einfach-Queries/Gruppen unverändert (Regression grün).
+**Prävention:** Wann immer ein neuer Matching-Mechanismus (Operatoren, Normalisierung) in
+eine Tabellen-Renderfunktion eingebaut wird, ALLE davon abgeleiteten Auswertungen
+(Diagramme, Map-Button, Exporte) auf den gleichen Mechanismus prüfen — am besten über eine
+gemeinsame Helper-Funktion statt kopiertem Match-Code.

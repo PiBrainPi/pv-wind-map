@@ -1,7 +1,7 @@
 # Grundsatzentscheidung — PV & Wind Karte (MaStR-Pipeline)
 
 > Geltungsbereich: gesamtes Projekt `~/Projects/pv-wind-map/` (Datenpipeline, DB, Export, Deploy).
-> Beschlossen: 2026-09-03 · Status: Regeln 1 + 2 final, Daten-Umfang von Nutzer final zu bestätigen.
+> Beschlossen: 2026-09-03 · Status: Regeln 1 + 2 final; **Regel 5 (Prüfvorschrift) beschlossen 19.09.2026**; Daten-Umfang von Nutzer bestätigt.
 
 ## Regel 1 — Löschverbot (oberste Regel, unveränderlich)
 
@@ -48,6 +48,22 @@ verworfene Versionen (deckungsgleich mit PROJEKTSTAND.md § Iterationen).
 - keine Issues/PRs/Releases erstellen oder verändern
 - Workflow: Agent fragt → User muss **explizit „Ja"** sagen → erst dann ausführen.
   Fragen sind ausdrücklich erlaubt und erwünscht; stillschweigendes Handeln nie.
+
+## Regel 5 — Prüfvorschrift nach Pipeline-Update (100 %, beschlossen 19.09.2026)
+
+**Nach JEDER Pipeline-Aktualisierung (Cron oder manuell) wird zu 100 % geprüft:**
+1. **Datenintegration:** DB-Zähler, Snapshot vom heutigen Datum, `meta.stand` = Laufzeit,
+   Historie ohne Duplikate, Plausibilität (V27b), Build-Counts == bs35-Kern.
+2. **Funktionsfähigkeit:** beide Builds (Multi-File + Singlefile) im Headless-Chromium —
+   0 JS-Errors, Infobar, alle 11 Statistik-Tabs, Historie-Charts, Zubau-Heatmap, Marker.
+3. **Revision:** geprüfte HTML nach `iterations/` + `~/hermes_human-share/`.
+4. **Chat:** klickbare HTML-Datei an Fabs (MEDIA:).
+5. **Freigabe:** Fabs prüft manuell; erst sein explizites „Ja" löst Push + Deploy aus
+   (Regel 4). Deploy NIE ohne diese Kette; bei FAIL kein Deploy, Befund zuerst klären.
+
+- Automatisierung: `bash scripts/verify_update.sh` (Steps 1+2, Exit 0/1); der
+  Pipeline-Cron führt sie nach jedem Lauf aus und alarmiert bei FAIL.
+- Maßgebliche Doku mit Details: `docs/update.md` § „Prüfvorschrift nach Pipeline-Update".
 
 ## Datenübersicht (118 Einheiten-Felder, gruppiert — Stand: Live-Check 03.09.)
 

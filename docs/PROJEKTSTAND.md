@@ -1,7 +1,24 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-09-13 (**V49 — 🗺️-Buttons über Tabellen, LK-Eckzellen-Sticky, Parks-Default**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+> Stand: 2026-09-19 (**Regel 5 — Prüfvorschrift nach Pipeline-Update**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+
+## Neu (2026-09-19, **Regel 5 — Prüfvorschrift nach Pipeline-Update, User-Beschluss**)
+
+**Nach JEDER Pipeline-Aktualisierung 100 % prüfen, bevor irgendetwas deployt wird:**
+Datenintegration (A1–A4) + Funktionsfähigkeit beider Builds (B, Headless-Chromium,
+0 JS-Errors, 11 Tabs) → geprüfte HTML als Revision (`iterations/` + human-share) →
+klickbare HTML im Chat an Fabs → **manuelle Freigabe** → erst DANN push/deploy (Regel 4).
+- **Automatisierung:** `scripts/verify_update.sh` (Exit 0/1, Fail = Deploy-Stop) +
+  `scripts/verify_app.js` (UI-Teil). Der Pipeline-Cron 79229dc1690d führt die Prüfung
+  ab sofort nach jedem Lauf aus (Prompt aktualisiert; 🚨-Alarm bei FAIL).
+- **Doku:** `docs/update.md` § Prüfvorschrift (maßgeblich, mit Details),
+  `GRUNDSATZENTSCHEIDUNG.md` Regel 5, Hosting-HANDOVER § Kern-Referenzen.
+- **Erste Anwendung:** Datenstand 19.09. (Snapshot #17: 31.012 W / 22.467 PV /
+  53.479 gesamt; Karte 65.819; Pipeline-Lauf 06:10–06:13 OK, Delta +30 W/+220 MW,
+  +29 PV/+182 MW, 24 entfernt) — VERIFY OK (6/6 Checks, 17/17 UI-Checks je Build).
+  Revision: `iterations/V51.1_Datenstand_2026-09-19.html` (+ human-share).
+  **LIVE noch 12.09/V51 — Deploy wartet auf Fabs-Freigabe.**
 
 ## Aktueller Stand (2026-09-13, **V51 — 3 AP (50-Punkte-Plan `2026-09-13_V51_3AP_50-Punkte-Plan.md`)**)
 

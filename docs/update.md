@@ -189,11 +189,49 @@ Austauschordner `~/hermes_human-share/`).
 > (`cp` + bundle). Für den Revisions-Tracker (Update-Historie) muss mindestens `import_mastr.py`
 > laufen, um den Snapshot zu sichern und das Delta zu berechnen.
 
-### Verifikation nach Update
+### ⚠️ Prüfvorschrift nach Pipeline-Update (PFLICHT, 100 % — User-Beschluss 19.09.2026)
+
+**Nach JEDER Pipeline-Aktualisierung (Cron oder manuell) gilt zwingend dieser Workflow —
+kein Deploy ohne vollständig durchlaufene Prüfkette:**
+
+1. **Datenintegration 100 % prüfen** — DB-Zähler, neuer Snapshot (vom heutigen Datum),
+   `meta.stand` = Laufzeit, `historie.json` ohne Duplikate, Plausibilitäts-Grenzen
+   (V27b), Build-Counts == bs35-Kern (Zahlendrift-Schutz V30).
+2. **Funktionsfähigkeit 100 % prüfen** — `dist/index.html` UND `dist/index_singlefile.html`
+   im Headless-Chromium (Playwright): 0 JS-Errors, Infobar, **alle 11 Statistik-Tabs**
+   per echtem Klick, Historie-Charts (3 SVGs), Zubau-Heatmap, Karten-Marker.
+3. **Geprüfte Datei als Revision ablegen** — die verifizierte HTML in `iterations/`
+   (Regel 3, niemals löschen) UND nach `~/hermes_human-share/` kopieren.
+4. **Klickbare HTML im Chat an Fabs** — MEDIA:-Link auf die geprüfte Datei.
+5. **Manuelle Freigabe abwarten** — Fabs prüft die Datei selbst.
+6. **Erst nach explizitem „Ja": pushen + deployen** (`scripts/deploy_ghpages.sh`,
+   Regel 4). Danach Live-Verifikation (SHA-Abgleich served = lokal).
+
+**Automatisiert (Steps 1 + 2):**
+
+```bash
+cd ~/Projects/pv-wind-map
+bash scripts/verify_update.sh          # A) Datenintegration + B) UI beide Builds
+# Einzelner UI-Check einer Datei:
+node scripts/verify_app.js dist/index_singlefile.html
+```
+
+- Exit 0 = `✅ VERIFY OK` (alle Checks grün) · Exit 1 = `🚨 VERIFY FAILED`
+  → **Deploy-Workflow gestoppt**, Befund zuerst klären, dann erneut prüfen.
+- Der Pipeline-Cron (79229dc1690d) führt die Prüfung nach `build_all.sh` automatisch
+  aus und meldet bei FAIL einen 🚨-Alarm statt des OK-Reports.
+- Die exakten Einzelprüfungen sind im Kopf von `scripts/verify_update.sh` dokumentiert
+  (A1–A4 Daten, B UI); Änderungen an der Vorschrift laufen IMMER über diese Doku +
+  Skript gemeinsam (kein Auseinanderlaufen lassen).
+
+### Verifikation nach Update (schneller Sichtcheck — ERGÄNZT durch Prüfvorschrift oben)
 
 1. `python3 scripts/export_app.py` zeigt die Zähler (Wind/PV, Geolokation).
 2. App öffnen und prüfen, dass „Stand:" oben rechts in der Suchleiste neu ist (auf den Tag gekürzt).
-3. Optional: ein paar bekannte Anlagen (MaStR-Nr.) in der Karte gegenprüfen.
+3. Optional: ein paar bekannte Anlagen (MaStR-Nr.) in der Karte gegenprüben.
+
+> Die 3 Punkte oben sind der Kurz-Sichtcheck — **verpflichtend ist die vollständige
+> Prüfvorschrift am Abschnittsanfang** (User-Beschluss 19.09.2026).
 
 ### Snapshot-MW-Migration (V32, 08.09.2026)
 
