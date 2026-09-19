@@ -139,13 +139,13 @@ bash scripts/build.sh   # fetch + import + export + bundle in einem Schritt
 
 | Kategorie | Umfang | Georef (alle Status) | „In Betrieb" (Karte/Infobar) |
 |-----------|--------|----------------------|--------------|
-| **Wind** | ≥ 100 kW (nach Einheiten-Normalisierung MW) | 42.006 | **31.011** |
-| **Photovoltaik** | ≥ 0,5 MWp (Bruttoleistung ≥ 500 kWp, V30: strikt `ge~500`) | 23.657 | **22.402** |
-| **Gesamt** | | **65.663** | **53.413** |
+| **Wind** | ≥ 100 kW (nach Einheiten-Normalisierung MW) | 42.083 | **31.012** |
+| **Photovoltaik** | ≥ 0,5 MWp (Bruttoleistung ≥ 500 kWp, V30: strikt `ge~500`) | 23.736 | **22.467** |
+| **Gesamt** | | **65.819** | **53.479** |
 
 Die Karte filtert per Default auf „In Betrieb" (Status-Checkboxen können 31/37/38 zuschalten).
-Stand: Import 04.09.2026, V30-Export (08.09.2026) mit strikter Abgrenzung — vorher 65.819/53.533
-(enthielt 11 PV-Grenzfälle à 499,92 kWp, Details: `docs/datenmodell.md`).
+Stand: Pipeline-Lauf 19.09.2026 (Snapshot #17), Deploy 19.09.2026 (main `59058be`, gh-pages `271e026`)
+— historische Stände älterer Doku-Abschnitte sind unverändert gültig als Historie.
 
 - **Geolokation**: nur Anlagen MIT vorhandenen Koordinaten im MaStR (kein Geocoding)
 - **Einheiten-Hinweis**: MaStR liefert PV in kWp und Wind gemischt (kW/MW) — der Import normalisiert auf MW (Details: docs/datenmodell.md)
@@ -161,9 +161,11 @@ Stand: Import 04.09.2026, V30-Export (08.09.2026) mit strikter Abgrenzung — vo
 
 - [ANFORDERUNGEN.md](ANFORDERUNGEN.md) – Anforderungen (A1–A11)
 - [ENTSCHEIDUNGEN.md](ENTSCHEIDUNGEN.md) – Architektur-Entscheidungen
+- [GRUNDSATZENTSCHEIDUNG.md](GRUNDSATZENTSCHEIDUNG.md) – Regeln 1–5 (Löschverbot, 100 % Datenhaltung, Iterationsschutz, GitHub-Freigabe, **Regel 5: Prüfvorschrift nach Pipeline-Update, 19.09.2026**)
 - [PLAN.md](PLAN.md) – 30-Schritt-Plan
 - [docs/PROJEKTSTAND.md](docs/PROJEKTSTAND.md) – **aktueller Projektstand (Handover für neue Sessions)**
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) – **GitHub-Pages-Deployment + Domain-Anbindung**
+- [scripts/verify_update.sh](scripts/verify_update.sh) – **Pflicht-Verifikation nach jedem Pipeline-Update** (Daten A1–A4 + UI beide Builds; Deploy-Stop bei FAIL)
 - [docs/](docs/) – detaillierte Doku (Architektur, Datenmodell, Update, Hosting, Fehlerbehebung, Statistik)
 
 ## Lizenz

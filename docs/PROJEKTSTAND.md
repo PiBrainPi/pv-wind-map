@@ -1,7 +1,8 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-09-19 (**Regel 5 — Prüfvorschrift nach Pipeline-Update**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+> Stand: 2026-09-19 (**Datenstand 19.09. LIVE · Regel 5 — Prüfvorschrift nach Pipeline-Update**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+> **Kurz-Status:** LIVE = V51-Code + Daten 19.09 (main `59058be`, gh-pages `271e026`). Keine offenen Deploy-/Prüfpunkte. Nächster Pipeline-Cron 26.09. 06:10 (läuft inkl. Regel-5-Verify).
 
 ## Neu (2026-09-19, **Regel 5 — Prüfvorschrift nach Pipeline-Update, User-Beschluss**)
 
@@ -13,12 +14,29 @@ klickbare HTML im Chat an Fabs → **manuelle Freigabe** → erst DANN push/depl
   `scripts/verify_app.js` (UI-Teil). Der Pipeline-Cron 79229dc1690d führt die Prüfung
   ab sofort nach jedem Lauf aus (Prompt aktualisiert; 🚨-Alarm bei FAIL).
 - **Doku:** `docs/update.md` § Prüfvorschrift (maßgeblich, mit Details),
-  `GRUNDSATZENTSCHEIDUNG.md` Regel 5, Hosting-HANDOVER § Kern-Referenzen.
-- **Erste Anwendung:** Datenstand 19.09. (Snapshot #17: 31.012 W / 22.467 PV /
-  53.479 gesamt; Karte 65.819; Pipeline-Lauf 06:10–06:13 OK, Delta +30 W/+220 MW,
-  +29 PV/+182 MW, 24 entfernt) — VERIFY OK (6/6 Checks, 17/17 UI-Checks je Build).
-  Revision: `iterations/V51.1_Datenstand_2026-09-19.html` (+ human-share).
-  **LIVE noch 12.09/V51 — Deploy wartet auf Fabs-Freigabe.**
+  `GRUNDSATZENTSCHEIDUNG.md` Regel 5, Hosting-HANDOVER § Kern-Referenzen, README (Links +
+  Datenbasis auf 19.09.). Änderungen an der Vorschrift laufen IMMER über Doku + Skript gemeinsam.
+
+## Aktueller Stand (2026-09-19, **Datenstand 19.09. LIVE — V51-Code unverändert**)
+
+**Code-Stand:** V51 (unverändert) · **Datenstand:** 19.09. · **LIVE seit 19.09. ~13:20**
+(main `59058be` — V51-Code + Regel-5-Skripte/Doku · gh-pages `271e026` — Datenstand 19.09)
+- **Pipeline-Lauf 06:10–06:13 (Cron, ok):** Delta +30 W/+220 MW, +29 PV/+182 MW,
+  24 entfernt, 392 Statuswechsel; NAP 73 Lokationen neu georeferenziert, 12 neue NAPs
+  (27.919 an 30.886). DB: raw 67.303. **Snapshot #17 (19.09.):** 31.012 W / 22.467 PV =
+  53.479 In-Betrieb georef · Karte 65.819 (42.083 W / 23.736 PV). Infobar 31.012/22.467.
+- **Regel 5 erstmals angewendet (100 %-Prüfkette):** verify_update.sh 6/6 ✅ (A1 DB+Snapshot
+  frisch · A2 meta.stand=19.09 + historie 5 Snapshots ohne Duplikate · A3 einheiten.json
+  65.819 + V27b-Plausibilität · A4 Counts==bs35-Kern · B beide Builds 17/17 UI-Checks, 0
+  JS-Errors, 11 Tabs, 3 Historie-SVGs, Zubau-Heatmap, Marker). Revision:
+  `iterations/V51.1_Datenstand_2026-09-19.html` (+ human-share). User-Freigabe erteilt
+  (19.09., ~13:10) → Deploy.
+- **Deploy-Verifikation (19.09.):** DB-Backup `~/backups/mastr_20260919_1315.db` vor Deploy ·
+  meta.json live stand=19.09T06:12 · index.html SHA live==lokal (`65d2a235…`) · Singlefile
+  HTTP 200, Content-Length 48.176.112 == lokal (SHA-Vergleich auf Pi5-Anbindung nicht in
+  Timeout realisierbar — Größe+Last-Modified bestätigen Stand) · historie.json live:
+  5 Snapshots, letzter 19.09 · post-deploy verify_update.sh 7/7 ✅.
+- **Kein offener Deploy- oder Prüfpunkt.** Nächster Pipeline-Cron 26.09. 06:10 (inkl. Regel 5).
 
 ## Aktueller Stand (2026-09-13, **V51 — 3 AP (50-Punkte-Plan `2026-09-13_V51_3AP_50-Punkte-Plan.md`)**)
 
@@ -560,9 +578,10 @@ CDN-Hinweis: max-age=600 → bis 10 min nach Deploy kann Cache den Altstand zeig
   y-Wert-Labels stehen ÜBER dem Datenpunkt (negativ: darunter), kein Overlap mehr.
 
 ### Offene Punkte / nächste Themen (für nahtlose Weiterarbeit)
-- **Stand 06.09. (V25 LIVE):** V25 = „Alle Anlagen anzeigen"-Bugfix (V23-Regression, Geo-Filter
-  in showAllUnits ergänzt) + Landkreis-Tab mobil scrollbar (Header voll) + Such-Placeholder.
-  Keine offenen Arbeitspakete — nächste Themen hier ergänzen.
+- **Stand 19.09. (Datenstand 19.09. LIVE, Regel 5 aktiv):** Keine offenen Deploy-/Prüfpunkte.
+  V51-Code + Daten 19.09 live (main `59058be`, gh-pages `271e026`). Nächster Pipeline-Cron
+  26.09. 06:10 (läuft inkl. Regel-5-Verify). Quartals-Vollabruf MaStR: ~Anfang Dez. 2026.
+  Nächste Themen hier ergänzen.
 - **Stand 06.09. (V24 LIVE):** V22+V23+V24 sind deployed (main `7172681`, gh-pages `1b9c85a`).
   V24 = Header-Einheiten im Landkreis-Tab (PV (MWp) / Wind (MW)) + Statistik-Panel ohne
   horizontales Scrollen (alle 9 Tabs verifiziert `scrollWidth ≤ clientWidth`). Keine

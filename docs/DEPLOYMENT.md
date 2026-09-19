@@ -135,6 +135,16 @@ Beide Repos nutzen den **`gh-pages`-Branch** als Pages-Quelle (statisch, keine G
 - ✅ `www.ingenieur-tools.de` + `galton-board.ingenieur-tools.de` DNS propagiert (Cloudflare DoH)
 - ✅ Karte HTTPS fertig; Portal HTTPS-Zertifikat wartet auf LE-Rate-Limit-Fenster (~06./07.09.2026)
 
+- ✅ **Datenstand 19.09. live (19.09., User-Freigabe, erste Anwendung Regel 5):**
+  Pipeline-Cron 06:10–06:13 ok (Delta +30 W/+220 MW, +29 PV/+182 MW, 24 entfernt; NAP +12;
+  Snapshot #17: 31.012 W / 22.467 PV / 53.479 gesamt; Karte 65.819). 100 %-Prüfkette nach
+  Regel 5: verify_update.sh 6/6 ✅ + UI 17/17 je Build → Revision V51.1 → User-Freigabe →
+  main `59058be` (Regel-5-Skripte verify_update.sh/verify_app.js + Doku) · gh-pages `271e026`.
+  Live-Verifikation: meta.stand=19.09T06:12, index.html SHA live==lokal, Singlefile
+  Content-Length 48.176.112 == lokal, historie.json live 5 Snapshots (letzter 19.09).
+  DB-Backup `mastr_20260919_1315.db` vor Deploy. Pipeline-Cron prüft ab sofort selbst
+  (Regel 5, 🚨-Alarm bei FAIL).
+
 ## Wichtige Hinweise
 
 - **Keine Secrets im Repo** — `.env`, `data/`, `dist/` sind gitignored.

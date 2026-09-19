@@ -1,6 +1,6 @@
 # Update — PV & Wind Karte (MaStR)
 
-> Manuell auslösbar, cronjob-fähig. Stand: 2026-09-11 (V37: Typen-Normalisierung in Pipeline + Export; V36 Zeitraum-Option; Delta-Modus F-Fetch-1).
+> Manuell auslösbar, cronjob-fähig. Stand: 2026-09-19 (**Regel 5 — Prüfvorschrift nach Pipeline-Update: 100 %-Prüfung via `scripts/verify_update.sh` PFLICHT, siehe § unten; Pipeline-Cron prüft selbst** · Datenstand 19.09. live · V37: Typen-Normalisierung; Delta-Modus F-Fetch-1).
 
 ## Update ausführen (DE)
 
