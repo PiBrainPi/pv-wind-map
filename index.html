@@ -2518,13 +2518,48 @@ async function init() {
     let einheiten = null, meta = null, statistiken = null;
 
     async function fetchJson(url, optional) {
-      try {
-        const res = await fetch(url);
-        if (!res.ok) { if (optional) return null; throw new Error('HTTP ' + res.status); }
-        return await res.json();
-      } catch (e) {
-        if (optional) return null;
-        throw e;
+      // V51.2 (19.09., User-Befund "es lädt nichts"): Progress-fähiger Fetch.
+      // Bei großen Dateien (einheiten.json ~30 MB) zeigt die Infobar jetzt den
+      // Fortschritt in MB — vorher stand dort minutenlang nur "Lade Daten…"
+      // (Root-Cause User-Abbruch bei schwacher Anbindung: keine Rückmeldung).
+      // + 1 automatischer Retry nach 3 s bei Netzfehler (flüchtige Störungen).
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) { if (optional) return null; throw new Error('HTTP ' + res.status); }
+          if (!res.body || typeof res.body.getReader !== 'function') {
+            return await res.json();  // ältere Browser: ohne Stream, direkt laden
+          }
+          const total = +(res.headers.get('Content-Length') || 0);
+          const reader = res.body.getReader();
+          const chunks = [];
+          let received = 0;
+          for (;;) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+            received += value.length;
+            if (!optional && url.includes('einheiten')) {
+              const mb = (received / 1048576).toFixed(0);
+              const ibP = document.getElementById('infobar');
+              if (ibP && total > 0) {
+                ibP.textContent = `Lade Daten… ${mb} MB / ${(total / 1048576).toFixed(0)} MB (${Math.round(100 * received / total)} %)`;
+              }
+            }
+          }
+          const blob = new Blob(chunks);
+          const text = await blob.text();
+          return JSON.parse(text);
+        } catch (e) {
+          if (optional) return null;
+          if (attempt === 0) {  // 1 automatischer Retry bei Netzfehler (3 s Pause)
+            await new Promise(r => setTimeout(r, 3000));
+            const ibP = document.getElementById('infobar');
+            if (ibP) ibP.textContent = 'Lade Daten… (Wiederholung nach Netzfehler)';
+            continue;
+          }
+          throw e;
+        }
       }
     }
 
