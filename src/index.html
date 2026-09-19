@@ -2542,8 +2542,14 @@ async function init() {
             if (!optional && url.includes('einheiten')) {
               const mb = (received / 1048576).toFixed(0);
               const ibP = document.getElementById('infobar');
-              if (ibP && total > 0) {
-                ibP.textContent = `Lade Daten… ${mb} MB / ${(total / 1048576).toFixed(0)} MB (${Math.round(100 * received / total)} %)`;
+              if (ibP) {
+                // Content-Length ist die gzip-Größe (~15 % vom Original) — received zählt
+                // bereits dekomprimierte Bytes → Prozent wäre >100 %. Deshalb: bei gzip
+                // nur MB-Fortschritt ohne Prozent (schaltet bei 100 % sonst sinnlos über).
+                const pct = total > 0 ? Math.min(99, Math.round(100 * received / total)) : null;
+                ibP.textContent = (total > 0 && received <= total)
+                  ? `Lade Daten… ${mb} MB / ${(total / 1048576).toFixed(0)} MB (${pct} %)`
+                  : `Lade Daten… ${mb} MB (wird entpackt…)`;
               }
             }
           }
