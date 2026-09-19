@@ -126,6 +126,34 @@ Update daher automatisch prüfen (beide Checks in Sekunden via SQLite/JSON):
 Der Physik-Check (1) ist in `to_mw` (import_mastr.py) implementiert und läuft damit in
 **jedem** `build.sh`-/Pipeline-Lauf automatisch. (2) und (3) bei jedem manuellen Update
 gegen die Konsolenausgabe von `export_app.py` prüfen (Zähler + Wind max/PV max).
+**Check 4 (Ladezeit-Budget, V51.2) ist in `verify_update.sh` Check A3 eingebaut** und
+läuft damit in der Prüfvorschrift nach jedem Pipeline-Lauf automatisch — Details im
+eigenen Abschnitt unten und in der Prüfvorschrift.
+
+### ⚠️ Check 4: Ladezeit-Budget einheiten.json < 40 MB (Pflicht seit V51.2, 19.09.2026)
+
+**Ursache/Vorfall (19.09.2026, Details: `fehlerbehebung.md` § F-LADEPROGRESS-1):**
+`einheiten.json` wuchs über mehrere Pipeline-Läufe auf 39,2 MB. Die LIVE-Karte brauchte bei
+schwacher Anbindung 1–3+ Minuten für den Erstladevorgang — die Infobar stand dabei ohne
+jede Rückmeldung auf „Lade Daten…", der User brach ab (Befund: „es laden keinerlei Daten
+und es funktioniert nichts"). **Der Vorfall wurde durch das Datenwachstum der Pipeline
+ausgelöst** (immer mehr Anlagen im Export), nicht durch einen Deploy-Fehler.
+
+**Patch (V51.2, live):**
+1. **Slim-Export** in `export_app.py`: Koordinaten auf 5 Dezimalen (~1,1 m), mw auf
+   4 Dezimalen, leere Felder weggelassen, kompakte Separatoren → **39,2 → 34,7 MB**
+   (−12 %), bei unveränderten nutzbaren Werten.
+2. **Progress-Infobar** in `src/index.html`: fetch über ReadableStream — „Lade Daten…
+   12 MB / 33 MB (45 %)", nach der gzip-Grenze „wird entpackt…" (GitHub-Pages-
+   Content-Length = gzip-Größe; naive Prozent-Rechnung lief >100 % — live erwischt,
+   Pitfall in `fehlerbehebung.md` § F-LADEPROGRESS-1).
+3. **1 automatischer Retry** nach 3 s bei Netzfehler.
+
+**Dauerhafte Absicherung:** Check A3 in `scripts/verify_update.sh` schlägt FAIL, wenn
+`einheiten.json` > **40 MB** (Ladezeit-Budget) — der Cron-Run meldet dann 🚨 und der
+Deploy bleibt gestoppt, bis die Datei gepatcht ist (Slim-Export nachziehen/verschärfen).
+Damit prüft die Pipeline nach jedem Lauf SELBST, ob die Export-Datei noch im Budget liegt.
+
 
 ### Als Cronjob (automatisch)
 
@@ -196,16 +224,32 @@ kein Deploy ohne vollständig durchlaufene Prüfkette:**
 
 1. **Datenintegration 100 % prüfen** — DB-Zähler, neuer Snapshot (vom heutigen Datum),
    `meta.stand` = Laufzeit, `historie.json` ohne Duplikate, Plausibilitäts-Grenzen
-   (V27b), Build-Counts == bs35-Kern (Zahlendrift-Schutz V30).
+   (V27b), Build-Counts == bs35-Kern (Zahlendrift-Schutz V30),
+   **+ Ladezeit-Budget: `einheiten.json` < 40 MB** (V51.2, F-LADEPROGRESS-1 —
+   **bei Überschreitung ist die Datei VOR dem Deploy zu patchen**, z. B. Slim-Export
+   nachziehen/verschärfen; Ursache siehe `fehlerbehebung.md` § F-LADEPROGRESS-1).
 2. **Funktionsfähigkeit 100 % prüfen** — `dist/index.html` UND `dist/index_singlefile.html`
    im Headless-Chromium (Playwright): 0 JS-Errors, Infobar, **alle 11 Statistik-Tabs**
    per echtem Klick, Historie-Charts (3 SVGs), Zubau-Heatmap, Karten-Marker.
+   **Bei UI-/Ladeverhalten-Änderungen zusätzlich: throttled-Netz-Test** (CDP
+   `Network.emulateNetworkConditions`, z. B. 1 Mbit) — der F-LADEPROGRESS-1-Bug war auf
+   schneller Leitung unsichtbar.
 3. **Geprüfte Datei als Revision ablegen** — die verifizierte HTML in `iterations/`
    (Regel 3, niemals löschen) UND nach `~/hermes_human-share/` kopieren.
 4. **Klickbare HTML im Chat an Fabs** — MEDIA:-Link auf die geprüfte Datei.
 5. **Manuelle Freigabe abwarten** — Fabs prüft die Datei selbst.
 6. **Erst nach explizitem „Ja": pushen + deployen** (`scripts/deploy_ghpages.sh`,
    Regel 4). Danach Live-Verifikation (SHA-Abgleich served = lokal).
+
+**⚠️ Ladezeit-Budget (seit V51.2, 19.09.2026 — Reaktion auf den Live-Vorfall):**
+Die Prüfung umfasst **implizit die Größe von `einheiten.json` (< 40 MB)** — der Vorfall
+vom 19.09. („LIVE lädt nichts") wurde durch das Datenwachstum der Pipeline ausgelöst
+(39,2 MB ohne Lade-Progress → User-Abbruch bei schwacher Anbindung). **Nach jedem
+Pipeline-Durchlauf wird die geprüfte Datei dahingehend bewertet und ggf. gepatcht:**
+- Budget überschritten → Deploy-Stop (🚨), Slim-Export (`export_app.py`) nachziehen/
+  verschärfen, erneut prüfen. Details + Patch-Historie: `fehlerbehebung.md`
+  § F-LADEPROGRESS-1, Patch-Doku in `update.md` § „4. Ladezeit-Budget".
+- Bei UI-/Ladeverhalten-Änderungen: throttled-Netz-Test (siehe Punkt 2 oben).
 
 **Automatisiert (Steps 1 + 2):**
 

@@ -63,6 +63,11 @@ verworfene Versionen (deckungsgleich mit PROJEKTSTAND.md § Iterationen).
 
 - Automatisierung: `bash scripts/verify_update.sh` (Steps 1+2, Exit 0/1); der
   Pipeline-Cron führt sie nach jedem Lauf aus und alarmiert bei FAIL.
+- **Ladezeit-Budget (seit V51.2, 19.09.):** die Prüfung bewertet nach jedem Pipeline-
+  Durchlauf auch die Größe von `einheiten.json` (< 40 MB) und zwingt bei Überschreitung
+  zum Patch der Export-Datei VOR jedem Deploy (Ursache/Patch: `fehlerbehebung.md`
+  § F-LADEPROGRESS-1; V51.2 = Slim-Export + Progress-Infobar als Reaktion auf den
+  Live-Vorfall „LIVE lädt nichts").
 - Maßgebliche Doku mit Details: `docs/update.md` § „Prüfvorschrift nach Pipeline-Update".
 
 ## Datenübersicht (118 Einheiten-Felder, gruppiert — Stand: Live-Check 03.09.)

@@ -74,9 +74,9 @@ PY
 )
 if [ $? -eq 0 ]; then ok "A2 Export-Meta + Historie — $OUT"; else bad "A2 meta/historie: $OUT"; fi
 
-# ---------- A3) einheiten.json vollständig + Plausibilität (V27b) ----------
+# ---------- A3) einheiten.json vollständig + Plausibilität (V27b) + Ladezeit-Budget (V51.2) ----------
 OUT=$(python3 - <<'PY'
-import json, sys
+import json, sys, os
 try:
     u = json.load(open('dist/assets/einheiten.json'))
     units = u if isinstance(u, list) else (u.get('units') or u.get('einheiten') or [])
@@ -87,7 +87,17 @@ try:
         print(f"FAIL: PV >250 MWp: {len(bad_pv)} (z. B. {bad_pv[0].get('m')})"); raise SystemExit(1)
     if not (50000 < len(units) < 90000):
         print(f"FAIL: Einheitenanzahl unplausibel: {len(units)}"); raise SystemExit(1)
-    print(f"OK: {len(units)} Einheiten (Karte, alle Status) · {len(wind)} Wind / {len(pv)} PV · V27b-Plausibilität ok")
+    # V51.2 (19.09., User-Befund „LIVE lädt nichts"): Datei-Größe im Budget halten.
+    # Root-Cause des Vorfalls: einheiten.json wuchs mit jedem Pipeline-Lauf (39,2 MB)
+    # → bei schwacher Anbindung 1–3+ min „Lade Daten…" ohne Progress → User-Abbruch.
+    # Slim-Export (V51.2) hält die Datei klein; wächst sie über 40 MB, ist das ein
+    # Alarm (Datenwachstum oder Regression im Slim-Export) — Patch vor Deploy nötig.
+    import os
+    mb = os.path.getsize('dist/assets/einheiten.json') / 1048576
+    if os.path.getsize('dist/assets/einheiten.json') > 40 * 1024 * 1024:
+        print(f"FAIL: einheiten.json {os.path.getsize('dist/assets/einheiten.json')/1048576:.1f} MB > 40 MB (Ladezeit-Budget F-LADEPROGRESS-1 überschritten — Slim-Export prüfen/patchen vor Deploy)")
+        raise SystemExit(1)
+    print(f"OK: {len(units)} Einheiten (Karte, alle Status) · {len(wind)} Wind / {len(pv)} PV · V27b-Plausibilität ok · Größe {os.path.getsize('dist/assets/einheiten.json')/1048576:.1f} MB (Budget < 40 MB)")
 except SystemExit: raise
 except Exception as e:
     print(f"FAIL: {e}"); raise SystemExit(1)

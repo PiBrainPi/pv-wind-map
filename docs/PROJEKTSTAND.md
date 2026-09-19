@@ -41,6 +41,9 @@ klickbare HTML im Chat an Fabs → **manuelle Freigabe** → erst DANN push/depl
 - **Automatisierung:** `scripts/verify_update.sh` (Exit 0/1, Fail = Deploy-Stop) +
   `scripts/verify_app.js` (UI-Teil). Der Pipeline-Cron 79229dc1690d führt die Prüfung
   ab sofort nach jedem Lauf aus (Prompt aktualisiert; 🚨-Alarm bei FAIL).
+  **Seit V51.2 mit Ladezeit-Budget-Check (einheiten.json < 40 MB, A3)** — bei
+  Überschreitung STOPPT der Deploy, die Export-Datei wird gepatcht (Slim-Export),
+  dann erneut geprüft (Details: `fehlerbehebung.md` § F-LADEPROGRESS-1).
 - **Doku:** `docs/update.md` § Prüfvorschrift (maßgeblich, mit Details),
   `GRUNDSATZENTSCHEIDUNG.md` Regel 5, Hosting-HANDOVER § Kern-Referenzen, README (Links +
   Datenbasis auf 19.09.). Änderungen an der Vorschrift laufen IMMER über Doku + Skript gemeinsam.

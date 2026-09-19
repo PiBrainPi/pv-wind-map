@@ -408,3 +408,12 @@ Prozent-Rechnung läuft auf 500 %+ hoch. Fix: Prozent nur solange received ≤ t
 danach „wird entpackt…"-Anzeige. **Prävention:** Lade-UX immer mit throttled Netz testen
 (CDP `Network.emulateNetworkConditions`), nicht nur mit schneller lokaler Leitung — der
 Bug war auf der schnellen Dev-Leitung unsichtbar (2 s Ladezeit, Progress nie sichtbar).
+
+**Pipeline-Bezug (V51.2, dauerhafte Absicherung):** Der Vorfall wurde durch das
+Datenwachstum der Pipeline ausgelöst — `einheiten.json` wuchs über mehrere Läufe hinweg
+(39,2 MB am 19.09.). Seit V51.2 prüft **Check A3 in `scripts/verify_update.sh`** nach
+jedem Pipeline-Lauf die Dateigröße (**Ladezeit-Budget < 40 MB**). Bei Überschreitung:
+🚨-Alarm, Deploy bleibt gestoppt, Slim-Export (`export_app.py`) nachziehen/verschärfen,
+erneut prüfen — erst dann Deploy. Der Pipeline-Cron (79229dc1690d) ist entsprechend
+aktualisiert (melde Budget-FAIL ausdrücklich als solchen). Doku: `docs/update.md`
+§ Prüfvorschrift + § Check 4.
