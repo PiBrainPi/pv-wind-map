@@ -389,3 +389,22 @@ tabellenidentisches `matchesCombo(norm(u.ab), combo)`, Gruppen-Pfad entfällt si
 eine Tabellen-Renderfunktion eingebaut wird, ALLE davon abgeleiteten Auswertungen
 (Diagramme, Map-Button, Exporte) auf den gleichen Mechanismus prüfen — am besten über eine
 gemeinsame Helper-Funktion statt kopiertem Match-Code.
+
+### F-LADEPROGRESS-1. „LIVE lädt keinerlei Daten, funktioniert nichts" (BEHOBEN 19.09.2026, V51.2)
+**Fehlerbild:** User rief die LIVE-Karte auf — „es laden keinerlei Daten der Assets und es
+funktioniert einfach nichts." Infobar hing auf „Lade Daten…".
+**Diagnose (15 Headless-Chromium-Läufe):** Kein Code-Bug, kein Deploy-Fehler. Alle Assets
+HTTP 200 + SHA-identisch mit lokal; einheiten.json (39,2 MB, gzip 5,3 MB) vollständig
+ladbar; nach Wartezeit 65.819 Units + 46 Cluster im DOM. **Root-Cause: Kein Lade-Feedback**
+— bei schwacher Anbindung (1,5 Mbit: 48 s · 0,5 Mbit: 93 s · 0,25 Mbit: 183 s gemessen,
+CDP-Throttling) stand die Infobar minutenlang nur auf „Lade Daten…" → Abbruch im Warteraum.
+**Fix (V51.2):** (1) Progress-fähiger Fetch via ReadableStream — Infobar zeigt „Lade
+Daten… N MB / M MB (P %)", nach der gzip-Grenze „wird entpackt…"; (2) Slim-Export
+(lat/lon 5 Dezimalen ≈ 1,1 m, mw 4 Dezimalen, leere Felder weg, kompakte Separatoren)
+→ 39,2 → 34,7 MB; (3) 1 automatischer Retry nach 3 s bei Netzfehler.
+**Pitfall (live erwischt):** GitHub Pages sendet Content-Length = **gzip-Größe** (~15 % des
+Originals), ReadableStream-`received` zählt bereits dekomprimierte Bytes → naive
+Prozent-Rechnung läuft auf 500 %+ hoch. Fix: Prozent nur solange received ≤ total,
+danach „wird entpackt…"-Anzeige. **Prävention:** Lade-UX immer mit throttled Netz testen
+(CDP `Network.emulateNetworkConditions`), nicht nur mit schneller lokaler Leitung — der
+Bug war auf der schnellen Dev-Leitung unsichtbar (2 s Ladezeit, Progress nie sichtbar).

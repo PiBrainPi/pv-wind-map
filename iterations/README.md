@@ -66,3 +66,4 @@ einzelbare HTML-App (Single-File mit eingebetteten Daten, ~25 MB).
 | V50 | 2026-09-13 | Bugfix: Betreiber-Diagramme beachten jetzt Operator-Queries (/, &) — Scope-Matching identisch zur Tabelle (F-COMBO-DIAGRAMME) |
 | V51 | 2026-09-13 | Zubau-Heatmap + 3 Balkendiagramme klickbar → Karte (Jahr / Jahr×BL, Datumsfeld konsistent) |
 | V51.1 | 2026-09-19 | Datenstand 19.09. (Snapshot #17: 31.012 W / 22.467 PV, Karte 65.819) — erste 100-%-Prüfkette nach **Regel 5** (verify_update.sh 6/6 + UI 17/17 je Build); Deploy nach User-Freigabe, LIVE seit 19.09. ~13:20 |
+| V51.2 | 2026-09-19 | **Root-Cause-Fix „LIVE lädt nichts"**: Progress-Infobar (MB/%, ReadableStream, „wird entpackt…"-Phase), Slim-Export (einheiten.json 39,2 → 34,7 MB: lat/lon 5 Dez, mw 4 Dez, kompakte Separatoren), 1 automatischer Retry. >100-%-Progress-Bug (gzip Content-Length) live erwischt + gefixt. LIVE seit 19.09. ~15:45 |

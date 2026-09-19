@@ -1,8 +1,36 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-09-19 (**Datenstand 19.09. LIVE · Regel 5 — Prüfvorschrift nach Pipeline-Update**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
-> **Kurz-Status:** LIVE = V51-Code + Daten 19.09 (main `59058be`, gh-pages `271e026`). Keine offenen Deploy-/Prüfpunkte. Nächster Pipeline-Cron 26.09. 06:10 (läuft inkl. Regel-5-Verify).
+> Stand: 2026-09-19 (**V51.2 — Lade-Progress + Slim-Export, LIVE**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+> **Kurz-Status:** LIVE = V51.2 (main `b6039f7`, gh-pages `16cdafb`) · Datenstand 19.09 · Keine offenen Punkte. Nächster Pipeline-Cron 26.09. 06:10.
+
+## Aktueller Stand (2026-09-19, **V51.2 — Lade-Progress + Slim-Export LIVE**)
+
+**User-Befund (19.09., ~14:00):** „LIVE lädt keinerlei Daten, funktioniert nichts."
+**Diagnose (15 Diagnose-Läufe, Headless-Chromium):** Kein Code-Bug, kein Deploy-Fehler —
+alle Assets HTTP 200 + SHA-identisch, 65.819 Units nachweislich im DOM. **Root-Cause:**
+`einheiten.json` (39,2 MB, gzip 5,3 MB) braucht bei schwacher Anbindung 1–3+ min, Infobar
+stand die ganze Zeit nur auf „Lade Daten…" ohne jede Rückmeldung → User-Abbruch im
+Warteraum. Messwerte: 4 s (schnell) · 11 s (6 Mbit) · 48 s (1,5 Mbit) · 93 s (0,5 Mbit) · 183 s (0,25 Mbit).
+
+**V51.2-Fixes (User-Freigabe „Umsetzung + direkt pushen" erteilt):**
+1. **Progress-Infobar:** fetch über ReadableStream — „Lade Daten… 12 MB / 33 MB (45 %)",
+   nach der gzip-Grenze „wird entpackt…" (Content-Length = gzip-Größe, received =
+   dekomprimiert → Prozent gekappt, >100-%-Bug im ersten Wurf live erwischt + gefixt).
+2. **Slim-Export (export_app.py):** lat/lon 5 Dezimalen (~1,1 m), mw 4 Dezimalen,
+   leere Felder entfernt, kompakte Separatoren → **einheiten.json 39,2 → 34,7 MB**.
+3. **1 automatischer Retry** nach 3 s bei Netzfehler (flüchtige Störungen).
+4. **Build:** main `795e498` + Fix `b6039f7` · gh-pages `16cdafb` · Deploy 19.09. ~15:45.
+5. **Live-Verifikation (throttled 1 Mbit, kalter Cache):** Progress „0 MB / 5 MB (5 %)" →
+   „33 MB (wird entpackt…)" → Karte voll nach 47 s mit funktionierendem Fortschritt,
+   65.819 Units, 46 Cluster, 0 JS-Errors (nur kosmetischer favicon-404).
+6. Revision: `iterations/V51.2_LadeProgress_SlimExport.html` (+ human-share). DB-Backup
+   `mastr_20260919_152224.db`. VERIFY OK (6/6 + 17/17 je Build).
+
+**Lektion (Pitfall):** Content-Length bei GitHub Pages = **gzip-Größe**; ReadableStream
+`received` zählt dekomprimierte Bytes → Progress-Prozent würde >100 % laufen. Erst live
+getestet (diag13-Throttling), dann gefixt. Immer mit throttled Netz (CDP
+`emulateNetworkConditions`) testen, nicht nur mit schneller lokaler Leitung.
 
 ## Neu (2026-09-19, **Regel 5 — Prüfvorschrift nach Pipeline-Update, User-Beschluss**)
 
@@ -578,10 +606,11 @@ CDN-Hinweis: max-age=600 → bis 10 min nach Deploy kann Cache den Altstand zeig
   y-Wert-Labels stehen ÜBER dem Datenpunkt (negativ: darunter), kein Overlap mehr.
 
 ### Offene Punkte / nächste Themen (für nahtlose Weiterarbeit)
-- **Stand 19.09. (Datenstand 19.09. LIVE, Regel 5 aktiv):** Keine offenen Deploy-/Prüfpunkte.
-  V51-Code + Daten 19.09 live (main `59058be`, gh-pages `271e026`). Nächster Pipeline-Cron
-  26.09. 06:10 (läuft inkl. Regel-5-Verify). Quartals-Vollabruf MaStR: ~Anfang Dez. 2026.
-  Nächste Themen hier ergänzen.
+- **Stand 19.09. spät (V51.2 LIVE):** Lade-Progress + Slim-Export live (main `b6039f7`,
+  gh-pages `16cdafb`). Keine offenen Deploy-/Prüfpunkte. Nächster Pipeline-Cron 26.09. 06:10
+  (läuft inkl. Regel-5-Verify). Quartals-Vollabruf MaStR: ~Anfang Dez. 2026. Nächste Themen hier ergänzen.
+- **Stand 19.09. mittags (Datenstand 19.09., Regel 5 aktiv):** Erste 100-%-Prüfkette + Deploy
+  (main `59058be`, gh-pages `271e026`) — davon abgelöst durch V51.2 (siehe oben).
 - **Stand 06.09. (V24 LIVE):** V22+V23+V24 sind deployed (main `7172681`, gh-pages `1b9c85a`).
   V24 = Header-Einheiten im Landkreis-Tab (PV (MWp) / Wind (MW)) + Statistik-Panel ohne
   horizontales Scrollen (alle 9 Tabs verifiziert `scrollWidth ≤ clientWidth`). Keine
