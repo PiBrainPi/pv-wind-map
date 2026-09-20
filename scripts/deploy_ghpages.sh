@@ -11,6 +11,7 @@ git worktree add /tmp/gh-pages-wt-pvwind gh-pages
 
 # 2) Deploy-Dateien aktualisieren (CNAME/Root-Struktur bleibt, kein dist/-Pickup)
 cp dist/index.html /tmp/gh-pages-wt-pvwind/
+cp dist/impressum.html /tmp/gh-pages-wt-pvwind/
 cp dist/index_singlefile.html /tmp/gh-pages-wt-pvwind/
 rm -rf /tmp/gh-pages-wt-pvwind/assets
 mkdir -p /tmp/gh-pages-wt-pvwind/assets
