@@ -1,14 +1,46 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-09-20 Abend (**V52.2 FINAL — Umzug Vercel + DSGVO komplett abgeschlossen & live,
-> Session beendet**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
-> **Kurz-Status:** LIVE = **V52.2 auf BEIDEN URLs identisch** — wind-pv-map.de (Vercel, main
-> `8b501c1`) + Alt-URL wind-pv-map.ingenieur-tools.de (gh-pages `3b40bb9`) ·
-> DSGVO-Texte live (DS-Modal Vercel-only, Impressum-Fix, Portal-DS) · Deploy-Skript-Fix:
-> impressum.html jetzt auch auf gh-pages (war 404) ·
-> Nächster Pipeline-Cron 26.09. 06:10 · Details Migration: docs/DEPLOYMENT.md · DSGVO-Plan: docs/DSGVO_VERCEL_50PUNKTE_PLAN.md
+> Stand: 2026-09-20 spät Abend (**V53 — DSGVO-Konsolidierung über ALLE 4 Tools abgeschlossen & live**)
+> · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+> **Kurz-Status:** LIVE = **V53 auf wind-pv-map.de** (Vercel, main `a43f080`) — DS-Modal mit
+> Querverweis auf zentrale Portal-DS (alle 4 Tools Vercel) · Portal-DS §4 netcup + §6 4 Keys +
+> Impressum ohne GitHub · Sun V05 + Galton V13 (Stand 20.09., Vercel-Hosting-Block DE/EN) ·
+> 50-Punkte-Plan: docs/DSGVO_V53_KONSOLIDIERUNG_50PUNKTE_PLAN.md (50/50 ✅) ·
+> Revision: iterations/V53_DS_Konsolidierung_2026-09-20.html ·
+> Nächster Pipeline-Cron 26.09. 06:10 (unverändert) · Karten-Datenstand: 2026-09-19 (unverändert)
 
+## V53 — DSGVO-Konsolidierung (20.09.2026 spät, alle 4 Tools LIVE)
+
+**Auslöser:** Tief-Audit der Live-DS-Texte nach der Vercel-Migration fand 4 Lücken:
+Portal-DS § 6 fehlte 2 der 4 localStorage-Keys; netcup fehlte als Empfänger; Sun/Galton-Modals
+trugen Stand 31.08. + (in den Quelldateien!) noch GitHub-Hosting-Text; Portal-Impressum nannte GitHub.
+
+**Umgesetzt (User-Freigabe „Ja"):**
+1. Portal-DS: § 4 netcup-Absatz (inländisch, Art. 6 Abs. 1 lit. f, keine Drittland-Übermittlung),
+   § 6 Tabelle auf 4 Keys (`pvw_nap_groups`, `pvw_toolbar_hidden` ergänzt), § 10 Stand V53.
+2. Portal-Impressum: GitHub aus „Externe Links" gestrichen.
+3. Sun Tracker **V05** (`src/Sun_Tracker_V05_2026-09-20.html`) + Galton **V13**
+   (`build/Galton_Board_V13_2026-09-20.html`): Stand 20.09.2026 (DE+EN), Hosting-Block
+   GitHub → Vercel (Adresse + DPF) — **WICHTIG: Quellen wurden nachgesteuert** (gestern nur
+   deployed-Kopien gepatcht — Quellen hatten noch GitHub-Text!).
+4. Karte: DS-Modal § 3 Querverweis (Portal + beide Tools über Vercel, Link zentrale DS),
+   Stand „V53 — Konsolidierung"; AVV-/„keine Web-Analytics"-Hinweise bewahrt; dist rebuildet
+   (index + singlefile 47.1 MB), B-Checks 17/17 beide Builds (A1/A2-FAIL erwartbar: reiner
+   Text-Rebuild, Datenstand 19.09. unverändert).
+
+**Verifikation:** lokale Checks 12/12 · Live-Checks alle 6 URLs grün (V53-Leads, netcup,
+4 Keys, 0 GitHub, 4× HTTP 200) · Browser: 2-Klick-Consent intakt. Revision klickbar:
+`iterations/V53_DS_Konsolidierung_2026-09-20.html` (+ human-share-Kopie).
+
+**Commits:** pv-wind-map `a43f080` · Portal gh-pages `3e17d76` / main `94bb827` ·
+Sun `ddf056f` (+ gh-pages `7bd67fe`) · Galton `696683e` / gh-pages `2bd5758`.
+
+**Fazit DSGVO:** Art. 13 vollständig je Tool · TDDDG-§-25-Doku komplett · Drittland via DPF
+(Vercel, Cloudflare) bzw. UK-Angemessenheit (OSM) · netcup inländisch · kein Tracking/Cookies ·
+Rest-Risiko „kein AVV im Hobby-Tarif" bewusst akzeptiert und dokumentiert.
+
+---
 ## Aktueller Stand (2026-09-20 Abend, **V52.2 — Abschluss der Migration + DSGVO**)
 
 **Session-Abschluss 20.09. (abends), alle Phase-Schritte live verifiziert:**
