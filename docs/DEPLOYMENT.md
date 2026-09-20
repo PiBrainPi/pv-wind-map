@@ -1,6 +1,6 @@
 # Deployment — Vercel (wind-pv-map.de) + GitHub Pages (parallel)
 
-> Stand: 2026-09-20 (V51.3) · **Haupt-URL: `https://wind-pv-map.de` (Vercel)** ·
+> Stand: 2026-09-20 (V52.1) · **Haupt-URL: `https://wind-pv-map.de` (Vercel)** ·
 > Alt-URL `https://wind-pv-map.ingenieur-tools.de` (GitHub Pages) bleibt **parallel live** bis zur
 > Stilllegung (TODO, s. unten). Portal `ingenieur-tools.de` bleibt vollständig auf GitHub Pages.
 
@@ -188,3 +188,7 @@ Beide Repos nutzen den **`gh-pages`-Branch** als Pages-Quelle (statisch, keine G
 - **TODO Token-Rotation** (User-Entscheid 20.09.2026): Full-Account-Token bleibt zunächst aktiv
   (auch für zukünftige Vercel-Projekte). Später optional: separater Project-Scoped-Token für
   den Pipeline-Cron (Scope nur `wind-pv-map`), Full-Account-Token behält der User für Setup-Aufgaben.
+- **DSGVO/Hosting-Texte (V52.1, 20.09.):** Datenschutzhinweise + Impressum wurden auf Vercel
+  umgestellt und sind Teil des Deployments (`src/index.html` DS-Modal, `src/impressum.html`).
+  Nach jeder Alt-URL-Stilllegung: GitHub-Hosting-Verweise in der Portal-DS entfernen.
+  Details + Konformitäts-Fazit: `docs/DSGVO_VERCEL_50PUNKTE_PLAN.md`.
