@@ -1,10 +1,32 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-09-20 (**V52 DSGVO/Vercel-Texte — LOCALLY VERIFIED, Deploy auf Freigabe**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
-> **Kurz-Status:** LIVE = V51.2 (main `930eabe`, gh-pages `16cdafb`) auf wind-pv-map.de (Vercel) + parallel Alt-URL ·
-> **V52 (DSGVO-Hosting-Texte + Impressum-Fix) lokal gebaut und verifiziert (17/17 grün, DS-Modal 8/8 Strings), Deploy wartet auf Freigabe** ·
+> Stand: 2026-09-20 Abend (**V52.2 FINAL — Umzug Vercel + DSGVO komplett abgeschlossen & live,
+> Session beendet**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+> **Kurz-Status:** LIVE = **V52.2 auf BEIDEN URLs identisch** — wind-pv-map.de (Vercel, main
+> `8b501c1`) + Alt-URL wind-pv-map.ingenieur-tools.de (gh-pages `3b40bb9`) ·
+> DSGVO-Texte live (DS-Modal Vercel-only, Impressum-Fix, Portal-DS) · Deploy-Skript-Fix:
+> impressum.html jetzt auch auf gh-pages (war 404) ·
 > Nächster Pipeline-Cron 26.09. 06:10 · Details Migration: docs/DEPLOYMENT.md · DSGVO-Plan: docs/DSGVO_VERCEL_50PUNKTE_PLAN.md
+
+## Aktueller Stand (2026-09-20 Abend, **V52.2 — Abschluss der Migration + DSGVO**)
+
+**Session-Abschluss 20.09. (abends), alle Phase-Schritte live verifiziert:**
+- V52.2 auf wind-pv-map.de deployt + verifiziert (Vercel-Satz, Stand 20.09., li-CSS, Hans Dampf=0)
+- **Befund während Voll-Prüfung:** impressum.html fehlte auf Alt-URL (404) — deploy_ghpages.sh
+  kopierte es nie. Fix deployed, Alt-URL verifiziert (200, V52.2-Stand, Bussenius).
+- Voll-Prüfung: DNS (DoH), TLS (LE 19.12.26), alle 5 JSON-Assets, Cron 26.09., Watchdog grün,
+  Vercel-API (3 Domains verified, Deployment READY).
+
+**Offene To-dos (bewusst, User bekannt):**
+1. Alt-URL-Stilllegung nach Pipeline-Bewährung (HANDOVER §6.1, Portal-Link anpassen)
+2. Erster echter Dual-Deploy: Pipeline-Lauf Sa 26.09. 06:10
+3. 11 untracked Dateien (Artikel/, .hermes/) — .gitignore-Entscheid User
+4. Token-Rotation optional (HANDOVER §6.2)
+5. Portal/Sun HTTPS-Zombie — User-Entscheid (HANDOVER §6.4/6.5)
+6. Alt-URL-Zert läuft 28.11.26 ab (irrelevant bei Stilllegung vorher)
+
+**Historisch: V52-Umsetzung (20.09. Vormittag/PM):**
 
 ## Aktueller Stand (2026-09-20 PM, **V52 — DSGVO-Anpassung an Vercel-Hosting**)
 

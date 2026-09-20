@@ -1,8 +1,14 @@
 # Deployment — Vercel (wind-pv-map.de) + GitHub Pages (parallel)
 
-> Stand: 2026-09-20 (V52.1) · **Haupt-URL: `https://wind-pv-map.de` (Vercel)** ·
+> Stand: 2026-09-20 (V52.2 **FINAL**) · **Haupt-URL: `https://wind-pv-map.de` (Vercel)** ·
 > Alt-URL `https://wind-pv-map.ingenieur-tools.de` (GitHub Pages) bleibt **parallel live** bis zur
 > Stilllegung (TODO, s. unten). Portal `ingenieur-tools.de` bleibt vollständig auf GitHub Pages.
+>
+> **Status 20.09. Abend — Umzug abgeschlossen, verifiziert:**
+> - Beide URLs liefern identisches V52.2 (Vercel `dpl_5n8Z8…` / gh-pages `3b40bb9`)
+> - deploy_ghpages.sh-Fix: impressum.html wird jetzt mitdeployt (fehlte vorher → 404 auf Alt-URL)
+> - Verifikation komplett: HTTP-Codes, TLS, DNS (DoH), 5 JSON-Assets, Vercel-API, Watchdog, Cron
+> - Details Session-Abschluss: docs/PROJEKTSTAND.md § „Aktueller Stand 2026-09-20 Abend"
 
 ## Architektur (seit 20.09.2026)
 
