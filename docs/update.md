@@ -238,8 +238,10 @@ kein Deploy ohne vollständig durchlaufene Prüfkette:**
    (Regel 3, niemals löschen) UND nach `~/hermes_human-share/` kopieren.
 4. **Klickbare HTML im Chat an Fabs** — MEDIA:-Link auf die geprüfte Datei.
 5. **Manuelle Freigabe abwarten** — Fabs prüft die Datei selbst.
-6. **Erst nach explizitem „Ja": pushen + deployen** (`scripts/deploy_ghpages.sh`,
-   Regel 4). Danach Live-Verifikation (SHA-Abgleich served = lokal).
+6. **Erst nach explizitem „Ja": pushen + deployen — BEIDE ZIELE** (seit 20.09.2026):
+   - GitHub: `scripts/deploy_ghpages.sh` (Alt-URL, parallel live bis Stilllegung)
+   - Vercel: `scripts/deploy_vercel.sh` (Haupt-URL wind-pv-map.de)
+   Danach Live-Verifikation beider URLs (SHA-Abgleich served = lokal, meta.stand).
 
 **⚠️ Ladezeit-Budget (seit V51.2, 19.09.2026 — Reaktion auf den Live-Vorfall):**
 Die Prüfung umfasst **implizit die Größe von `einheiten.json` (< 40 MB)** — der Vorfall

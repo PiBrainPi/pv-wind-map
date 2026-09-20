@@ -1,8 +1,41 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-09-19 (**V51.2 — Lade-Progress + Slim-Export, LIVE**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
-> **Kurz-Status:** LIVE = V51.2 (main `b6039f7`, gh-pages `16cdafb`) · Datenstand 19.09 · Keine offenen Punkte. Nächster Pipeline-Cron 26.09. 06:10.
+> Stand: 2026-09-20 (**V51.2 LIVE auf wind-pv-map.de (Vercel) + parallel Alt-URL GitHub Pages**) · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
+> **Kurz-Status:** LIVE = V51.2 (main `b6039f7`, gh-pages `16cdafb`) · Datenstand 19.09 ·
+> **Hosting: Haupt-URL https://wind-pv-map.de (Vercel, Team pi-brain) seit 20.09.** ·
+> Alt-URL wind-pv-map.ingenieur-tools.de bleibt parallel (Stilllegung = TODO, s. DEPLOYMENT.md) ·
+> Token-Rotation Project-Scope = TODO · Keine offenen Code-Punkte. Nächster Pipeline-Cron 26.09. 06:10.
+
+## Aktueller Stand (2026-09-20, **Migration zu Vercel — wind-pv-map.de LIVE**)
+
+**Ausgangslage:** HTTPS-Zert-Provisionierung auf `ingenieur-tools.de`-Subdomains war bei GitHub
+seit 30.08. im Zombie-State (Portal `dns_changed`, Sun `authorization_created`; CT-Log belegt:
+für apex/www/sonne wurde **nie** ein Zertifikat issued — Karte/Galton hatten vom 30.08. welche).
+GitHub-Support für Free-Accounts nicht zuständig (Verweis auf Doku). User-Entscheid 20.09.:
+Karte auf Vercel unter neuer Domain `wind-pv-map.de` (netcup, registriert) umziehen;
+Alt-URL bleibt parallel; Token bleibt Full-Account (zukünftige Projekte), Rotation = TODO.
+
+**Umsetzung (20.09., komplett verifiziert):**
+- Vercel-Projekt `wind-pv-map` (Team `pi-brain`, Plan Hobby/Free, User fabibuss-8478) via CLI angelegt.
+- Deploy: `scripts/deploy_vercel.sh` (neu, dist/ → Production). Protection auf
+  `prod_deployment_urls_and_all_previews` (Production öffentlich, Preview geschützt).
+- Domains: `wind-pv-map.de` + `www.wind-pv-map.de` am Projekt; www-Redirect 308 → Apex.
+- DNS (netcup CloudDNS, User): `A @ → 76.76.21.21` + `A www → 76.76.21.21` (TTL 300).
+- SSL: Let's Encrypt, beide Hosts gültig bis 19.12.2026 (Auto-Renew durch Vercel).
+- Live-Verifikation: HTTP/2 200 · 308-Redirects ok · einheiten.json 34.705.430 B ·
+  Browser: DS-Modal, Karte lädt (gzip 4,3 MB), 57 Cluster, 55 Betreiber-Zeilen, 5 Charts.
+- Doku: DEPLOYMENT.md (Komplett-Überarbeitung: Vercel-Architektur/Workflow),
+  README.md (Live-URLs), Hosting-HANDOVER.md + SESSION-VERLAUF.md + DNS-KONFIGURATION.md,
+  Watchdog erweitert (7 Hosts inkl. www.wind-pv-map.de).
+
+**Nächste Schritte (TODO):**
+1. **Pipeline-Cron erweitern** (nächster Lauf 26.09.): nach Regel-5-Freigabe zusätzlich
+   `bash scripts/deploy_vercel.sh` (neben gh-pages-Deploy). Beide Ziele bis Alt-URL-Stilllegung.
+2. **Alt-URL stilllegen** (nur auf User-Freigabe, nach erstem Vercel-Pipeline-Lauf):
+   Portal-Link umziehen → GitHub-Custom-Domain entfernen → netcup-CNAME `wind-pv-map` löschen →
+   Watchdog-Host entfernen → Doku final. Details: `docs/DEPLOYMENT.md` § Wichtige Hinweise.
+3. **Token-Rotation** (optional, User-Entscheid offen): Project-Scoped-Token für Cron.
 
 ## Aktueller Stand (2026-09-19, **V51.2 — Lade-Progress + Slim-Export LIVE**)
 

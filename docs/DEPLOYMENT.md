@@ -1,22 +1,50 @@
-# Deployment — GitHub Pages + eigene Domain
+# Deployment — Vercel (wind-pv-map.de) + GitHub Pages (parallel)
 
-> Stand: 2026-09-06 (V24 LIVE) · Ziel: `ingenieur-tools.de` als Portal, `wind-pv-map.ingenieur-tools.de` für die Karte.
+> Stand: 2026-09-20 (V51.3) · **Haupt-URL: `https://wind-pv-map.de` (Vercel)** ·
+> Alt-URL `https://wind-pv-map.ingenieur-tools.de` (GitHub Pages) bleibt **parallel live** bis zur
+> Stilllegung (TODO, s. unten). Portal `ingenieur-tools.de` bleibt vollständig auf GitHub Pages.
 
-## Architektur
+## Architektur (seit 20.09.2026)
 
 ```
-ingenieur-tools.de                  → Portal (Repo: PiBrainPi/ingenieur-tools-portal)
-└── wind-pv-map.ingenieur-tools.de  → PV-/Wind-Karte (Repo: PiBrainPi/pv-wind-map)
+wind-pv-map.de (netcup)             → Vercel-Projekt „wind-pv-map" (Team pi-brain)  ← HAUPT-URL
+└── www.wind-pv-map.de              → Redirect 308 → Apex (serverseitig in Vercel)
+ingenieur-tools.de                  → Portal (GitHub Pages, Repo: PiBrainPi/ingenieur-tools-portal)
+└── wind-pv-map.ingenieur-tools.de  → PV-/Wind-Karte (GitHub Pages, ALT — parallel live, TODO stilllegen)
 ```
 
-Beide laufen auf **GitHub Pages** (kostenlos, 0 €/Monat). Einzige Kosten: die `.de`-Domain (~5–8 €/Jahr, vom USER gekauft).
+- **Vercel Free (Hobby):** 0 €/Monat · Deploy via CLI (`scripts/deploy_vercel.sh`) · SSL automatisch
+  (Let's Encrypt, Auto-Renew durch Vercel) · Zert gültig bis 19.12.2026.
+- **GitHub Pages (Alt):** bleibt unverändert bestehen — Retention/Archiv + Rückfallebene.
+- Gründe für Vercel: GitHub-Zert-Provisionierung auf `ingenieur-tools.de`-Subdomains lief in einen
+  internen Zombie-State (`dns_changed` 20 Tage, kein Zert je issued — CT-Log-Verifiziert); Vercel
+  provisioniert Zerts in Minuten nach DNS-Verify. Kein DNS-Zwangsumzug (netcup-NS blieben).
 
-## Live-URLs (GitHub Pages, vor Domain-Anbindung)
+## Vercel-Setup (Ist-Stand, 20.09.2026)
 
-| Tool | Repo | GitHub-Pages-URL |
-|---|---|---|
-| Karte | `PiBrainPi/pv-wind-map` | `https://pibrainpi.github.io/pv-wind-map/` |
-| Portal | `PiBrainPi/ingenieur-tools-portal` | `https://pibrainpi.github.io/ingenieur-tools-portal/` |
+| Element | Wert |
+|---|---|
+| Team | `pi-brain` (User: fabibuss-8478, Plan Hobby/Free) |
+| Projekt | `wind-pv-map` (ID `prj_FBJzyKt2HI34a072uu2BhF3k8JRD`) |
+| Production-Alias | `wind-pv-map.vercel.app` → zusätzlich `wind-pv-map.de` |
+| Domains am Projekt | `wind-pv-map.de` (Apex, verified) + `www.wind-pv-map.de` (verified, Redirect 308 → Apex) |
+| Deployment Protection | `prod_deployment_urls_and_all_previews` — Production-URLs (Custom Domain + Production-Links) öffentlich, nur Preview-Deployments geschützt |
+| DNS (netcup, Zone `wind-pv-map.de`, CloudDNS) | `A @ → 76.76.21.21` + `A www → 76.76.21.21` (TTL 300) |
+| Token | `~/.config/vercel_token` (chmod 600, Full-Account). **User-Entscheid:** bleibt für zukünftige Projekte aktiv. TODO: Rotation auf Project-Scope für Pipeline-Cron — s. Hosting-HANDOVER. |
+
+## Deploy-Workflow (Regel 5 — gilt für BEIDE Ziele)
+
+1. **Backup zuerst:** `cp data/mastr.db ~/backups/mastr-$(date +%F).db`
+2. Pipeline/Build → `dist/` regenerieren (`build_all.sh` / `build.sh`)
+3. `verify_update.sh` 100 % + UI-Checks (Regel 5) → Revision + klickbare HTML an Fabs
+4. **User-Freigabe**
+5. Deploy **beide Ziele:**
+   - GitHub: `bash scripts/deploy_ghpages.sh` (Worktree, CNAME unangetastet)
+   - Vercel: `bash scripts/deploy_vercel.sh` (dist/ → Production, aliasiert auf wind-pv-map.de)
+6. Live-Verifikation beider URLs (meta.stand, einheiten.json, SHA-Abgleich)
+
+> Bis zur Stilllegung der Alt-URL (TODO unten) gehen Deploys immer an beide Ziele.
+> Nach Stilllegung: nur noch Vercel.
 
 ## Deployment-Mechanismus (statisch, kein CI)
 
@@ -147,6 +175,16 @@ Beide Repos nutzen den **`gh-pages`-Branch** als Pages-Quelle (statisch, keine G
 
 ## Wichtige Hinweise
 
-- **Keine Secrets im Repo** — `.env`, `data/`, `dist/` sind gitignored.
+- **Keine Secrets im Repo** — `.env`, `data/`, `dist/` sind gitignored. Vercel-Token liegt **außerhalb**
+  des Repos (`~/.config/vercel_token`, chmod 600) und wird nie committet.
 - Repos sind **öffentlich** (Website erreichbar + unbegrenzte Actions-Minuten).
-- Domain-Kauf macht der USER selbst (Ausgabe mit eigenem Geld); der Agent richtet nur DNS/Pages ein.
+- Domain `wind-pv-map.de` (20.09.2026, netcup): DNS `A @` + `A www → 76.76.21.21` (Vercel).
+- **TODO Alt-URL stilllegen** (nur nach User-Freigabe, nach erstem Pipeline-Lauf auf Vercel):
+  1. Portal-Link `wind-pv-map.ingenieur-tools.de` → `wind-pv-map.de` ändern (Repo ingenieur-tools-portal)
+  2. GitHub-Repo `pv-wind-map`: Custom Domain entfernen (API) — `gh-pages` bleibt als Archiv
+  3. netcup Zone `ingenieur-tools.de`: CNAME `wind-pv-map` löschen
+  4. Watchdog `https_watchdog_all.py`: Alt-Host entfernen (neue Hosts sind schon drin)
+  5. Doku: HANDOVER.md, DNS-KONFIGURATION.md, dieses File (DEPLOYMENT.md) finalisieren
+- **TODO Token-Rotation** (User-Entscheid 20.09.2026): Full-Account-Token bleibt zunächst aktiv
+  (auch für zukünftige Vercel-Projekte). Später optional: separater Project-Scoped-Token für
+  den Pipeline-Cron (Scope nur `wind-pv-map`), Full-Account-Token behält der User für Setup-Aufgaben.
