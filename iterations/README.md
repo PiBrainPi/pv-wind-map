@@ -12,7 +12,9 @@ einzelbare HTML-App (Single-File mit eingebetteten Daten, ~25 MB).
    Auch veraltete oder fehlerhafte Iterationen bleiben als Historie erhalten.
 3. **Neue Iterationen werden am Ende hinzugefügt** — die Liste wächst mit jeder Revision.
 4. Dieser Ordner ist **lokal** (nicht auf GitHub gepusht, da die Dateien zu groß für Git sind).
-   Die aktuelle Live-Version liegt immer auf `gh-pages` im GitHub-Repo.
+   Die aktuelle Live-Version liegt auf **Vercel** (https://wind-pv-map.de, Deploy aus `dist/` via
+   `scripts/deploy_vercel.sh`); der `gh-pages`-Branch dient nur noch als **Archiv** (Alt-URL stillgelegt
+   am 20.09.2026).
 
 ## Übersicht (chronologisch)
 
