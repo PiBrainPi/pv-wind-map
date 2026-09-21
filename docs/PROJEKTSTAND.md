@@ -1,14 +1,46 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-09-20 spät Abend (**V53 — DSGVO-Konsolidierung über ALLE 4 Tools abgeschlossen & live**)
+> Stand: 2026-09-21 (**V54 — Vercel Web Analytics Opt-in auf ALLEN 4 Tools umgesetzt & live**)
 > · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
-> **Kurz-Status:** LIVE = **V53 auf wind-pv-map.de** (Vercel, main `a43f080`) — DS-Modal mit
-> Querverweis auf zentrale Portal-DS (alle 4 Tools Vercel) · Portal-DS §4 netcup + §6 4 Keys +
-> Impressum ohne GitHub · Sun V05 + Galton V13 (Stand 20.09., Vercel-Hosting-Block DE/EN) ·
-> 50-Punkte-Plan: docs/DSGVO_V53_KONSOLIDIERUNG_50PUNKTE_PLAN.md (50/50 ✅) ·
-> Revision: iterations/V53_DS_Konsolidierung_2026-09-20.html ·
+> **Kurz-Status:** LIVE = **V54 auf wind-pv-map.de** (Vercel, main `099b537`) — Analytics-
+> Opt-in-Schalter im DS-Modal § 6, Key `pvw_analytics_consent`, Script wird erst NACH Klick
+> injiziert (0 Requests pre-consent, live verifiziert) · Portal: Opt-in-Banner + DS § 5.0 +
+> § 6-Key · Sun **V06** + Galton **V14** (Analytics-Toggle DE/EN, Stand 21.09.) ·
+> 25-Punkte-Plan: docs/DSGVO_V54_ANALYTICS_25PUNKTE_PLAN.md (24/25 ✅, C18 offen) ·
+> **C18 OFFEN — User entscheidet nach Beobachtungsphase, ob Analytics im Vercel-Dashboard
+> aktiviert wird** (Aktivierung = Dashboard-Klick je Projekt, KEIN API-Endpoint; bis dahin
+> liefert `/_vercel/insights/script.js` 404 = keine Daten) · Revision:
+> iterations/V54_Analytics_Consent_2026-09-21.html (+ human-share) ·
 > Nächster Pipeline-Cron 26.09. 06:10 (unverändert) · Karten-Datenstand: 2026-09-19 (unverändert)
+
+## V54 — Vercel Analytics Opt-in (21.09.2026, alle 4 Tools umgesetzt)
+
+**Auslöser:** User-Frage „Vercel Analytics + DSGVO?" → harte Recherche (Vercel-Doku,
+TDDDG § 25, EuGH Planet49 + IAB Europe) → Befund: Vercel „anonym"-Claim risikobehaftet
+(Session-Hash = pseudonym), § 25 greift nicht (kein Speicherzugriff), aber Art. 6 nötig;
+**kein AVV im Hobby-Tarif** → Lösung: Einwilligung (lit. a + Art. 49 lit. a) statt
+berechtigtem Interesse = wasserdicht inkl. US-Transfer.
+
+**Umsetzung (User-Entscheidungen: alle 4 Tools · Einwilligung · nur Web Analytics, kein
+Speed Insights):** Karte: Toggle im DS-Modal + Loader (lazy-Inject) · Portal: Banner +
+DS § 5.0 · Sun V06: Toggle DE/EN · Galton V14: Toggle DE/EN + „Grundsatz" angepasst.
+Rechtskonstruktion: zweckspezifisch (kein Sammel-Klick mit OSM-Tiles!), Widerruf jederzeit,
+0 Requests vor Klick (Playwright-Beweis auf allen 4 Live-Domains), OSM-2-Klick-Regression
+intakt.
+
+**Commits:** pv-wind-map `5db2a52`→`099b537` (Plan+V54) · Portal gh-pages `248fd8a` ·
+Sun main `4f95980` / gh-pages `8436e7d` · Galton main `9895810` / gh-pages `d0e4b84`.
+
+**Bekannter Alt-Bug (nicht V54):** Galton `hide is not defined` — existiert identisch in
+V13 (live seit 20.09.), document-click-Handler nutzt scoped hide() global. Kein
+Funktionsverlust; optionaler Mini-Fix für V15.
+
+**V54-Nächste Schritte (neue Session):** ① User hat ggf. Analytics im Dashboard aktiviert →
+dann Post-Consent-Verify (Script 200, Requests nur nach Klick, erste Daten im Dashboard) +
+Rechtscheckliste § 23/24 im Plan abhaken + Abschlussbericht ② falls User deaktiviert
+lässt: Status dokumentieren, Schalter bleibt (schadet nichts) ③ Galton hide()-Fix V15
+(optional) ④ offene To-dos aus V52.2 (unten) weiter verfolgen.
 
 ## V53 — DSGVO-Konsolidierung (20.09.2026 spät, alle 4 Tools LIVE)
 
