@@ -8,7 +8,29 @@
 > Vercel-only-Cron-Lauf, verify im Cron flüchtig gecrasht — manuell 17/17 beide Builds
 > neu geprüft) · Revision `iterations/V56_Datenstand_2026-09-26.html` (+ human-share)
 > · Artikel-Release `dist/Artikel/Release/index.html` unverändert intakt (noindex)
-> · Nächster Pipeline-Cron 03.10. 06:10
+> · NEU V57: Cron finalisiert automatisch (verify+Retry, Revision, Chat-Auslieferung —
+> `scripts/cron_finalize.sh`, erstlauf 03.10.) · Nächster Pipeline-Cron 03.10. 06:10
+
+## V57 — Cron-Automatisierung der Finalisierung (26.09.2026, User-Beschluss)
+
+**Auslöser:** User-Wunsch: die manuellen Schritte der heutigen Session (Verify nach
+Merge, Revision anlegen, klickbare HTML im Chat) sollen der Pipeline-Cron selbst
+erledigen — inkl. automatischer Reparatur flüchtiger Verify-Fehler.
+
+**Umsetzung:**
+- **NEU `scripts/cron_finalize.sh`:** nach `pipeline2_update.sh` im Cron —
+  (1) verify_update.sh mit **1 automatischem Retry** (30 s) bei flüchtigem
+  Chromium-Crash, (2) bei BESTANDENER Prüfung automatische Revision
+  `iterations/V<n>_Datenstand_<heute>.html` + human-share-Kopie (V-Nummer
+  automatisch weitergezählt, nur anfügen — Regel 3), (3) Report für den Chat.
+- **Cron `79229dc1690d` aktualisiert:** Prompt führt beide Skripte nacheinander aus,
+  Fallunterscheidung OK (Checkliste + Revision + MEDIA:-HTML an Fabs) / FAIL
+  (🚨-Alarm, Deploy-Stop). Deploy bleibt manuell nach Freigabe (Regel 4).
+- **Trockentest 26.09. bestanden:** Retry griff exakt beim heute beobachteten
+  flüchtigen Chromium-Crash (Versuch 1 FAIL → Versuch 2 grün); Revision V57
+  SHA-identisch mit dist/ (`e7b04321…`) angelegt.
+- **Doku:** `docs/update.md` § „Automatisierte Finalisierung im Cron" +
+  `GRUNDSATZENTSCHEIDUNG.md` Regel 5 (V57-Zusatz). Erstlauf: 03.10. 06:10.
 
 ## V56 — Datenstand 26.09.2026 (Session-Abschluss 26.09.)
 

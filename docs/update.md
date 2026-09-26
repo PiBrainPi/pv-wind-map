@@ -271,6 +271,37 @@ node scripts/verify_app.js dist/index_singlefile.html
   (A1–A4 Daten, B UI); Änderungen an der Vorschrift laufen IMMER über diese Doku +
   Skript gemeinsam (kein Auseinanderlaufen lassen).
 
+### 🤖 Automatisierte Finalisierung im Cron (NEU, V57 — User-Beschluss 26.09.2026)
+
+**Seit 26.09.2026 automatisiert der Pipeline-Cron (79229dc1690d) zusätzlich die Schritte
+3–4 der Prüfvorschrift** (ehemals manuell pro Session, User-Beschluss vom 26.09.):
+
+1. **Verify mit automatischem Retry** — `scripts/verify_update.sh` läuft nach dem
+   Pipeline-Lauf; bei flüchtigem Chromium-Crash („page.goto: Target page … closed",
+   am 26.09. live erlebt) macht `scripts/cron_finalize.sh` automatisch 1 Retry
+   nach 30 s. Erneuter FAIL = 🚨-Alarm + Deploy-Stop.
+2. **Revision automatisch** — bei BESTANDENER Prüfung legt das Skript die Revision an:
+   `iterations/V<n>_Datenstand_<heute>.html` (V-Nummer wird aus iterations/ automatisch
+   weitergezählt) + Kopie nach `~/hermes_human-share/`. SHA-identisch mit
+   `dist/index_singlefile.html` (Regel 3: nur anfügen, niemals löschen).
+3. **Report + klickbare HTML an Fabs** — der Cron-Agent hängt die geprüfte HTML als
+   MEDIA: an seine Telegram-Antwort an.
+4. **Deploy + git push bleiben MANUELL** (Regel 4) — der Cron bereitet vor, Fabs gibt
+   frei, der interaktive Agent deployt nach Freigabe nur noch nach Vercel.
+
+**Neuer Cron-Ablauf (Sa 06:10, Job 79229dc1690d):**
+```
+pipeline2_update.sh   (Delta → Merge → Import → NAP → sync_legacy → build_all)
+cron_finalize.sh      (verify mit Retry → Revision → Report, Exit 0/1)
+```
+- Skript: `scripts/cron_finalize.sh` (Exit 0 = Revision angelegt, 1 = Deploy-Stop)
+- V-Nummern-Zählung: `iterations/V<n>_Datenstand_<datum>.html` — NEXT = höchste
+  existierende V-Nummer + 1. Code-Revisions (V52, V54 …) und Datenstand-Revisionen
+  teilen denselben Nummernraum (chronologisch, wie bisher).
+- **Trockentest 26.09.:** bestanden — Retry griff exakt beim heute beobachteten
+  flüchtigen Chromium-Crash (Versuch 1 FAIL → Versuch 2 grün), Revision V57
+  SHA-identisch mit dist/ angelegt.
+
 ### Verifikation nach Update (schneller Sichtcheck — ERGÄNZT durch Prüfvorschrift oben)
 
 1. `python3 scripts/export_app.py` zeigt die Zähler (Wind/PV, Geolokation).

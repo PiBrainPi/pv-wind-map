@@ -63,6 +63,14 @@ verworfene Versionen (deckungsgleich mit PROJEKTSTAND.md § Iterationen).
 
 - Automatisierung: `bash scripts/verify_update.sh` (Steps 1+2, Exit 0/1); der
   Pipeline-Cron führt sie nach jedem Lauf aus und alarmiert bei FAIL.
+- **V57 (26.09.2026, User-Beschluss): Cron finalisiert automatisch** — der Pipeline-Cron
+  führt nach dem Pipeline-Lauf zusätzlich `scripts/cron_finalize.sh` aus: Verify mit
+  1 automatischem Retry (30 s) bei flüchtigem Chromium-Crash, danach bei BESTANDENER
+  Prüfung automatisches Anlegen der Revision (`iterations/V<n>_Datenstand_<heute>.html`
+  + Kopie in `~/hermes_human-share/`, nur anfügen) und Auslieferung der klickbaren HTML
+  im Chat. **Deploy + git push bleiben an die manuelle Freigabe gebunden (Regel 4)** —
+  der Cron baut und prüft nur, deployed nie selbst. Details: `docs/update.md`
+  § „Automatisierte Finalisierung im Cron".
 - **Ladezeit-Budget (seit V51.2, 19.09.):** die Prüfung bewertet nach jedem Pipeline-
   Durchlauf auch die Größe von `einheiten.json` (< 40 MB) und zwingt bei Überschreitung
   zum Patch der Export-Datei VOR jedem Deploy (Ursache/Patch: `fehlerbehebung.md`
