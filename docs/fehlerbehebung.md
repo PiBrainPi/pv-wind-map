@@ -417,3 +417,26 @@ jedem Pipeline-Lauf die Dateigröße (**Ladezeit-Budget < 40 MB**). Bei Übersch
 erneut prüfen — erst dann Deploy. Der Pipeline-Cron (79229dc1690d) ist entsprechend
 aktualisiert (melde Budget-FAIL ausdrücklich als solchen). Doku: `docs/update.md`
 § Prüfvorschrift + § Check 4.
+
+---
+
+## F-CHROMIUM-FLUECHTIG (26.09.2026, V56/V57) — verify_update.sh crasht flüchtig im Cron
+
+**Befund (26.09., Pipeline-Cron-Lauf):** `verify_app.js` crashte beim Singlefile-Check mit
+`page.goto: Target page, context or browser has been closed` — A1–A4 grün, Multi-File-B
+grün, nur der Singlefile-Check brach weg. Im Cron-Kontext (nach 30+ min Pipeline-Lauf)
+trifft das flüchtig auf; manuell sofort erneut ausgeführt: grün. Kein Daten- oder
+Code-Bug, kein Deploy-Fehler.
+
+**Root-Cause (klassifiziert):** Ressourcen-/Timing-Problem des Headless-Chromium auf dem
+Pi5 nach langem Pipeline-Lauf (Speicherdruck/oom-adjacent) — NICHT reproduzierbar als
+echter App-Fehler; derselbe Check lief unmittelbar danach 2× grün.
+
+**Fix (V57, 26.09., User-Beschluss):** `scripts/cron_finalize.sh` führt
+`verify_update.sh` mit **1 automatischem Retry** (30 s Pause) aus. Erst FAIL nach
+Retry = echter Deploy-Stop (🚨). Damit ist die Fehlerklasse „flüchtiger Chromium-Crash
+im Cron" selbstheilend, ohne dass ein Alarm an Fabs geht.
+
+**Prävention/Prüfung:** cron_finalize.sh im Zweifel manuell nachlaufen lassen
+(`bash scripts/cron_finalize.sh`) — es ist idempotent und legt die Revision nur bei
+bestandener Prüfung an (V-Nummer automatisch weitergezählt).

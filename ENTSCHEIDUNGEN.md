@@ -361,3 +361,36 @@ Remote-Feldliste) sind alle in den Entscheidungen 4–7 bzw. in docs/ dokumentie
   th 2020 → 19.515 ✓ · Gesamt 2019 → 18.084 ✓ · INB-Modus: 1990 → 15 ✓, PV 2009 → 595 ✓ ·
   Singlefile 2021 → 5.449 ✓ · 0 JS-Errors.
 - **Status:** LIVE noch V49 — Deploy nach User-Freigabe.
+# Entscheidungen (EVL) — PV & Wind Karte
+
+> Status: laufend geführt. Neue Entscheidungen anhängen, nie löschen.
+> Format: Datum · Entscheidung · Begründung · Status
+
+## Gefällte Entscheidungen
+
+## 2026-09-26 · V57 — Cron finalisiert Pipeline-Läufe automatisch (User-Beschluss)
+
+- **Entscheidung:** Der Pipeline-Cron (79229dc1690d, Sa 06:10) übernimmt die bisher
+  manuellen Finalisierungsschritte: nach `pipeline2_update.sh` läuft
+  **`scripts/cron_finalize.sh`** — Verify (Regel 5) mit **1 automatischem Retry** (30 s)
+  bei flüchtigem Chromium-Crash, dann bei BESTANDENER Prüfung **automatisches Anlegen
+  der Revision** (`iterations/V<n>_Datenstand_<heute>.html` + human-share-Kopie,
+  nur anfügen — Regel 3) und Auslieferung der klickbaren HTML im Chat (MEDIA:).
+- **Begründung:** Die manuelle Kette (Verify → Revision → Chat) war wiederholt redundant
+  und der Cron-Verify crashte am 26.09. flüchtig (Chromium „page.goto closed") — der
+  automatische Retry behebt genau diese Fehlerklasse selbstständig.
+- **Grenze (Regel 4 unangetastet):** Deploy + git push bleiben an die manuelle Freigabe
+  von Fabs gebunden — der Cron baut und prüft nur, deployed nie selbst.
+- **Trockentest 26.09. bestanden:** Retry griff beim realen Chromium-Crash (Versuch 1
+  FAIL → Versuch 2 grün); Revision V57 SHA-identisch mit dist/ angelegt.
+- **Status:** Umgesetzt + getestet; Erstlauf 03.10. 06:10. Details: `docs/update.md`
+  § „Automatisierte Finalisierung im Cron".
+
+
+## 2026-09-26 · V56 — Datenstand 26.09. live (Snapshot #18)
+
+- **Entscheidung:** Pipeline-Lauf 26.09. (erster Vercel-only-Cron-Lauf) nach vollständiger
+  Prüfkette live gestellt: verify manuell 17/17 beide Builds (flüchtiger Chromium-Crash
+  im Cron, kein Daten-/Code-Bug) + Deep-Checks (V27b, DB-Stichprobe, Historie, Artikel)
+  → Fabs-Freigabe → `deploy_vercel.sh` → SHA-verified (`c4835dab…`).
+- **Status:** LIVE auf wind-pv-map.de. Alt-URL bleibt stillgelegt.

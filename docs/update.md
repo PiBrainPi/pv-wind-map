@@ -1,6 +1,6 @@
 # Update — PV & Wind Karte (MaStR)
 
-> Manuell auslösbar, cronjob-fähig. Stand: 2026-09-19 (**Regel 5 — Prüfvorschrift nach Pipeline-Update: 100 %-Prüfung via `scripts/verify_update.sh` PFLICHT, siehe § unten; Pipeline-Cron prüft selbst** · Datenstand 19.09. live · V37: Typen-Normalisierung; Delta-Modus F-Fetch-1).
+> Manuell auslösbar, cronjob-fähig. Stand: 2026-09-26 (**Regel 5 + V57 — Prüfvorschrift nach Pipeline-Update: 100 %-Prüfung via `scripts/verify_update.sh` PFLICHT; Pipeline-Cron prüft UND finalisiert selbst (V57: verify+Retry, auto-Revision, klickbare HTML im Chat — § „Automatisierte Finalisierung im Cron")** · Datenstand 26.09. live · V37: Typen-Normalisierung; Delta-Modus F-Fetch-1).
 
 ## Update ausführen (DE)
 
