@@ -1,18 +1,62 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-09-21 (**V54 — Vercel Web Analytics Opt-in auf ALLEN 4 Tools umgesetzt & live**)
+> Stand: 2026-09-26 (**V56 — Datenstand 26.09. LIVE auf wind-pv-map.de**)
 > · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
-> **Kurz-Status:** LIVE = **V54 auf wind-pv-map.de** (Vercel, main `099b537`) — Analytics-
-> Opt-in-Schalter im DS-Modal § 6, Key `pvw_analytics_consent`, Script wird erst NACH Klick
-> injiziert (0 Requests pre-consent, live verifiziert) · Portal: Opt-in-Banner + DS § 5.0 +
-> § 6-Key · Sun **V06** + Galton **V14** (Analytics-Toggle DE/EN, Stand 21.09.) ·
-> 25-Punkte-Plan: docs/DSGVO_V54_ANALYTICS_25PUNKTE_PLAN.md (24/25 ✅, C18 offen) ·
-> **C18 OFFEN — User entscheidet nach Beobachtungsphase, ob Analytics im Vercel-Dashboard
-> aktiviert wird** (Aktivierung = Dashboard-Klick je Projekt, KEIN API-Endpoint; bis dahin
-> liefert `/_vercel/insights/script.js` 404 = keine Daten) · Revision:
-> iterations/V54_Analytics_Consent_2026-09-21.html (+ human-share) ·
-> Nächster Pipeline-Cron 26.09. 06:10 (unverändert) · Karten-Datenstand: 2026-09-19 (unverändert)
+> **Kurz-Status:** LIVE = Build auf Datenstand 2026-09-26 (Snapshot #18, SHA-verified
+> served==lokal `c4835dab…` einheiten.json) · Pipeline-Lauf 26.09. 06:10 ok (erster
+> Vercel-only-Cron-Lauf, verify im Cron flüchtig gecrasht — manuell 17/17 beide Builds
+> neu geprüft) · Revision `iterations/V56_Datenstand_2026-09-26.html` (+ human-share)
+> · Artikel-Release `dist/Artikel/Release/index.html` unverändert intakt (noindex)
+> · Nächster Pipeline-Cron 03.10. 06:10
+
+## V56 — Datenstand 26.09.2026 (Session-Abschluss 26.09.)
+
+**Auslöser:** Pipeline-Cron `79229dc1690d` lief Sa 26.09. 06:10 (erster Lauf nach
+Vercel-Migration ohne Alt-URL). User-Freigabe für Live-Stellung nach Prüfkette erteilt.
+
+**Daten (Snapshot #18, 26.09.):**
+- Karte: **65.948 Anlagen** (42.164 Wind / 23.784 PV, alle Status mit Geolokation)
+- In Betrieb: **Wind 31.052 · PV 22.513 → gesamt 53.565** (meta.counts 31.050/22.513 = bs35-Kern)
+- Delta #17→#18: Wind +54/+478,3 MW · PV +46/+175,84 MW · 14 entfernt
+- `einheiten.json` 33,2 MB (Ladezeit-Budget < 40 MB ✅) · NAP 27.925 (+6 neue) · raw 67.447
+- DB-Backups: `mastr_20260926_061143.db` + `mastr_20260926_061238.db` (je 546,7 MB)
+
+**Prüfkette (Regel 5):**
+- Cron-verifizierung crashte flüchtig (Chromium „page.goto closed" beim Singlefile-Check) —
+  **kein Daten-/Code-Bug**; B-Check manuell neu ausgeführt: **17/17 grün beide Builds,
+  0 JS-Errors**. A1–A4 in der Cron-Report-Kette bereits grün, manuell bestätigt.
+- Deep-Checks (zusätzlich): V27b Physik (0 kW/MW-Fälle, PV max 200 MWp, Wind max 15 MW) ·
+  DB-Stichprobe 12/12 Export-Units in `einheiten_raw` · statistiken.total_anzahl 53.565 ==
+  meta.counts == Infobar · historie 6 Snapshots ohne Duplikate · Artikel-Release intakt
+  (45,4 MB, noindex) · Stand-String in Singlefile, dynamisch via meta.json im Multi-File.
+- Revision: `iterations/V56_Datenstand_2026-09-26.html` + `~/hermes_human-share/`.
+  Klickbare HTML an Fabs → **Freigabe erteilt** → Deploy.
+
+**Deploy + Live-Verifikation (26.09.):**
+- `scripts/deploy_vercel.sh` → Production wind-pv-map.de, HTTP 200
+- meta.json live: stand=2026-09-26T06:12:51 ✅
+- einheiten.json live: 65.948 Einheiten, **SHA live==lokal (`c4835dab…`)** ✅
+- `/Artikel/Release/` HTTP 200 (unverändert) ✅
+
+## V55.1 — Artikel-Release-Hosting (22.09.2026)
+
+**Auslöser:** User möchte den LinkedIn-Artikel vorab dem Arbeitgeber zeigen (Inhalte des
+Unternehmens → Freigabe nötig); Versand der 44-MB-HTML per Mail/Versanddienst unpraktisch
+(IT-Flagging). Lösung: statisches Hosting unter der eigenen Domain.
+
+**Umsetzung:**
+- `dist/Artikel/Release/index.html` = `Artikel/LinkedIn_Artikel_Vorschau_20260922_v55_Fabs.html`
+  (User-Revision von V55) + `<meta name="robots" content="noindex, nofollow">` (nicht indizierbar;
+  URL nur dem Arbeitgeber bekannt, KEIN Passwortschutz — bewusst so, dokumentiert).
+- Deploy via `scripts/deploy_vercel.sh` (dist/ → Production). Verifikation: HTTP 200 auf
+  `/Artikel/Release/`, www 308 → Apex, noindex served, Karte SHA `1e8c35…` byte-identisch
+  (vor/nach Deploy bewiesen), einheiten.json 200.
+- Pipeline-Robustheit: `build_all.sh`/`export_app.py`/Cron entfernen keine fremden Dateien in
+  dist/ (Grep-Verifizierung) — Artikel überlebt den 26.09.-Lauf.
+- Artikel-Revisionen: v55 (`artikel_20260922_v55.md` + 4 neue Screenshots in `screenshots_v55/`)
+  → User-Kuratierung = Fabs-Fassung = Release. Gitignore: `Artikel/` + `.hermes/` (User-OK),
+  Commit ausstehend (Regel 4).
 
 ## V54 — Vercel Analytics Opt-in (21.09.2026, alle 4 Tools umgesetzt)
 

@@ -140,13 +140,13 @@ bash scripts/build.sh   # fetch + import + export + bundle in einem Schritt
 
 | Kategorie | Umfang | Georef (alle Status) | „In Betrieb" (Karte/Infobar) |
 |-----------|--------|----------------------|--------------|
-| **Wind** | ≥ 100 kW (nach Einheiten-Normalisierung MW) | 42.083 | **31.012** |
-| **Photovoltaik** | ≥ 0,5 MWp (Bruttoleistung ≥ 500 kWp, V30: strikt `ge~500`) | 23.736 | **22.467** |
-| **Gesamt** | | **65.819** | **53.479** |
+| **Wind** | ≥ 100 kW (nach Einheiten-Normalisierung MW) | 42.164 | **31.052** |
+| **Photovoltaik** | ≥ 0,5 MWp (Bruttoleistung ≥ 500 kWp, V30: strikt `ge~500`) | 23.784 | **22.513** |
+| **Gesamt** | | **65.948** | **53.565** |
 
 Die Karte filtert per Default auf „In Betrieb" (Status-Checkboxen können 31/37/38 zuschalten).
-Stand: Pipeline-Lauf 19.09.2026 (Snapshot #17), Deploy 19.09.2026 (main `59058be`, gh-pages `271e026`)
-— historische Stände älterer Doku-Abschnitte sind unverändert gültig als Historie.
+Stand: Pipeline-Lauf 26.09.2026 (Snapshot #18), Deploy 26.09.2026 LIVE auf Vercel (wind-pv-map.de,
+SHA-verified) — historische Stände älterer Doku-Abschnitte sind unverändert gültig als Historie.
 
 - **Geolokation**: nur Anlagen MIT vorhandenen Koordinaten im MaStR (kein Geocoding)
 - **Einheiten-Hinweis**: MaStR liefert PV in kWp und Wind gemischt (kW/MW) — der Import normalisiert auf MW (Details: docs/datenmodell.md)

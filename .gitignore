@@ -27,3 +27,7 @@ data/nap/
 
 # --- MaStR-Backups (lokal, riesig) ---
 data/backups/
+
+# --- LinkedIn-Artikel (lokal, wird separat gehandhabt) ---
+Artikel/
+.hermes/
