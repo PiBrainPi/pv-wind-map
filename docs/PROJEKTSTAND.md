@@ -1,15 +1,40 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-09-26 (**V56 — Datenstand 26.09. LIVE auf wind-pv-map.de**)
+> Stand: 2026-10-03 (**V58 — Datenstand 03.10. LIVE auf wind-pv-map.de**)
 > · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
-> **Kurz-Status:** LIVE = Build auf Datenstand 2026-09-26 (Snapshot #18, SHA-verified
-> served==lokal `c4835dab…` einheiten.json) · Pipeline-Lauf 26.09. 06:10 ok (erster
-> Vercel-only-Cron-Lauf, verify im Cron flüchtig gecrasht — manuell 17/17 beide Builds
-> neu geprüft) · Revision `iterations/V56_Datenstand_2026-09-26.html` (+ human-share)
-> · Artikel-Release `dist/Artikel/Release/index.html` unverändert intakt (noindex)
-> · NEU V57: Cron finalisiert automatisch (verify+Retry, Revision, Chat-Auslieferung —
-> `scripts/cron_finalize.sh`, erstlauf 03.10.) · Nächster Pipeline-Cron 03.10. 06:10
+> **Kurz-Status:** LIVE = Build auf Datenstand 2026-10-03 (Snapshot #19, SHA-verified
+> served==lokal alle 4 Assets: index `1e8c3582…` · einheiten.json `5d7b0ab3…`) ·
+> Pipeline-Lauf 03.10. 06:10 ok — ERSTER VOLL-AUTOMATISCHER Lauf inkl. V57-Finalisierung
+> (Verify 17/17 Versuch 1, Revision V58 automatisch angelegt) · User-Freigabe erteilt →
+> Deploy 03.10. ~09:50 verifiziert · Nächster Pipeline-Cron 10.10. 06:10
+
+## V58 — Datenstand 03.10.2026 (Deploy 03.10., erster automatisierter V57-Durchlauf)
+
+**Auslöser:** Pipeline-Cron `79229dc1690d` lief Sa 03.10. 06:10 — erster ECHTLAUF der
+V57-Automatisierung (cron_finalize.sh: Verify+Retry, automatische Revision, Chat-Auslieferung).
+Alles grün im 1. Versuch. User-Freigabe erteilt (03.10., „Freigabe zum deploy") → Deploy.
+
+**Daten (Snapshot #19, 03.10.):**
+- Karte: **66.418 Anlagen** (42.576 Wind / 23.842 PV) · In Betrieb: 53.598 (Wind 31.035 / PV 22.563)
+- Delta #18→#19: Wind +18/+166,58 MW · PV +54/+262,49 MW · 39 entfernt
+- `einheiten.json` 33,4 MB (Budget < 40 MB ✅) · raw 67.921 · NAP 27.930 an 31.059 Lokationen
+- F5-Status: Planung 9.856 · vorüberg. stillgelegt 104 · endg. stillgelegt 3.166
+
+**Prüfkette:** Cron-interne Verify 17/17 beide Builds (Versuch 1/2, kein Retry nötig) —
+A1–A4 grün, historie 7 Snapshots ohne Duplikate. Revision V58 automatisch angelegt:
+`iterations/V58_Datenstand_2026-10-03.html` (SHA `6458fa867a059d34`, + human-share-Kopie).
+
+**Deploy + Live-Verifikation (03.10. ~09:50):**
+- `scripts/deploy_vercel.sh` → Production wind-pv-map.de, HTTP 200
+- meta.json live: stand=2026-10-03T06:12:33 ✅
+- **SHA live==lokal für ALLE 4 Kern-Assets:** index.html `1e8c3582…` · meta.json `a62d6bb6…` ·
+  historie.json `3ebe6eaa…` · einheiten.json `5d7b0ab3…` (35,0 MB gzip-übertragen) ✅
+- Artikel-Release `/Artikel/Release/`: HTTP 200, 45.436.778 B byte-identisch, noindex served ✅
+- www 308 → Apex ✅ · nächster Cron 10.10. 06:10
+
+**Offen (klein):** 4 untracked Artikel-Screenshot-Skripte `scripts/v55_reshots*.py`
+(Commit-Entscheid steht aus); Alt-To-dos aus V52.2 unverändert.
 
 ## V57 — Cron-Automatisierung der Finalisierung (26.09.2026, User-Beschluss)
 
