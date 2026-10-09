@@ -16,6 +16,7 @@ cp src/impressum.html dist/impressum.html
 cp src/datenschutz.html dist/datenschutz.html
 cp src/robots.txt dist/robots.txt
 cp src/sitemap.xml dist/sitemap.xml
+cp src/og-image.jpg dist/og-image.jpg
 
 echo "➜ 4/4 Single-File-Bundle..."
 python3 scripts/bundle_singlefile.py

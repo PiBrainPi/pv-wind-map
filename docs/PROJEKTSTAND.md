@@ -17,8 +17,32 @@
 > entfernt (Impressum/DS/DS-Modal → komplett eigenständig für wind-pv-map.de) —
 > Live-Verifikation 9/9 (0 × ingenieur-tools auf allen 3 Seiten, V59.1-Marker live,
 > Karte lädt 31033 W/22563 PV, 0 JS-Errors). URLs/SEO unverändert.
-> Nächster Pipeline-Cron 10.10. 06:10 — V59-Dateien im build_all.sh enthalten
+> **V60 og:image LIVE (Deploy 09.10., Commit `9c73863`):** Social-Preview-Bild
+> og-image.jpg (1200×630, 26,7 KB) auf allen 3 Seiten + Twitter-Card
+> (summary_large_image). build_all.sh kopiert og-image.jpg nach dist/.
+> Live: og:image 200 image/jpeg · alle 3 Seiten mit og:image · Sitemap/robots unverändert.
+> Verifikation 25/25 (docs/SEO_V60_OG_IMAGE_25PUNKTE_PLAN.md).
+> Nächster Pipeline-Cron 10.10. 06:10 — V59/V60-Dateien im build_all.sh enthalten
 > (cron_finalize baut+verifiziert automatisch, deployed nie selbst).
+
+## V60 — og:image Social-Preview (09.10.2026, LIVE nach User-Freigabe)
+
+**Auslöser:** Betreiber lieferte Logo (Kreis halbiert: Windturbine / Sonne+PV-Panel,
+„wind-pv-map.de"). Plan `docs/SEO_V60_OG_IMAGE_25PUNKTE_PLAN.md`, alle 25 Punkte ✅.
+
+**Umsetzung (Commit `9c73863`):**
+- **NEU `src/og-image.jpg`:** 1200×630 px, JPEG, 26.683 B (< 300 KB-Ziel ✅)
+- Meta-Block (og:image + url/secure_url/type/width/height/alt) in **allen 3 Seiten**
+  (index/impressum/datenschutz.html), alt: „Logo wind-pv-map.de: Windkraft und
+  Solarenergie im vereinten Kreis"
+- **Twitter-Card** (summary_large_image + twitter:title/description/image) auf allen 3 Seiten
+- `scripts/build_all.sh`: Kopierzeile `cp src/og-image.jpg dist/og-image.jpg`
+- Singlefile: og:image-Tags im injizierten noindex-Build vorhanden (harmlos, noindex dominiert)
+
+**Prüfkette:** diff src↔dist 4/4 identisch · og:image live 200 image/jpeg 26.683 B ·
+og:image-Metas live auf allen 3 Seiten · twitter:image live · Sitemap (3 URLs, kein
+og-image) + robots (og-image nicht disallowed) unverändert · verify 17/17 + 17/17 ·
+0 JS-Errors · Social-Preview-Test (WhatsApp/Facebook-Debugger/Twitter-Validator) beim Betreiber.
 
 ## V59 — SEO-Basics (09.10.2026, LIVE nach User-Freigabe)
 
