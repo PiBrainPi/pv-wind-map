@@ -68,4 +68,9 @@ einzelbare HTML-App (Single-File mit eingebetteten Daten, ~25 MB).
 | V50 | 2026-09-13 | Bugfix: Betreiber-Diagramme beachten jetzt Operator-Queries (/, &) — Scope-Matching identisch zur Tabelle (F-COMBO-DIAGRAMME) |
 | V51 | 2026-09-13 | Zubau-Heatmap + 3 Balkendiagramme klickbar → Karte (Jahr / Jahr×BL, Datumsfeld konsistent) |
 | V51.1 | 2026-09-19 | Datenstand 19.09. (Snapshot #17: 31.012 W / 22.467 PV, Karte 65.819) — erste 100-%-Prüfkette nach **Regel 5** (verify_update.sh 6/6 + UI 17/17 je Build); Deploy nach User-Freigabe, LIVE seit 19.09. ~13:20 |
-| V51.2 | 2026-09-19 | **Root-Cause-Fix „LIVE lädt nichts"**: Progress-Infobar (MB/%, ReadableStream, „wird entpackt…"-Phase), Slim-Export (einheiten.json 39,2 → 34,7 MB: lat/lon 5 Dez, mw 4 Dez, kompakte Separatoren), 1 automatischer Retry. >100-%-Progress-Bug (gzip Content-Length) live erwischt + gefixt. LIVE seit 19.09. ~15:45 |
+| V51.2 | 2026-09-19 | **Root-Cause-Fix „LIVE lädt nichts"**: Progress-Infobar (MB/%, ReadableStream, „wird entpackt…"Phase), Slim-Export (einheiten.json 39,2 → 34,7 MB: lat/lon 5 Dez, mw 4 Dez, kompakte Separatoren), 1 automatischer Retry. >100-%-Progress-Bug (gzip Content-Length) live erwischt + gefixt. LIVE seit 19.09. ~15:45 |
+| V52–V54 | 2026-09-20/21 | DSGVO/Impressum-Paket + Vercel-Hinweise final + Analytics-Consent (opt-in, kein Cookie) — Modals, Rechtsseiten-Inhalte |
+| V56/V57 | 2026-09-26 | Datenstand-Updates (Snapshot #18) |
+| V58 | 2026-10-03 | Datenstand 03.10. (Snapshot #19: 31.033 W / 22.563 PV, Karte 66.418) — erster vollautomatisierter Cron-Durchlauf mit Deploy-Finalisierung |
+| V59 | 2026-10-09 | **SEO-Basics**: robots.txt + sitemap.xml (3 URLs), datenschutz.html als echte Seite, Meta-Tags (Title/Description/Canonical/OG/JSON-LD) auf Startseite+Impressum, `#`-Modal-Links → echte Routen, Singlefile noindex. LIVE nach Freigabe (Deploy 09.10.) + GSC/Bing-Onboarding durch Betreiber |
+| V59.1 | 2026-10-09 | **Rechtsseiten vollständig eigenständig**: alle 6 ingenieur-tools.de-Verweise entfernt (Impressum, Datenschutz, DS-Modal entkernt → lokale Verweise). LIVE nach Freigabe (Deploy 09.10., 9/9 Live-Checks grün) |

@@ -1,10 +1,15 @@
 # Deployment — ALLE 4 TOOLS AUF VERCEL (seit 20.09.2026)
 
-> Stand: 2026-09-20 spät (**V53**) · **Karte-LIVE: `https://wind-pv-map.de` (Vercel)** ·
+> Stand: 2026-10-09 (**V59.1**) · **Karte-LIVE: `https://wind-pv-map.de` (Vercel)** ·
 > Alt-URL `wind-pv-map.ingenieur-tools.de` ist **STILLGELEGT** (DNS-CNAME gelöscht, GitHub-Custom-Domain
 > entfernt, DNS 000/NXDOMAIN verifiziert). GitHub-Pages-Repos bleiben bewusst als **Archiv** bestehen
 > (pibrainpi.github.io/pv-wind-map/, kein Custom-Domain-Mapping mehr).
-> Einstieg jeder Session: **docs/PROJEKTSTAND.md** · Nächster Pipeline-Cron: **26.09. 06:10** (Cron `79229dc1690d`).
+> Einstieg jeder Session: **docs/PROJEKTSTAND.md** · Pipeline-Cron: **samstags 06:10** (Cron `79229dc1690d`).
+>
+> **V59/V59.1 (09.10.):** SEO-Basics live (robots.txt, sitemap.xml, datenschutz.html, Meta-Tags) und
+> wind-pv-map.de **komplett eigenständig** — alle ingenieur-tools.de-Verweise entfernt; Impressum +
+> Datenschutz nur noch lokal (impressum.html / datenschutz.html). GSC-Domain-Property via TXT verifiziert,
+> Sitemap bei Google + Bing eingereicht. V59.1-Live-Checks 9/9 grün (0 × ingenieur-tools auf Produktion).
 
 ## Architektur (Ist-Stand seit 20.09.2026 Abend)
 

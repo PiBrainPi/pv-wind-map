@@ -1,14 +1,17 @@
 # Hosting — PV & Wind Karte (MaStR)
 
-> **Stand: 2026-09-20 (V53)** — Das Projekt ist **live auf Vercel** unter der Haupt-URL
+> **Stand: 2026-10-09 (V59.1)** — Das Projekt ist **live auf Vercel** unter der Haupt-URL
 > `https://wind-pv-map.de`. Details & alle Schritte: **[docs/DEPLOYMENT.md](DEPLOYMENT.md)**.
 > Diese Datei fasst die Auslieferungsformen zusammen und dokumentiert den
 > **Self-Hosting-Fallback**.
 
-## Live-Status (Ist-Stand 20.09.2026, V53)
+## Live-Status (Ist-Stand 09.10.2026, V59.1)
 
-- **Karte:** `https://wind-pv-map.de/` — **Vercel**, HTTPS ✅ (LE bis 19.12.2026), Live-Revision **V53**
-  (DSGVO-Konsolidierung, DS-Modal mit Querverweis auf zentrale Portal-DS).
+- **Karte:** `https://wind-pv-map.de/` — **Vercel**, HTTPS ✅ (LE bis 19.12.2026), Live-Revision **V59.1**
+  (SEO-Basics + Rechtsseiten vollständig eigenständig: impressum.html/datenschutz.html lokal,
+  robots.txt + sitemap.xml, 0 × ingenieur-tools-Verweise).
+- **SEO:** GSC-Domain-Property (TXT-Verifikation via netcup-DNS), Sitemap bei Google + Bing eingereicht,
+  Indexierung beantragt (09.10.).
 - **Portal:** `https://ingenieur-tools.de/` — V53 (DS-§4 netcup, §6 4 Keys, Impressum o. GitHub).
 - **Sun Tracker:** `https://sonne.ingenieur-tools.de/` — **V05** (DSGVO Vercel-Hosting-Block).
 - **Galton Board:** `https://galton-board.ingenieur-tools.de/` — **V13** DE/EN (Vercel-Hosting-Block).
