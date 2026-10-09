@@ -13,9 +13,10 @@
 > `docs/SEO_V59_VERIFIKATION_25PUNKTE.md`). **SEO-Onboarding Betreiber ✅:** Google
 > Search Console (Domain via TXT verifiziert, Sitemap eingereicht, Indexierung für
 > 3 URLs beantragt) + Bing Webmaster (Import + Sitemap) — 09.10. abgeschlossen.
-> **V59.1 lokal fertig, wartet auf Freigabe/Deploy:** alle 6 ingenieur-tools.de-Verweise
-> entfernt (Impressum/DS/DS-Modal → komplett eigenständig für wind-pv-map.de, 0 Verweise
-> verifiziert, 17/17 + 11/11 grün) — URLs/SEO unverändert.
+> **V59.1 LIVE (Deploy 09.10., Commit `6358364`):** alle 6 ingenieur-tools.de-Verweise
+> entfernt (Impressum/DS/DS-Modal → komplett eigenständig für wind-pv-map.de) —
+> Live-Verifikation 9/9 (0 × ingenieur-tools auf allen 3 Seiten, V59.1-Marker live,
+> Karte lädt 31033 W/22563 PV, 0 JS-Errors). URLs/SEO unverändert.
 > Nächster Pipeline-Cron 10.10. 06:10 — V59-Dateien im build_all.sh enthalten
 > (cron_finalize baut+verifiziert automatisch, deployed nie selbst).
 
@@ -65,7 +66,7 @@ bis ~2 Wochen; erste Performance-Daten ab ~1–2 Wochen (Search Console „Leist
   Aktivierung + User-Klick)
 - Content-Fläche (Statistik-/Erklärseiten) als möglicher künftiger SEO-Auftrag
 
-## V59.1 — Rechtsseiten vollständig eigenständig (09.10.2026, wartet auf Freigabe/Deploy)
+## V59.1 — Rechtsseiten vollständig eigenständig (09.10.2026, LIVE nach Freigabe)
 
 **Auftrag:** Alle Verweise auf `ingenieur-tools.de` entfernen — wind-pv-map.de und
 ingenieur-tools.de sind eigenständige Projekte; historisch war die Karte eine
