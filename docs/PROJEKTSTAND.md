@@ -17,7 +17,7 @@
 > entfernt (Impressum/DS/DS-Modal → komplett eigenständig für wind-pv-map.de) —
 > Live-Verifikation 9/9 (0 × ingenieur-tools auf allen 3 Seiten, V59.1-Marker live,
 > Karte lädt 31033 W/22563 PV, 0 JS-Errors). URLs/SEO unverändert.
-> **V60 og:image LIVE (Deploy 09.10., Commit `9c73863`):** Social-Preview-Bild
+> **V60 og:image LIVE (Deploy 09.10., Commit `480e25e`):** Social-Preview-Bild
 > og-image.jpg (1200×630, 26,7 KB) auf allen 3 Seiten + Twitter-Card
 > (summary_large_image). build_all.sh kopiert og-image.jpg nach dist/.
 > Live: og:image 200 image/jpeg · alle 3 Seiten mit og:image · Sitemap/robots unverändert.
@@ -30,7 +30,7 @@
 **Auslöser:** Betreiber lieferte Logo (Kreis halbiert: Windturbine / Sonne+PV-Panel,
 „wind-pv-map.de"). Plan `docs/SEO_V60_OG_IMAGE_25PUNKTE_PLAN.md`, alle 25 Punkte ✅.
 
-**Umsetzung (Commit `9c73863`):**
+**Umsetzung (Commit `480e25e`):**
 - **NEU `src/og-image.jpg`:** 1200×630 px, JPEG, 26.683 B (< 300 KB-Ziel ✅)
 - Meta-Block (og:image + url/secure_url/type/width/height/alt) in **allen 3 Seiten**
   (index/impressum/datenschutz.html), alt: „Logo wind-pv-map.de: Windkraft und
