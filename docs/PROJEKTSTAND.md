@@ -1,22 +1,27 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-10-09 (**V59 — SEO-Basics lokal umgesetzt, wartet auf User-Freigabe**)
+> Stand: 2026-10-09 (**V59 — SEO-Basics LIVE auf wind-pv-map.de**)
 > · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
-> **Kurz-Status:** LIVE = unverändert V58 (Datenstand 03.10., Snapshot #19). V59
-> (robots.txt + sitemap.xml + SEO-Metas + neue datenschutz.html) ist **lokal committed
-> (`07da90c`), NICHT deployed, NICHT gepusht** — Deploy erst nach User-Freigabe
-> (Auftrag 100-Punkte-Plan: `docs/SEO_V59_100PUNKTE_PLAN.md`). Nächster Pipeline-Cron
-> 10.10. 06:10 — **Achtung: Cron baut dist/ neu; V59-Dateien sind im build_all.sh
-> enthalten, kein Konflikt. Kein Auto-Deploy durch Cron.**
+> **Kurz-Status:** LIVE = V58-Datenstand (03.10., Snapshot #19) + **V59 SEO-Basics**
+> (Deploy 09.10., Commit `4831428` gepusht): robots.txt 200 text/plain ·
+> sitemap.xml 200 application/xml (3 URLs) · Startseite/Impressum/Datenschutz mit
+> Title/Description/Canonical/OG (+ JSON-LD auf Startseite) · datenschutz.html neu ·
+> `#`-Modal-Links → echte Routen · Live-Checks Phase D **alle grün** (78–86,
+> Playwright 10/10, 0 JS-Errors). Auftrag 100-Punkte-Plan **abgeschlossen**
+> (`docs/SEO_V59_100PUNKTE_PLAN.md` Phase A–E ✅, Verifikation 25/25
+> `docs/SEO_V59_VERIFIKATION_25PUNKTE.md`). Nächster Pipeline-Cron 10.10. 06:10 —
+> V59-Dateien im build_all.sh enthalten (cron_finalize baut+verifiziert automatisch,
+> deployed nie selbst).
 
-## V59 — SEO-Basics (09.10.2026, lokal, wartet auf Freigabe)
+## V59 — SEO-Basics (09.10.2026, LIVE nach User-Freigabe)
 
 **Auslöser:** Betreiber-Auftrag „SEO-Grundlagen für wind-pv-map.de" (100-Punkte-Plan).
-**Umsetzung (Commit `07da90c`, alles lokal getestet, KEIN Deploy):**
+**Umsetzung (Commits `07da90c` + `8f6f63f` + `4831428`, gepusht, Deploy 09.10.):**
 - **NEU `src/robots.txt`:** `User-agent: * / Allow: / / Disallow: /index_singlefile.html`
-  + Sitemap-Verweis. Kein Crawl-Delay, /assets nicht gesperrt.
+  + Sitemap-Verweis. Kein Crawl-Delay, /assets nicht gesperrt. Live: 200 text/plain.
 - **NEU `src/sitemap.xml`:** 3 URLs (/, /impressum.html, /datenschutz.html), ohne lastmod.
+  Live: 200 application/xml, 0 Duplikate, alle loc 200.
 - **NEU `src/datenschutz.html`:** echte Datenschutzseite (Inhalt = V54-DS-Modal-Stand,
   inkl. Analytics-Toggle, gleicher Key `pvw_analytics_consent`).
 - `src/index.html`: Title/Description/Canonical/OG/JSON-LD (WebSite) + statischer
@@ -26,24 +31,22 @@
 - `src/impressum.html`: Description/Canonical/OG + Link auf datenschutz.html.
 - `build_all.sh`: kopiert die 3 neuen Dateien nach dist/. `bundle_singlefile.py`:
   noindex/nofollow in die Singlefile (Doppelschutz zum robots-Disallow).
-- **Kein vercel.json** — unbekannte Pfade liefern ohnehin 404 (kein SPA-Fallback,
-  live verifiziert), SEO-Dateien werden direkt ausgeliefert.
+- **Kein vercel.json** — unbekannte Pfade liefern ohnehin 404 (kein SPA-Fallback).
 
-**Prüfkette (lokal, Playwright + curl auf dist/ via http.server):**
-- verify_app.js **17/17 grün beide Builds** (Multi-File + Singlefile, 0 JS-Errors,
-  Infobar 31.033 Wind · 22.563 PV, 11 Tabs, Historie-Charts, Heatmap, Marker).
-- SEO-Funktionscheck **9/9 grün** (Footer-Links navigieren zu impressum.html/
-  datenschutz.html, Toggle-Status AUS→AN funktional, Consent-Link ok, 0 JS-Errors).
-- robots 200 text/plain · sitemap 200 application/xml (3 loc, 0 Duplikate) ·
-  404er bleibt 404. Singlefile noindex im Build-Output bestätigt.
-- **Pitfall (dokumentiert):** beim Entfernen der Modal-Handler schloss der ersetzte
-  Block die umgebende Funktion — fehlendes `}` → SyntaxError → init tot. Gefunden
-  via node --check je Script-Block; gefixt, danach 17/17.
+**Prüfkette:** lokal verify_app 17/17 beide Builds + SEO-Funktion 9/9 + Verifikation
+25/25; live (Phase D): robots/sitemap/loc-URLs 200 mit korrekten Content-Types,
+Roh-HTML-Metas served, www 308→Apex, 404-Verhalten ok, Playwright-Live-Check
+**10/10 grün** (Karte lädt, Navigation, Toggle, Statistik, 0 JS-Errors).
+**Pitfall (dokumentiert):** beim Entfernen der Modal-Handler schloss der ersetzte
+Block die umgebende Funktion — fehlendes `}` → SyntaxError → init tot. Gefunden
+via node --check je Script-Block; gefixt, danach 17/17. (Zweites Test-Artefakt:
+Test-HTTP-Server falsch gerootet → Schein-404s, kein Produkt-Bug.)
 
 **Revision:** `iterations/V59_SEO_Basics_robots_sitemap.html` + human-share-Kopie.
-**Offen:** Deploy + git push erst nach User-Freigabe (Regel 4 + Auftrag Punkt 76);
-Phase D (Produktions-Checks 78–86) nach Freigabe; Impressum: alle Pflichtfelder
-vorhanden (keine Lücken); C18-Analytics-Aktivierung unverändert offen.
+**Impressum:** alle Pflichtfelder belegt, keine Lücken. **Alt-URL:** weiterhin tot
+(DNS 000), kein Duplicate. **Offen (Folgeaufträge, bewusst nicht im Auftrag):**
+Search-Console/Bing-Property + Sitemap-Einreichung (Betreiber-Account), og:image
+(wenn Betreiber Bild freigibt), C18 Analytics-Dashboard-Aktivierung (optional).
 
 ## V58 — Datenstand 03.10.2026 (Deploy 03.10., erster automatisierter V57-Durchlauf)
 

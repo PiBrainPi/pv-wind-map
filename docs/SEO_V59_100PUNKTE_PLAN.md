@@ -239,12 +239,75 @@ Funktionscheck 9/9.
 klickbare Revision `iterations/V59_SEO_Basics_robots_sitemap.html` (human-share).
 **WARTET AUF FREIGABE.**
 
-## D. Prüfung nach Freigabe (76–92) — OFFEN, nach User-Freigabe
-(78–86 gegen Produktion: Status/Content-Type robots+sitemap, jede loc 200,
-Roh-HTML-Checks, Redirect-Kette, 404-Verhalten, Karten-Check, Preview-noindex,
-Diff-Vergleich. Wird nach Freigabe ausgeführt und hier dokumentiert.)
+## D. Prüfung nach Freigabe (76–92) — ABGESCHLOSSEN 09.10.2026 (User-Freigabe erteilt)
 
-## E. Abschluss (93–100) — OFFEN, nach Phase D
+**76.** User-Freigabe erteilt (09.10., „Freigabe erteilt. Bitte prüfe nach dem deploy…").
+**77.** Push `85ccf74..4831428` → origin/main · Deploy `scripts/deploy_vercel.sh`
+(dist/ → Production wind-pv-map.de, Edge fra1) — Commit `4831428`.
+**78.** robots.txt live: **HTTP 200, Content-Type `text/plain; charset=utf-8`**,
+Inhalt exakt wie geplant (4 Zeilen + Sitemap-Verweis).
+**79.** sitemap.xml live: **HTTP 200, `application/xml`**, wohlgeformt, jede loc
+einmalig (3 loc, 0 Duplikate).
+**80.** Jede loc live: `/` 200 · `/impressum.html` 200 · `/datenschutz.html` 200 —
+keine Redirects auf andere Host-Varianten, Canonicals zeigen auf sich selbst.
+**81.** Startseite Roh-HTML live: Title `PV- & Windkarte Deutschland – Anlagen aus dem
+MaStR` · Description · Canonical `https://wind-pv-map.de/` · `lang="de"` ·
+Intro-Text („Über diese Karte" 1×) · og:locale de_DE · JSON-LD — alle bestätigt.
+**82.** Impressum live: Title + Canonical (impressum.html) · Datenschutz live:
+Title + Canonical (datenschutz.html) — Roh-HTML bestätigt.
+**83.** Footer-Links live: `href="impressum.html" id="impressum-link"` +
+`href="datenschutz.html" id="datenschutz-footer-link"` im served HTML —
+`#`-Anker sind nicht mehr die Ziele (Punkt-Prüfung: 0 Impressum/DS-`#`-Links).
+**84.** Redirects: www 308 → Apex (1 Hop) · trailing-slash auf impressum.html →
+200 ohne Redirect · http→https 308. Ein Ziel, keine Kette.
+**85.** Unbekannter Pfad: 404 (kein HTML-Fallback) · robots/sitemap werden direkt
+ausgeliefert (nicht als HTML verschluckt) · Singlefile noindex im served HTML.
+**86.** Karte in Produktion (Playwright live): **10/10 grün** — Infobar lädt
+(31.033 Wind · 22.563 PV), Footer→Impressum→Datenschutz-Navigation, Analytics-Toggle
+AUS→AN, Consent-Link, Statistik-Panel öffnet, 0 JS-Errors.
+**87.** Keine öffentlichen Previews erzeugt (Deploy direkt --prod).
+**88.** Produktion == freigegebener Diff: meta.stand unverändert
+`2026-10-03T06:12:33` (Datenstand V58), Lizenzzeile sichtbar, Assets unangetastet.
+**89.** Statuscodes/Content-Types dokumentiert (oben).
+**90.** Keine Fehlschläge — kein Fix nötig.
+**91.** Search-Console-URLs für den Betreiber: Sitemap
+`https://wind-pv-map.de/sitemap.xml` · Prüf-URL `https://wind-pv-map.de/robots.txt`
+(Google Search Console + Bing Webmaster — Einreichung durch Betreiber, nicht durch Agent).
+**92.** ✅ **Auftrag abgeschlossen** — 78–86 ohne offenen Fehler belegt.
+
+## E. Abschluss (93–100) — ABGESCHLOSSEN 09.10.2026
+
+**93. Abschlussbericht:**
+- **Live:** robots.txt + sitemap.xml (200, korrekte Content-Types) · Startseite mit
+  Title/Description/Canonical/OG/JSON-LD/h1+Intro · impressum.html + datenschutz.html
+  als echte indexierbare Seiten (eigene Metas) · alle `#`-Modal-Links auf echte Routen
+  umgebogen · Singlefile noindex.
+- **URL:** https://wind-pv-map.de (Vercel Production, Edge fra1, Deploy 09.10.2026).
+- **Commit:** `4831428` (Head, gepusht); V59-Umfang in `07da90c` + `8f6f63f`.
+- **Lücken beim Betreiber:** keine Impressums-Lücken (alle Pflichtfelder belegt).
+  Optionaler Folgeentscheid: Vercel Analytics im Dashboard aktivieren (C18) —
+  Toggle ist live, wirkt erst nach Aktivierung + User-Klick.
+- **25-Punkte-Verifikation:** 25/25 ✅ (`docs/SEO_V59_VERIFIKATION_25PUNKTE.md`).
+**94.** 100 Punkte: Phase A 1–25 ✅ · Phase B 26–45 ✅ · Phase C 46–75 ✅ (72: Commit
+lokal, Push erst nach Freigabe) · Phase D 76–92 ✅ · Phase E 93–100 ✅ —
+**0 offen, 0 entfallen** (Punkt 87 = keine Previews erzeugt, erfüllt durch Nicht-Tun).
+**95. Folgearbeiten (bewusst NICHT in diesem Auftrag, Vorschläge):**
+- Search-Console-Property einrichten + Sitemap einreichen (Betreiber-Account nötig)
+- Bing Webmaster IndexNow/Sitemap-Einreichung (Betreiber)
+- Regelmäßige Statistik-/Erklärseiten als Content-Fläche (neuer Auftrag)
+- Backlink-/Bekanntmachungsarbeit (neuer Auftrag)
+- og:image-Social-Preview-Grafik (wenn Betreiber ein Bild freigibt)
+**96.** Zweite Domain: `wind-pv-map.ingenieur-tools.de` bleibt stillgelegt
+(DNS 000 verifiziert) — kein Duplicate. GitHub-Pages-Archiv bleibt als Notfallebene,
+Canonicals decken es ab. Kein Redirect nötig.
+**97.** Fehlende Impressumsfelder: keine (Name/Anschrift/E-Mail vollständig;
+Register/USt entfallen bei Einzelperson — Hinweis, kein Rechtsrat).
+**98.** Keine weiteren Commits nach diesem Bericht (Fixes nur nach erneuter Freigabe).
+**99.** Übergabe: dieser Bericht + Plandoku + Verifikationsplan im Repo (`docs/`),
+klickbare Revision `iterations/V59_SEO_Basics_robots_sitemap.html` (human-share) —
+Betreiber kann Robots/Sitemap/Startseite selbst unter den Live-URLs nachprüfen.
+**100. ✅ AUFGABE BEENDET** — Produktion liefert die freigegebenen Dateien aus
+(Statuscodes oben belegt).
 
 ## Fehlende Impressumsfelder (Punkt 15/97)
 **Keine Lücken:** Name, Anschrift (Jüthornstraße 50, 22043 Hamburg), E-Mail
