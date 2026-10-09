@@ -5,7 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="robots" content="index, follow">
-<title>PV & Wind Karte – MaStR Deutschland</title>
+<title>PV- &amp; Windkarte Deutschland – Anlagen aus dem MaStR</title>
+<meta name="description" content="Interaktive Karte aller Windkraftanlagen (≥ 100 kW) und Photovoltaikanlagen (≥ 0,5 MWp) aus dem Marktstammdatenregister (MaStR) der Bundesnetzagentur – mit Statistiken, Anlagenliste und Netzanschlusspunkt-Auswertung.">
+<link rel="canonical" href="https://wind-pv-map.de/">
+<meta property="og:title" content="PV- &amp; Windkarte Deutschland – Anlagen aus dem MaStR">
+<meta property="og:description" content="Interaktive Karte aller Windkraftanlagen (≥ 100 kW) und Photovoltaikanlagen (≥ 0,5 MWp) aus dem Marktstammdatenregister (MaStR) der Bundesnetzagentur – mit Statistiken, Anlagenliste und Netzanschlusspunkt-Auswertung.">
+<meta property="og:url" content="https://wind-pv-map.de/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="de_DE">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "PV- & Windkarte Deutschland (MaStR)",
+  "url": "https://wind-pv-map.de/",
+  "description": "Interaktive Karte aller Windkraftanlagen (ab 100 kW) und Photovoltaikanlagen (ab 0,5 MWp) aus dem Marktstammdatenregister der Bundesnetzagentur, mit Statistiken, Anlagenliste und Netzanschlusspunkt-Auswertung.",
+  "inLanguage": "de"
+}
+</script>
 <!-- Leaflet + MarkerCluster (lokal eingebettet, kein externes CDN — DSGVO Punkt 11) -->
 <style>/* required styles */
 
@@ -1650,7 +1667,11 @@ body.toolbar-hidden #toolbar { display:none; }
   <span id="disclaimer-label">Hinweis</span>
 </div>
 <div id="disclaimer-panel" onmouseenter="this.classList.add('open')" onmouseleave="this.classList.remove('open')">
-  <h3>⚠ Hinweise zu den Daten</h3>
+  <h3 style="margin-bottom:2px;">⚠ Hinweise zu den Daten</h3>
+  <!-- V59: statischer SEO-Einführungstext (ohne JavaScript lesbar, aufklappbares Panel — kein versteckter Text) -->
+  <h1 style="font-size:17px;margin:4px 0 6px;color:#111827;">PV- &amp; Windkarte Deutschland – Anlagen aus dem Marktstammdatenregister</h1>
+  <p><strong>Über diese Karte.</strong> Diese Karte zeigt <strong>Windkraftanlagen ab 100&nbsp;kW</strong> und <strong>Photovoltaikanlagen ab 0,5&nbsp;MWp</strong> aus dem <a href="https://www.marktstammdatenregister.de" target="_blank" rel="noopener noreferrer">Marktstammdatenregister (MaStR)</a> der Bundesnetzagentur – mit Detailangaben je Anlage, Statistiken, Anlagenliste und Netzanschlusspunkt-Auswertung. Das Projekt ist nicht-kommerziell; die Daten stehen unter der <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener noreferrer">Datenlizenz Deutschland – Namensnennung – Version 2.0</a>. Details: <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a>.</p>
+  <h3 style="margin-top:10px;">⚠ Hinweise zu den Daten</h3>
   <p><strong>Datenquelle & Qualität.</strong> Die Daten stammen aus dem Marktstammdatenregister (MaStR) der Bundesnetzagentur. Das MaStR ist das offizielle Register für Stromerzeugungsanlagen in Deutschland — registriert werden Anlagen, die an ein deutsches Stromnetz angeschlossen sind. Die Datenqualität ist bekanntermaßen lückenhaft: Die Bundesnetzagentur selbst bestätigt, dass nur etwa die Hälfte der Einträge geprüft wurde und Duplikate sowie fehlerhafte Angaben (z.&nbsp;B. Verwechslung von kW und MW bei der Bruttoleistung) vorkommen, insbesondere bei älteren Anlagen.</p>
   <p><strong>Eigene Bereinigung.</strong> Wir haben eine mehrstufige Plausibilitätsprüfung angewandt: Windanlagen mit unrealistischen Leistungsangaben (15–80&thinsp;MW Einzel-WEA) wurden anhand der Typenbezeichnung als Kilowatt-Werte erkannt und korrigiert. Echte 15-MW-Anlagen (Vestas V236) bleiben unangetastet.</p>
   <p><strong>Leistungsschwellen.</strong> Um die Datenmenge beherrschbar zu halten, sind nur Anlagen ab einer bestimmten Leistung enthalten: Wind ≥&thinsp;100&thinsp;kW (0,1&thinsp;MW), PV ≥&thinsp;0,5&thinsp;MWp. Kleine Dach-PV-Anlagen und Kleinwindturbinen sind nicht erfasst — die Gesamtzahlen (Anzahl, Leistung) sind daher geringer als der reale Bestand in Deutschland.</p>
@@ -1670,7 +1691,7 @@ body.toolbar-hidden #toolbar { display:none; }
     <button type="button" id="tc-later" class="tc-btn">Später</button>
     <button type="button" id="tc-accept" class="tc-btn primary">Karte aktivieren</button>
   </div>
-  <p class="tc-note">Details: <a href="#" id="datenschutz-consent-link">Datenschutzerklärung</a></p>
+  <p class="tc-note">Details: <a href="datenschutz.html" id="datenschutz-consent-link">Datenschutzerklärung</a></p>
 </div>
 <div id="tile-hint" style="display:none;">
   <button type="button" id="tc-hint-accept">🗺 Karte aktivieren</button>
@@ -2327,7 +2348,7 @@ body.toolbar-hidden #toolbar { display:none; }
 
 <div id="attribution">
   <span class="attr-line">Datenquelle: Marktstammdatenregister der Bundesnetzagentur · <em>Daten bearbeitet</em></span>
-  <span class="attr-line">Lizenz: <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener noreferrer">Datenlizenz Deutschland – Namensnennung – Version 2.0</a> · <a href="#" id="impressum-link" rel="noopener noreferrer">Impressum</a> · <a href="#" id="datenschutz-footer-link" rel="noopener noreferrer">Datenschutz</a> · <span id="filter-attribution">Fabian Bussenius</span></span>
+  <span class="attr-line">Lizenz: <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener noreferrer">Datenlizenz Deutschland – Namensnennung – Version 2.0</a> · <a href="impressum.html" id="impressum-link">Impressum</a> · <a href="datenschutz.html" id="datenschutz-footer-link">Datenschutz</a> · <span id="filter-attribution">Fabian Bussenius</span></span>
 </div>
 
 <!-- Impressum-Modal (rechtssicher, funktioniert auch ab file://) -->
@@ -2355,7 +2376,7 @@ body.toolbar-hidden #toolbar { display:none; }
     <div class="modal-section">
       <h3>Datenschutz</h3>
       <p>Informationen zur Verarbeitung personenbezogener Daten finden Sie in der
-      <a href="#" id="datenschutz-link" rel="noopener noreferrer">Datenschutzerklärung</a>.</p>
+      <a href="datenschutz.html" id="datenschutz-link">Datenschutzerklärung</a>.</p>
     </div>
   </div>
 </div>
@@ -2404,11 +2425,9 @@ body.toolbar-hidden #toolbar { display:none; }
       </ul>
       <p>Die Einträge bleiben bis zur Löschung des Browserspeichers bestehen. Sie können den Browserspeicher jederzeit über die Einstellungen Ihres Browsers einsehen und löschen.</p>
       <p style="margin-top:10px;border-top:1px solid #e5e7eb;padding-top:10px;"><strong>Reichweitenmessung (Vercel Web Analytics) — optional, nur nach Ihrer Einwilligung:</strong></p>
-      <p>Sie können uns erlauben, <strong>anonymisierte Besuchsstatistiken</strong> zu erheben (Vercel Web Analytics). Bei Aktivierung werden übermittelt: aufgerufene URL, Referrer, grobe Geolocation (Stadt-/Länderebene), Betriebssystem, Browsertyp/-version und Gerätetyp, jeweils zusammengefasst als aggregierte Statistik; <strong>keine Cookies, kein Cross-Site-Tracking</strong>; ein Session-Hash wird nach spätestens 24&nbsp;Stunden verworfen (Herstellerangabe: <a href="https://vercel.com/docs/analytics/privacy-policy" target="_blank" rel="noopener noreferrer">vercel.com/docs/analytics/privacy-policy</a>). Rechtsgrundlage ist Ihre <strong>Einwilligung</strong> (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;a DSGVO); die Übermittlung an Vercel Inc. (USA, DPF-zertifiziert) erfolgt ebenfalls auf Grundlage Ihrer Einwilligung (Art.&nbsp;49 Abs.&nbsp;1 lit.&nbsp;a DSGVO). Die Statistik ist <strong>optional</strong> — alle Funktionen der Karte funktionieren auch ohne Aktivierung vollständig. Sie können Ihre Einwilligung <strong>jederzeit mit Wirkung für die Zukunft widerrufen</strong> (Art.&nbsp;7 Abs.&nbsp;3 DSGVO), indem Sie den Schalter unten erneut umstellen.</p>
-      <div style="display:flex;align-items:center;gap:12px;margin:10px 0 4px;">
-        <button type="button" id="pvw-analytics-toggle" class="tc-btn" style="min-width:220px;">Besuchsstatistik: <strong id="pvw-analytics-state">–</strong></button>
-      </div>
-      <p style="font-size:12px;color:#6b7280;">Status wird im Browserspeicher („pvw_analytics_consent") gespeichert (§&nbsp;25 Abs.&nbsp;2 Nr.&nbsp;2 TDDDG), bis Sie ihn hier ändern. Keine Ausrichtung auf Kinder und Jugendliche.</p>
+      <!-- V59: Toggle auf die Datenschutzseite (datenschutz.html) verlagert -->
+      <p>Sie können uns erlauben, <strong>anonymisierte Besuchsstatistiken</strong> zu erheben (Vercel Web Analytics). Bei Aktivierung werden übermittelt: aufgerufene URL, Referrer, grobe Geolocation (Stadt-/Länderebene), Betriebssystem, Browsertyp/-version und Gerätetyp, jeweils zusammengefasst als aggregierte Statistik; <strong>keine Cookies, kein Cross-Site-Tracking</strong>; ein Session-Hash wird nach spätestens 24&nbsp;Stunden verworfen (Herstellerangabe: <a href="https://vercel.com/docs/analytics/privacy-policy" target="_blank" rel="noopener noreferrer">vercel.com/docs/analytics/privacy-policy</a>). Rechtsgrundlage ist Ihre <strong>Einwilligung</strong> (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;a DSGVO); die Übermittlung an Vercel Inc. (USA, DPF-zertifiziert) erfolgt ebenfalls auf Grundlage Ihrer Einwilligung (Art.&nbsp;49 Abs.&nbsp;1 lit.&nbsp;a DSGVO). Die Statistik ist <strong>optional</strong> — alle Funktionen der Karte funktionieren auch ohne Aktivierung vollständig. Sie können Ihre Einwilligung <strong>jederzeit mit Wirkung für die Zukunft widerrufen</strong> (Art.&nbsp;7 Abs.&nbsp;3 DSGVO) über den Schalter auf der <a href="datenschutz.html">Datenschutzseite</a>.</p>
+      <p style="font-size:12px;color:#6b7280;">Status wird im Browserspeicher („pvw_analytics_consent") gespeichert (§&nbsp;25 Abs.&nbsp;2 Nr.&nbsp;2 TDDDG), bis Sie ihn ändern. Keine Ausrichtung auf Kinder und Jugendliche.</p>
     </div>
 
     <div class="modal-section">
@@ -2506,12 +2525,8 @@ async function init() {
     if (h) h.style.display = 'none';
     showConsent();
   });
-  var dsl = document.getElementById('datenschutz-consent-link');
-  if (dsl) dsl.addEventListener('click', function (e) {
-    e.preventDefault();
-    var m = document.getElementById('datenschutz-modal');
-    if (m) m.classList.add('open');
-  });
+  // V59: datenschutz-consent-link zeigt auf datenschutz.html — kein preventDefault mehr,
+  // direkte Navigation zur echten Datenschutzseite.
   var consented = false;
   try { consented = localStorage.getItem('pvw_tiles_consent') === 'yes'; } catch (e) {}
   if (consented) { enableTiles(); } else { showConsent(); }
@@ -2712,26 +2727,13 @@ async function init() {
     if (!e.target.closest('#search-wrapper')) closeSuggest();
   });
 
-  // Impressum-Modal
-  const modal = document.getElementById('impressum-modal');
-  function openModal() { modal.classList.add('open'); }
-  function closeModal() { modal.classList.remove('open'); }
-  document.getElementById('impressum-link').addEventListener('click', (e) => { e.preventDefault(); openModal(); });
-  document.getElementById('impressum-close').addEventListener('click', closeModal);
-  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  // V59: Impressum/Datenschutz sind jetzt eigene Seiten (impressum.html/datenschutz.html) —
+  // die Links navigieren direkt. Keine preventDefault-Handler mehr nötig: die Link-IDs
+  // bleiben erhalten (href zeigt auf die echten Seiten, kein Modal-Verkabelung).
   document.addEventListener('keydown', (e) => {
     // V33 (WP2): ESC schließt auch das Statistik-Panel
-    if (e.key === 'Escape') { closeModal(); closeDS(); closeHistDetail(); closeStats(); }
+    if (e.key === 'Escape') { closeHistDetail(); closeStats(); }
   });
-
-  // Datenschutz-Modal
-  const dsModal = document.getElementById('datenschutz-modal');
-  function openDS() { dsModal.classList.add('open'); }
-  function closeDS() { dsModal.classList.remove('open'); }
-  document.getElementById('datenschutz-link').addEventListener('click', (e) => { e.preventDefault(); openDS(); });
-  document.getElementById('datenschutz-footer-link').addEventListener('click', (e) => { e.preventDefault(); openDS(); });
-  document.getElementById('datenschutz-close').addEventListener('click', closeDS);
-  dsModal.addEventListener('click', (e) => { if (e.target === dsModal) closeDS(); });
 }
 
 // Suchfeld leeren -> alle Anlagen wieder anzeigen
@@ -7652,7 +7654,10 @@ function runBetroffenheitsanalyse() {
 
 <script>
 /* V54 — Vercel Web Analytics: NUR nach ausdrücklicher Einwilligung (Art. 6 Abs. 1 lit. a +
-   Art. 49 Abs. 1 lit. a DSGVO). Kein Request vor Klick: Script wird dynamisch injiziert. */
+   Art. 49 Abs. 1 lit. a DSGVO). Kein Request vor Klick: Script wird dynamisch injiziert.
+   V59: Der Einwilligungs-Toggle lebt jetzt auf datenschutz.html — hier im Karten-Code
+   bleibt nur die Inject-Logik bei bereits erteilter Einwilligung (kein UI-Element mehr
+   im DS-Modal). */
 (function () {
   'use strict';
   var KEY = 'pvw_analytics_consent';

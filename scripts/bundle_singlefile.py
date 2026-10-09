@@ -58,6 +58,14 @@ def main() -> None:
         naprank_js = "window.__PVWIND_NAP_RANKING__ = null;"
 
     injection = f"<script>\n{data_js}\n{meta_js}\n{stats_js}\n{hist_js}\n{nap_js}\n{naprank_js}\n</script>\n"
+    # V59: Singlefile bekommt noindex — sie ist ein 1:1-Doppel der Startseite (Datei für
+    # file://-Nutzung) und darf nicht als eigene Indexierungs-URL auftauchen; robots.txt
+    # disallowt sie zusätzlich (Doppelschutz für verlinkte Fundstellen).
+    noindex_meta = '<meta name="robots" content="noindex, nofollow">\n'
+    src = src.replace('<meta name="robots" content="index, follow">\n', '<meta name="robots" content="noindex, nofollow">\n', 1)
+    if noindex_meta not in src:
+        # Fallback falls das oberste robots-Meta nicht gefunden wurde
+        src = src.replace('<head>\n', '<head>\n' + noindex_meta, 1)
     # Daten-Skript VOR dem Haupt-App-Script einfügen (sonst ist window.__PVWIND_DATA__
     # beim init()-Aufruf noch nicht definiert). Anker: CSS-Block der App.
     anchor = "<style>\n* { margin:0;"

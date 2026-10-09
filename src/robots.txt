@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /index_singlefile.html
+
+Sitemap: https://wind-pv-map.de/sitemap.xml

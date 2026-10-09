@@ -13,6 +13,9 @@ python3 scripts/export_app.py
 echo "➜ 3/4 HTML → dist..."
 cp src/index.html dist/index.html
 cp src/impressum.html dist/impressum.html
+cp src/datenschutz.html dist/datenschutz.html
+cp src/robots.txt dist/robots.txt
+cp src/sitemap.xml dist/sitemap.xml
 
 echo "➜ 4/4 Single-File-Bundle..."
 python3 scripts/bundle_singlefile.py
