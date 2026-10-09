@@ -10,9 +10,11 @@
 > `#`-Modal-Links → echte Routen · Live-Checks Phase D **alle grün** (78–86,
 > Playwright 10/10, 0 JS-Errors). Auftrag 100-Punkte-Plan **abgeschlossen**
 > (`docs/SEO_V59_100PUNKTE_PLAN.md` Phase A–E ✅, Verifikation 25/25
-> `docs/SEO_V59_VERIFIKATION_25PUNKTE.md`). Nächster Pipeline-Cron 10.10. 06:10 —
-> V59-Dateien im build_all.sh enthalten (cron_finalize baut+verifiziert automatisch,
-> deployed nie selbst).
+> `docs/SEO_V59_VERIFIKATION_25PUNKTE.md`). **SEO-Onboarding Betreiber ✅:** Google
+> Search Console (Domain via TXT verifiziert, Sitemap eingereicht, Indexierung für
+> 3 URLs beantragt) + Bing Webmaster (Import + Sitemap) — 09.10. abgeschlossen.
+> Nächster Pipeline-Cron 10.10. 06:10 — V59-Dateien im build_all.sh enthalten
+> (cron_finalize baut+verifiziert automatisch, deployed nie selbst).
 
 ## V59 — SEO-Basics (09.10.2026, LIVE nach User-Freigabe)
 
@@ -44,9 +46,21 @@ Test-HTTP-Server falsch gerootet → Schein-404s, kein Produkt-Bug.)
 
 **Revision:** `iterations/V59_SEO_Basics_robots_sitemap.html` + human-share-Kopie.
 **Impressum:** alle Pflichtfelder belegt, keine Lücken. **Alt-URL:** weiterhin tot
-(DNS 000), kein Duplicate. **Offen (Folgeaufträge, bewusst nicht im Auftrag):**
-Search-Console/Bing-Property + Sitemap-Einreichung (Betreiber-Account), og:image
-(wenn Betreiber Bild freigibt), C18 Analytics-Dashboard-Aktivierung (optional).
+(DNS 000), kein Duplicate.
+
+**SEO-Betreiber-Onboarding (09.10., ABGESCHLOSSEN — betriebenerseits erledigt):**
+Google Search Console: Domain-Property verifiziert via TXT
+(`google-site-verification=A6ZBZWbhpr-…`, live auf allen netcup-NS geprüft);
+Sitemap `https://wind-pv-map.de/sitemap.xml` eingereicht; URL-Prüfung + „Indexierung
+beantragen" für /, /impressum.html, /datenschutz.html durchgeführt. Bing Webmaster:
+Import aus Search Console + Sitemap eingereicht. **Erwartung:** Indexierung in Tagen
+bis ~2 Wochen; erste Performance-Daten ab ~1–2 Wochen (Search Console „Leistung").
+
+**Offen (optionale Folgepunkte, keine Pflicht):**
+- og:image: Social-Preview-Grafik (wartet auf Bild-Freigabe des Betreibers)
+- C18: Vercel Analytics im Dashboard aktivieren (Toggle ist live, wirkt erst nach
+  Aktivierung + User-Klick)
+- Content-Fläche (Statistik-/Erklärseiten) als möglicher künftiger SEO-Auftrag
 
 ## V58 — Datenstand 03.10.2026 (Deploy 03.10., erster automatisierter V57-Durchlauf)
 

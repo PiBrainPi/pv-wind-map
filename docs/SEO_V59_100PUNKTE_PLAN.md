@@ -291,12 +291,14 @@ AUS→AN, Consent-Link, Statistik-Panel öffnet, 0 JS-Errors.
 **94.** 100 Punkte: Phase A 1–25 ✅ · Phase B 26–45 ✅ · Phase C 46–75 ✅ (72: Commit
 lokal, Push erst nach Freigabe) · Phase D 76–92 ✅ · Phase E 93–100 ✅ —
 **0 offen, 0 entfallen** (Punkt 87 = keine Previews erzeugt, erfüllt durch Nicht-Tun).
-**95. Folgearbeiten (bewusst NICHT in diesem Auftrag, Vorschläge):**
-- Search-Console-Property einrichten + Sitemap einreichen (Betreiber-Account nötig)
-- Bing Webmaster IndexNow/Sitemap-Einreichung (Betreiber)
-- Regelmäßige Statistik-/Erklärseiten als Content-Fläche (neuer Auftrag)
-- Backlink-/Bekanntmachungsarbeit (neuer Auftrag)
-- og:image-Social-Preview-Grafik (wenn Betreiber ein Bild freigibt)
+**95. Folgearbeiten — Stand 09.10. (abends):**
+- ✅ Search-Console-Property + Sitemap-Einreichung — ERLEDIGT (Betreiber, 09.10.,
+  Domain-TXT-Verifikation durch Agent per DNS bestätigt)
+- ✅ Bing Webmaster-Import + Sitemap — ERLEDIGT (Betreiber, 09.10.)
+- ⬜ og:image-Social-Preview-Grafik (wenn Betreiber ein Bild freigibt)
+- ⬜ Vercel Analytics im Dashboard aktivieren (C18, optional)
+- ⬜ Content-Seiten (Statistik-/Erklärseiten als Content-Fläche) — potenzieller
+  künftiger Auftrag, bewusst nicht Teil dieses Auftrags
 **96.** Zweite Domain: `wind-pv-map.ingenieur-tools.de` bleibt stillgelegt
 (DNS 000 verifiziert) — kein Duplicate. GitHub-Pages-Archiv bleibt als Notfallebene,
 Canonicals decken es ab. Kein Redirect nötig.
@@ -322,7 +324,15 @@ steht im Recherchebericht, Hinweis ohne Rechtsrat).
 bestehen (Projektentscheidung V52.2); Canonicals auf `https://wind-pv-map.de`
 verhindern eine Fehleinordnung. Kein Redirect nötig, keine Aktion.
 
-## Search Console (Punkt 91/95, Folgeauftrag)
-Nach Freigabe kann der Betreiber selbst einreichen:
-- Sitemap: `https://wind-pv-map.de/sitemap.xml` (Google Search Console + Bing Webmaster)
-- Robots: `https://wind-pv-map.de/robots.txt` (Prüf-URL beider Tools)
+## Search Console (Punkt 91/95) — ABGESCHLOSSEN 09.10.2026 (Betreiber)
+
+Vom Betreiber durchgeführt und vom Agenten per DNS verifiziert:
+- **Google Search Console:** Domain-Property `wind-pv-map.de` via TXT-Record
+  verifiziert (`google-site-verification=A6ZBZWbhpr-ZuLZ5uTi4k6hV…`, Agent-Check:
+  Record auf allen netcup-Nameservern live); Sitemap eingereicht; URL-Prüfung +
+  „Indexierung beantragen" für `/`, `/impressum.html`, `/datenschutz.html`.
+- **Bing Webmaster Tools:** Import aus Google Search Console + Sitemap eingereicht.
+- **Erwartung:** Indexierung in Tagen bis ~2 Wochen; erste Impressions-/Klickdaten
+  in Search Console „Leistung" ab ~1–2 Wochen.
+- Verbleibende optionale Punkte: og:image (wartet auf Bild des Betreibers),
+  Vercel-Analytics-Aktivierung im Dashboard (C18).
