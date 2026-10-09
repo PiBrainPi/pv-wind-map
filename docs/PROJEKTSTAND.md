@@ -1,13 +1,49 @@
 # Projektstand (Handover) — PV & Wind Karte (MaStR)
 
 > **Dieses Dokument dient als Einstieg für jede neue Agenten-/Arbeitssession.**
-> Stand: 2026-10-03 (**V58 — Datenstand 03.10. LIVE auf wind-pv-map.de**)
+> Stand: 2026-10-09 (**V59 — SEO-Basics lokal umgesetzt, wartet auf User-Freigabe**)
 > · Repo: `/home/claw_01_rasbpi5_1/Projects/pv-wind-map`
-> **Kurz-Status:** LIVE = Build auf Datenstand 2026-10-03 (Snapshot #19, SHA-verified
-> served==lokal alle 4 Assets: index `1e8c3582…` · einheiten.json `5d7b0ab3…`) ·
-> Pipeline-Lauf 03.10. 06:10 ok — ERSTER VOLL-AUTOMATISCHER Lauf inkl. V57-Finalisierung
-> (Verify 17/17 Versuch 1, Revision V58 automatisch angelegt) · User-Freigabe erteilt →
-> Deploy 03.10. ~09:50 verifiziert · Nächster Pipeline-Cron 10.10. 06:10
+> **Kurz-Status:** LIVE = unverändert V58 (Datenstand 03.10., Snapshot #19). V59
+> (robots.txt + sitemap.xml + SEO-Metas + neue datenschutz.html) ist **lokal committed
+> (`07da90c`), NICHT deployed, NICHT gepusht** — Deploy erst nach User-Freigabe
+> (Auftrag 100-Punkte-Plan: `docs/SEO_V59_100PUNKTE_PLAN.md`). Nächster Pipeline-Cron
+> 10.10. 06:10 — **Achtung: Cron baut dist/ neu; V59-Dateien sind im build_all.sh
+> enthalten, kein Konflikt. Kein Auto-Deploy durch Cron.**
+
+## V59 — SEO-Basics (09.10.2026, lokal, wartet auf Freigabe)
+
+**Auslöser:** Betreiber-Auftrag „SEO-Grundlagen für wind-pv-map.de" (100-Punkte-Plan).
+**Umsetzung (Commit `07da90c`, alles lokal getestet, KEIN Deploy):**
+- **NEU `src/robots.txt`:** `User-agent: * / Allow: / / Disallow: /index_singlefile.html`
+  + Sitemap-Verweis. Kein Crawl-Delay, /assets nicht gesperrt.
+- **NEU `src/sitemap.xml`:** 3 URLs (/, /impressum.html, /datenschutz.html), ohne lastmod.
+- **NEU `src/datenschutz.html`:** echte Datenschutzseite (Inhalt = V54-DS-Modal-Stand,
+  inkl. Analytics-Toggle, gleicher Key `pvw_analytics_consent`).
+- `src/index.html`: Title/Description/Canonical/OG/JSON-LD (WebSite) + statischer
+  Intro-Text mit h1 im Hinweise-Panel; 4 Modal-Links (`#`-Anker) → echte Routen;
+  DS-Modal bleibt im HTML (Regel 1), wird nicht mehr verlinkt; Toggle aus DS-Modal
+  auf datenschutz.html verlagert (Inject-Logik im Karten-Code bleibt, null-geguardet).
+- `src/impressum.html`: Description/Canonical/OG + Link auf datenschutz.html.
+- `build_all.sh`: kopiert die 3 neuen Dateien nach dist/. `bundle_singlefile.py`:
+  noindex/nofollow in die Singlefile (Doppelschutz zum robots-Disallow).
+- **Kein vercel.json** — unbekannte Pfade liefern ohnehin 404 (kein SPA-Fallback,
+  live verifiziert), SEO-Dateien werden direkt ausgeliefert.
+
+**Prüfkette (lokal, Playwright + curl auf dist/ via http.server):**
+- verify_app.js **17/17 grün beide Builds** (Multi-File + Singlefile, 0 JS-Errors,
+  Infobar 31.033 Wind · 22.563 PV, 11 Tabs, Historie-Charts, Heatmap, Marker).
+- SEO-Funktionscheck **9/9 grün** (Footer-Links navigieren zu impressum.html/
+  datenschutz.html, Toggle-Status AUS→AN funktional, Consent-Link ok, 0 JS-Errors).
+- robots 200 text/plain · sitemap 200 application/xml (3 loc, 0 Duplikate) ·
+  404er bleibt 404. Singlefile noindex im Build-Output bestätigt.
+- **Pitfall (dokumentiert):** beim Entfernen der Modal-Handler schloss der ersetzte
+  Block die umgebende Funktion — fehlendes `}` → SyntaxError → init tot. Gefunden
+  via node --check je Script-Block; gefixt, danach 17/17.
+
+**Revision:** `iterations/V59_SEO_Basics_robots_sitemap.html` + human-share-Kopie.
+**Offen:** Deploy + git push erst nach User-Freigabe (Regel 4 + Auftrag Punkt 76);
+Phase D (Produktions-Checks 78–86) nach Freigabe; Impressum: alle Pflichtfelder
+vorhanden (keine Lücken); C18-Analytics-Aktivierung unverändert offen.
 
 ## V58 — Datenstand 03.10.2026 (Deploy 03.10., erster automatisierter V57-Durchlauf)
 

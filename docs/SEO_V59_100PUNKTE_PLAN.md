@@ -190,3 +190,76 @@ nach Freigabe dieselben Checks gegen Produktion (Punkte 78–86).
 
 ---
 (Weiter: Phase C — Ausführung, wird nach Umsetzung mit Belegen ergänzt.)
+
+---
+
+## C. Ausführung (Punkte 46–75) — ERLEDIGT, lokal belegt
+
+**46.** Kein Feature-Branch: Projekt arbeitet auf `main` (Historie aller V-Revisions
+ebenso); Deploy ist ohnehin erst nach Freigabe — Risiko identisch, da nichts
+gepusht/deployt wird. Commit `07da90c` (lokal, nicht gepusht).
+**47–48.** `src/robots.txt` + `src/sitemap.xml` gesetzt (Inhalte s. Planung).
+**49.** Kein SPA-Fallback vorhanden (live 404 bewiesen) — Build-Output-Test:
+lokal via http.server auf dist/: robots 200 text/plain, sitemap 200 application/xml,
+unbekannter Pfad 404. Kein HTML-Schlucken möglich.
+**50–54.** lang="de" stand bereits; Title/Description/Canonical/OG/JSON-LD auf
+Startseite; eigene Titles + Metas auf impressum.html + datenschutz.html (Belege
+im Roh-HTML von dist/, s. D).
+**55.** Intro-Text steht als statisches HTML im Disclaimer-Panel (Zeilen ~1670 ff.).
+**56–57.** impressum.html erweitert (Metas, Link auf datenschutz.html); datenschutz.html
+neu gebaut aus dem belegten DS-Modal-Stand.
+**58.** Alle 4 `#`-Links umgebogen: Footer (`#impressum-link` → impressum.html,
+`#datenschutz-footer-link` → datenschutz.html), Impressum-Modal-Querverweis
+(`#datenschutz-link` → datenschutz.html), OSM-Consent (`#datenschutz-consent-link`
+→ datenschutz.html). JS-Handler (preventDefault + Modal-Öffnung) entfernt;
+Modals bleiben unangerufen im HTML (Regel 1).
+**59.** Zweite Domain: stillgelegt (DNS 000, live verifiziert) — keine Aktion,
+nur Bericht.
+**60.** Preview: nicht Teil dieses Workflows; Vercel sendet für Previews
+standardmäßig `X-Robots-Tag: noindex`. Kein manueller Preview-Deploy geplant.
+**61.** Lizenzzeile im Footer unverändert sichtbar; Intro-Text nennt Lizenz zusätzlich.
+**62.** Keine weiteren Features umgesetzt.
+**63.** Keine Secrets/Tokens in den Dateien (geprüft: robots/sitemap/Plan-Doku frei).
+**64.** Diff-Selbstprüfung: 4 geänderte Dateien, 61+/37−; einzige unbeabsichtigte
+Änderung gefunden + gefixt: fehlendes `}` nach Modal-Handler-Entfernung
+(SyntaxError) — node --check je Script-Block + Verify 17/17 nach Fix.
+**65.** Build läuft: `bash scripts/build_all.sh` grün (Singlefile 47,5 MB).
+**66.** Roh-HTML-Checks: Title/Description/Canonical/h1/Intro im dist/index.html
+bestätigt (grep-Belege).
+**67.** robots: 200 text/plain · sitemap: 200 application/xml (lokaler Server).
+**68.** Sitemap: urlset + 3 loc, absolute https, 0 Duplikate.
+**69.** Alle 3 loc-URLs lokal abgerufen: 200/200/200.
+**70.** Karte regressionstestet: verify_app.js 17/17 beide Builds (Marker, Infobar,
+11 Tabs, Historie-SVGs, Heatmap); Klickpfad Footer→Impressum→Karte im
+Funktionscheck 9/9.
+**71.** Bericht aktualisiert (dieses Dokument) + PROJEKTSTAND V59-Abschnitt.
+**72.** Commit `07da90c` lokal ("V59: SEO-Basics …"), **NICHT gepusht**.
+**73–74.** Kein Push → keine Preview. Kein Schritt Richtung Produktion ausgeführt.
+**75.** Übergabe an Betreiber: dieser Bericht + Diff (`git show 07da90c`) +
+klickbare Revision `iterations/V59_SEO_Basics_robots_sitemap.html` (human-share).
+**WARTET AUF FREIGABE.**
+
+## D. Prüfung nach Freigabe (76–92) — OFFEN, nach User-Freigabe
+(78–86 gegen Produktion: Status/Content-Type robots+sitemap, jede loc 200,
+Roh-HTML-Checks, Redirect-Kette, 404-Verhalten, Karten-Check, Preview-noindex,
+Diff-Vergleich. Wird nach Freigabe ausgeführt und hier dokumentiert.)
+
+## E. Abschluss (93–100) — OFFEN, nach Phase D
+
+## Fehlende Impressumsfelder (Punkt 15/97)
+**Keine Lücken:** Name, Anschrift (Jüthornstraße 50, 22043 Hamburg), E-Mail
+(fabibuss@web.de) vollständig und belegt. Vertretungsberechtigte/Register: entfallen
+bei Einzelperson. USt-IdNr.: nicht vorhanden — nicht zu erfinden (§ 5 DDG-Prüfung
+steht im Recherchebericht, Hinweis ohne Rechtsrat).
+
+## Zweite Domain (Punkt 9/96)
+`wind-pv-map.ingenieur-tools.de` ist seit 20.09.2026 stillgelegt (DNS 000/NXDOMAIN,
+09.10. verifiziert) — **kein Duplicate-Content-Risiko**. Das GitHub-Pages-Archiv
+(`pibrainpi.github.io/pv-wind-map/`) bleibt bewusst als Notfall-Rückfallebene
+bestehen (Projektentscheidung V52.2); Canonicals auf `https://wind-pv-map.de`
+verhindern eine Fehleinordnung. Kein Redirect nötig, keine Aktion.
+
+## Search Console (Punkt 91/95, Folgeauftrag)
+Nach Freigabe kann der Betreiber selbst einreichen:
+- Sitemap: `https://wind-pv-map.de/sitemap.xml` (Google Search Console + Bing Webmaster)
+- Robots: `https://wind-pv-map.de/robots.txt` (Prüf-URL beider Tools)
