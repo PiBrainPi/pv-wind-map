@@ -13,6 +13,9 @@
 > `docs/SEO_V59_VERIFIKATION_25PUNKTE.md`). **SEO-Onboarding Betreiber ✅:** Google
 > Search Console (Domain via TXT verifiziert, Sitemap eingereicht, Indexierung für
 > 3 URLs beantragt) + Bing Webmaster (Import + Sitemap) — 09.10. abgeschlossen.
+> **V59.1 lokal fertig, wartet auf Freigabe/Deploy:** alle 6 ingenieur-tools.de-Verweise
+> entfernt (Impressum/DS/DS-Modal → komplett eigenständig für wind-pv-map.de, 0 Verweise
+> verifiziert, 17/17 + 11/11 grün) — URLs/SEO unverändert.
 > Nächster Pipeline-Cron 10.10. 06:10 — V59-Dateien im build_all.sh enthalten
 > (cron_finalize baut+verifiziert automatisch, deployed nie selbst).
 
@@ -61,6 +64,34 @@ bis ~2 Wochen; erste Performance-Daten ab ~1–2 Wochen (Search Console „Leist
 - C18: Vercel Analytics im Dashboard aktivieren (Toggle ist live, wirkt erst nach
   Aktivierung + User-Klick)
 - Content-Fläche (Statistik-/Erklärseiten) als möglicher künftiger SEO-Auftrag
+
+## V59.1 — Rechtsseiten vollständig eigenständig (09.10.2026, wartet auf Freigabe/Deploy)
+
+**Auftrag:** Alle Verweise auf `ingenieur-tools.de` entfernen — wind-pv-map.de und
+ingenieur-tools.de sind eigenständige Projekte; historisch war die Karte eine
+Subdomain des Portals, das ist vorbei. Impressum + Datenschutz komplett lokal.
+
+**Geändert (6 Stellen in 3 Dateien):**
+- `src/impressum.html` — Hosting-Abschnitt: Portal-Verweis entfernt, nur noch Link
+  auf die lokale Datenschutzerklärung
+- `src/datenschutz.html` — Lead-Satz gekürzt (Stand → „V59.1 — Rechtsseiten
+  vollständig eigenständig"), Abschnitt 3 (Vercel): Portal-Satz entfernt
+- `src/index.html` — DS-Modal (toter Code, bleibt als Gerüst): Lead + Verantwort-
+  licher + Vercel-Absatz entkernt; Verweise auf lokale Seiten
+  (impressum.html / datenschutz.html); Impressum-Modal war bereits sauber
+
+**Rechtliche Betrachtung:** Impressum (§ 5 DDG) und Datenschutzerklärung (Art. 13
+DSGVO) sind pro Angebot zu erbringen — beide sind auf wind-pv-map.de vollständig
+lokal vorhanden (Betreiber, Anschrift, E-Mail, Hosting/DPF, Rechtsgrundlagen,
+Betroffenenrechte). Der Portal-Querverweis war freiwilliger Zusatz, keine Pflicht —
+sein Entfall macht die Seiten **nicht** less-rechtskonform, sondern klarer
+(zuständigkeitrein für dieses Angebot).
+
+**Prüfung:** grep 0× ingenieur-tools in src+dist · verify 17/17 beide Builds ·
+Playwright-Funktionscheck 11/11 (Daten laden 31033 W/22563 PV, alle Links lokal,
+Toggle ok, 0 JS-Errors) · A1/A2-Fail erwartet (Text-only-Rebuild, dokumentierter
+Override, B-Checks gelten) · Revision `iterations/V59.1_Rechtsseiten_eigenstaendig.html`
++ human-share-Kopie.
 
 ## V58 — Datenstand 03.10.2026 (Deploy 03.10., erster automatisierter V57-Durchlauf)
 
