@@ -22,7 +22,12 @@
 > (summary_large_image). build_all.sh kopiert og-image.jpg nach dist/.
 > Live: og:image 200 image/jpeg · alle 3 Seiten mit og:image · Sitemap/robots unverändert.
 > Verifikation 25/25 (docs/SEO_V60_OG_IMAGE_25PUNKTE_PLAN.md).
-> Nächster Pipeline-Cron 10.10. 06:10 — V59/V60-Dateien im build_all.sh enthalten
+> **V60-Datenstand LIVE (Deploy 10.10., Snapshot #20):** 66.638 Anlagen
+> (31.053 Wind / 22.593 PV, Karte alle Status) · In Betrieb 53.648 · Delta #19→#20:
+> Wind +20/+160,5 MW · PV +30/+189,4 MW · verify_update A1–A4 + 17/17+17/17 ✅ ·
+> Playwright-Live-Check ALL GREEN (31053 W/22593 PV, 0 JS-Errors, og:image 1 je
+> Rechtsseite, 0 × ingenieur-tools). Commits 480e25e+70fa66b gepusht.
+> Nächster Pipeline-Cron 17.10. 06:10 — V59/V60-Dateien im build_all.sh enthalten
 > (cron_finalize baut+verifiziert automatisch, deployed nie selbst).
 
 ## V60 — og:image Social-Preview (09.10.2026, LIVE nach User-Freigabe)
@@ -43,6 +48,28 @@
 og:image-Metas live auf allen 3 Seiten · twitter:image live · Sitemap (3 URLs, kein
 og-image) + robots (og-image nicht disallowed) unverändert · verify 17/17 + 17/17 ·
 0 JS-Errors · Social-Preview-Test (WhatsApp/Facebook-Debugger/Twitter-Validator) beim Betreiber.
+
+## V60-Datenstand — Snapshot #20 (10.10.2026, LIVE nach User-Freigabe)
+
+**Auslöser:** Pipeline-Cron 10.10. 06:10 (erster ECHTLAUF mit V59/V60-SEO-Dateien im
+Build). cron_finalize: Build + Verify + Revision automatisch, Deploy nie selbst.
+User-Freigabe erteilt (10.10.) → Push + Deploy.
+
+**Daten (Snapshot #20, 10.10.):**
+- Karte: **66.638 Anlagen** (Wind 31.053 / PV 22.593, bs35-Kern; Karte alle Status) ·
+  In Betrieb: 53.648
+- Delta #19→#20 (bs35-Kern): Wind **+20 Anlagen/+160,5 MW** · PV **+30 Anlagen/+189,4 MW**
+- `einheiten.json` 33,5 MB (Budget < 40 MB ✅) · Historie: 8 Snapshots
+
+**Prüfkette:** verify_update A1–A4 alle ✅ (DB frisch, meta.stand 2026-10-10, Counts
+plausibel, 66638 Einheiten) · verify 17/17 + 17/17 · Revision
+`iterations/V60_Datenstand_2026-10-10.html` + human-share (frisch nach Build kopiert,
+565.153 B) · Deploy Vercel · **Live-Verifikation:** meta.json live 2026-10-10T06:12:32 /
+66638 · alle Kern-URLs 200 · og:image 7 Tags live · 0 × ingenieur-tools ·
+Playwright ALL GREEN (Infobar 31053 W/22593 PV, 0 JS-Errors).
+
+**Commits:** `480e25e` (V60 og:image) + `70fa66b` (Hash-Fix) gepusht vor Deploy;
+as-built-Doku-Commit folgt mit diesem Eintrag.
 
 ## V59 — SEO-Basics (09.10.2026, LIVE nach User-Freigabe)
 
